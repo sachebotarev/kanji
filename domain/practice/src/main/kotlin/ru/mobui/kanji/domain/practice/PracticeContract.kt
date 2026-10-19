@@ -76,7 +76,6 @@ sealed interface CheckFailure {
 }
 /** Correction applied for comparison only, relative to the original input geometry. */
 data class CheckCompensation(
-    val correctedStrokeEnds: Int = 0, val endpointTrimPercent: Float = 0f,
     val translation: TranslationCompensation = TranslationCompensation(),
     val size: SizeCompensation = SizeCompensation(),
     val stretch: StretchCompensation = StretchCompensation(),
@@ -98,7 +97,7 @@ data class CheckCompensation(
         if (budget.hasError) add(CheckFailure.Budget(budget))
     }
     val isApplied: Boolean get() = shear.isApplied || translation.isApplied || size.isApplied || stretch.isApplied || jitter.isApplied ||
-        rotation.isApplied || correctedStrokeEnds > 0
+        rotation.isApplied
 }
 data class CheckReport(
     val verdict: CheckVerdict,

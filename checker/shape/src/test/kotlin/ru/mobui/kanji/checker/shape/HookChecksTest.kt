@@ -50,12 +50,8 @@ class HookChecksTest {
         assertEquals(listOf(1), result.ambiguousReferenceHooks)
     }
 
-    @Test fun cleanupPreservesProtectedStrokeEvenWhenHookWouldFitRemovalBudget() {
+    @Test fun jitterPreservesProtectedHook() {
         val tiny = listOf(ShapePoint(.5f, .1f), ShapePoint(.5f, .85f), ShapePoint(.485f, .85f))
-        assertTrue(StrokeEndpointCompensator().compensateGeometry(listOf(tiny), .05f).correctedEnds > 0)
-        val protected = StrokeEndpointCompensator().compensateGeometry(listOf(tiny), .05f, setOf(0))
-        assertEquals(tiny, protected.strokes.single())
-        assertEquals(0, protected.correctedEnds)
         assertEquals(tiny, JitterCompensator(5f).compensate(listOf(tiny), setOf(0)).strokes.single())
     }
 

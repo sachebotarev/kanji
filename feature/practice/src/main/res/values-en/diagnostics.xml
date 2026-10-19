@@ -28,14 +28,12 @@
     <string name="metric_maxverticalstretchpercent" formatted="false">Y stretch limit, %</string>
     <string name="metric_maxsheardegrees" formatted="false">Shear limit, °</string>
     <string name="metric_maxrotationdegrees" formatted="false">Rotation limit, °</string>
-    <string name="metric_endpointartifacttolerance" formatted="false">Tail tolerance, size fraction</string>
     <string name="metric_dictionary_violations" formatted="false">Dictionary violations</string>
     <string name="metric_strokeorder_mismatches" formatted="false">Stroke order mismatches</string>
     <string name="metric_hooks_required" formatted="false">Required hooks</string>
     <string name="metric_hooks_missing" formatted="false">Strokes with missing hooks</string>
     <string name="metric_strokedirection_reversed" formatted="false">Reversed strokes</string>
     <string name="metric_coverage_baseline_percent" formatted="false">Baseline match, %</string>
-    <string name="metric_coverage_beforeendpointcleanup_percent" formatted="false">Match before tail trimming, %</string>
     <string name="metric_coverage_final_percent" formatted="false">Final match, %</string>
     <string name="metric_coverage_input_percent" formatted="false">Input coverage, %</string>
     <string name="metric_coverage_reference_percent" formatted="false">Reference coverage, %</string>
@@ -47,7 +45,6 @@
     <string name="metric_budget_stretch_percent" formatted="false">Stretch budget, %</string>
     <string name="metric_budget_rotation_percent" formatted="false">Rotation budget, %</string>
     <string name="metric_budget_jitter_percent" formatted="false">Jitter budget, %</string>
-    <string name="metric_budget_endpoints_percent" formatted="false">Tail budget, %</string>
     <string name="metric_budget_haserror" formatted="false">Budget exceeded</string>
     <string name="metric_shear_degrees" formatted="false">Shear correction, °</string>
     <string name="metric_shear_factor" formatted="false">Shear factor</string>

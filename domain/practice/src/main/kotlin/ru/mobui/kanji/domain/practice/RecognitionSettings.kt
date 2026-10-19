@@ -11,8 +11,6 @@ data class RecognitionSettings(
     val maxHorizontalStretchPercent: Float = 15f,
     val maxVerticalStretchPercent: Float = 15f,
     val maxRotationDegrees: Float = 8f,
-    /** Max endpoint tail length relative to the glyph's longest side; zero disables cleanup. */
-    val endpointArtifactTolerance: Float = 0.025f,
     /** Max shift on either axis, in percent of the field. 100 preserves unrestricted translation. */
     val maxTranslationPercent: Float = 100f,
     /** Absolute uniform size correction, in percent of the drawn size. Null means unrestricted. */
@@ -29,7 +27,7 @@ data class RecognitionSettings(
     val lengthDifferenceTolerancePercent: Float = 5f,
     val checkStrokeOrder: Boolean = false,
     val checkStrokeDirection: Boolean = false,
-    val enabledCompensations: Set<CompensationStage> = CompensationStage.entries.toSet() - CompensationStage.Endpoints,
+    val enabledCompensations: Set<CompensationStage> = CompensationStage.entries.toSet(),
 ) {
     companion object {
         /** Shared starting profile for finger input; values remain adjustable in settings. */
@@ -55,9 +53,8 @@ data class RecognitionSettings(
         require(maxHorizontalStretchPercent.isFinite() && maxHorizontalStretchPercent >= 0f)
         require(maxVerticalStretchPercent.isFinite() && maxVerticalStretchPercent >= 0f)
         require(maxRotationDegrees.isFinite() && maxRotationDegrees in 0f..20f)
-        require(endpointArtifactTolerance.isFinite() && endpointArtifactTolerance in 0f..0.05f)
     }
 }
 
 
-enum class CompensationStage { Translation, Shear, Size, Stretch, Rotation, Jitter, Endpoints }
+enum class CompensationStage { Translation, Shear, Size, Stretch, Rotation, Jitter }

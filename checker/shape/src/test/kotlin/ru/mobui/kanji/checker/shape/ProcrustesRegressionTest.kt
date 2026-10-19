@@ -87,7 +87,7 @@ class ProcrustesRegressionTest {
         val input = transformed(reference)
         val fitted = ProcrustesCompensator().compensate(input, reference, listOf(0, 1))
         val candidates = compensationPipeline(settings).prepare(input, reference, emptySet(), listOf(0, 1))
-        val candidate = candidates.original.first { abs(it.compensation.rotationDegrees + 5f) < .01f &&
+        val candidate = candidates.candidates.first { abs(it.compensation.rotationDegrees + 5f) < .01f &&
             abs(it.compensation.size.scaleFactor - 1f / .9f) < .001f }
         val pivot = ShapePoint(fitted.centroid.x + fitted.translationX, fitted.centroid.y + fitted.translationY)
         val resized = input.map { s -> s.map {
@@ -98,20 +98,30 @@ class ProcrustesRegressionTest {
             candidate.compensation.budget.rotationPercent, .0001f)
     }
 
-    @Test fun smoothingAndTailSettingsReachFactoryAndProtectRequiredStrokes() {
+    @Test fun smoothingSettingsReachFactoryAndProtectRequiredStrokes() {
         val noisy = listOf(listOf(ShapePoint(.2f, .5f), ShapePoint(.5f, .51f), ShapePoint(.8f, .5f)))
         fun candidates(tolerance: Float, protected: Set<Int> = emptySet()) = compensationPipeline(settings.copy(
             jitterTolerancePercent = tolerance, enabledCompensations = setOf(CompensationStage.Jitter)))
-            .prepare(noisy, noisy, protected, listOf(0)).original
+            .prepare(noisy, noisy, protected, listOf(0)).candidates
         assertTrue(candidates(0f).all { it.strokes == noisy })
         assertTrue(candidates(2f).any { it.strokes.single().size == 2 })
         assertTrue(candidates(2f, setOf(0)).all { it.strokes == noisy })
-        val tailed = listOf(listOf(ShapePoint(.2f, .49f), ShapePoint(.2f, .5f), ShapePoint(.8f, .5f)))
-        fun cleaned(tolerance: Float) = compensationPipeline(settings.copy(endpointArtifactTolerance = tolerance,
-            enabledCompensations = setOf(CompensationStage.Endpoints)))
-            .prepare(tailed, tailed, emptySet(), listOf(0)).cleaned
-        assertTrue(cleaned(0f).isEmpty())
-        assertTrue(cleaned(.025f).isNotEmpty())
+
+    }
+
+    @Test fun bothPipelinesKeepStrokeEndsWhenSmoothing() {
+        val ink = listOf(listOf(ShapePoint(.2f, .49f), ShapePoint(.2f, .5f),
+            ShapePoint(.8f, .5f), ShapePoint(.8f, .51f)))
+        for (type in CompensationPipelineType.entries) {
+            val config = settings.copy(pipelineType = type, jitterTolerancePercent = 5f,
+                enabledCompensations = setOf(CompensationStage.Jitter))
+            val prepared = compensationPipeline(config).prepare(ink, ink, emptySet(), listOf(0))
+            assertTrue(prepared.candidates.isNotEmpty())
+            for (candidate in prepared.candidates) {
+                assertEquals(ink.single().first(), candidate.strokes.single().first())
+                assertEquals(ink.single().last(), candidate.strokes.single().last())
+            }
+        }
     }
 
     @Test fun publicMatcherAndCheckerUseTheSamePipelineAndLimits() = runBlocking {

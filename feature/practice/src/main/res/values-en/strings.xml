@@ -31,7 +31,6 @@
     <string name="debug_rotation">Rotation compensation: %1$+.1f°</string>
     <string name="debug_scale_x">X scale correction: %1$+.1f%%</string>
     <string name="debug_scale_y">Y scale correction: %1$+.1f%%</string>
-    <string name="debug_endpoint_cleanup">Corrected ends: %1$d; removed %2$.1f%% of total stroke length.</string>
     <string name="incomplete_short">Not finished yet</string>
     <string name="next_kanji">Next character</string>
     <string name="hint_idle">Reference is off. Tap to show the tracing guide</string>
@@ -80,8 +79,6 @@
     <string name="setting_rotation_limit">Maximum rotation</string>
     <string name="setting_jitter">Jitter compensation</string>
     <string name="setting_jitter_limit">Simplified line deviation</string>
-    <string name="setting_endpoints">Stroke tail compensation</string>
-    <string name="setting_endpoints_limit">Short tail length</string>
     <string name="setting_percent_value">%1$.1f%%</string>
     <string name="setting_degrees_value">%1$.1f°</string>
     <string name="debug_structure_error">Stroke connections and protrusions: %1$s</string>

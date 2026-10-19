@@ -56,14 +56,8 @@ class ShapeMatcher internal constructor(
         // Geometry already good enough needs no correction, even if an independent stroke check fails.
         if (!countMatches || unmodified.matchPercent >= config.requiredMatchPercent) return unmodified
         val prepared = compensations.prepare(raw, referenceStrokes, protectedStrokes, assignment)
-        val original = checkCandidates(prepared.original, target, countMatches, prepared.compensation, assignment)
-        var evaluated = unmodified.evaluatedCandidates + original.evaluatedCandidates
-        val candidate = if (prepared.cleaned.isEmpty()) original else {
-            val cleaned = checkCandidates(prepared.cleaned, target, countMatches, prepared.compensation, assignment)
-                .copy(preCleanupMatchPercent = original.matchPercent)
-            evaluated += cleaned.evaluatedCandidates
-            if (isPreferred(cleaned, original)) cleaned else original
-        }
+        val candidate = checkCandidates(prepared.candidates, target, countMatches, prepared.compensation, assignment)
+        val evaluated = unmodified.evaluatedCandidates + candidate.evaluatedCandidates
         val chosen = if (isPreferred(candidate, unmodified)) candidate else unmodified
         return chosen.copy(
             baselineMatchPercent = unmodified.matchPercent,
@@ -98,7 +92,6 @@ class ShapeMatcher internal constructor(
             val global = bestStrokes?.let { geometry.compare(it, target) }
             return best.copy(
                 baselineMatchPercent = baseline ?: 0f,
-                preCleanupMatchPercent = best.matchPercent,
                 evaluatedCandidates = evaluated,
                 globalInputCoveragePercent = global?.inputPercent ?: 0f,
                 globalReferenceCoveragePercent = global?.referencePercent ?: 0f,

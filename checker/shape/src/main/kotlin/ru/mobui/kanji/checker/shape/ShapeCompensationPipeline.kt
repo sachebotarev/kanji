@@ -11,8 +11,7 @@ internal data class CompensatedShape(
 )
 
 internal data class PreparedShapeCandidates(
-    val original: List<CompensatedShape>,
-    val cleaned: List<CompensatedShape>,
+    val candidates: List<CompensatedShape>,
     val compensation: CheckCompensation,
 )
 
@@ -31,8 +30,6 @@ internal class ShapeCompensationPipeline(
     private val size: SizeCompensator,
     private val rotation: RotationCompensator,
     private val stretch: StretchCompensator,
-    private val endpoints: StrokeEndpointCompensator,
-    private val endpointTolerance: Float,
     private val jitter: JitterCompensator,
     private val budgetLimitPercent: Float?,
     private val shear: ShearCompensator,
@@ -73,7 +70,6 @@ internal class ShapeCompensationPipeline(
             CompensatedShape(sheared.strokes, throughShear),
             CompensatedShape(resized.strokes, throughSize),
         )
-        val cleaned = mutableListOf<CompensatedShape>()
         val rotations = if (CompensationStage.Rotation in enabled) rotation.candidates(stretched.strokes)
             else listOf(RotatedShape(stretched.strokes, RotationCompensation()))
         for (rotated in rotations) {
@@ -86,12 +82,8 @@ internal class ShapeCompensationPipeline(
                 ),
             )
             original.add(CompensatedShape(smoothed.strokes, result))
-            val trimmed = endpoints.compensateGeometry(smoothed.strokes, if (CompensationStage.Endpoints in enabled) endpointTolerance else 0f, protectedStrokes)
-            if (trimmed.correctedEnds > 0) cleaned.add(CompensatedShape(trimmed.strokes, result.copy(
-                correctedStrokeEnds = trimmed.correctedEnds, endpointTrimPercent = trimmed.removedLengthPercent,
-                budget = result.budget.copy(endpointPercent = cost.removal(smoothed.strokes, trimmed.strokes)),
-            )))
+
         }
-        return PreparedShapeCandidates(original, cleaned, compensation)
+        return PreparedShapeCandidates(original, compensation)
     }
 }

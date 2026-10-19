@@ -28,14 +28,12 @@
     <string name="metric_maxverticalstretchpercent" formatted="false">Предел растяжения Y, %</string>
     <string name="metric_maxsheardegrees" formatted="false">Предел перекоса, °</string>
     <string name="metric_maxrotationdegrees" formatted="false">Предел поворота, °</string>
-    <string name="metric_endpointartifacttolerance" formatted="false">Допуск хвостов, доля размера</string>
     <string name="metric_dictionary_violations" formatted="false">Нарушений словарных правил</string>
     <string name="metric_strokeorder_mismatches" formatted="false">Нарушений порядка черт</string>
     <string name="metric_hooks_required" formatted="false">Обязательных крючков</string>
     <string name="metric_hooks_missing" formatted="false">Черты с пропущенным крючком</string>
     <string name="metric_strokedirection_reversed" formatted="false">Черты с обратным направлением</string>
     <string name="metric_coverage_baseline_percent" formatted="false">Исходное совпадение, %</string>
-    <string name="metric_coverage_beforeendpointcleanup_percent" formatted="false">Совпадение до обрезки хвостов, %</string>
     <string name="metric_coverage_final_percent" formatted="false">Итоговое совпадение, %</string>
     <string name="metric_coverage_input_percent" formatted="false">Покрытие ввода, %</string>
     <string name="metric_coverage_reference_percent" formatted="false">Покрытие эталона, %</string>
@@ -47,7 +45,6 @@
     <string name="metric_budget_stretch_percent" formatted="false">Бюджет растяжения, %</string>
     <string name="metric_budget_rotation_percent" formatted="false">Бюджет поворота, %</string>
     <string name="metric_budget_jitter_percent" formatted="false">Бюджет дрожания, %</string>
-    <string name="metric_budget_endpoints_percent" formatted="false">Бюджет хвостов, %</string>
     <string name="metric_budget_haserror" formatted="false">Бюджет превышен</string>
     <string name="metric_shear_degrees" formatted="false">Поправка перекоса, °</string>
     <string name="metric_shear_factor" formatted="false">Коэффициент перекоса</string>

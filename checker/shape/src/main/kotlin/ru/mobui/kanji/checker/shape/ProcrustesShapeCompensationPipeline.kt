@@ -5,8 +5,6 @@ import ru.mobui.kanji.domain.practice.*
 /** Joint similarity candidates, optional shear/stretch, then protected stroke cleanup. */
 internal class ProcrustesShapeCompensationPipeline(
     private val procrustes: ProcrustesCompensator = ProcrustesCompensator(),
-    private val endpoints: StrokeEndpointCompensator = StrokeEndpointCompensator(),
-    private val endpointTolerance: Float = 0.025f,
     private val jitter: JitterCompensator = JitterCompensator(0f),
     private val budgetLimitPercent: Float? = null,
     private val maxTranslationPercent: Float = 20f,
@@ -24,7 +22,6 @@ internal class ProcrustesShapeCompensationPipeline(
     ): PreparedShapeCandidates {
         val cost = CompensationCost(reference)
         val original = mutableListOf<CompensatedShape>()
-        val cleaned = mutableListOf<CompensatedShape>()
         val identity = CheckCompensation(budget = CompensationBudget(limitPercent = budgetLimitPercent))
 
         fun add(candidate: CompensatedShape) {
@@ -36,11 +33,7 @@ internal class ProcrustesShapeCompensationPipeline(
                 budget = candidate.compensation.budget.copy(
                     jitterPercent = cost.removal(candidate.strokes, smoothed.strokes)))
             if (smoothed.result.isApplied) original.add(CompensatedShape(smoothed.strokes, result))
-            val trimmed = endpoints.compensateGeometry(smoothed.strokes,
-                if (CompensationStage.Endpoints in enabled) endpointTolerance else 0f, protectedStrokes)
-            if (trimmed.correctedEnds > 0) cleaned.add(CompensatedShape(trimmed.strokes, result.copy(
-                correctedStrokeEnds = trimmed.correctedEnds, endpointTrimPercent = trimmed.removedLengthPercent,
-                budget = result.budget.copy(endpointPercent = cost.removal(smoothed.strokes, trimmed.strokes)))))
+
         }
 
         // Every subset is fitted independently: omitting a component is an actual constraint.
@@ -85,6 +78,6 @@ internal class ProcrustesShapeCompensationPipeline(
                 }
             }
         }
-        return PreparedShapeCandidates(original, cleaned, identity)
+        return PreparedShapeCandidates(original, identity)
     }
 }

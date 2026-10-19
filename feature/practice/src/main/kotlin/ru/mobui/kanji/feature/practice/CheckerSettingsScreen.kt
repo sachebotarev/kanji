@@ -93,9 +93,7 @@ fun CheckerSettingsScreen(
                 StageSection(CompensationStage.Jitter, R.string.setting_jitter, settings, onChange) {
                     ParameterSlider(R.string.setting_jitter_limit, settings.jitterTolerancePercent, 0f..5f, "jitter") { onChange(settings.copy(jitterTolerancePercent = it)) }
                 }
-                StageSection(CompensationStage.Endpoints, R.string.setting_endpoints, settings, onChange) {
-                    ParameterSlider(R.string.setting_endpoints_limit, settings.endpointArtifactTolerance * 100, 0f..5f, "endpoints") { onChange(settings.copy(endpointArtifactTolerance = it / 100)) }
-                }
+
             }
         }
     }

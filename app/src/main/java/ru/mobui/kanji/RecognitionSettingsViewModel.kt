@@ -18,19 +18,24 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
             value.requiredMatchPercent, value.distanceTolerance, value.maxTranslationPercent,
             value.maxSizeCompensationPercent ?: Float.NaN, value.maxHorizontalStretchPercent,
             value.maxVerticalStretchPercent, value.maxRotationDegrees, value.maxShearDegrees ?: Float.NaN,
-            value.jitterTolerancePercent, value.endpointArtifactTolerance, value.maxCompensationBudgetPercent ?: Float.NaN,
+            value.jitterTolerancePercent, value.maxCompensationBudgetPercent ?: Float.NaN,
             value.connectionTolerancePercent, value.protrusionTolerancePercent,
             if (value.checkStrokeStructure) 1f else 0f, if (value.checkStrokeOrder) 1f else 0f, if (value.checkStrokeDirection) 1f else 0f, value.lengthDifferenceTolerancePercent,
         )
         savedState["recognition.pipeline"] = value.pipelineType.name
-        savedState["recognition.stages"] = value.enabledCompensations.map { it.ordinal }.toIntArray()
+        savedState["recognition.stageNames"] = value.enabledCompensations.map { it.name }.toTypedArray()
     }
 
     fun reset() = update(defaults)
 
     private fun restore(): RecognitionSettings {
-        val values = savedState.get<FloatArray>("recognition.parameters") ?: return defaults
-        if (values.size != 17) return defaults
+        val stored = savedState.get<FloatArray>("recognition.parameters") ?: return defaults
+        // The previous 17-value layout had a removed parameter in slot 9.
+        val values = when (stored.size) {
+            16 -> stored
+            17 -> stored.filterIndexed { index, _ -> index != 9 }.toFloatArray()
+            else -> return defaults
+        }
         return runCatching {
             defaults.copy(
                 pipelineType = savedState.get<String>("recognition.pipeline")?.let { name ->
@@ -40,12 +45,15 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
                 maxSizeCompensationPercent = values[3].takeUnless { it.isNaN() },
                 maxHorizontalStretchPercent = values[4], maxVerticalStretchPercent = values[5],
                 maxRotationDegrees = values[6], maxShearDegrees = values[7].takeUnless { it.isNaN() },
-                jitterTolerancePercent = values[8], endpointArtifactTolerance = values[9],
-                maxCompensationBudgetPercent = values[10].takeUnless { it.isNaN() },
-                connectionTolerancePercent = values[11], protrusionTolerancePercent = values[12],
-                checkStrokeStructure = values[13] == 1f, checkStrokeOrder = values[14] == 1f, checkStrokeDirection = values[15] == 1f, lengthDifferenceTolerancePercent = values[16],
-                enabledCompensations = savedState.get<IntArray>("recognition.stages")?.map { CompensationStage.entries[it] }?.toSet()
-                    ?: defaults.enabledCompensations,
+                jitterTolerancePercent = values[8],
+                maxCompensationBudgetPercent = values[9].takeUnless { it.isNaN() },
+                connectionTolerancePercent = values[10], protrusionTolerancePercent = values[11],
+                checkStrokeStructure = values[12] == 1f, checkStrokeOrder = values[13] == 1f, checkStrokeDirection = values[14] == 1f, lengthDifferenceTolerancePercent = values[15],
+                enabledCompensations = savedState.get<Array<String>>("recognition.stageNames")?.mapNotNull { name ->
+                    CompensationStage.entries.firstOrNull { it.name == name }
+                }?.toSet() ?: savedState.get<IntArray>("recognition.stages")?.asIterable()?.mapNotNull {
+                    CompensationStage.entries.getOrNull(it)
+                }?.toSet() ?: defaults.enabledCompensations,
             )
         }.getOrDefault(defaults)
     }

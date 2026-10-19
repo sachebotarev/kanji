@@ -11,7 +11,6 @@ data class ShapeMatch(
     val strokeCountMatches: Boolean,
     val compensation: CheckCompensation = CheckCompensation(),
     val baselineMatchPercent: Float = 0f,
-    val preCleanupMatchPercent: Float = 0f,
     val evaluatedCandidates: Int = 0,
     val strokeChecks: ru.mobui.kanji.domain.practice.StrokeCheckResult = ru.mobui.kanji.domain.practice.StrokeCheckResult(),
     val globalInputCoveragePercent: Float = inputCoveragePercent,

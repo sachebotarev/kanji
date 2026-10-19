@@ -31,7 +31,6 @@
     <string name="debug_rotation">Компенсация поворота: %1$+.1f°</string>
     <string name="debug_scale_x">Коррекция масштаба X: %1$+.1f%%</string>
     <string name="debug_scale_y">Коррекция масштаба Y: %1$+.1f%%</string>
-    <string name="debug_endpoint_cleanup">Скорректировано концов: %1$d; исключено %2$.1f%% длины штрихов.</string>
     <string name="incomplete_short">Ещё не закончен</string>
     <string name="next_kanji">Следующий знак</string>
     <string name="hint_idle">Образец выключен. Нажмите, чтобы включить фон для обводки</string>
@@ -80,8 +79,6 @@
     <string name="setting_rotation_limit">Предельный поворот</string>
     <string name="setting_jitter">Компенсация дрожания</string>
     <string name="setting_jitter_limit">Отклонение упрощённой линии</string>
-    <string name="setting_endpoints">Компенсация хвостов</string>
-    <string name="setting_endpoints_limit">Длина короткого хвоста</string>
     <string name="setting_percent_value">%1$.1f%%</string>
     <string name="setting_degrees_value">%1$.1f°</string>
     <string name="debug_structure_error">Соединения и выступы черт: %1$s</string>

@@ -471,8 +471,6 @@ private fun DebugDialog(state: PracticeUiState, onClose: () -> Unit) {
                 add(stringResource(R.string.debug_size, correction.size.changePercent, correction.size.scaleFactor))
             if (correction.translation.isApplied || correction.translation.hasError)
                 add(stringResource(R.string.debug_translation, correction.translation.shiftXPercent, correction.translation.shiftYPercent, correction.translation.limitPercent))
-            if (correction.correctedStrokeEnds > 0)
-                add(stringResource(R.string.debug_endpoint_cleanup, correction.correctedStrokeEnds, correction.endpointTrimPercent))
             if (kotlin.math.abs(correction.rotationDegrees) > .0001f)
                 add(stringResource(R.string.debug_rotation, correction.rotationDegrees) + " [${debugToken(correction.rotationPivot.name)}]")
             if (kotlin.math.abs(correction.scaleX - 1f) > .0001f)

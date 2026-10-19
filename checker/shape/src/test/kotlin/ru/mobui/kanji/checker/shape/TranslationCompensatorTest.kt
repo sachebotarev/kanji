@@ -66,7 +66,7 @@ class TranslationCompensatorTest {
         assertEquals(CheckVerdict.Correct, checker.check(request.copy(sample = sample(shifted(.1f, -.1f)))))
     }
 
-    @Test fun measuresOriginalShiftBeforeEndpointCleanup() {
+    @Test fun measuresOriginalBoundingBoxShift() {
         val input = listOf(listOf(ShapePoint(.3f, .2f), ShapePoint(.3f, .5f), ShapePoint(.8f, .5f), ShapePoint(.8f, .51f)))
         val target = ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .4f), ReferencePoint(.7f, .4f))))
         val config = ShapeCheckConfig(pipelineType = CompensationPipelineType.Cascade, maxTranslationPercent = 15f)

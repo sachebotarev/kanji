@@ -62,7 +62,6 @@ class ShapeKanjiChecker(
                 put("maxVerticalStretchPercent", config.maxVerticalStretchPercent.toString())
                 put("maxShearDegrees", config.maxShearDegrees?.toString() ?: "disabled")
                 put("maxRotationDegrees", config.maxRotationDegrees.toString())
-                put("endpointArtifactTolerance", config.endpointArtifactTolerance.toString())
                 if (score != null) {
                     put("dictionary.violations", score.strokeChecks.ruleViolations.size.toString())
                     put("strokeOrder.mismatches", score.strokeChecks.orderMismatches.size.toString())
@@ -71,7 +70,6 @@ class ShapeKanjiChecker(
                     put("hooks.missing", score.strokeChecks.missingHooks.joinToString())
                     put("strokeDirection.reversed", score.strokeChecks.reversedStrokes.joinToString())
                     put("coverage.baseline.percent", score.baselineMatchPercent.toString())
-                    put("coverage.beforeEndpointCleanup.percent", score.preCleanupMatchPercent.toString())
                     put("coverage.global.percent", score.globalMatchPercent.toString())
                     put("coverage.strokes.percent", score.strokeMatchPercent.toString())
                     put("coverage.gain.percent", (score.matchPercent - score.baselineMatchPercent).toString())
@@ -87,7 +85,6 @@ class ShapeKanjiChecker(
                     put("budget.stretch.percent", budget.stretchPercent.toString())
                     put("budget.rotation.percent", budget.rotationPercent.toString())
                     put("budget.jitter.percent", budget.jitterPercent.toString())
-                    put("budget.endpoints.percent", budget.endpointPercent.toString())
                     put("budget.hasError", budget.hasError.toString())
                     put("shear.degrees", score.compensation.shear.degrees.toString())
                     put("shear.factor", score.compensation.shear.factor.toString())

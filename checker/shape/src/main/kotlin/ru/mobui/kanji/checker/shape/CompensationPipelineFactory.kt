@@ -9,15 +9,12 @@ internal fun compensationPipeline(cfg: ShapeCheckConfig): CompensationPipeline =
             SizeCompensator(cfg.maxSizeCompensationPercent),
             RotationCompensator(cfg.maxRotationDegrees),
             StretchCompensator(cfg.maxHorizontalStretchPercent, cfg.maxVerticalStretchPercent),
-            StrokeEndpointCompensator(),
-            cfg.endpointArtifactTolerance,
             JitterCompensator(cfg.jitterTolerancePercent),
             cfg.maxCompensationBudgetPercent,
             ShearCompensator(cfg.maxShearDegrees),
             cfg.enabledCompensations,
         )
         CompensationPipelineType.Procrustes -> ProcrustesShapeCompensationPipeline(
-            endpointTolerance = cfg.endpointArtifactTolerance,
             jitter = JitterCompensator(cfg.jitterTolerancePercent),
             shear = ShearCompensator(cfg.maxShearDegrees),
             stretch = StretchCompensator(cfg.maxHorizontalStretchPercent, cfg.maxVerticalStretchPercent, preserveCenter = true),

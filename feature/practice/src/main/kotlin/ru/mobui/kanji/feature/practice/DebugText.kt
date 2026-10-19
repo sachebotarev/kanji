@@ -42,14 +42,12 @@ private val metricLabels = mapOf(
     "maxVerticalStretchPercent" to R.string.metric_maxverticalstretchpercent,
     "maxShearDegrees" to R.string.metric_maxsheardegrees,
     "maxRotationDegrees" to R.string.metric_maxrotationdegrees,
-    "endpointArtifactTolerance" to R.string.metric_endpointartifacttolerance,
     "dictionary.violations" to R.string.metric_dictionary_violations,
     "strokeOrder.mismatches" to R.string.metric_strokeorder_mismatches,
     "hooks.required" to R.string.metric_hooks_required,
     "hooks.missing" to R.string.metric_hooks_missing,
     "strokeDirection.reversed" to R.string.metric_strokedirection_reversed,
     "coverage.baseline.percent" to R.string.metric_coverage_baseline_percent,
-    "coverage.beforeEndpointCleanup.percent" to R.string.metric_coverage_beforeendpointcleanup_percent,
     "coverage.final.percent" to R.string.metric_coverage_final_percent,
     "coverage.input.percent" to R.string.metric_coverage_input_percent,
     "coverage.reference.percent" to R.string.metric_coverage_reference_percent,
@@ -61,7 +59,6 @@ private val metricLabels = mapOf(
     "budget.stretch.percent" to R.string.metric_budget_stretch_percent,
     "budget.rotation.percent" to R.string.metric_budget_rotation_percent,
     "budget.jitter.percent" to R.string.metric_budget_jitter_percent,
-    "budget.endpoints.percent" to R.string.metric_budget_endpoints_percent,
     "budget.hasError" to R.string.metric_budget_haserror,
     "shear.degrees" to R.string.metric_shear_degrees,
     "shear.factor" to R.string.metric_shear_factor,
@@ -124,7 +121,6 @@ internal fun debugToken(value: String): String = when (value) {
     "Stretch" -> stringResource(R.string.setting_stretch)
     "Rotation" -> stringResource(R.string.setting_rotation)
     "Jitter" -> stringResource(R.string.setting_jitter)
-    "Endpoints" -> stringResource(R.string.setting_endpoints)
     else -> value
 }
 

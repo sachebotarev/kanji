@@ -200,7 +200,7 @@ class PracticeScreenTest {
         val checker = object : KanjiChecker {
             override suspend fun check(request: CheckRequest) = CheckVerdict.Correct
             override suspend fun checkWithDetails(request: CheckRequest) = CheckReport(
-                CheckVerdict.Correct, compensation = CheckCompensation(rotation = ru.mobui.kanji.domain.practice.RotationCompensation(degrees = -7f), stretch = ru.mobui.kanji.domain.practice.StretchCompensation(scaleX = 1.15f), correctedStrokeEnds = 2, endpointTrimPercent = 1.5f),
+                CheckVerdict.Correct, compensation = CheckCompensation(rotation = ru.mobui.kanji.domain.practice.RotationCompensation(degrees = -7f), stretch = ru.mobui.kanji.domain.practice.StretchCompensation(scaleX = 1.15f)),
             )
         }
         val vm = PracticeViewModel(task, references, checker, showCheckDiagnostics = true)
