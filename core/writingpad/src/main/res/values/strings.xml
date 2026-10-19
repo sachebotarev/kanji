@@ -1,0 +1,10 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="ru">
+    <string name="writing_pad_label">Поле ввода кандзи</string>
+    <string name="writing_pad_reference">Показан образец</string>
+    <plurals name="writing_pad_strokes">
+        <item quantity="one">%d штрих</item>
+        <item quantity="few">%d штриха</item>
+        <item quantity="many">%d штрихов</item>
+        <item quantity="other">%d штрихов</item>
+    </plurals>
+</resources>

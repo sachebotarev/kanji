@@ -1,0 +1,51 @@
+{
+  "date": "2026-10-19",
+  "environment": "Pixel_4a_API_35 emulator, Android 15",
+  "settings": {
+    "requiredMatchPercent": 95,
+    "distanceTolerance": 0.035,
+    "maxTranslationPercent": 10,
+    "maxSizeCompensationPercent": 30,
+    "maxShearDegrees": 5,
+    "maxCompensationBudgetPercent": 15,
+    "jitterTolerancePercent": 0.5,
+    "endpointsEnabled": false
+  },
+  "close_tracing": {
+    "kanji": [
+      "脳",
+      "水",
+      "木",
+      "日",
+      "小"
+    ],
+    "per_stroke_x_offsets": [
+      0.002,
+      0.01,
+      0.018
+    ],
+    "variants": 15,
+    "accepted": 15,
+    "selected_budget_percent": 0,
+    "coordinates_preserved": true
+  },
+  "random_lines": {
+    "target": "脳",
+    "stroke_count": 11,
+    "cases": 20,
+    "seed": 8133,
+    "full_compensation_chain_enabled": true,
+    "accepted": 0,
+    "maximum_selected_match_percent": 22.634508
+  },
+  "jvm_tests_passed": 47,
+  "builds": [
+    "debug",
+    "release"
+  ],
+  "lint_errors": 0,
+  "limitations": [
+    "Synthetic controlled traces and seeded random lines, not a human-handwriting accuracy estimate.",
+    "Original Pixel input was captured as screenshots, not replayed as exact input coordinates."
+  ]
+}

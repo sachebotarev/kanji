@@ -1,0 +1,8 @@
+<resources>
+    <string name="writing_pad_label">Kanji writing area</string>
+    <string name="writing_pad_reference">Reference shown</string>
+    <plurals name="writing_pad_strokes">
+        <item quantity="one">%d stroke</item>
+        <item quantity="other">%d strokes</item>
+    </plurals>
+</resources>

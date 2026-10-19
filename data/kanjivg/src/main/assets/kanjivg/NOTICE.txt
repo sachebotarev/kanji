@@ -1,0 +1,7 @@
+KanjiVG reference artwork: Copyright (C) 2009/2010/2011 Ulrich Apel and contributors.
+Source: https://kanjivg.tagaini.net/ and https://github.com/KanjiVG/kanjivg
+License: Creative Commons Attribution-ShareAlike 3.0 Unported
+https://creativecommons.org/licenses/by-sa/3.0/
+Bundled unchanged canonical SVG files: 6984 (without named variants), retrieved 2026-10-19.
+Original copyright and license notices are preserved inside every SVG.
+Runtime normalized polylines are derived from these SVGs; the artwork remains CC BY-SA 3.0.

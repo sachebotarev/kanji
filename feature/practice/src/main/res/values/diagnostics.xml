@@ -1,0 +1,103 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="ru">
+    <string name="metric_algorithm" formatted="false">Алгоритм</string>
+    <string name="metric_input_strokes" formatted="false">Черт во вводе</string>
+    <string name="metric_reference_strokes" formatted="false">Черт в эталоне</string>
+    <string name="metric_input_points" formatted="false">Точек во вводе</string>
+    <string name="metric_reference_points" formatted="false">Точек в эталоне</string>
+    <string name="metric_input_bounds" formatted="false">Границы рисунка</string>
+    <string name="metric_input_width" formatted="false">Ширина рисунка</string>
+    <string name="metric_input_height" formatted="false">Высота рисунка</string>
+    <string name="metric_input_aspect" formatted="false">Отношение ширины к высоте</string>
+    <string name="metric_input_strokeduration_ms" formatted="false">Длительность черт, мс</string>
+    <string name="metric_input_tools" formatted="false">Инструменты ввода</string>
+    <string name="metric_enabledcompensations" formatted="false">Включённые компенсации</string>
+    <string name="metric_checkstrokestructure" formatted="false">Проверка словарных особенностей</string>
+    <string name="metric_checkstrokeorder" formatted="false">Проверка порядка черт</string>
+    <string name="metric_checkstrokedirection" formatted="false">Проверка направления черт</string>
+    <string name="metric_connectiontolerancepercent" formatted="false">Допуск соединения, %</string>
+    <string name="metric_protrusiontolerancepercent" formatted="false">Минимальный выступ, %</string>
+    <string name="metric_lengthdifferencetolerancepercent" formatted="false">Минимальная разница длин, %</string>
+    <string name="metric_dictionary_rules" formatted="false">Словарные правила</string>
+    <string name="metric_maxcompensationbudgetpercent" formatted="false">Предел общего бюджета, %</string>
+    <string name="metric_jittertolerancepercent" formatted="false">Допуск дрожания, %</string>
+    <string name="metric_maxsizecompensationpercent" formatted="false">Предел изменения размера, %</string>
+    <string name="metric_maxtranslationpercent" formatted="false">Предел сдвига, % поля</string>
+    <string name="metric_requiredmatchpercent" formatted="false">Требуемое совпадение, %</string>
+    <string name="metric_distancetolerance" formatted="false">Допуск расстояния, доля размера</string>
+    <string name="metric_maxhorizontalstretchpercent" formatted="false">Предел растяжения X, %</string>
+    <string name="metric_maxverticalstretchpercent" formatted="false">Предел растяжения Y, %</string>
+    <string name="metric_maxsheardegrees" formatted="false">Предел перекоса, °</string>
+    <string name="metric_maxrotationdegrees" formatted="false">Предел поворота, °</string>
+    <string name="metric_endpointartifacttolerance" formatted="false">Допуск хвостов, доля размера</string>
+    <string name="metric_dictionary_violations" formatted="false">Нарушений словарных правил</string>
+    <string name="metric_strokeorder_mismatches" formatted="false">Нарушений порядка черт</string>
+    <string name="metric_hooks_required" formatted="false">Обязательных крючков</string>
+    <string name="metric_hooks_missing" formatted="false">Черты с пропущенным крючком</string>
+    <string name="metric_strokedirection_reversed" formatted="false">Черты с обратным направлением</string>
+    <string name="metric_coverage_baseline_percent" formatted="false">Исходное совпадение, %</string>
+    <string name="metric_coverage_beforeendpointcleanup_percent" formatted="false">Совпадение до обрезки хвостов, %</string>
+    <string name="metric_coverage_final_percent" formatted="false">Итоговое совпадение, %</string>
+    <string name="metric_coverage_input_percent" formatted="false">Покрытие ввода, %</string>
+    <string name="metric_coverage_reference_percent" formatted="false">Покрытие эталона, %</string>
+    <string name="metric_coverage_margin_percent" formatted="false">Запас над порогом, п.п.</string>
+    <string name="metric_budget_shear_percent" formatted="false">Бюджет перекоса, %</string>
+    <string name="metric_budget_total_percent" formatted="false">Общий расход бюджета, %</string>
+    <string name="metric_budget_translation_percent" formatted="false">Бюджет сдвига, %</string>
+    <string name="metric_budget_size_percent" formatted="false">Бюджет размера, %</string>
+    <string name="metric_budget_stretch_percent" formatted="false">Бюджет растяжения, %</string>
+    <string name="metric_budget_rotation_percent" formatted="false">Бюджет поворота, %</string>
+    <string name="metric_budget_jitter_percent" formatted="false">Бюджет дрожания, %</string>
+    <string name="metric_budget_endpoints_percent" formatted="false">Бюджет хвостов, %</string>
+    <string name="metric_budget_haserror" formatted="false">Бюджет превышен</string>
+    <string name="metric_shear_degrees" formatted="false">Поправка перекоса, °</string>
+    <string name="metric_shear_factor" formatted="false">Коэффициент перекоса</string>
+    <string name="metric_shear_haserror" formatted="false">Предел перекоса превышен</string>
+    <string name="metric_shear_isestimated" formatted="false">Перекос удалось оценить</string>
+    <string name="metric_rotation_pivot" formatted="false">Центр вращения</string>
+    <string name="metric_rotation_haserror" formatted="false">Предел поворота превышен</string>
+    <string name="metric_rotation_degrees" formatted="false">Поправка поворота, °</string>
+    <string name="metric_jitter_removedpoints" formatted="false">Удалено точек дрожания</string>
+    <string name="metric_jitter_maxdeviation_percent" formatted="false">Отклонение сглаживания, %</string>
+    <string name="metric_stretch_x_percent" formatted="false">Поправка растяжения X, %</string>
+    <string name="metric_stretch_y_percent" formatted="false">Поправка растяжения Y, %</string>
+    <string name="metric_stretch_haserror" formatted="false">Предел растяжения превышен</string>
+    <string name="metric_size_factor" formatted="false">Коэффициент размера</string>
+    <string name="metric_size_change_percent" formatted="false">Изменение размера, %</string>
+    <string name="metric_size_haserror" formatted="false">Предел размера превышен</string>
+    <string name="metric_size_isdefined" formatted="false">Размер удалось определить</string>
+    <string name="metric_translation_x_percent" formatted="false">Поправка сдвига X, % поля</string>
+    <string name="metric_translation_y_percent" formatted="false">Поправка сдвига Y, % поля</string>
+    <string name="metric_translation_haserror" formatted="false">Предел сдвига превышен</string>
+    <string name="metric_strokecountmatches" formatted="false">Количество черт совпадает</string>
+    <string name="metric_evaluatedcandidates" formatted="false">Проверено вариантов</string>
+    <string name="metric_check_duration_ms" formatted="false">Длительность проверки, мс</string>
+    <string name="debug_identity">Задание: %1$s
+Ячейка: %2$s
+Кандзи: %3$s
+Версия: %4$d</string>
+    <string name="debug_yes">Да</string>
+    <string name="debug_no">Нет</string>
+    <string name="debug_none">Нет</string>
+    <string name="debug_unrestricted">Без ограничения</string>
+    <string name="debug_disabled">Выключено</string>
+    <string name="debug_undefined">Не определено</string>
+    <string name="debug_unavailable">Недоступно</string>
+    <string name="debug_algorithm">Сравнение черт · 49 точек по длине; справочная сетка 128×128</string>
+    <string name="pivot_center">Центр</string>
+    <string name="pivot_top_left">Левый верхний угол</string>
+    <string name="pivot_top_right">Правый верхний угол</string>
+    <string name="pivot_bottom_left">Левый нижний угол</string>
+    <string name="pivot_bottom_right">Правый нижний угол</string>
+    <string name="tool_finger">Палец</string>
+    <string name="tool_stylus">Стилус</string>
+    <string name="tool_mouse">Мышь</string>
+    <string name="tool_unknown">Неизвестный инструмент</string>
+    <string name="metric_hooks_reference_ambiguous">Черты без отчётливого крючка в эталоне (проверяется профиль конца)</string>
+    <string name="metric_coverage_gain_percent">Изменение совпадения после компенсаций, п.п.</string>
+    <string name="metric_coverage_global_percent" formatted="false">Общее покрытие (справочно), %</string>
+    <string name="metric_coverage_strokes_percent" formatted="false">Совпадение сопоставленных черт, %</string>
+    <string name="pivot_centroid">Центроид черт</string>
+    <string name="metric_pipeline_type">Цепочка компенсаций</string>
+    <string name="pipeline_cascade">Последовательная</string>
+    <string name="pipeline_procrustes">Прокрустово совмещение</string>
+</resources>

@@ -1,0 +1,4 @@
+id	target	label	split	tolerance	score	raw	budget	compensationErrors	hooks	rules	accepted
+pixel-27	8133	positive	local	0.035	81.818184	64.749535	12.816468	0		0	false
+pixel-29	8133	negative	local	0.035	20.59369	6.8645644	83.44406	2	2	0	false
+pixel-31	8133	positive	local	0.035	46.19666	2.96846	61.949585	3	2	0	false

@@ -1,0 +1,19 @@
+<resources>
+    <string name="app_name">Kanji Desu Ne</string>
+    <string name="result_correct">Correct</string>
+    <string name="result_assisted">Completed with a hint</string>
+    <string name="result_skipped">Word skipped</string>
+    <string name="result_timed_out">Time is up</string>
+    <string name="entry_empty">Not entered</string>
+    <string name="entry_editing">Not checked</string>
+    <string name="entry_incorrect">Incorrect</string>
+    <string name="entry_hint">Hint</string>
+    <string name="entry_prefilled">Prefilled</string>
+    <string name="result_cell">Character %1$d: %2$s · %3$d s</string>
+    <string name="result_time">Word time: %1$d s</string>
+    <string name="reference_attribution">References: KanjiVG © Ulrich Apel and contributors
+https://kanjivg.tagaini.net/
+CC BY-SA 3.0 · https://creativecommons.org/licenses/by-sa/3.0/</string>
+    <string name="close">Close</string>
+    <string name="demo_word">Electroencephalography</string>
+</resources>

@@ -1,0 +1,103 @@
+<resources>
+    <string name="metric_algorithm" formatted="false">Algorithm</string>
+    <string name="metric_input_strokes" formatted="false">Input strokes</string>
+    <string name="metric_reference_strokes" formatted="false">Reference strokes</string>
+    <string name="metric_input_points" formatted="false">Input points</string>
+    <string name="metric_reference_points" formatted="false">Reference points</string>
+    <string name="metric_input_bounds" formatted="false">Drawing bounds</string>
+    <string name="metric_input_width" formatted="false">Drawing width</string>
+    <string name="metric_input_height" formatted="false">Drawing height</string>
+    <string name="metric_input_aspect" formatted="false">Width to height ratio</string>
+    <string name="metric_input_strokeduration_ms" formatted="false">Stroke duration, ms</string>
+    <string name="metric_input_tools" formatted="false">Input tools</string>
+    <string name="metric_enabledcompensations" formatted="false">Enabled compensations</string>
+    <string name="metric_checkstrokestructure" formatted="false">Dictionary checks</string>
+    <string name="metric_checkstrokeorder" formatted="false">Stroke order check</string>
+    <string name="metric_checkstrokedirection" formatted="false">Stroke direction check</string>
+    <string name="metric_connectiontolerancepercent" formatted="false">Connection tolerance, %</string>
+    <string name="metric_protrusiontolerancepercent" formatted="false">Minimum protrusion, %</string>
+    <string name="metric_lengthdifferencetolerancepercent" formatted="false">Minimum length difference, %</string>
+    <string name="metric_dictionary_rules" formatted="false">Dictionary rules</string>
+    <string name="metric_maxcompensationbudgetpercent" formatted="false">Total budget limit, %</string>
+    <string name="metric_jittertolerancepercent" formatted="false">Jitter tolerance, %</string>
+    <string name="metric_maxsizecompensationpercent" formatted="false">Size change limit, %</string>
+    <string name="metric_maxtranslationpercent" formatted="false">Translation limit, % of canvas</string>
+    <string name="metric_requiredmatchpercent" formatted="false">Required match, %</string>
+    <string name="metric_distancetolerance" formatted="false">Distance tolerance, size fraction</string>
+    <string name="metric_maxhorizontalstretchpercent" formatted="false">X stretch limit, %</string>
+    <string name="metric_maxverticalstretchpercent" formatted="false">Y stretch limit, %</string>
+    <string name="metric_maxsheardegrees" formatted="false">Shear limit, °</string>
+    <string name="metric_maxrotationdegrees" formatted="false">Rotation limit, °</string>
+    <string name="metric_endpointartifacttolerance" formatted="false">Tail tolerance, size fraction</string>
+    <string name="metric_dictionary_violations" formatted="false">Dictionary violations</string>
+    <string name="metric_strokeorder_mismatches" formatted="false">Stroke order mismatches</string>
+    <string name="metric_hooks_required" formatted="false">Required hooks</string>
+    <string name="metric_hooks_missing" formatted="false">Strokes with missing hooks</string>
+    <string name="metric_strokedirection_reversed" formatted="false">Reversed strokes</string>
+    <string name="metric_coverage_baseline_percent" formatted="false">Baseline match, %</string>
+    <string name="metric_coverage_beforeendpointcleanup_percent" formatted="false">Match before tail trimming, %</string>
+    <string name="metric_coverage_final_percent" formatted="false">Final match, %</string>
+    <string name="metric_coverage_input_percent" formatted="false">Input coverage, %</string>
+    <string name="metric_coverage_reference_percent" formatted="false">Reference coverage, %</string>
+    <string name="metric_coverage_margin_percent" formatted="false">Margin above threshold, pp</string>
+    <string name="metric_budget_shear_percent" formatted="false">Shear budget, %</string>
+    <string name="metric_budget_total_percent" formatted="false">Total budget used, %</string>
+    <string name="metric_budget_translation_percent" formatted="false">Translation budget, %</string>
+    <string name="metric_budget_size_percent" formatted="false">Size budget, %</string>
+    <string name="metric_budget_stretch_percent" formatted="false">Stretch budget, %</string>
+    <string name="metric_budget_rotation_percent" formatted="false">Rotation budget, %</string>
+    <string name="metric_budget_jitter_percent" formatted="false">Jitter budget, %</string>
+    <string name="metric_budget_endpoints_percent" formatted="false">Tail budget, %</string>
+    <string name="metric_budget_haserror" formatted="false">Budget exceeded</string>
+    <string name="metric_shear_degrees" formatted="false">Shear correction, °</string>
+    <string name="metric_shear_factor" formatted="false">Shear factor</string>
+    <string name="metric_shear_haserror" formatted="false">Shear limit exceeded</string>
+    <string name="metric_shear_isestimated" formatted="false">Shear estimated</string>
+    <string name="metric_rotation_pivot" formatted="false">Rotation pivot</string>
+    <string name="metric_rotation_haserror" formatted="false">Rotation limit exceeded</string>
+    <string name="metric_rotation_degrees" formatted="false">Rotation correction, °</string>
+    <string name="metric_jitter_removedpoints" formatted="false">Jitter points removed</string>
+    <string name="metric_jitter_maxdeviation_percent" formatted="false">Smoothing deviation, %</string>
+    <string name="metric_stretch_x_percent" formatted="false">X stretch correction, %</string>
+    <string name="metric_stretch_y_percent" formatted="false">Y stretch correction, %</string>
+    <string name="metric_stretch_haserror" formatted="false">Stretch limit exceeded</string>
+    <string name="metric_size_factor" formatted="false">Size factor</string>
+    <string name="metric_size_change_percent" formatted="false">Size change, %</string>
+    <string name="metric_size_haserror" formatted="false">Size limit exceeded</string>
+    <string name="metric_size_isdefined" formatted="false">Size determined</string>
+    <string name="metric_translation_x_percent" formatted="false">X translation correction, % of canvas</string>
+    <string name="metric_translation_y_percent" formatted="false">Y translation correction, % of canvas</string>
+    <string name="metric_translation_haserror" formatted="false">Translation limit exceeded</string>
+    <string name="metric_strokecountmatches" formatted="false">Stroke counts match</string>
+    <string name="metric_evaluatedcandidates" formatted="false">Candidates evaluated</string>
+    <string name="metric_check_duration_ms" formatted="false">Check duration, ms</string>
+    <string name="debug_identity">Task: %1$s
+Cell: %2$s
+Kanji: %3$s
+Revision: %4$d</string>
+    <string name="debug_yes">Yes</string>
+    <string name="debug_no">No</string>
+    <string name="debug_none">None</string>
+    <string name="debug_unrestricted">Unlimited</string>
+    <string name="debug_disabled">Disabled</string>
+    <string name="debug_undefined">Undefined</string>
+    <string name="debug_unavailable">Unavailable</string>
+    <string name="debug_algorithm">Stroke comparison · 49 arc-length samples; diagnostic 128×128 grid</string>
+    <string name="pivot_center">Center</string>
+    <string name="pivot_top_left">Top left corner</string>
+    <string name="pivot_top_right">Top right corner</string>
+    <string name="pivot_bottom_left">Bottom left corner</string>
+    <string name="pivot_bottom_right">Bottom right corner</string>
+    <string name="tool_finger">Finger</string>
+    <string name="tool_stylus">Stylus</string>
+    <string name="tool_mouse">Mouse</string>
+    <string name="tool_unknown">Unknown tool</string>
+    <string name="metric_hooks_reference_ambiguous">Reference strokes without a distinct hook (terminal profile checked)</string>
+    <string name="metric_coverage_gain_percent">Match improvement after compensation, pp</string>
+    <string name="metric_coverage_global_percent" formatted="false">Whole drawing coverage (diagnostic), %</string>
+    <string name="metric_coverage_strokes_percent" formatted="false">Matched stroke coverage, %</string>
+    <string name="pivot_centroid">Stroke centroid</string>
+    <string name="metric_pipeline_type">Compensation pipeline</string>
+    <string name="pipeline_cascade">Cascade</string>
+    <string name="pipeline_procrustes">Procrustes</string>
+</resources>

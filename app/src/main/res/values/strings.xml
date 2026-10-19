@@ -1,0 +1,19 @@
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="ru">
+    <string name="app_name">Кандзи дэс нэ</string>
+    <string name="result_correct">Верно</string>
+    <string name="result_assisted">Выполнено с подсказкой</string>
+    <string name="result_skipped">Слово пропущено</string>
+    <string name="result_timed_out">Время истекло</string>
+    <string name="entry_empty">Не введён</string>
+    <string name="entry_editing">Не проверен</string>
+    <string name="entry_incorrect">Неверно</string>
+    <string name="entry_hint">Подсказка</string>
+    <string name="entry_prefilled">Подставлен</string>
+    <string name="result_cell">Знак %1$d: %2$s · %3$d с</string>
+    <string name="result_time">Время слова: %1$d с</string>
+    <string name="reference_attribution">Образцы: KanjiVG © Ulrich Apel и участники проекта
+https://kanjivg.tagaini.net/
+CC BY-SA 3.0 · https://creativecommons.org/licenses/by-sa/3.0/</string>
+    <string name="close">Закрыть</string>
+    <string name="demo_word">Электроэнцефалография</string>
+</resources>
