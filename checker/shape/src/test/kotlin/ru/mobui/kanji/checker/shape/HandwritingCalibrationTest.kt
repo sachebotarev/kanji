@@ -17,22 +17,26 @@ class HandwritingCalibrationTest {
                 val p = it.split(','); ReferencePoint(p[0].toFloat(), p[1].toFloat())
             } }, hookRequirements = parts[1].split(',').map { HookRequirement.valueOf(it) })
         }
-        val records = root.resolve("external/inputs.tsv").readLines()
+        val records = File(System.getenv("KANJI_INPUTS") ?: root.resolve("external/inputs.tsv").path).readLines()
         val tolerances = (System.getenv("KANJI_TOLERANCES") ?: "0.048").split(',').map(String::toFloat)
         File(System.getenv("KANJI_RESULTS") ?: root.resolve("external/results.tsv").path).bufferedWriter().use { out ->
-            out.appendLine("id\ttarget\tlabel\tsplit\ttolerance\tscore\traw\tbudget\tcompensationErrors\thooks\trules\taccepted")
+            out.appendLine("id\ttarget\tlabel\tsplit\ttolerance\tscore\traw\tbudget\tcompensationErrors\thooks\trules\taccepted\tcompensationFailures\tinputStrokes\treferenceStrokes")
             for (line in records) {
                 val p = line.split('\t'); val reference = references.getValue(p[1])
                 val sample = WritingSample(p[4].split(';').map { s -> InkStroke(s.split(' ').mapIndexed { i, point ->
                     val xy = point.split(','); InkPoint(xy[0].toFloat(), xy[1].toFloat(), i.toLong())
                 }, InkTool.Finger) })
                 for (tol in tolerances) {
-                    val config = RecognitionSettings.touchInput().copy(distanceTolerance = tol)
+                    val profile = RecognitionSettings.touchInput()
+                    val config = profile.copy(distanceTolerance = tol,
+                        requiredMatchPercent = System.getenv("KANJI_MATCH_PERCENT")?.toFloat() ?: profile.requiredMatchPercent,
+                        maxCompensationBudgetPercent = System.getenv("KANJI_BUDGET_PERCENT")?.toFloat() ?: profile.maxCompensationBudgetPercent)
                     val match = ShapeMatcher(config).compare(sample, reference, KanjiRuleDictionary().rulesFor(KanjiId("u${p[1]}")))
                     out.appendLine(listOf(p[0], p[1], p[2], p[3], tol, match.matchPercent, match.baselineMatchPercent,
                         match.compensation.budget.totalPercent, match.compensation.failures.size,
                         match.strokeChecks.missingHooks.joinToString(","), match.strokeChecks.ruleViolations.size,
-                        match.isAccepted(config)).joinToString("\t"))
+                        match.isAccepted(config), match.compensation.failures.joinToString(",") { it.javaClass.simpleName },
+                        sample.strokeCount, reference.strokes.size).joinToString("\t"))
                     out.flush()
                 }
             }

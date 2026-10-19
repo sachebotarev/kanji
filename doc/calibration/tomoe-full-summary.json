@@ -1,0 +1,51 @@
+{
+  "denominator": "All kanji entries with matching stroke count and no missing-hook failure; dictionary failures stay in denominator.",
+  "baseline": {
+    "file": "tomoe-full-before.tsv",
+    "match_percent": 72,
+    "budget_percent": 28,
+    "hook_algorithm": "single strongest reference tangent",
+    "kanji_entries": 6579,
+    "count_compatible": 6192,
+    "count_mismatch": 387,
+    "hooks_passed": 5320,
+    "hooks_failed": 872,
+    "accepted": 4411,
+    "accepted_percent_of_hook_passed": 82.91353383458646,
+    "mean_score_count_compatible": 76.7572490991602,
+    "mean_budget_count_compatible": 7.032502752774548
+  },
+  "target_90_comparison": {
+    "file": "tomoe-full-target90.tsv",
+    "match_percent": 65.3,
+    "budget_percent": 27.86,
+    "hook_algorithm": "salient reference tangent range",
+    "kanji_entries": 6579,
+    "count_compatible": 6192,
+    "count_mismatch": 387,
+    "hooks_passed": 5704,
+    "hooks_failed": 488,
+    "accepted": 5134,
+    "accepted_percent_of_hook_passed": 90.0070126227209,
+    "mean_score_count_compatible": 73.01086778504522,
+    "mean_budget_count_compatible": 5.310148023263889
+  },
+  "calibrated_target_80": {
+    "file": "tomoe-full-final.tsv",
+    "match_percent": 73.03,
+    "budget_percent": 27.36,
+    "hook_algorithm": "salient reference tangent range",
+    "kanji_entries": 6579,
+    "count_compatible": 6192,
+    "count_mismatch": 387,
+    "hooks_passed": 5704,
+    "hooks_failed": 488,
+    "accepted": 4564,
+    "accepted_percent_of_hook_passed": 80.0140252454418,
+    "mean_score_count_compatible": 77.37920008882429,
+    "mean_budget_count_compatible": 7.320756554911176
+  },
+  "normalization": "Original coordinates / 1000, no alignment before matching.",
+  "weighting": "One source entry is one case, including repeated characters; mismatched stroke counts excluded.",
+  "caveat": "The same dictionary was used for calibration and evaluation; this is not held-out smartphone handwriting accuracy."
+}

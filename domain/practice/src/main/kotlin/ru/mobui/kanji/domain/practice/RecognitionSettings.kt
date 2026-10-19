@@ -1,8 +1,13 @@
 package ru.mobui.kanji.domain.practice
 
+// >=80% of count-compatible Tomoe kanji entries that pass hooks; see doc/calibration/tomoe-full-2026-10-19.md.
+private const val TOUCH_MATCH_PERCENT = 73.03f
+private const val TOUCH_BUDGET_PERCENT = 27.36f
+
 enum class CompensationPipelineType { Cascade, Procrustes }
 
 data class RecognitionSettings(
+    // Generic callers have unrestricted translation/size by default; the calibrated app uses touchInput().
     val requiredMatchPercent: Float = 72f,
     /** Allowed distance as a fraction of the normalized glyph's longest side. */
     val distanceTolerance: Float = 0.048f,
@@ -32,9 +37,9 @@ data class RecognitionSettings(
     companion object {
         /** Shared starting profile for finger input; values remain adjustable in settings. */
         fun touchInput() = RecognitionSettings(
-            requiredMatchPercent = 72f, distanceTolerance = .048f,
+            requiredMatchPercent = TOUCH_MATCH_PERCENT, distanceTolerance = .048f,
             maxTranslationPercent = 12f, maxSizeCompensationPercent = 30f,
-            maxCompensationBudgetPercent = 28f, jitterTolerancePercent = .5f,
+            maxCompensationBudgetPercent = TOUCH_BUDGET_PERCENT, jitterTolerancePercent = .5f,
             maxShearDegrees = 8f, maxRotationDegrees = 8f,
         )
     }

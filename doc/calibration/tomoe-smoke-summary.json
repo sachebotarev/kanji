@@ -1,0 +1,16 @@
+{
+  "profile": {
+    "pipeline": "Procrustes",
+    "requiredMatchPercent": 72,
+    "distanceTolerance": 0.048,
+    "maxCompensationBudgetPercent": 28
+  },
+  "positive_entries": 16,
+  "positive_accepted": 10,
+  "positive_count_compatible": 15,
+  "negative_pairs": 12,
+  "negative_accepted": 0,
+  "negative_count_compatible": 10,
+  "source_sha256": "6f30a4f42f24dc611f1a3e4d7a220c5009bb0323f237f01f50e3be3dfefb11f8",
+  "scope": "Small dictionary probe; not a writer-independent accuracy estimate; no parameter tuning."
+}

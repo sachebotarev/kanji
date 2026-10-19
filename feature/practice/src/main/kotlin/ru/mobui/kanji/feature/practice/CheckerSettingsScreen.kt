@@ -24,6 +24,7 @@ fun CheckerSettingsScreen(
     modifier: Modifier = Modifier,
     preview: PracticeUiState? = null,
 ) {
+    val defaultBudget = requireNotNull(RecognitionSettings.touchInput().maxCompensationBudgetPercent)
     Scaffold(modifier) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -68,9 +69,9 @@ fun CheckerSettingsScreen(
                 ParameterSlider(R.string.setting_match, settings.requiredMatchPercent, 1f..100f, "match") { onChange(settings.copy(requiredMatchPercent = it)) }
                 ParameterSlider(R.string.setting_distance, settings.distanceTolerance * 100, .1f..15f, "distance") { onChange(settings.copy(distanceTolerance = it / 100)) }
                 ToggleRow(R.string.setting_budget_limit, settings.maxCompensationBudgetPercent != null, "budget-limit") {
-                    onChange(settings.copy(maxCompensationBudgetPercent = if (it) 15f else null))
+                    onChange(settings.copy(maxCompensationBudgetPercent = if (it) defaultBudget else null))
                 }
-                ParameterSlider(R.string.setting_budget, settings.maxCompensationBudgetPercent ?: 15f, 0f..100f, "budget", settings.maxCompensationBudgetPercent != null) {
+                ParameterSlider(R.string.setting_budget, settings.maxCompensationBudgetPercent ?: defaultBudget, 0f..100f, "budget", settings.maxCompensationBudgetPercent != null) {
                     onChange(settings.copy(maxCompensationBudgetPercent = it))
                 }
                 StageSection(CompensationStage.Translation, R.string.setting_translation, settings, onChange) {

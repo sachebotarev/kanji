@@ -23,8 +23,8 @@ class RecognitionSettingsRestorationTest {
         val restored = RecognitionSettingsViewModel(handle)
         assertEquals(changed, restored.settings.value)
         restored.reset()
-        assertEquals(72f, restored.settings.value.requiredMatchPercent, .0001f)
-        assertEquals(28f, restored.settings.value.maxCompensationBudgetPercent!!, .0001f)
+        assertEquals(73.03f, restored.settings.value.requiredMatchPercent, .0001f)
+        assertEquals(27.36f, restored.settings.value.maxCompensationBudgetPercent!!, .0001f)
         assertFalse(restored.settings.value.checkStrokeOrder)
         assertFalse(restored.settings.value.checkStrokeDirection)
     }

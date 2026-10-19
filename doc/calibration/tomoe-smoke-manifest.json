@@ -1,0 +1,261 @@
+{
+  "source": "external/tomoe/handwriting-ja.xml",
+  "source_sha256": "6f30a4f42f24dc611f1a3e4d7a220c5009bb0323f237f01f50e3be3dfefb11f8",
+  "license": "external/tomoe/COPYING",
+  "selection": "First nonempty dictionary entry for each selected character; selected before scoring.",
+  "normalization": "Divide original x/y coordinates by 1000; no bounding-box alignment or augmentation.",
+  "cases": [
+    {
+      "id": "tomoe-65e5-entry58-to-65e5",
+      "input": "日",
+      "target": "日",
+      "label": "positive",
+      "source_entry_index": 58,
+      "strokes": 4,
+      "points": 9
+    },
+    {
+      "id": "tomoe-6708-entry59-to-6708",
+      "input": "月",
+      "target": "月",
+      "label": "positive",
+      "source_entry_index": 59,
+      "strokes": 4,
+      "points": 11
+    },
+    {
+      "id": "tomoe-5c71-entry101-to-5c71",
+      "input": "山",
+      "target": "山",
+      "label": "positive",
+      "source_entry_index": 101,
+      "strokes": 3,
+      "points": 7
+    },
+    {
+      "id": "tomoe-5ddd-entry1751-to-5ddd",
+      "input": "川",
+      "target": "川",
+      "label": "positive",
+      "source_entry_index": 1751,
+      "strokes": 3,
+      "points": 7
+    },
+    {
+      "id": "tomoe-6c34-entry61-to-6c34",
+      "input": "水",
+      "target": "水",
+      "label": "positive",
+      "source_entry_index": 61,
+      "strokes": 4,
+      "points": 11
+    },
+    {
+      "id": "tomoe-706b-entry60-to-706b",
+      "input": "火",
+      "target": "火",
+      "label": "positive",
+      "source_entry_index": 60,
+      "strokes": 4,
+      "points": 10
+    },
+    {
+      "id": "tomoe-6728-entry62-to-6728",
+      "input": "木",
+      "target": "木",
+      "label": "positive",
+      "source_entry_index": 62,
+      "strokes": 4,
+      "points": 9
+    },
+    {
+      "id": "tomoe-672c-entry88-to-672c",
+      "input": "本",
+      "target": "本",
+      "label": "positive",
+      "source_entry_index": 88,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-571f-entry64-to-571f",
+      "input": "土",
+      "target": "土",
+      "label": "positive",
+      "source_entry_index": 64,
+      "strokes": 3,
+      "points": 6
+    },
+    {
+      "id": "tomoe-58eb-entry1241-to-58eb",
+      "input": "士",
+      "target": "士",
+      "label": "positive",
+      "source_entry_index": 1241,
+      "strokes": 3,
+      "points": 6
+    },
+    {
+      "id": "tomoe-672a-entry2809-to-672a",
+      "input": "未",
+      "target": "未",
+      "label": "positive",
+      "source_entry_index": 2809,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-672b-entry2797-to-672b",
+      "input": "末",
+      "target": "末",
+      "label": "positive",
+      "source_entry_index": 2797,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-725b-entry685-to-725b",
+      "input": "牛",
+      "target": "牛",
+      "label": "positive",
+      "source_entry_index": 685,
+      "strokes": 4,
+      "points": 8
+    },
+    {
+      "id": "tomoe-5348-entry966-to-5348",
+      "input": "午",
+      "target": "午",
+      "label": "positive",
+      "source_entry_index": 966,
+      "strokes": 4,
+      "points": 8
+    },
+    {
+      "id": "tomoe-5b66-entry457-to-5b66",
+      "input": "学",
+      "target": "学",
+      "label": "positive",
+      "source_entry_index": 457,
+      "strokes": 7,
+      "points": 20
+    },
+    {
+      "id": "tomoe-8133-entry2364-to-8133",
+      "input": "脳",
+      "target": "脳",
+      "label": "positive",
+      "source_entry_index": 2364,
+      "strokes": 11,
+      "points": 24
+    },
+    {
+      "id": "tomoe-571f-entry64-to-58eb",
+      "input": "土",
+      "target": "士",
+      "label": "negative",
+      "source_entry_index": 64,
+      "strokes": 3,
+      "points": 6
+    },
+    {
+      "id": "tomoe-58eb-entry1241-to-571f",
+      "input": "士",
+      "target": "土",
+      "label": "negative",
+      "source_entry_index": 1241,
+      "strokes": 3,
+      "points": 6
+    },
+    {
+      "id": "tomoe-672a-entry2809-to-672b",
+      "input": "未",
+      "target": "末",
+      "label": "negative",
+      "source_entry_index": 2809,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-672b-entry2797-to-672a",
+      "input": "末",
+      "target": "未",
+      "label": "negative",
+      "source_entry_index": 2797,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-725b-entry685-to-5348",
+      "input": "牛",
+      "target": "午",
+      "label": "negative",
+      "source_entry_index": 685,
+      "strokes": 4,
+      "points": 8
+    },
+    {
+      "id": "tomoe-5348-entry966-to-725b",
+      "input": "午",
+      "target": "牛",
+      "label": "negative",
+      "source_entry_index": 966,
+      "strokes": 4,
+      "points": 8
+    },
+    {
+      "id": "tomoe-6728-entry62-to-672c",
+      "input": "木",
+      "target": "本",
+      "label": "negative",
+      "source_entry_index": 62,
+      "strokes": 4,
+      "points": 9
+    },
+    {
+      "id": "tomoe-672c-entry88-to-6728",
+      "input": "本",
+      "target": "木",
+      "label": "negative",
+      "source_entry_index": 88,
+      "strokes": 5,
+      "points": 10
+    },
+    {
+      "id": "tomoe-65e5-entry58-to-6708",
+      "input": "日",
+      "target": "月",
+      "label": "negative",
+      "source_entry_index": 58,
+      "strokes": 4,
+      "points": 9
+    },
+    {
+      "id": "tomoe-6708-entry59-to-65e5",
+      "input": "月",
+      "target": "日",
+      "label": "negative",
+      "source_entry_index": 59,
+      "strokes": 4,
+      "points": 11
+    },
+    {
+      "id": "tomoe-5c71-entry101-to-5ddd",
+      "input": "山",
+      "target": "川",
+      "label": "negative",
+      "source_entry_index": 101,
+      "strokes": 3,
+      "points": 7
+    },
+    {
+      "id": "tomoe-5ddd-entry1751-to-5c71",
+      "input": "川",
+      "target": "山",
+      "label": "negative",
+      "source_entry_index": 1751,
+      "strokes": 3,
+      "points": 7
+    }
+  ]
+}

@@ -9,12 +9,21 @@ internal class HookChecker {
     fun hasDistinctHook(reference: List<ShapePoint>): Boolean = turns(reference).isNotEmpty()
 
     fun hasHook(input: List<ShapePoint>, reference: List<ShapePoint>): Boolean {
-        val expected = turns(reference).maxByOrNull { abs(it.angle) * it.reach }
+        val referenceTurns = turns(reference)
+        val strongest = referenceTurns.maxByOrNull { abs(it.angle) * it.reach }
+        // A rounded reference corner has a range of tangent directions. A sparse handwritten
+        // corner must match that feature, not one arbitrarily selected tangent on the curve.
+        val salient = if (strongest == null) emptyList() else referenceTurns.filter {
+            it.reach >= strongest.reach * .5f
+        }
         return listOf(input, input.reversed()).any { stroke ->
-            if (expected == null) matchesTerminalProfile(stroke, reference)
+            if (strongest == null) matchesTerminalProfile(stroke, reference)
             else turns(stroke).any { actual ->
-                abs(actual.angle - expected.angle) <= PI.toFloat() / 3 &&
-                    actual.reach >= expected.reach * .35f && actual.reach <= expected.reach * 2.5f
+                actual.reach >= strongest.reach * .35f && actual.reach <= strongest.reach * 2.5f &&
+                    salient.any { expected ->
+                        val difference = actual.angle - expected.angle
+                        abs(atan2(sin(difference), cos(difference))) <= PI.toFloat() / 3
+                    }
             }
         }
     }

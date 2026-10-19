@@ -1,0 +1,75 @@
+{
+  "source": "external/tomoe/handwriting-ja.xml",
+  "source_sha256": "6f30a4f42f24dc611f1a3e4d7a220c5009bb0323f237f01f50e3be3dfefb11f8",
+  "license": "external/tomoe/COPYING",
+  "selection": "Every source entry, including repeated characters and stroke-count variants; exclusions listed below.",
+  "normalization": "Original x/y divided by 1000; no centering, resizing or augmentation.",
+  "counts": {
+    "total_entries": 6646,
+    "exported_entries": 6635,
+    "count_compatible": 6246,
+    "count_mismatch": 389,
+    "no_reference": 11,
+    "kanji_entries": 6579,
+    "kanji_exported_entries": 6579,
+    "kanji_count_compatible": 6192,
+    "kanji_count_mismatch": 387
+  },
+  "excluded": [
+    {
+      "index": 48,
+      "glyph": "0",
+      "reason": "no_reference"
+    },
+    {
+      "index": 49,
+      "glyph": "1",
+      "reason": "no_reference"
+    },
+    {
+      "index": 50,
+      "glyph": "2",
+      "reason": "no_reference"
+    },
+    {
+      "index": 51,
+      "glyph": "3",
+      "reason": "no_reference"
+    },
+    {
+      "index": 52,
+      "glyph": "4",
+      "reason": "no_reference"
+    },
+    {
+      "index": 53,
+      "glyph": "5",
+      "reason": "no_reference"
+    },
+    {
+      "index": 54,
+      "glyph": "6",
+      "reason": "no_reference"
+    },
+    {
+      "index": 55,
+      "glyph": "7",
+      "reason": "no_reference"
+    },
+    {
+      "index": 56,
+      "glyph": "8",
+      "reason": "no_reference"
+    },
+    {
+      "index": 57,
+      "glyph": "9",
+      "reason": "no_reference"
+    },
+    {
+      "index": 82,
+      "glyph": "(^^)",
+      "reason": "no_reference"
+    }
+  ]
+}

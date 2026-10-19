@@ -50,6 +50,20 @@ class HookChecksTest {
         assertEquals(listOf(1), result.ambiguousReferenceHooks)
     }
 
+    // Reduced trajectories from Tomoe 字 / KanjiVG; provenance and source licenses: doc/calibration.
+    @Test fun sparseCornerMatchesRoundedReferenceButMissingExitDoesNot() {
+        val reference = listOf(ShapePoint(.2666f, .3006f), ShapePoint(.5f, .2927f),
+            ShapePoint(.6488f, .2654f), ShapePoint(.6652f, .2660f), ShapePoint(.6778f, .2754f),
+            ShapePoint(.6754f, .2912f), ShapePoint(.6552f, .3165f), ShapePoint(.5930f, .3772f),
+            ShapePoint(.5020f, .4521f))
+        val sparse = listOf(ShapePoint(.3408f, .3287f), ShapePoint(.6546f, .3253f), ShapePoint(.4443f, .5471f))
+        val checker = HookChecker()
+        assertTrue(checker.hasHook(sparse, reference))
+        assertTrue(checker.hasHook(sparse.reversed(), reference))
+        assertFalse(checker.hasHook(sparse.take(2), reference))
+        assertFalse(checker.hasHook(sparse.take(2) + ShapePoint(.6536f, .3263f), reference))
+    }
+
     @Test fun jitterPreservesProtectedHook() {
         val tiny = listOf(ShapePoint(.5f, .1f), ShapePoint(.5f, .85f), ShapePoint(.485f, .85f))
         assertEquals(tiny, JitterCompensator(5f).compensate(listOf(tiny), setOf(0)).strokes.single())
