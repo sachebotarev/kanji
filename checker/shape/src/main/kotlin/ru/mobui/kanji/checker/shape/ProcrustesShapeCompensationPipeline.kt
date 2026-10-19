@@ -12,7 +12,7 @@ internal class ProcrustesShapeCompensationPipeline(
     private val maxRotationDegrees: Float = 15f,
     private val enabled: Set<CompensationStage> = CompensationStage.entries.toSet(),
     private val shear: ShearCompensator = ShearCompensator(null),
-    private val stretch: StretchCompensator = StretchCompensator(15f, 15f, preserveCenter = true),
+    private val stretch: StretchCompensator = StretchCompensator(15f, 15f),
 ) : CompensationPipeline {
     override fun prepare(
         strokes: List<List<ShapePoint>>,
@@ -54,7 +54,7 @@ internal class ProcrustesShapeCompensationPipeline(
             val compensation = identity.copy(
                 translation = TranslationCompensation(fitted.translationX * 100, fitted.translationY * 100, maxTranslationPercent),
                 size = SizeCompensation(fitted.scaleFactor, maxSizeCompensationPercent),
-                rotation = RotationCompensation(fitted.rotationDegrees, RotationPivot.Centroid, maxRotationDegrees),
+                rotation = RotationCompensation(degrees = fitted.rotationDegrees, limitDegrees = maxRotationDegrees),
                 budget = identity.budget.copy(
                     translationPercent = cost.movement(strokes, translated),
                     sizePercent = cost.movement(translated, resized),

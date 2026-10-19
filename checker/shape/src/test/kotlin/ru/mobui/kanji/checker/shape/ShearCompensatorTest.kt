@@ -30,7 +30,7 @@ class ShearCompensatorTest {
     }
 
     @Test fun rejectsExcessiveShearAndChargesBudgetBeforeFinalComparison() {
-        val config = ShapeCheckConfig(pipelineType = ru.mobui.kanji.domain.practice.CompensationPipelineType.Cascade, requiredMatchPercent = 95f, distanceTolerance = .035f, maxShearDegrees = 5f, maxCompensationBudgetPercent = 100f)
+        val config = ShapeCheckConfig(enabledCompensations = setOf(ru.mobui.kanji.domain.practice.CompensationStage.Shear), requiredMatchPercent = 95f, distanceTolerance = .035f, maxShearDegrees = 5f, maxCompensationBudgetPercent = 100f)
         val input = slanted(8f)
         val sample = WritingSample(input.map { s -> InkStroke(s.mapIndexed { i, p -> InkPoint(p.x, p.y, i.toLong()) }, InkTool.Finger) })
         val target = ReferenceDrawing(reference.map { s -> s.map { ReferencePoint(it.x, it.y) } })

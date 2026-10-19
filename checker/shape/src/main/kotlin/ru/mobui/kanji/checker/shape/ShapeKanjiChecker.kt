@@ -43,8 +43,7 @@ class ShapeKanjiChecker(
                     put("input.strokeDuration.ms", request.sample.strokes.sumOf { it.points.last().elapsedMs }.toString())
                     put("input.tools", request.sample.strokes.map { it.tool }.distinct().joinToString())
                 }
-                put("pipelineType", config.pipelineType.name)
-                put("enabledCompensations", config.enabledCompensations.joinToString { it.name })
+                put("enabledCompensations", config.effectiveCompensations.joinToString { it.name })
                 put("checkStrokeStructure", config.checkStrokeStructure.toString())
                 put("checkStrokeOrder", config.checkStrokeOrder.toString())
                 put("checkStrokeDirection", config.checkStrokeDirection.toString())
@@ -90,7 +89,7 @@ class ShapeKanjiChecker(
                     put("shear.factor", score.compensation.shear.factor.toString())
                     put("shear.hasError", score.compensation.shear.hasError.toString())
                     put("shear.isEstimated", score.compensation.shear.isEstimated.toString())
-                    put("rotation.pivot", score.compensation.rotationPivot.name)
+                    put("rotation.pivot", "Centroid")
                     put("rotation.hasError", score.compensation.rotation.hasError.toString())
                     put("rotation.degrees", score.compensation.rotationDegrees.toString())
                     put("jitter.removedPoints", score.compensation.jitter.removedPoints.toString())

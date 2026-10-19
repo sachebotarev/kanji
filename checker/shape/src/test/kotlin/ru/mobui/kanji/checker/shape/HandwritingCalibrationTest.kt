@@ -18,7 +18,7 @@ class HandwritingCalibrationTest {
             } }, hookRequirements = parts[1].split(',').map { HookRequirement.valueOf(it) })
         }
         val records = File(System.getenv("KANJI_INPUTS") ?: root.resolve("external/inputs.tsv").path).readLines()
-        val tolerances = (System.getenv("KANJI_TOLERANCES") ?: "0.048").split(',').map(String::toFloat)
+        val tolerances = (System.getenv("KANJI_TOLERANCES") ?: RecognitionSettings.touchInput().distanceTolerance.toString()).split(',').map(String::toFloat)
         File(System.getenv("KANJI_RESULTS") ?: root.resolve("external/results.tsv").path).bufferedWriter().use { out ->
             out.appendLine("id\ttarget\tlabel\tsplit\ttolerance\tscore\traw\tbudget\tcompensationErrors\thooks\trules\taccepted\tcompensationFailures\tinputStrokes\treferenceStrokes")
             for (line in records) {

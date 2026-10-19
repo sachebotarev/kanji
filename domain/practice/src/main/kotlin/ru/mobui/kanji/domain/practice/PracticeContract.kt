@@ -85,7 +85,6 @@ data class CheckCompensation(
     val shear: ShearCompensation = ShearCompensation(),
 ) {
     val rotationDegrees: Float get() = rotation.degrees
-    val rotationPivot: RotationPivot get() = rotation.pivot
     val scaleX: Float get() = stretch.scaleX
     val scaleY: Float get() = stretch.scaleY
     val failures: List<CheckFailure> get() = buildList {

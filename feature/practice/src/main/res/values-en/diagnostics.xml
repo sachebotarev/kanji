@@ -80,11 +80,6 @@ Revision: %4$d</string>
     <string name="debug_undefined">Undefined</string>
     <string name="debug_unavailable">Unavailable</string>
     <string name="debug_algorithm">Stroke comparison · 49 arc-length samples; diagnostic 128×128 grid</string>
-    <string name="pivot_center">Center</string>
-    <string name="pivot_top_left">Top left corner</string>
-    <string name="pivot_top_right">Top right corner</string>
-    <string name="pivot_bottom_left">Bottom left corner</string>
-    <string name="pivot_bottom_right">Bottom right corner</string>
     <string name="tool_finger">Finger</string>
     <string name="tool_stylus">Stylus</string>
     <string name="tool_mouse">Mouse</string>
@@ -94,7 +89,4 @@ Revision: %4$d</string>
     <string name="metric_coverage_global_percent" formatted="false">Whole drawing coverage (diagnostic), %</string>
     <string name="metric_coverage_strokes_percent" formatted="false">Matched stroke coverage, %</string>
     <string name="pivot_centroid">Stroke centroid</string>
-    <string name="metric_pipeline_type">Compensation pipeline</string>
-    <string name="pipeline_cascade">Cascade</string>
-    <string name="pipeline_procrustes">Procrustes</string>
 </resources>

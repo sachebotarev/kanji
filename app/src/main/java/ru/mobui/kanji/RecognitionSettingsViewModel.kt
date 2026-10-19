@@ -12,7 +12,8 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
     private val mutableSettings = MutableStateFlow(restore())
     val settings = mutableSettings.asStateFlow()
 
-    fun update(value: RecognitionSettings) {
+    fun update(settings: RecognitionSettings) {
+        val value = settings.roundedParameters()
         mutableSettings.value = value
         savedState["recognition.parameters"] = floatArrayOf(
             value.requiredMatchPercent, value.distanceTolerance, value.maxTranslationPercent,
@@ -22,8 +23,9 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
             value.connectionTolerancePercent, value.protrusionTolerancePercent,
             if (value.checkStrokeStructure) 1f else 0f, if (value.checkStrokeOrder) 1f else 0f, if (value.checkStrokeDirection) 1f else 0f, value.lengthDifferenceTolerancePercent,
         )
-        savedState["recognition.pipeline"] = value.pipelineType.name
-        savedState["recognition.stageNames"] = value.enabledCompensations.map { it.name }.toTypedArray()
+        savedState.remove<Array<String>>("recognition.stageNames")
+        savedState.remove<IntArray>("recognition.stages")
+        savedState.remove<String>("recognition.pipeline")
     }
 
     fun reset() = update(defaults)
@@ -38,9 +40,6 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
         }
         return runCatching {
             defaults.copy(
-                pipelineType = savedState.get<String>("recognition.pipeline")?.let { name ->
-                    CompensationPipelineType.entries.firstOrNull { it.name == name }
-                } ?: defaults.pipelineType,
                 requiredMatchPercent = values[0], distanceTolerance = values[1], maxTranslationPercent = values[2],
                 maxSizeCompensationPercent = values[3].takeUnless { it.isNaN() },
                 maxHorizontalStretchPercent = values[4], maxVerticalStretchPercent = values[5],
@@ -49,12 +48,23 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
                 maxCompensationBudgetPercent = values[9].takeUnless { it.isNaN() },
                 connectionTolerancePercent = values[10], protrusionTolerancePercent = values[11],
                 checkStrokeStructure = values[12] == 1f, checkStrokeOrder = values[13] == 1f, checkStrokeDirection = values[14] == 1f, lengthDifferenceTolerancePercent = values[15],
-                enabledCompensations = savedState.get<Array<String>>("recognition.stageNames")?.mapNotNull { name ->
-                    CompensationStage.entries.firstOrNull { it.name == name }
-                }?.toSet() ?: savedState.get<IntArray>("recognition.stages")?.asIterable()?.mapNotNull {
-                    CompensationStage.entries.getOrNull(it)
-                }?.toSet() ?: defaults.enabledCompensations,
             )
-        }.getOrDefault(defaults)
+        }.getOrDefault(defaults).let { restored ->
+            val oldEnabled = savedState.get<Array<String>>("recognition.stageNames")?.mapNotNull { name ->
+                CompensationStage.entries.firstOrNull { it.name == name }
+            }?.toSet() ?: savedState.get<IntArray>("recognition.stages")?.asIterable()?.mapNotNull {
+                CompensationStage.entries.getOrNull(it)
+            }?.toSet()
+            // Migrate disabled legacy toggles to zero, then stop persisting separate toggles.
+            if (oldEnabled == null) restored else restored.copy(
+                maxTranslationPercent = restored.maxTranslationPercent.takeIf { CompensationStage.Translation in oldEnabled } ?: 0f,
+                maxSizeCompensationPercent = if (CompensationStage.Size in oldEnabled) restored.maxSizeCompensationPercent else 0f,
+                maxRotationDegrees = restored.maxRotationDegrees.takeIf { CompensationStage.Rotation in oldEnabled } ?: 0f,
+                maxShearDegrees = if (CompensationStage.Shear in oldEnabled) restored.maxShearDegrees else 0f,
+                maxHorizontalStretchPercent = restored.maxHorizontalStretchPercent.takeIf { CompensationStage.Stretch in oldEnabled } ?: 0f,
+                maxVerticalStretchPercent = restored.maxVerticalStretchPercent.takeIf { CompensationStage.Stretch in oldEnabled } ?: 0f,
+                jitterTolerancePercent = restored.jitterTolerancePercent.takeIf { CompensationStage.Jitter in oldEnabled } ?: 0f,
+            )
+        }.roundedParameters()
     }
 }

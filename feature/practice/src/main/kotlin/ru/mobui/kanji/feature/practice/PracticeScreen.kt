@@ -472,7 +472,7 @@ private fun DebugDialog(state: PracticeUiState, onClose: () -> Unit) {
             if (correction.translation.isApplied || correction.translation.hasError)
                 add(stringResource(R.string.debug_translation, correction.translation.shiftXPercent, correction.translation.shiftYPercent, correction.translation.limitPercent))
             if (kotlin.math.abs(correction.rotationDegrees) > .0001f)
-                add(stringResource(R.string.debug_rotation, correction.rotationDegrees) + " [${debugToken(correction.rotationPivot.name)}]")
+                add(stringResource(R.string.debug_rotation, correction.rotationDegrees) + " [${stringResource(R.string.pivot_centroid)}]")
             if (kotlin.math.abs(correction.scaleX - 1f) > .0001f)
                 add(stringResource(R.string.debug_scale_x, (correction.scaleX - 1f) * 100))
             if (kotlin.math.abs(correction.scaleY - 1f) > .0001f)

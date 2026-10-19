@@ -80,11 +80,6 @@
     <string name="debug_undefined">Не определено</string>
     <string name="debug_unavailable">Недоступно</string>
     <string name="debug_algorithm">Сравнение черт · 49 точек по длине; справочная сетка 128×128</string>
-    <string name="pivot_center">Центр</string>
-    <string name="pivot_top_left">Левый верхний угол</string>
-    <string name="pivot_top_right">Правый верхний угол</string>
-    <string name="pivot_bottom_left">Левый нижний угол</string>
-    <string name="pivot_bottom_right">Правый нижний угол</string>
     <string name="tool_finger">Палец</string>
     <string name="tool_stylus">Стилус</string>
     <string name="tool_mouse">Мышь</string>
@@ -94,7 +89,4 @@
     <string name="metric_coverage_global_percent" formatted="false">Общее покрытие (справочно), %</string>
     <string name="metric_coverage_strokes_percent" formatted="false">Совпадение сопоставленных черт, %</string>
     <string name="pivot_centroid">Центроид черт</string>
-    <string name="metric_pipeline_type">Цепочка компенсаций</string>
-    <string name="pipeline_cascade">Последовательная</string>
-    <string name="pipeline_procrustes">Прокрустово совмещение</string>
 </resources>

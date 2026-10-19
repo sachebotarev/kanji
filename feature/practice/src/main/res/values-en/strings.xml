@@ -63,14 +63,12 @@
     <string name="checker_settings_live">Changes apply immediately to practice drawings. Individual limits and the total budget are checked independently.</string>
     <string name="setting_match">Minimum match</string>
     <string name="setting_distance">Distance tolerance</string>
-    <string name="setting_budget_limit">Limit the total budget</string>
     <string name="setting_budget">Total budget</string>
     <string name="setting_translation">Translation compensation</string>
     <string name="setting_translation_limit">Maximum translation per axis</string>
     <string name="setting_shear">Shear compensation</string>
     <string name="setting_shear_limit">Maximum shear</string>
     <string name="setting_size">Uniform size</string>
-    <string name="setting_size_limit_enabled">Limit size changes</string>
     <string name="setting_size_limit">Expansion or compression</string>
     <string name="setting_stretch">Stretch along each axis</string>
     <string name="setting_stretch_x">Maximum X correction</string>
@@ -79,8 +77,8 @@
     <string name="setting_rotation_limit">Maximum rotation</string>
     <string name="setting_jitter">Jitter compensation</string>
     <string name="setting_jitter_limit">Simplified line deviation</string>
-    <string name="setting_percent_value">%1$.1f%%</string>
-    <string name="setting_degrees_value">%1$.1f°</string>
+    <string name="setting_percent_value">%1$d%%</string>
+    <string name="setting_degrees_value">%1$d°</string>
     <string name="debug_structure_error">Stroke connections and protrusions: %1$s</string>
     <string name="debug_order_error">Stroke order (position → expected): %1$s</string>
     <string name="debug_direction_error">Strokes written in reverse: %1$s</string>
@@ -95,4 +93,13 @@
     <string name="rule_ends_at">Stroke %1$d must meet stroke %2$d at its start or end.</string>
     <string name="rule_shorter">Stroke %1$d must be shorter than stroke %2$d.</string>
     <string name="debug_missing_hooks">Required hook missing from strokes: %1$s</string>
+    <string name="setting_tenths_percent_value">%1$.1f%%</string>
+    <string name="settings_group_shape">Shape match</string>
+    <string name="settings_group_compensations">Compensations</string>
+    <string name="settings_group_budget">Total budget</string>
+    <string name="settings_group_rules">Writing rules</string>
+    <string name="settings_zero_disables">0 disables the compensation. X and Y stretch can be disabled independently.</string>
+    <string name="settings_zero_budget_unlimited">0 removes the total budget limit. Individual limits still apply.</string>
+    <string name="setting_rule_check">Check</string>
+    <string name="setting_rule_ignore">Ignore</string>
 </resources>

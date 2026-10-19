@@ -109,19 +109,18 @@ class ProcrustesRegressionTest {
 
     }
 
-    @Test fun bothPipelinesKeepStrokeEndsWhenSmoothing() {
+    @Test fun pipelineKeepsStrokeEndsWhenSmoothing() {
         val ink = listOf(listOf(ShapePoint(.2f, .49f), ShapePoint(.2f, .5f),
-            ShapePoint(.8f, .5f), ShapePoint(.8f, .51f)))
-        for (type in CompensationPipelineType.entries) {
-            val config = settings.copy(pipelineType = type, jitterTolerancePercent = 5f,
-                enabledCompensations = setOf(CompensationStage.Jitter))
-            val prepared = compensationPipeline(config).prepare(ink, ink, emptySet(), listOf(0))
-            assertTrue(prepared.candidates.isNotEmpty())
-            for (candidate in prepared.candidates) {
-                assertEquals(ink.single().first(), candidate.strokes.single().first())
-                assertEquals(ink.single().last(), candidate.strokes.single().last())
-            }
+        ShapePoint(.8f, .5f), ShapePoint(.8f, .51f)))
+        val config = settings.copy(jitterTolerancePercent = 5f,
+            enabledCompensations = setOf(CompensationStage.Jitter))
+        val prepared = compensationPipeline(config).prepare(ink, ink, emptySet(), listOf(0))
+        assertTrue(prepared.candidates.isNotEmpty())
+        for (candidate in prepared.candidates) {
+            assertEquals(ink.single().first(), candidate.strokes.single().first())
+            assertEquals(ink.single().last(), candidate.strokes.single().last())
         }
+
     }
 
     @Test fun publicMatcherAndCheckerUseTheSamePipelineAndLimits() = runBlocking {
@@ -132,7 +131,7 @@ class ProcrustesRegressionTest {
         val report = checker.checkWithDetails(CheckRequest("task", "cell", KanjiId("any"), 0, ink))
         assertEquals(CheckVerdict.Correct, report.verdict)
         assertEquals(direct.compensation, report.compensation)
-        assertEquals("Procrustes", report.metrics["pipelineType"])
+        assertEquals("Centroid", report.metrics["rotation.pivot"])
         val strict = settings.copy(maxRotationDegrees = 0f, maxSizeCompensationPercent = 0f)
         assertFalse(ShapeMatcher(strict).compare(ink, drawing(reference)).isAccepted(strict))
         val noBudget = settings.copy(maxCompensationBudgetPercent = 0f)
@@ -147,6 +146,25 @@ class ProcrustesRegressionTest {
         assertTrue(match.compensation.translation.hasError)
         assertFalse(match.isAccepted(config))
         assertEquals(listOf(CheckFailure.Translation(match.compensation.translation)), match.compensation.failures)
+    }
+
+    @Test fun translationLimitIsInclusivePerAxisAndPreservesOriginalInk() {
+        val config = settings.copy(maxTranslationPercent = 10f,
+            enabledCompensations = setOf(CompensationStage.Translation))
+        for (dx in listOf(-.1f, .1f)) for (dy in listOf(-.1f, .1f)) {
+            val ink = sample(transformed(reference, scale = 1f, angle = 0f, dx = dx, dy = dy))
+            val snapshot = ink.strokes.map { it.points.toList() }
+            val result = ShapeMatcher(config).compare(ink, drawing(reference))
+            assertTrue(result.isAccepted(config))
+            assertEquals(-dx * 100, result.compensation.translation.shiftXPercent, .0001f)
+            assertEquals(-dy * 100, result.compensation.translation.shiftYPercent, .0001f)
+            assertEquals(snapshot, ink.strokes.map { it.points })
+        }
+        val excessive = sample(transformed(reference, scale = 1f, angle = 0f, dx = .1001f, dy = 0f))
+        val result = ShapeMatcher(config).compare(excessive, drawing(reference))
+        assertEquals(100f, result.matchPercent, .001f)
+        assertTrue(result.compensation.translation.hasError)
+        assertFalse(result.isAccepted(config))
     }
 
     @Test fun invalidCorrespondenceAndDegenerateInkReturnFiniteIdentity() {

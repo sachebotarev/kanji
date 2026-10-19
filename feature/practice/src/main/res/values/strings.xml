@@ -63,14 +63,12 @@
     <string name="checker_settings_live">Изменения сразу применяются к рисункам тренировки. Пределы и общий бюджет проверяются независимо.</string>
     <string name="setting_match">Минимальное совпадение</string>
     <string name="setting_distance">Допуск расстояния</string>
-    <string name="setting_budget_limit">Ограничивать общий бюджет</string>
     <string name="setting_budget">Общий бюджет</string>
     <string name="setting_translation">Компенсация сдвига</string>
     <string name="setting_translation_limit">Предельный сдвиг по оси</string>
     <string name="setting_shear">Компенсация перекоса</string>
     <string name="setting_shear_limit">Предельный перекос</string>
     <string name="setting_size">Общий размер</string>
-    <string name="setting_size_limit_enabled">Ограничивать изменение размера</string>
     <string name="setting_size_limit">Растяжение или сжатие</string>
     <string name="setting_stretch">Растяжение по осям</string>
     <string name="setting_stretch_x">Предельная поправка X</string>
@@ -79,8 +77,8 @@
     <string name="setting_rotation_limit">Предельный поворот</string>
     <string name="setting_jitter">Компенсация дрожания</string>
     <string name="setting_jitter_limit">Отклонение упрощённой линии</string>
-    <string name="setting_percent_value">%1$.1f%%</string>
-    <string name="setting_degrees_value">%1$.1f°</string>
+    <string name="setting_percent_value">%1$d%%</string>
+    <string name="setting_degrees_value">%1$d°</string>
     <string name="debug_structure_error">Соединения и выступы черт: %1$s</string>
     <string name="debug_order_error">Порядок черт (позиция → ожидаемая): %1$s</string>
     <string name="debug_direction_error">Обратное направление черт: %1$s</string>
@@ -95,4 +93,13 @@
     <string name="rule_ends_at">Черта %1$d должна примыкать началом или концом к черте %2$d.</string>
     <string name="rule_shorter">Черта %1$d должна быть короче черты %2$d.</string>
     <string name="debug_missing_hooks">Отсутствует обязательный крючок в чертах: %1$s</string>
+    <string name="setting_tenths_percent_value">%1$.1f%%</string>
+    <string name="settings_group_shape">Совпадение формы</string>
+    <string name="settings_group_compensations">Компенсации</string>
+    <string name="settings_group_budget">Общий бюджет</string>
+    <string name="settings_group_rules">Правила написания</string>
+    <string name="settings_zero_disables">0 — компенсация выключена. Растяжение по X и Y отключается независимо.</string>
+    <string name="settings_zero_budget_unlimited">0 — без общего ограничения бюджета. Индивидуальные пределы сохраняются.</string>
+    <string name="setting_rule_check">Учитывать</string>
+    <string name="setting_rule_ignore">Игнорировать</string>
 </resources>

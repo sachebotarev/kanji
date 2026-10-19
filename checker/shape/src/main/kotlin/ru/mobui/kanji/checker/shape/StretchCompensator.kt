@@ -7,11 +7,10 @@ internal data class StretchedShape(
     val result: StretchCompensation,
 )
 
-/** Fits width/height independently; Cascade keeps the upper-left corner, OPA keeps the box center. */
+/** Fits width and height independently around the bounding-box center. */
 internal class StretchCompensator(
     private val horizontalLimitPercent: Float,
     private val verticalLimitPercent: Float,
-    private val preserveCenter: Boolean = false,
 ) {
     init {
         require(horizontalLimitPercent.isFinite() && horizontalLimitPercent >= 0f)
@@ -34,11 +33,11 @@ internal class StretchCompensator(
             actual <= 0f || expected <= 0f -> null
             else -> (expected / actual).takeIf { it.isFinite() && it > 0f }
         }
-        val x = factor(width, targetWidth) ?: return undefined()
-        val y = factor(height, targetHeight) ?: return undefined()
+        val x = if (horizontalLimitPercent == 0f) 1f else factor(width, targetWidth) ?: return undefined()
+        val y = if (verticalLimitPercent == 0f) 1f else factor(height, targetHeight) ?: return undefined()
         val result = StretchCompensation(x, y, horizontalLimitPercent, verticalLimitPercent)
-        val pivotX = if (preserveCenter) left + width / 2 else left
-        val pivotY = if (preserveCenter) top + height / 2 else top
+        val pivotX = left + width / 2
+        val pivotY = top + height / 2
         return StretchedShape(strokes.map { stroke -> stroke.map { p ->
             ShapePoint(pivotX + (p.x - pivotX) * x, pivotY + (p.y - pivotY) * y)
         } }, result)

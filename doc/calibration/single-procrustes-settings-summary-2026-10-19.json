@@ -1,0 +1,29 @@
+{
+  "profile": {
+    "algorithm": "Procrustes",
+    "match_percent": 73,
+    "distance_percent": 5,
+    "budget_percent": 27,
+    "jitter_percent": 0.5,
+    "jitter_step_percent": 0.1,
+    "other_step": 1
+  },
+  "count_compatible": 6192,
+  "hooks_passed": 5704,
+  "accepted": 4753,
+  "accepted_percent": 83.32748948106592,
+  "negative_pairs": 12,
+  "negative_accepted": 0,
+  "pixel_verdicts": {
+    "pixel-27": true,
+    "pixel-29": false,
+    "pixel-31": false
+  },
+  "removal_preserves_original_corpus_results": true,
+  "grouped_controls_preserve_rounded_profile_results": true,
+  "repeated_probe_runs_execute": true,
+  "lint": {
+    "Warning": 14
+  },
+  "device_tests_executed": false
+}

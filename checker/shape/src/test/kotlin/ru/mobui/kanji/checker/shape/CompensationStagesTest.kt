@@ -2,59 +2,41 @@ package ru.mobui.kanji.checker.shape
 
 import org.junit.Assert.*
 import org.junit.Test
-import ru.mobui.kanji.domain.practice.RotationPivot
 
 class CompensationStagesTest {
     private val reference = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.6f, .4f)))
 
-    @Test fun uniformSizePreservesAspectRatioAndUpperLeftAndReportsBothDirections() {
-        for (factor in listOf(.8f, 1.2f)) {
-            val input = reference.map { s -> s.map { ShapePoint(.2f + (it.x - .2f) / factor, .2f + (it.y - .2f) / factor) } }
-            val result = SizeCompensator(20f).compensate(input, reference)
-            assertFalse(result.result.hasError)
-            assertEquals(factor, result.result.scaleFactor, .000001f)
-            assertEquals((factor - 1) * 100, result.result.changePercent, .0001f)
-            assertEquals(input[0][0], result.strokes[0][0])
-            assertEquals(.6f, result.strokes[0][1].x, .000001f)
-            assertEquals(.4f, result.strokes[0][1].y, .000001f)
-            assertTrue(SizeCompensator(19f).compensate(input, reference).result.hasError)
-        }
-        assertTrue(SizeCompensator(20f).compensate(listOf(listOf(ShapePoint(.3f, .3f))), reference).result.hasError)
-    }
-
-    @Test fun stretchFitsBothAxesIndependentlyAndKeepsAlignedCorner() {
+    @Test fun stretchFitsBothAxesIndependentlyAndKeepsCenter() {
         val input = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.4f, .6f)))
         val result = StretchCompensator(100f, 50f).compensate(input, reference)
         assertFalse(result.result.hasError)
         assertEquals(2f, result.result.scaleX, .000001f)
         assertEquals(.5f, result.result.scaleY, .000001f)
-        assertEquals(input[0][0], result.strokes[0][0])
-        assertEquals(.6f, result.strokes[0][1].x, .000001f)
-        assertEquals(.4f, result.strokes[0][1].y, .000001f)
+        assertEquals(.1f, result.strokes[0][0].x, .000001f)
+        assertEquals(.3f, result.strokes[0][0].y, .000001f)
+        assertEquals(.5f, result.strokes[0][1].x, .000001f)
+        assertEquals(.5f, result.strokes[0][1].y, .000001f)
         assertTrue(StretchCompensator(99f, 50f).compensate(input, reference).result.hasError)
         assertTrue(StretchCompensator(100f, 49f).compensate(input, reference).result.hasError)
     }
 
-    @Test fun rotationKeepsEveryPivotFixedAndReportsExcessiveAngles() {
-        val strokes = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.8f, .2f), ShapePoint(.8f, .8f), ShapePoint(.2f, .8f)))
-        val compensator = RotationCompensator(7f)
-        val candidates = compensator.candidates(strokes)
-        for ((kind, pivot) in listOf(
-            RotationPivot.Center to ShapePoint(.5f, .5f),
-            RotationPivot.TopLeft to ShapePoint(.2f, .2f),
-            RotationPivot.TopRight to ShapePoint(.8f, .2f),
-            RotationPivot.BottomLeft to ShapePoint(.2f, .8f),
-            RotationPivot.BottomRight to ShapePoint(.8f, .8f),
-        )) {
-            assertTrue(candidates.any { it.result.degrees == 7f && it.result.pivot == kind && !it.result.hasError })
-            val result = compensator.compensate(listOf(listOf(pivot)), 7f, pivot)
-            assertEquals(pivot, result.single().single())
-        }
-        assertTrue(candidates.any { it.result.degrees == 20f && it.result.hasError })
-        assertEquals(strokes, candidates.first().strokes)
+    @Test fun zeroStretchDisablesOnlyTheSelectedAxis() {
+        val input = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.4f, .6f)))
+        val vertical = StretchCompensator(0f, 50f).compensate(input, reference)
+        assertFalse(vertical.result.hasError)
+        assertEquals(1f, vertical.result.scaleX, 0f)
+        assertEquals(.5f, vertical.result.scaleY, .000001f)
+        assertEquals(.2f, vertical.strokes[0][0].x, 0f)
+        assertEquals(.4f, vertical.strokes[0][1].x, 0f)
+        val horizontal = StretchCompensator(100f, 0f).compensate(input, reference)
+        assertFalse(horizontal.result.hasError)
+        assertEquals(2f, horizontal.result.scaleX, .000001f)
+        assertEquals(1f, horizontal.result.scaleY, 0f)
+        assertEquals(.2f, horizontal.strokes[0][0].y, 0f)
+        assertEquals(.6f, horizontal.strokes[0][1].y, 0f)
     }
 
-    @Test fun sharedFrameDoesNotSilentlyUndoRotationPivotTranslation() {
+    @Test fun sharedFrameDoesNotSilentlyUndoTranslation() {
         val target = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.8f, .6f)))
         val shifted = target.map { s -> s.map { ShapePoint(it.x + .15f, it.y) } }
         val checker = RasterShapeChecker(.01f)

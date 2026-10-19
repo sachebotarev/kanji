@@ -1,17 +1,16 @@
 package ru.mobui.kanji.domain.practice
 
-// >=80% of count-compatible Tomoe kanji entries that pass hooks; see doc/calibration/tomoe-full-2026-10-19.md.
-private const val TOUCH_MATCH_PERCENT = 73.03f
-private const val TOUCH_BUDGET_PERCENT = 27.36f
+import kotlin.math.roundToInt
 
-enum class CompensationPipelineType { Cascade, Procrustes }
+// User-rounded touch profile; measurements: doc/calibration/tomoe-full-2026-10-19.md.
+private const val TOUCH_MATCH_PERCENT = 73f
+private const val TOUCH_BUDGET_PERCENT = 27f
 
 data class RecognitionSettings(
     // Generic callers have unrestricted translation/size by default; the calibrated app uses touchInput().
     val requiredMatchPercent: Float = 72f,
     /** Allowed distance as a fraction of the normalized glyph's longest side. */
     val distanceTolerance: Float = 0.048f,
-    val pipelineType: CompensationPipelineType = CompensationPipelineType.Procrustes,
     /** Maximum absolute independent X/Y correction, in percent, after uniform scaling. */
     val maxHorizontalStretchPercent: Float = 15f,
     val maxVerticalStretchPercent: Float = 15f,
@@ -37,11 +36,47 @@ data class RecognitionSettings(
     companion object {
         /** Shared starting profile for finger input; values remain adjustable in settings. */
         fun touchInput() = RecognitionSettings(
-            requiredMatchPercent = TOUCH_MATCH_PERCENT, distanceTolerance = .048f,
+            requiredMatchPercent = TOUCH_MATCH_PERCENT, distanceTolerance = .05f,
             maxTranslationPercent = 12f, maxSizeCompensationPercent = 30f,
             maxCompensationBudgetPercent = TOUCH_BUDGET_PERCENT, jitterTolerancePercent = .5f,
             maxShearDegrees = 8f, maxRotationDegrees = 8f,
         )
+    }
+
+    /** Whole percentages/degrees for user settings, with jitter in tenths of a percent.
+     * Numerical checker tests may still construct finer-grained configurations directly. */
+    fun roundedParameters(): RecognitionSettings {
+        fun whole(value: Float) = value.roundToInt().toFloat()
+        val rounded = copy(
+            requiredMatchPercent = whole(requiredMatchPercent).coerceIn(1f, 100f),
+            distanceTolerance = whole(distanceTolerance * 100).coerceIn(1f, 15f) / 100,
+            maxHorizontalStretchPercent = whole(maxHorizontalStretchPercent),
+            maxVerticalStretchPercent = whole(maxVerticalStretchPercent),
+            maxRotationDegrees = whole(maxRotationDegrees),
+            maxTranslationPercent = whole(maxTranslationPercent),
+            maxSizeCompensationPercent = maxSizeCompensationPercent?.let(::whole) ?: 30f,
+            jitterTolerancePercent = (jitterTolerancePercent * 10).roundToInt() / 10f,
+            maxCompensationBudgetPercent = maxCompensationBudgetPercent?.let(::whole)?.takeIf { it > 0f },
+            maxShearDegrees = maxShearDegrees?.let(::whole) ?: 0f,
+            connectionTolerancePercent = whole(connectionTolerancePercent),
+            protrusionTolerancePercent = whole(protrusionTolerancePercent),
+            lengthDifferenceTolerancePercent = whole(lengthDifferenceTolerancePercent),
+        )
+        // User controls have one source of truth: zero disables the correction.
+        return rounded.copy(enabledCompensations = rounded.compensationsFromLimits())
+    }
+
+    /** Zero is an identity transform, even when a numerical caller enables the stage explicitly. */
+    val effectiveCompensations: Set<CompensationStage>
+        get() = enabledCompensations intersect compensationsFromLimits()
+
+    private fun compensationsFromLimits(): Set<CompensationStage> = buildSet {
+        if (maxTranslationPercent > 0f) add(CompensationStage.Translation)
+        if ((maxShearDegrees ?: 0f) > 0f) add(CompensationStage.Shear)
+        if (maxSizeCompensationPercent == null || maxSizeCompensationPercent > 0f) add(CompensationStage.Size)
+        if (maxHorizontalStretchPercent > 0f || maxVerticalStretchPercent > 0f) add(CompensationStage.Stretch)
+        if (maxRotationDegrees > 0f) add(CompensationStage.Rotation)
+        if (jitterTolerancePercent > 0f) add(CompensationStage.Jitter)
     }
 
     init {

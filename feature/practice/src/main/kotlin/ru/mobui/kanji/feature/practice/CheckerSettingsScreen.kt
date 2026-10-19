@@ -7,10 +7,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import ru.mobui.kanji.core.writingpad.*
 import ru.mobui.kanji.domain.practice.*
 
@@ -24,7 +27,7 @@ fun CheckerSettingsScreen(
     modifier: Modifier = Modifier,
     preview: PracticeUiState? = null,
 ) {
-    val defaultBudget = requireNotNull(RecognitionSettings.touchInput().maxCompensationBudgetPercent)
+    fun change(value: RecognitionSettings) = onChange(value.roundedParameters())
     Scaffold(modifier) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(Modifier.fillMaxWidth().padding(horizontal = 8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
@@ -58,41 +61,33 @@ fun CheckerSettingsScreen(
             Column(Modifier.fillMaxWidth().weight(1f).verticalScroll(rememberScrollState()).padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 report?.failures?.forEach { failure -> Text(checkFailureText(failure), color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.bodySmall) }
                 Text(stringResource(R.string.checker_settings_live), style = MaterialTheme.typography.bodySmall)
-                ToggleRow(R.string.setting_structure, settings.checkStrokeStructure, "check-structure") { onChange(settings.copy(checkStrokeStructure = it)) }
-                if (settings.checkStrokeStructure) {
-                    ParameterSlider(R.string.setting_length_difference, settings.lengthDifferenceTolerancePercent, 0f..30f, "length-difference") { onChange(settings.copy(lengthDifferenceTolerancePercent = it)) }
-                    ParameterSlider(R.string.setting_connection, settings.connectionTolerancePercent, 0f..10f, "connection") { onChange(settings.copy(connectionTolerancePercent = it)) }
-                    ParameterSlider(R.string.setting_protrusion, settings.protrusionTolerancePercent, 0f..10f, "protrusion") { onChange(settings.copy(protrusionTolerancePercent = it)) }
+                SettingsGroup(R.string.settings_group_shape) {
+                    ParameterSlider(R.string.setting_match, settings.requiredMatchPercent, 1f..100f, "match") { change(settings.copy(requiredMatchPercent = it)) }
+                    ParameterSlider(R.string.setting_distance, settings.distanceTolerance * 100, 1f..15f, "distance") { change(settings.copy(distanceTolerance = it / 100)) }
                 }
-                ToggleRow(R.string.setting_order, settings.checkStrokeOrder, "check-order") { onChange(settings.copy(checkStrokeOrder = it)) }
-                ToggleRow(R.string.setting_direction, settings.checkStrokeDirection, "check-direction") { onChange(settings.copy(checkStrokeDirection = it)) }
-                ParameterSlider(R.string.setting_match, settings.requiredMatchPercent, 1f..100f, "match") { onChange(settings.copy(requiredMatchPercent = it)) }
-                ParameterSlider(R.string.setting_distance, settings.distanceTolerance * 100, .1f..15f, "distance") { onChange(settings.copy(distanceTolerance = it / 100)) }
-                ToggleRow(R.string.setting_budget_limit, settings.maxCompensationBudgetPercent != null, "budget-limit") {
-                    onChange(settings.copy(maxCompensationBudgetPercent = if (it) defaultBudget else null))
+                SettingsGroup(R.string.settings_group_compensations, R.string.settings_zero_disables) {
+                    ParameterSlider(R.string.setting_translation_limit, settings.maxTranslationPercent, 0f..100f, "translation") { change(settings.copy(maxTranslationPercent = it)) }
+                    ParameterSlider(R.string.setting_size_limit, settings.maxSizeCompensationPercent ?: 30f, 0f..200f, "size") { change(settings.copy(maxSizeCompensationPercent = it)) }
+                    ParameterSlider(R.string.setting_stretch_x, settings.maxHorizontalStretchPercent, 0f..100f, "stretch-x") { change(settings.copy(maxHorizontalStretchPercent = it)) }
+                    ParameterSlider(R.string.setting_stretch_y, settings.maxVerticalStretchPercent, 0f..100f, "stretch-y") { change(settings.copy(maxVerticalStretchPercent = it)) }
+                    ParameterSlider(R.string.setting_rotation_limit, settings.maxRotationDegrees, 0f..20f, "rotation", unit = R.string.setting_degrees_value) { change(settings.copy(maxRotationDegrees = it)) }
+                    ParameterSlider(R.string.setting_shear_limit, settings.maxShearDegrees ?: 0f, 0f..20f, "shear", unit = R.string.setting_degrees_value) { change(settings.copy(maxShearDegrees = it)) }
+                    ParameterSlider(R.string.setting_jitter_limit, settings.jitterTolerancePercent, 0f..5f, "jitter", increment = .1f) { change(settings.copy(jitterTolerancePercent = it)) }
                 }
-                ParameterSlider(R.string.setting_budget, settings.maxCompensationBudgetPercent ?: defaultBudget, 0f..100f, "budget", settings.maxCompensationBudgetPercent != null) {
-                    onChange(settings.copy(maxCompensationBudgetPercent = it))
+                SettingsGroup(R.string.settings_group_budget, R.string.settings_zero_budget_unlimited) {
+                    ParameterSlider(R.string.setting_budget, settings.maxCompensationBudgetPercent ?: 0f, 0f..100f, "budget") {
+                        change(settings.copy(maxCompensationBudgetPercent = it.takeIf { amount -> amount > 0f }))
+                    }
                 }
-                StageSection(CompensationStage.Translation, R.string.setting_translation, settings, onChange) {
-                    ParameterSlider(R.string.setting_translation_limit, settings.maxTranslationPercent, 0f..100f, "translation") { onChange(settings.copy(maxTranslationPercent = it)) }
-                }
-                StageSection(CompensationStage.Shear, R.string.setting_shear, settings, onChange) {
-                    ParameterSlider(R.string.setting_shear_limit, settings.maxShearDegrees ?: 5f, 0f..20f, "shear", unit = R.string.setting_degrees_value) { onChange(settings.copy(maxShearDegrees = it)) }
-                }
-                StageSection(CompensationStage.Size, R.string.setting_size, settings, onChange) {
-                    ToggleRow(R.string.setting_size_limit_enabled, settings.maxSizeCompensationPercent != null, "size-limit") { onChange(settings.copy(maxSizeCompensationPercent = if (it) 30f else null)) }
-                    ParameterSlider(R.string.setting_size_limit, settings.maxSizeCompensationPercent ?: 30f, 0f..200f, "size", settings.maxSizeCompensationPercent != null) { onChange(settings.copy(maxSizeCompensationPercent = it)) }
-                }
-                StageSection(CompensationStage.Stretch, R.string.setting_stretch, settings, onChange) {
-                    ParameterSlider(R.string.setting_stretch_x, settings.maxHorizontalStretchPercent, 0f..100f, "stretch-x") { onChange(settings.copy(maxHorizontalStretchPercent = it)) }
-                    ParameterSlider(R.string.setting_stretch_y, settings.maxVerticalStretchPercent, 0f..100f, "stretch-y") { onChange(settings.copy(maxVerticalStretchPercent = it)) }
-                }
-                StageSection(CompensationStage.Rotation, R.string.setting_rotation, settings, onChange) {
-                    ParameterSlider(R.string.setting_rotation_limit, settings.maxRotationDegrees, 0f..20f, "rotation", unit = R.string.setting_degrees_value) { onChange(settings.copy(maxRotationDegrees = it)) }
-                }
-                StageSection(CompensationStage.Jitter, R.string.setting_jitter, settings, onChange) {
-                    ParameterSlider(R.string.setting_jitter_limit, settings.jitterTolerancePercent, 0f..5f, "jitter") { onChange(settings.copy(jitterTolerancePercent = it)) }
+                SettingsGroup(R.string.settings_group_rules) {
+                    RuleChoiceRow(R.string.setting_structure, settings.checkStrokeStructure, "check-structure") { change(settings.copy(checkStrokeStructure = it)) }
+                    if (settings.checkStrokeStructure) {
+                        ParameterSlider(R.string.setting_length_difference, settings.lengthDifferenceTolerancePercent, 0f..30f, "length-difference") { change(settings.copy(lengthDifferenceTolerancePercent = it)) }
+                        ParameterSlider(R.string.setting_connection, settings.connectionTolerancePercent, 0f..10f, "connection") { change(settings.copy(connectionTolerancePercent = it)) }
+                        ParameterSlider(R.string.setting_protrusion, settings.protrusionTolerancePercent, 0f..10f, "protrusion") { change(settings.copy(protrusionTolerancePercent = it)) }
+                    }
+                    RuleChoiceRow(R.string.setting_order, settings.checkStrokeOrder, "check-order") { change(settings.copy(checkStrokeOrder = it)) }
+                    RuleChoiceRow(R.string.setting_direction, settings.checkStrokeDirection, "check-direction") { change(settings.copy(checkStrokeDirection = it)) }
                 }
 
             }
@@ -101,33 +96,68 @@ fun CheckerSettingsScreen(
 }
 
 @Composable
-private fun StageSection(stage: CompensationStage, label: Int, settings: RecognitionSettings, onChange: (RecognitionSettings) -> Unit, content: @Composable () -> Unit) {
-    val enabled = stage in settings.enabledCompensations
-    HorizontalDivider()
-    ToggleRow(label, enabled, "stage-${stage.name}") { checked ->
-        onChange(settings.copy(enabledCompensations = if (checked) settings.enabledCompensations + stage else settings.enabledCompensations - stage,
-            maxShearDegrees = if (stage == CompensationStage.Shear && checked && settings.maxShearDegrees == null) 5f else settings.maxShearDegrees))
-    }
-    if (enabled) content()
-}
-
-@Composable
-private fun ToggleRow(label: Int, checked: Boolean, tag: String, onChange: (Boolean) -> Unit) {
-    val title = stringResource(label)
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleSmall)
-        Switch(checked, onChange, Modifier.testTag(tag).semantics { contentDescription = title })
+private fun SettingsGroup(title: Int, description: Int? = null, content: @Composable () -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        HorizontalDivider()
+        Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+        description?.let { Text(stringResource(it), style = MaterialTheme.typography.bodySmall) }
+        content()
     }
 }
 
 @Composable
-private fun ParameterSlider(label: Int, value: Float, range: ClosedFloatingPointRange<Float>, tag: String, enabled: Boolean = true, unit: Int = R.string.setting_percent_value, onChange: (Float) -> Unit) {
+private fun RuleChoiceRow(label: Int, checked: Boolean, tag: String, onChange: (Boolean) -> Unit) {
     val title = stringResource(label)
+    val check = stringResource(R.string.setting_rule_check)
+    val ignore = stringResource(R.string.setting_rule_ignore)
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Text(title, style = MaterialTheme.typography.titleSmall)
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            for ((value, text) in listOf(true to check, false to ignore)) {
+                val active = value == checked
+                OutlinedButton(
+                    onClick = { if (!active) onChange(value) },
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                        .testTag(if (value) tag else "$tag-off")
+                        .semantics { selected = active; contentDescription = "$title: $text" },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = if (active) MaterialTheme.colorScheme.secondaryContainer else Color.Transparent,
+                        contentColor = if (active) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurface,
+                    ),
+                ) { Text(text) }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ParameterSlider(
+    label: Int,
+    value: Float,
+    range: ClosedFloatingPointRange<Float>,
+    tag: String,
+    enabled: Boolean = true,
+    unit: Int = R.string.setting_percent_value,
+    increment: Float = 1f,
+    onChange: (Float) -> Unit,
+) {
+    val title = stringResource(label)
+    fun snapped(raw: Float) = ((raw / increment).roundToInt() * increment).coerceIn(range)
+    val displayed = snapped(value)
     Column {
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
             Text(title, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
-            Text(stringResource(unit, value), style = MaterialTheme.typography.bodyMedium)
+            val formatted = if (increment == 1f) stringResource(unit, displayed.roundToInt())
+                else stringResource(R.string.setting_tenths_percent_value, displayed)
+            Text(formatted, style = MaterialTheme.typography.bodyMedium)
         }
-        Slider(value.coerceIn(range), onChange, Modifier.fillMaxWidth().testTag("parameter-$tag").semantics { contentDescription = title }, enabled = enabled, valueRange = range)
+        Slider(
+            value = displayed,
+            onValueChange = { onChange(snapped(it)) },
+            modifier = Modifier.fillMaxWidth().testTag("parameter-$tag").semantics { contentDescription = title },
+            enabled = enabled,
+            valueRange = range,
+            steps = ((range.endInclusive - range.start) / increment).roundToInt() - 1,
+        )
     }
 }

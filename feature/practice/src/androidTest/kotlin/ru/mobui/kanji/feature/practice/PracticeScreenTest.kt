@@ -86,15 +86,27 @@ class PracticeScreenTest {
         val oldRevision = vm.uiState.value.practice.cells[0].revision
         val oldInk = vm.uiState.value.practice.cells[0].sample
         compose.onNodeWithTag("open-checker-settings").bringIntoViewIfNeeded().performClick()
-        compose.onNodeWithTag("parameter-match").bringIntoViewIfNeeded().performSemanticsAction(SemanticsActions.SetProgress) { it(95f) }
+        compose.onNodeWithTag("parameter-match").bringIntoViewIfNeeded().performSemanticsAction(SemanticsActions.SetProgress) { it(95.4f) }
         compose.waitUntil(5_000) { vm.uiState.value.practice.cells[0].status == EntryStatus.Incorrect }
         compose.runOnIdle {
+            assertEquals(95f, settings.value.requiredMatchPercent, 0f)
             assertTrue(vm.uiState.value.practice.cells[0].revision > oldRevision)
             assertSame(oldInk, vm.uiState.value.practice.cells[0].sample)
         }
-        compose.onNodeWithTag("check-order").bringIntoViewIfNeeded().performClick().assertIsOn()
+        compose.onNodeWithTag("parameter-jitter").bringIntoViewIfNeeded()
+            .performSemanticsAction(SemanticsActions.SetProgress) { it(.56f) }
+        compose.runOnIdle { assertEquals(.6f, settings.value.jitterTolerancePercent, .000001f) }
+        val rotation = compose.onNodeWithTag("parameter-rotation").bringIntoViewIfNeeded()
+        rotation.performSemanticsAction(SemanticsActions.SetProgress) { it(0f) }
+        compose.runOnIdle {
+            assertEquals(0f, settings.value.maxRotationDegrees, 0f)
+            assertFalse(CompensationStage.Rotation in settings.value.enabledCompensations)
+        }
+        rotation.performSemanticsAction(SemanticsActions.SetProgress) { it(4f) }
+        compose.runOnIdle { assertTrue(CompensationStage.Rotation in settings.value.enabledCompensations) }
+        compose.onNodeWithTag("check-order").bringIntoViewIfNeeded().performClick().assertIsSelected()
         compose.runOnIdle { assertTrue(settings.value.checkStrokeOrder); assertFalse(settings.value.checkStrokeDirection) }
-        compose.onNodeWithTag("check-direction").bringIntoViewIfNeeded().performClick().assertIsOn()
+        compose.onNodeWithTag("check-direction").bringIntoViewIfNeeded().performClick().assertIsSelected()
         compose.runOnIdle { assertTrue(settings.value.checkStrokeOrder); assertTrue(settings.value.checkStrokeDirection) }
         compose.onNodeWithTag("reset-checker-settings").performClick()
         compose.waitUntil(5_000) { vm.uiState.value.practice.cells[0].status == EntryStatus.Correct }

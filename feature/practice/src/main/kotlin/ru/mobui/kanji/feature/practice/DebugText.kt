@@ -8,7 +8,6 @@ import java.text.NumberFormat
 
 /** Localize at the presentation boundary; diagnostic keys remain stable for tooling. */
 private val metricLabels = mapOf(
-    "pipelineType" to R.string.metric_pipeline_type,
     "coverage.global.percent" to R.string.metric_coverage_global_percent,
     "coverage.strokes.percent" to R.string.metric_coverage_strokes_percent,
     "coverage.gain.percent" to R.string.metric_coverage_gain_percent,
@@ -104,13 +103,6 @@ internal fun debugToken(value: String): String = when (value) {
     "undefined" -> stringResource(R.string.debug_undefined)
     "disabled" -> stringResource(R.string.debug_disabled)
     "Centroid" -> stringResource(R.string.pivot_centroid)
-    "Cascade" -> stringResource(R.string.pipeline_cascade)
-    "Procrustes" -> stringResource(R.string.pipeline_procrustes)
-    "Center" -> stringResource(R.string.pivot_center)
-    "TopLeft" -> stringResource(R.string.pivot_top_left)
-    "TopRight" -> stringResource(R.string.pivot_top_right)
-    "BottomLeft" -> stringResource(R.string.pivot_bottom_left)
-    "BottomRight" -> stringResource(R.string.pivot_bottom_right)
     "Finger" -> stringResource(R.string.tool_finger)
     "Stylus" -> stringResource(R.string.tool_stylus)
     "Mouse" -> stringResource(R.string.tool_mouse)

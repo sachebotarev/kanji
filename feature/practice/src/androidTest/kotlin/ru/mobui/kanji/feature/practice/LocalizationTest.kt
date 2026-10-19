@@ -25,7 +25,7 @@ class LocalizationTest {
             CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides config) {
                 Text(listOf(stringResource(R.string.checker_settings_title), debugVerdict(CheckVerdict.Incorrect),
                     debugMetricLabel("hooks.missing"), debugMetricValue("budget.hasError", "true"),
-                    debugMetricValue("rotation.pivot", "TopLeft"),
+                    debugMetricValue("rotation.pivot", "Centroid"),
                     debugMetricValue("dictionary.rules", "1 ShorterThan 2"),
                     checkFailureText(ru.mobui.kanji.domain.practice.CheckFailure.MissingHooks(listOf(2))))
                     .joinToString("\n"))
@@ -35,7 +35,7 @@ class LocalizationTest {
 
     @Test fun russianSettingsDiagnosticsAndRulesAreLocalized() {
         show("ru")
-        compose.onNodeWithText("Настройки проверки\nНеверно\nЧерты с пропущенным крючком\nДа\nЛевый верхний угол\nЧерта 1 должна быть короче черты 2.\nОтсутствует обязательный крючок в чертах: 2").assertExists()
+        compose.onNodeWithText("Настройки проверки\nНеверно\nЧерты с пропущенным крючком\nДа\nЦентроид черт\nЧерта 1 должна быть короче черты 2.\nОтсутствует обязательный крючок в чертах: 2").assertExists()
     }
 
     @Test fun unsupportedLanguageFallsBackToRussian() {
@@ -45,6 +45,6 @@ class LocalizationTest {
 
     @Test fun englishSettingsDiagnosticsAndRulesAreLocalized() {
         show("en")
-        compose.onNodeWithText("Recognition settings\nIncorrect\nStrokes with missing hooks\nYes\nTop left corner\nStroke 1 must be shorter than stroke 2.\nRequired hook missing from strokes: 2").assertExists()
+        compose.onNodeWithText("Recognition settings\nIncorrect\nStrokes with missing hooks\nYes\nStroke centroid\nStroke 1 must be shorter than stroke 2.\nRequired hook missing from strokes: 2").assertExists()
     }
 }
