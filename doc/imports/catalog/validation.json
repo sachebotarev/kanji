@@ -1,0 +1,352 @@
+{
+  "content_version": 2,
+  "counts": {
+    "catalog_metadata": 1,
+    "radicals": 214,
+    "radicals_translations": 214,
+    "kanji": 3001,
+    "kanji_translations": 3048,
+    "kanji_readings": 9566,
+    "words": 2491,
+    "words_translations": 2491,
+    "word_reading_parts": 0,
+    "sources": 2,
+    "sources_translations": 0,
+    "source_kanji": 829,
+    "source_words": 3955
+  },
+  "sources": [
+    {
+      "source_id": 1,
+      "input_rows": 1955
+    },
+    {
+      "source_id": 2,
+      "input_rows": 2003
+    }
+  ],
+  "duplicate_input_links_collapsed": 3,
+  "contextual_links_without_literal_kanji": [
+    {
+      "source_id": 1,
+      "line": 549,
+      "written_form": "開ける",
+      "kanji": "門"
+    },
+    {
+      "source_id": 1,
+      "line": 550,
+      "written_form": "閉める",
+      "kanji": "門"
+    },
+    {
+      "source_id": 1,
+      "line": 551,
+      "written_form": "聞く",
+      "kanji": "門"
+    },
+    {
+      "source_id": 1,
+      "line": 552,
+      "written_form": "時間",
+      "kanji": "門"
+    },
+    {
+      "source_id": 1,
+      "line": 553,
+      "written_form": "質問",
+      "kanji": "門"
+    },
+    {
+      "source_id": 1,
+      "line": 555,
+      "written_form": "知る",
+      "kanji": "矢"
+    },
+    {
+      "source_id": 1,
+      "line": 556,
+      "written_form": "医者",
+      "kanji": "矢"
+    },
+    {
+      "source_id": 1,
+      "line": 557,
+      "written_form": "家族",
+      "kanji": "矢"
+    },
+    {
+      "source_id": 1,
+      "line": 559,
+      "written_form": "買う",
+      "kanji": "貝"
+    },
+    {
+      "source_id": 1,
+      "line": 560,
+      "written_form": "貸す",
+      "kanji": "貝"
+    },
+    {
+      "source_id": 1,
+      "line": 561,
+      "written_form": "質問",
+      "kanji": "貝"
+    },
+    {
+      "source_id": 1,
+      "line": 564,
+      "written_form": "物",
+      "kanji": "牛"
+    },
+    {
+      "source_id": 1,
+      "line": 565,
+      "written_form": "買い物",
+      "kanji": "牛"
+    },
+    {
+      "source_id": 1,
+      "line": 566,
+      "written_form": "食べ物",
+      "kanji": "牛"
+    },
+    {
+      "source_id": 1,
+      "line": 567,
+      "written_form": "飲み物",
+      "kanji": "牛"
+    },
+    {
+      "source_id": 1,
+      "line": 568,
+      "written_form": "特別",
+      "kanji": "牛"
+    },
+    {
+      "source_id": 1,
+      "line": 766,
+      "written_form": "意味",
+      "kanji": "心"
+    },
+    {
+      "source_id": 1,
+      "line": 767,
+      "written_form": "思う",
+      "kanji": "心"
+    },
+    {
+      "source_id": 1,
+      "line": 768,
+      "written_form": "急に",
+      "kanji": "心"
+    },
+    {
+      "source_id": 1,
+      "line": 769,
+      "written_form": "注意する",
+      "kanji": "心"
+    },
+    {
+      "source_id": 1,
+      "line": 770,
+      "written_form": "悪い",
+      "kanji": "心"
+    },
+    {
+      "source_id": 1,
+      "line": 946,
+      "written_form": "鶏肉",
+      "kanji": "鳥"
+    },
+    {
+      "source_id": 1,
+      "line": 980,
+      "written_form": "地球",
+      "kanji": "王"
+    },
+    {
+      "source_id": 1,
+      "line": 981,
+      "written_form": "野球",
+      "kanji": "王"
+    },
+    {
+      "source_id": 1,
+      "line": 982,
+      "written_form": "理由",
+      "kanji": "王"
+    },
+    {
+      "source_id": 1,
+      "line": 983,
+      "written_form": "料理",
+      "kanji": "王"
+    },
+    {
+      "source_id": 1,
+      "line": 984,
+      "written_form": "料理する",
+      "kanji": "王"
+    },
+    {
+      "source_id": 1,
+      "line": 986,
+      "written_form": "絵",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 987,
+      "written_form": "終わる",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 988,
+      "written_form": "紙",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 989,
+      "written_form": "経験する",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 990,
+      "written_form": "結婚する",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 991,
+      "written_form": "続ける",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 992,
+      "written_form": "続く",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 993,
+      "written_form": "予約する",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 994,
+      "written_form": "練習する",
+      "kanji": "糸"
+    },
+    {
+      "source_id": 1,
+      "line": 1109,
+      "written_form": "売る",
+      "kanji": "士"
+    },
+    {
+      "source_id": 1,
+      "line": 1110,
+      "written_form": "結婚する",
+      "kanji": "士"
+    },
+    {
+      "source_id": 1,
+      "line": 1111,
+      "written_form": "声",
+      "kanji": "士"
+    },
+    {
+      "source_id": 1,
+      "line": 1112,
+      "written_form": "仕事",
+      "kanji": "士"
+    },
+    {
+      "source_id": 1,
+      "line": 1113,
+      "written_form": "読む",
+      "kanji": "士"
+    },
+    {
+      "source_id": 1,
+      "line": 1435,
+      "written_form": "駅",
+      "kanji": "馬"
+    },
+    {
+      "source_id": 1,
+      "line": 1436,
+      "written_form": "経験する",
+      "kanji": "馬"
+    },
+    {
+      "source_id": 1,
+      "line": 1437,
+      "written_form": "試験",
+      "kanji": "馬"
+    },
+    {
+      "source_id": 1,
+      "line": 1438,
+      "written_form": "驚く",
+      "kanji": "馬"
+    },
+    {
+      "source_id": 1,
+      "line": 1439,
+      "written_form": "駐車場",
+      "kanji": "馬"
+    },
+    {
+      "source_id": 1,
+      "line": 1531,
+      "written_form": "簡単",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1532,
+      "written_form": "計算する",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1533,
+      "written_form": "答え",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1534,
+      "written_form": "答",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1535,
+      "written_form": "答える",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1536,
+      "written_form": "筆",
+      "kanji": "竹"
+    },
+    {
+      "source_id": 1,
+      "line": 1537,
+      "written_form": "笑う",
+      "kanji": "竹"
+    }
+  ],
+  "reading_parts_policy": "deferred: no verified written_part mapping in CSV",
+  "reading_parts_candidates": 3908,
+  "archived_words": 0
+}

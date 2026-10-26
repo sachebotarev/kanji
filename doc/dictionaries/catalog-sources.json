@@ -1,0 +1,52 @@
+{
+  "date": "2026-10-20",
+  "kanjidic2": {
+    "url": "https://www.edrdg.org/kanjidic/kanjidic2.xml.gz",
+    "database_version": "2026-293",
+    "creation_date": "2026-10-20",
+    "sha256": "702254c856d0fe8ea61508149572969553827725010d03187356e17b7f53532a",
+    "licence": "CC BY-SA 4.0"
+  },
+  "russian_wikipedia": {
+    "url": "https://ru.wikipedia.org/wiki/Список_дзёё-кандзи",
+    "revision": "146862404",
+    "downloaded_html_sha256": "c0b24cbabd108effefc1953c8a84fc6048ddd3a3503b07383bd406fe341f21fc",
+    "licence": "CC BY-SA 4.0"
+  },
+  "warodai": {
+    "url": "https://www.warodai.ru/download/warodai_txt.zip",
+    "version": "2026-07-01",
+    "download_sha256": "d2f6dcfb3806a1f327b74818474341a8d1ac49c00c565a16db1e427490ad13d1",
+    "usage": "consultation only; articles not redistributed"
+  },
+  "yarxi": {
+    "url": "https://yarxi.ru/online/",
+    "authors": "Вадим Смоленский; онлайн-версия: Сева Алексеев",
+    "usage": "consultation and links only; articles not redistributed"
+  },
+  "official_jinmeiyo": {
+    "url": "https://laws.e-gov.go.jp/law/322M40000010094",
+    "api_url": "https://laws.e-gov.go.jp/api/1/lawdata/322M40000010094",
+    "downloaded_xml_sha256": "94e7c265a82d616d12f09aa1315d4b2b3d526b5cdb657ed4f64df5b87826df81",
+    "override": "勒 added to Jinmeiyo in 2026, not graded in the KANJIDIC2 snapshot"
+  },
+  "outputs": {
+    "kanji.csv": {
+      "sha256": "fff02285dbc2ea578e601f54a970e19bfb323c4a5abf4aeb29ccf958e8e7d490"
+    },
+    "radicals.csv": {
+      "sha256": "c165899093c14422a5fc79278681c51947f16fc0552233dfa228186748185e2b"
+    }
+  },
+  "additional_symbols": [
+    {
+      "symbol": "々",
+      "id": 12293,
+      "stroke_count": 3,
+      "radical": null,
+      "readings": [],
+      "source": "https://www.tanoshiijapanese.com/dictionary/kanji_details.cfm?character_id=12293&k=%E3%80%85",
+      "reason": "User-approved iteration mark for Basic Kanji Book vocabulary links."
+    }
+  ]
+}

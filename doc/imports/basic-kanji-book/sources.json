@@ -1,0 +1,62 @@
+{
+  "date": "2026-10-20",
+  "input_hashes": [
+    {
+      "filename": "3174372445.apkg",
+      "size": 251662,
+      "sha256": "03b5b1afdc835486fa0016a53276de00a095b7179f41a32aa73c28d8e998070a"
+    },
+    {
+      "filename": "tohoku1.csv",
+      "size": 28079,
+      "sha256": "a51fb2ca17efe6d308e9d2a9f57f5d63fc49e3b0a213f17572acbc552954394a"
+    },
+    {
+      "filename": "tohoku2.csv",
+      "size": 4001,
+      "sha256": "41edc983f443876ed3f45483db125880981a4c326300ae24d37a02eaba897ebe"
+    },
+    {
+      "filename": "kanji-index.json",
+      "size": 82797,
+      "sha256": "6c5bf0665c878a350048ebaf9c003416511b97b3c8a9bd53fbf9f04b4b5f002f"
+    },
+    {
+      "filename": "changes-1.pdf",
+      "size": 148999,
+      "sha256": "b2c4519f2648b773bcd8a2492ff22d372f09527e8104305da667a7fd43749476"
+    },
+    {
+      "filename": "changes-2.pdf",
+      "size": 121349,
+      "sha256": "f3eb1c92ad393722090003151854b60748a56388f2325225a450535f5f052724"
+    },
+    {
+      "filename": "jmdict-rus.json",
+      "size": 36478816,
+      "sha256": "d76703ce683f3979db47b8efdc186ea82b780de46984ca0eb9ca55f9307409c3"
+    },
+    {
+      "filename": "furigana.json",
+      "size": 34736193,
+      "sha256": "2a8e206f0b171fa5acdce89e5f5798621b227175e5bfa2db6bd92fef63dd962e"
+    }
+  ],
+  "independent_csv_comparison": [
+    {
+      "source": "tohoku1.csv",
+      "source_rows": 702,
+      "exact_pairs_present_in_output": 487,
+      "note": "Exact-match comparison only; source uses polite verb forms and includes errors. Non-matches were not automatically imported."
+    },
+    {
+      "source": "tohoku2.csv",
+      "source_rows": 95,
+      "exact_pairs_present_in_output": 56,
+      "note": "Exact-match comparison only; source uses polite verb forms and includes errors. Non-matches were not automatically imported."
+    }
+  ],
+  "jmdict_release": "3.6.2+20261019180022",
+  "furigana_release": "2.3.1+2026-09-25",
+  "note": "Complete raw snapshots remain local/temporary; only the import CSV and audit documents are project deliverables."
+}

@@ -35,13 +35,22 @@ android {
         compose = true
         buildConfig = true
     }
+
+    sourceSets.getByName("main").assets.directories.add(rootProject.file("data/catalog").path)
 }
 
 dependencies {
+    implementation(project(":data:catalogdb"))
+    implementation(project(":feature:catalog"))
+    implementation(project(":feature:dictionary"))
+    implementation(project(":data:settings"))
+    implementation(project(":feature:settings"))
+    implementation(project(":feature:dashboard"))
     implementation(project(":feature:practice"))
     implementation(project(":core:designsystem"))
     implementation(project(":data:kanjivg"))
     implementation(project(":checker:shape"))
+    implementation(project(":checker:readability"))
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.kotlinx.coroutines.android)

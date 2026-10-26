@@ -1,0 +1,31 @@
+<resources>
+    <string name="word_reading">Полное чтение</string>
+    <string name="word_translation">Перевод</string>
+    <string name="word_missing">Перевод отсутствует</string>
+    <string name="word_manual">Создано вручную</string>
+    <string name="word_catalog">Из каталога</string>
+    <string name="word_parts">Части чтения</string>
+    <string name="word_kanji">Кандзи в написании</string>
+    <string name="word_links">Учебные привязки</string>
+    <string name="word_chapter">Глава %1$d</string>
+    <string name="word_search">Написание, чтение, перевод</string>
+    <string name="word_clear">Очистить</string>
+    <string name="word_written">Написание</string>
+    <string name="word_translations">Переводы</string>
+    <string name="word_add_translation">Добавить перевод</string>
+    <string name="word_remove_translation">Удалить перевод: %1$s</string>
+    <string name="word_language">Язык перевода</string>
+    <string name="word_other_language">Другой язык…</string>
+    <string name="word_language_tag">Языковой тег (например, ru или pt-BR)</string>
+    <string name="word_language_error">Введите корректный языковой тег</string>
+    <string name="word_choose">Выбрать</string>
+    <string name="word_cancel">Отмена</string>
+    <string name="word_written_hint">Например, 木漏れ日</string>
+    <string name="word_reading_hint">Например, こもれび</string>
+    <string name="word_translation_hint">Введите перевод</string>
+    <string name="word_required">Заполните поле</string>
+    <string name="word_translations_error">Добавьте непустой перевод. Языки не должны повторяться.</string>
+    <string name="word_create">Создать слово</string>
+    <string name="word_save">Сохранить</string>
+    <string name="word_back">Назад</string>
+</resources>

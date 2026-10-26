@@ -109,10 +109,9 @@ class ShapeKanjiChecker(
                 }
                 put("check.duration.ms", ((System.nanoTime() - started) / 1_000_000.0).toString())
             }
-            return CheckReport(verdict, failures, score?.compensation ?: CheckCompensation(), metrics, score?.compensatedDrawing?.takeIf { diagnosticsEnabled })
+            return CheckReport(verdict, failures, score?.compensation ?: CheckCompensation(), metrics, score?.compensatedDrawing?.takeIf { diagnosticsEnabled }, matchPercent = score?.matchPercent)
         }
         ensureActive()
-        if (request.sample.strokeCount < reference.strokes.size && !diagnosticsEnabled) return@withContext report(CheckVerdict.Incomplete)
         val score = matcher.compare(request.sample, reference, rules)
         ensureActive()
         if (request.sample.strokeCount < reference.strokes.size) return@withContext report(CheckVerdict.Incomplete, score, score.compensation.failures)

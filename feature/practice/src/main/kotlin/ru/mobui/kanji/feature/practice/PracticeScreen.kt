@@ -7,6 +7,8 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.selection.toggleable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -59,16 +61,11 @@ fun PracticeScreen(
     onOpenSettings: (() -> Unit)? = null,
     wordLabel: String? = null,
 ) {
-    val settingsLabel = stringResource(R.string.checker_settings_title)
-    val debugLabel = stringResource(R.string.debug_title)
     var debugOpen by rememberSaveable { mutableStateOf(false) }
     val practice = state.practice
     val selected = practice.selected
-    val nextIndex = selected?.takeIf { it.status == EntryStatus.Correct }?.let {
-        val index = practice.selectedIndex ?: 0
-        ((index + 1 until practice.cells.size).toList() + (0 until index).toList())
-            .firstOrNull { !practice.cells[it].isSatisfied }
-    }
+    var openCheck by remember(selected?.task?.occurrenceId, selected?.revision) { mutableStateOf<CheckKind?>(null) }
+    LaunchedEffect(state.gestureActive) { if (state.gestureActive) openCheck = null }
     val actionsEnabled = practice.result == null && !state.gestureActive 
     Scaffold(
         modifier = modifier,
@@ -94,31 +91,24 @@ fun PracticeScreen(
             val header: @Composable () -> Unit = {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row(Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                IconButton(onClick = onBack, enabled = !state.gestureActive ) {
-                    Icon(painterResource(R.drawable.ic_back), stringResource(R.string.back))
-                }
-                Text(stringResource(R.string.practice_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
-                if (onOpenSettings != null) IconButton(onClick = onOpenSettings, enabled = !state.gestureActive, modifier = Modifier.testTag("open-checker-settings")) {
-                    Text("⚙", modifier = Modifier.semantics { contentDescription = settingsLabel })
-                }
-                if (state.debugEnabled) IconButton(onClick = { debugOpen = true }, modifier = Modifier.testTag("open-debug")) {
-                    Text("{}", modifier = Modifier.semantics { contentDescription = debugLabel }, fontFamily = FontFamily.Monospace)
-                }
+                Text(stringResource(R.string.practice_title), style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f).padding(start = 16.dp))
+                HeaderTaskTimer(practice.elapsedMs, practice.task.timeLimitMs, Modifier.padding(end = 16.dp))
             }
             Column(Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp)) {
                 WordPrompt(wordLabel ?: practice.task.russianWord)
+                Spacer(Modifier.height(24.dp).testTag("reading-hints-space"))
                 KanjiStrip(practice.cells, practice.selectedIndex, actionsEnabled, state.gestureActive, activeStroke) { onAction(PracticeAction.Select(it)) }
             }
             }
             }
             val writing: @Composable () -> Unit = {
             Column(Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp)) {
-                Spacer(Modifier.height(8.dp))
-                PracticeStatus(selected, practice.selectedIndex, practice.cells.size, practice.elapsedMs, practice.task.timeLimitMs,
-                    state.gestureActive, state.notice == PracticeNotice.Incomplete, nextIndex.takeIf { actionsEnabled }) {
-                    onAction(PracticeAction.Select(it))
-                }
-                Spacer(Modifier.height(4.dp))
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                Spacer(Modifier.height(12.dp))
+                PracticeStatus(state.currentCheckReport, state.isChecking, selected?.sample?.strokeCount ?: 0,
+                    actionsEnabled) { openCheck = it }
+                Spacer(Modifier.height(20.dp))
                 key(practice.task.taskId) {
                     KanjiWritingPad(
                         state = PadUiState(
@@ -134,19 +124,16 @@ fun PracticeScreen(
                 }
                 Spacer(Modifier.height(12.dp))
                 PracticeTools(
-                    debugEnabled = state.debugEnabled,
-                    comparisonEnabled = state.debugReport?.compensatedDrawing != null && !state.gestureActive,
-                    comparisonActive = state.showCompensatedDrawing,
                     hintActive = state.hint != null,
                     hintEnabled = practice.result == null && !state.gestureActive && selected?.reference != null,
                     undoEnabled = actionsEnabled && state.canUndo,
                     clearEnabled = actionsEnabled && selected != null && selected.status != EntryStatus.Empty,
                     onAction = onAction,
                 )
-                Spacer(Modifier.height(24.dp))
+                Spacer(Modifier.height(4.dp))
             }            }
-            val drawingHeight = minOf(maxWidth, 488.dp) - 48.dp + 144.dp
-            if (maxHeight >= drawingHeight + 176.dp) {
+            val drawingHeight = minOf(maxWidth, 488.dp) - 48.dp + 180.dp
+            if (maxHeight >= drawingHeight + 112.dp) {
                 Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
                     Column(Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()), horizontalAlignment = Alignment.CenterHorizontally) {
                         header()
@@ -163,12 +150,30 @@ fun PracticeScreen(
         }
     }
     if (debugOpen && state.debugEnabled) DebugDialog(state) { debugOpen = false }
+    if (openCheck != null && !state.gestureActive) CheckDetailsDialog(
+        openCheck!!, state.currentCheckReport, selected, onClose = { openCheck = null },
+        onOpenSettings = onOpenSettings?.let { callback -> { openCheck = null; callback() } },
+        diagnostics = {
+            if (openCheck == CheckKind.Shape && state.debugEnabled) {
+                TextButton(onClick = { openCheck = null; debugOpen = true }, modifier = Modifier.testTag("open-debug")) {
+                    Text(stringResource(R.string.debug_title))
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(stringResource(R.string.debug_compensated_drawing), Modifier.weight(1f))
+                    Switch(checked = state.showCompensatedDrawing,
+                        onCheckedChange = { onAction(PracticeAction.ToggleCompensatedDrawing) },
+                        enabled = state.debugReport?.compensatedDrawing != null && !state.gestureActive,
+                        modifier = Modifier.testTag("compensated-drawing"))
+                }
+            }
+        },
+    )
 }
 
 @Composable
 private fun WordPrompt(word: String) {
-    Box(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(vertical = 8.dp), contentAlignment = Alignment.CenterStart) {
-        Text(word, style = MaterialTheme.typography.headlineLarge.copy(
+    Box(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(vertical = 4.dp), contentAlignment = Alignment.CenterStart) {
+        Text(word, style = MaterialTheme.typography.headlineMedium.copy(
             lineBreak = LineBreak.Heading, hyphens = Hyphens.Auto, localeList = LocaleList("ru"),
         ), fontWeight = FontWeight.SemiBold)
     }
@@ -266,10 +271,10 @@ private fun KanjiCell(
                     )
                 }
                 .clickable(enabled = enabled && cell.task.mode == EntryMode.User, onClick = onClick)
-                .semantics { contentDescription = label; stateDescription = selectedLabel }
+                .semantics { contentDescription = label; stateDescription = selectedLabel; this.selected = selected }
                 .testTag("kanji-cell-$index"),
         ) {
-            InkThumbnail(cell.padContent(), activeStroke, Modifier.fillMaxSize().padding(8.dp))
+            InkThumbnail(cell.padContent(), activeStroke, Modifier.fillMaxSize().padding(6.dp))
         }
         if (selected) {
             Box(Modifier.align(Alignment.BottomCenter).width(24.dp).height(3.dp)
@@ -279,8 +284,8 @@ private fun KanjiCell(
 }
 
 @Composable
-private fun InkThumbnail(content: PadContent, activeStroke: () -> InkStroke?, modifier: Modifier) {
-    val ink = MaterialTheme.colorScheme.onSurface
+private fun InkThumbnail(content: PadContent, activeStroke: () -> InkStroke?, modifier: Modifier, color: Color? = null) {
+    val ink = color ?: MaterialTheme.colorScheme.onSurface
     val strokes = remember(content) {
         when (content) {
             PadContent.Empty -> emptyList()
@@ -304,42 +309,11 @@ private fun InkThumbnail(content: PadContent, activeStroke: () -> InkStroke?, mo
 }
 
 @Composable
-private fun PracticeStatus(cell: PracticeCell?, selectedIndex: Int?, count: Int, elapsedMs: Long, limitMs: Long?, gestureActive: Boolean, incomplete: Boolean, nextIndex: Int?, onNext: (Int) -> Unit) {
-    Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
-        Column(Modifier.weight(1f)) {
-            Text(selectedIndex?.let { stringResource(R.string.character_number, it + 1, count) } ?: stringResource(R.string.all_prefilled), style = MaterialTheme.typography.bodySmall)
-            if (limitMs != null) Text(stringResource(R.string.time_remaining, formatTime((limitMs - elapsedMs).coerceAtLeast(0))),
-                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace))
-        }
-        val status = when {
-            gestureActive -> stringResource(R.string.input_in_progress)
-            cell?.status == EntryStatus.Editing -> stringResource(if (incomplete) R.string.incomplete_short else R.string.editing)
-            cell?.status == EntryStatus.Correct -> stringResource(R.string.correct)
-            cell?.status == EntryStatus.Incorrect -> stringResource(R.string.incorrect)
-            else -> null
-        }
-        val statusColor = when {
-            gestureActive || cell?.status == EntryStatus.Editing -> MaterialTheme.colorScheme.tertiary
-            cell?.status == EntryStatus.Incorrect -> MaterialTheme.colorScheme.error
-            cell?.status == EntryStatus.Correct -> MaterialTheme.colorScheme.primary
-            else -> MaterialTheme.colorScheme.onSurfaceVariant
-        }
-        status?.let {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },
-            ) {
-                if (!gestureActive && (cell?.status == EntryStatus.Correct || cell?.status == EntryStatus.Incorrect)) {
-                    TeacherMark(correct = cell.status == EntryStatus.Correct, color = statusColor)
-                }
-                Text(it, color = statusColor, fontWeight = FontWeight.SemiBold)
-            }
-        }
-        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-            if (nextIndex != null) IconButton(onClick = { onNext(nextIndex) }, modifier = Modifier.testTag("next-kanji")) {
-                Icon(painterResource(R.drawable.ic_next), stringResource(R.string.next_kanji))
-            }
+private fun PracticeStatus(report: CheckReport?, checking: Boolean, strokeCount: Int, enabled: Boolean, onOpen: (CheckKind) -> Unit) {
+    Column(Modifier.fillMaxWidth()) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp), verticalAlignment = Alignment.CenterVertically) {
+            CheckerTestingStatuses(report, checking, Modifier.weight(1f), strokeCount = strokeCount, enabled = enabled, onOpen = onOpen)
+
         }
     }
 }
@@ -371,49 +345,32 @@ private fun TeacherMark(correct: Boolean, color: androidx.compose.ui.graphics.Co
 }
 
 @Composable
-private fun PracticeTools(debugEnabled: Boolean, comparisonEnabled: Boolean, comparisonActive: Boolean, hintActive: Boolean, hintEnabled: Boolean, undoEnabled: Boolean, clearEnabled: Boolean, onAction: (PracticeAction) -> Unit) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.End)) {
-        val comparisonLabel = stringResource(R.string.debug_compensated_drawing)
-        TraceHintButton(hintEnabled, hintActive, onAction)
-        if (debugEnabled) {
-            IconToggleButton(
-                checked = comparisonActive, onCheckedChange = { onAction(PracticeAction.ToggleCompensatedDrawing) },
-                modifier = Modifier.size(48.dp).testTag("compensated-drawing"), enabled = comparisonEnabled,
-            ) {
-                Text("↔", color = MaterialTheme.colorScheme.error, modifier = Modifier.semantics {
-                    contentDescription = comparisonLabel
-                })
-            }
-        }
-        Spacer(Modifier.weight(1f))
-        ToolButton(R.drawable.ic_undo, R.string.undo, undoEnabled) { onAction(PracticeAction.Undo) }
-        IconButton(onClick = { onAction(PracticeAction.Clear) }, modifier = Modifier.size(48.dp), enabled = clearEnabled) {
-            Icon(painterResource(R.drawable.ic_clear), stringResource(R.string.clear), Modifier.size(24.dp))
-        }
-    }
-}
-
-@Composable
-private fun TraceHintButton(enabled: Boolean, active: Boolean, onAction: (PracticeAction) -> Unit) {
+private fun PracticeTools(hintActive: Boolean, hintEnabled: Boolean, undoEnabled: Boolean, clearEnabled: Boolean, onAction: (PracticeAction) -> Unit) {
     val haptics = LocalHapticFeedback.current
-    val description = stringResource(if (active) R.string.hint_active else R.string.hint_idle)
-    LaunchedEffect(active) { if (active) haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
-    FilledTonalIconToggleButton(
-        checked = active, onCheckedChange = { onAction(PracticeAction.ToggleHint) },
-        modifier = Modifier.size(48.dp).testTag("trace-hint").semantics { stateDescription = description }, enabled = enabled,
-        colors = IconButtonDefaults.filledTonalIconToggleButtonColors(
-            checkedContainerColor = MaterialTheme.colorScheme.primary,
-            checkedContentColor = MaterialTheme.colorScheme.onPrimary,
-        ), shape = RoundedCornerShape(16.dp),
-    ) {
-        Icon(painterResource(R.drawable.ic_hint), stringResource(R.string.hint), Modifier.size(24.dp))
+    val hintDescription = stringResource(if (hintActive) R.string.hint_active else R.string.hint_idle)
+    LaunchedEffect(hintActive) { if (hintActive) haptics.performHapticFeedback(HapticFeedbackType.LongPress) }
+    Row(Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(16.dp))
+        .padding(horizontal = 4.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+        WorkspaceTool(R.drawable.ic_hint, R.string.hint, hintEnabled,
+            Modifier.weight(1f).testTag("trace-hint").toggleable(hintActive, enabled = hintEnabled, role = Role.Checkbox) {
+                onAction(PracticeAction.ToggleHint)
+            }.semantics { stateDescription = hintDescription }, hintActive, R.string.hint_used)
+        WorkspaceTool(R.drawable.ic_undo, R.string.undo, undoEnabled,
+            Modifier.weight(1f).clickable(enabled = undoEnabled) { onAction(PracticeAction.Undo) }, caption = R.string.tool_undo)
+        WorkspaceTool(R.drawable.ic_clear, R.string.clear, clearEnabled,
+            Modifier.weight(1f).clickable(enabled = clearEnabled) { onAction(PracticeAction.Clear) }, caption = R.string.tool_clear)
     }
 }
 
 @Composable
-private fun ToolButton(icon: Int, label: Int, enabled: Boolean, onClick: () -> Unit) {
-    FilledTonalIconButton(onClick, Modifier.size(48.dp), enabled, shape = RoundedCornerShape(16.dp)) {
-        Icon(painterResource(icon), stringResource(label), Modifier.size(24.dp))
+private fun WorkspaceTool(icon: Int, label: Int, enabled: Boolean, modifier: Modifier, active: Boolean = false, caption: Int = label) {
+    val color = MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else .38f)
+    Row(modifier.heightIn(min = 48.dp).background(if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
+        RoundedCornerShape(12.dp)).padding(horizontal = 4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally), verticalAlignment = Alignment.CenterVertically) {
+        Icon(painterResource(icon), stringResource(label), Modifier.size(20.dp), tint = color)
+        Text(stringResource(caption), style = MaterialTheme.typography.labelSmall, color = color, maxLines = 1,
+            modifier = Modifier.clearAndSetSemantics {})
     }
 }
 
@@ -437,7 +394,7 @@ private fun PracticeFeedback(state: PracticeUiState) {
 }
 
 @Composable
-private fun DebugDialog(state: PracticeUiState, onClose: () -> Unit) {
+internal fun DebugDialog(state: PracticeUiState, onClose: () -> Unit) {
     val currentOnClose by rememberUpdatedState(onClose)
     Dialog(onDismissRequest = onClose) {
         Surface(shape = RoundedCornerShape(20.dp), tonalElevation = 6.dp) {
@@ -498,7 +455,7 @@ private fun PracticeActions(enabled: Boolean, complete: Boolean, checking: Boole
             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary)) { Text(stringResource(R.string.skip)) }
         Button(
             { onAction(PracticeAction.Submit) },
-            Modifier.weight(1f).heightIn(min = 48.dp),
+            Modifier.widthIn(min = 124.dp).heightIn(min = 48.dp),
             enabled = enabled && !checking && complete,
         ) { Text(stringResource(R.string.next)) }
     }
@@ -519,8 +476,9 @@ internal fun statusLabel(status: EntryStatus): String = stringResource(when (sta
     EntryStatus.Prefilled -> R.string.prefilled
 })
 
-internal fun formatTime(ms: Long): String {
-    val seconds = ms / 1000
+internal fun formatTime(ms: Long): String = formatTimerSeconds(ms / 1000)
+
+internal fun formatTimerSeconds(seconds: Long): String {
     val minutes = seconds / 60
     return if (minutes < 60) "%02d:%02d".format(minutes, seconds % 60)
     else "%d:%02d:%02d".format(minutes / 60, minutes % 60, seconds % 60)

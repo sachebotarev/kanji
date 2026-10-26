@@ -1,6 +1,22 @@
 # Иконка «Кандзи дэс нэ»
 
-## Текущий вариант — кот в ученической шапке
+## Текущий фон — мягкий голубовато-мятный, 21 октября 2026
+
+Из-за неонового впечатления на устройстве насыщенность фона снижена: `#82E5B3` заменён на `#A9D9CA`. Кот, масштаб и центрирование сохранены. Более яркий мятный вариант сохранён в [предпросмотре](launcher-cat-bright-mint-masks-preview.png). Сборка debug и lint успешны.
+
+## Предыдущий фон — яркий мятный, 21 октября 2026
+
+После просмотра жёлтого варианта фон заменён на яркий мятно-зелёный `#82E5B3`: он поддерживает зелёную палитру приложения, сохраняя контраст с тёмной шапкой и светлым котом. Исходник кота v2, масштаб и центрирование сохранены. Изменены цветовой ресурс и фон упаковки обычных иконок; передний и монохромный слои сохраняются. Жёлтый вариант оставлен для сравнения: [предпросмотр](launcher-cat-yellow-masks-preview.png). [Мятный вариант](launcher-variants/cat/masks-preview.png). Сборка debug и lint успешны.
+
+## Предыдущий фон — яркий кот v2, 21 октября 2026
+
+По замечанию о мелком смещённом коте и болотном фоне подготовлен [прозрачный исходник v2](launcher-icon-cat-v2-source.png) встроенным image_gen. Фон заменён на солнечный жёлтый `#FFD766`. Сохранены светлый кот, открытые лапы, хвост-крючок и зелёная ученическая шапка с красной полосой и кокардой.
+
+При упаковке радиус силуэта увеличен со 130 до 142px на адаптивном холсте 432px; горизонтальное положение учитывает массу непрозрачных пикселей, чтобы асимметричный хвост не смещал зрительный центр. Проверены круглая и скруглённая маски, малый размер и монохромный вариант. Цвет монохромной иконки задаёт системная тема Android, поэтому солнечный фон относится к обычной цветной иконке.
+
+Ресурсы воспроизводятся `python3 doc/design/build_launcher_icons.py`. [Предпросмотр масок](launcher-variants/cat/masks-preview.png).
+
+## Предыдущий вариант — кот в ученической шапке
 
 ## Согласованный персонаж — кот в ученической шапке
 
@@ -110,3 +126,5 @@
 Промпт генерации:
 
 > Use case: logo-brand. Create a beautiful polished humorous Android launcher icon for a Japanese kanji handwriting learning app named «Кандзи дэс нэ» (a playful Russian transliteration of 'kanji desu ne', 'kanji, isn't it?'). No words or lettering. A charming anthropomorphic bold ink-black Japanese character 字, drawn accurately and recognizably, acting as a proudly pleased slightly goofy little calligraphy student: one playful winking eye and small cheeky smile integrated delicately into the central negative space, holding a tiny wooden calligraphy brush at the lower right. The humor is quiet self-satisfied 'nailed it!' confidence. Strong simple silhouette, premium friendly editorial cartoon illustration, crisp black ink strokes with subtle natural brush texture, very restrained warm coral red accent on brush handle and blush, warm ivory paper background. Square full bleed flat ivory background, no outer rounded square or circle border, no lettering, no mockup, no shadow outside icon. All important art including brush inside central 60 percent of canvas so Android adaptive masks do not crop it. Tiny-size legibility, minimal details, contemporary Japanese stationery charm, original character design. Single final icon.
+
+Проверка v2: сборка debug и Android Lint успешны, обновлённое приложение установлено на Pixel. Визуально просмотрены маски и малый размер в предпросмотре упаковки.

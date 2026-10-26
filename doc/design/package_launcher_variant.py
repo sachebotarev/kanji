@@ -10,10 +10,10 @@ DESIGN = ROOT / "doc/design"
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("variant", choices=("ghost", "cat"))
 args = parser.parse_args()
-NAME = {"ghost": "v14", "cat": "cat-v1"}[args.variant]
+NAME = {"ghost": "v14", "cat": "cat-v2"}[args.variant]
 OUTPUT = DESIGN / "launcher-variants" / args.variant
 RES = OUTPUT / "res"
-BACKGROUND = "#C3D1AD" if args.variant == "cat" else "#B8C8A5"
+BACKGROUND = "#A9D9CA" if args.variant == "cat" else "#B8C8A5"
 
 def build():
     (RES / "drawable-nodpi").mkdir(parents=True, exist_ok=True)
@@ -23,10 +23,18 @@ def build():
     radius = max(math.hypot(x - cx, y - cy)
                  for y in range(subject.height) for x in range(subject.width)
                  if subject.getpixel((x, y))[3] > 16)
-    scale = 130 / radius
+    scale = (142 if args.variant == "cat" else 130) / radius
     subject = subject.resize((round(subject.width * scale), round(subject.height * scale)), Image.Resampling.LANCZOS)
     foreground = Image.new("RGBA", (432, 432))
-    foreground.alpha_composite(subject, ((432 - subject.width) // 2, (432 - subject.height) // 2))
+    # Align the cat's face/body axis rather than the asymmetric hooked tail bounds.
+    x = (432 - subject.width) // 2
+    if args.variant == "cat":
+        alpha = subject.getchannel("A")
+        masses = [sum(alpha.getpixel((column, row)) for row in range(subject.height))
+                  for column in range(subject.width)]
+        center_x = sum(column * mass for column, mass in enumerate(masses)) / sum(masses)
+        x = round(216 - center_x)
+    foreground.alpha_composite(subject, (x, (432 - subject.height) // 2))
     foreground.save(RES / "drawable-nodpi/ic_launcher_art.png")
     mono = Image.new("RGBA", foreground.size, "black")
     ink = ImageOps.invert(ImageOps.grayscale(foreground))

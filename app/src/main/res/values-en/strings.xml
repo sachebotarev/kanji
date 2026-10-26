@@ -16,4 +16,8 @@ https://kanjivg.tagaini.net/
 CC BY-SA 3.0 · https://creativecommons.org/licenses/by-sa/3.0/</string>
     <string name="close">Close</string>
     <string name="demo_word">Electroencephalography</string>
+    <string name="japanese_model_title">Japanese model</string>
+    <string name="japanese_model_failed">Could not download the Japanese model. You can retry the download in Settings.</string>
+    <string name="settings_storage_error">Could not read or save settings</string>
+    <string name="settings_storage_retry">Retry</string>
 </resources>

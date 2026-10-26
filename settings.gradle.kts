@@ -29,4 +29,12 @@ include(":domain:handwriting", ":core:writingpad")
 
 include(":domain:practice", ":feature:practice", ":data:kanjivg", ":core:designsystem")
 
-include(":checker:shape")
+include(":checker:shape", ":checker:readability")
+
+include(":feature:dashboard")
+
+include(":feature:settings")
+
+include(":data:settings")
+
+include(":domain:catalog", ":data:catalogdb", ":feature:catalog", ":core:wordui", ":feature:dictionary")

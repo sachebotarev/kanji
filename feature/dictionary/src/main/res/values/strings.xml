@@ -1,0 +1,31 @@
+<resources>
+    <string name="dictionary_title">Мой словарь</string>
+    <string name="dictionary_word">Слово</string>
+    <string name="dictionary_new">Новое слово</string>
+    <string name="dictionary_edit">Редактирование</string>
+    <string name="dictionary_edit_action">Редактировать слово</string>
+    <string name="dictionary_delete_action">Удалить слово</string>
+    <string name="dictionary_add">Добавить слово</string>
+    <string name="dictionary_empty">Пока ничего не найдено</string>
+    <string name="dictionary_no_results">Ничего не найдено</string>
+    <string name="dictionary_error">Не удалось загрузить словарь</string>
+    <string name="dictionary_retry">Повторить</string>
+    <string name="dictionary_write_error">Не удалось сохранить изменения. Попробуйте ещё раз.</string>
+    <string name="dictionary_duplicate">Слово с таким написанием и чтением уже существует. Существующая запись не изменена.</string>
+    <string name="dictionary_read_only">Это слово из каталога. Его нельзя изменять или удалять.</string>
+    <string name="dictionary_missing">Слово больше недоступно</string>
+    <string name="dictionary_invalid">Проверьте заполнение полей</string>
+    <string name="dictionary_back">Назад</string>
+    <string name="dictionary_delete_title">Удалить слово?</string>
+    <string name="dictionary_delete_text">«%1$s» будет удалено из вашего словаря.</string>
+    <string name="dictionary_delete">Удалить</string>
+    <string name="dictionary_cancel">Отмена</string>
+    <string name="dictionary_unsaved">Сохранить изменения?</string>
+    <string name="dictionary_unsaved_text">В слове есть несохранённые изменения.</string>
+    <string name="dictionary_save">Сохранить</string>
+    <string name="dictionary_discard">Не сохранять</string>
+    <string name="dictionary_continue">Продолжить редактирование</string>
+    <string name="dictionary_more">Действия со словом</string>
+    <string name="dictionary_chapter">Глава %1$d</string>
+    <plurals name="dictionary_count"><item quantity="one">%d слово</item><item quantity="few">%d слова</item><item quantity="many">%d слов</item><item quantity="other">%d слова</item></plurals>
+</resources>

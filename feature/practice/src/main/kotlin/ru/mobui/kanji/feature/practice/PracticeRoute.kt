@@ -24,11 +24,13 @@ fun PracticeRoute(
     onSettingsChanged: (RecognitionSettings) -> Unit = {},
     onResetSettings: () -> Unit = {},
     wordLabel: String? = null,
+    readabilityAvailable: Boolean = true,
 ) {
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
     BackHandler(settingsOpen) { settingsOpen = false }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val preview = viewModel.preview.collectAsStateWithLifecycle()
+    BackHandler(!settingsOpen) { if (!state.gestureActive) onBack() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(viewModel, lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -41,7 +43,7 @@ fun PracticeRoute(
     }
     LaunchedEffect(state.practice.result) { viewModel.deliverResult(onResult) }
     if (settingsOpen && settings != null) {
-        CheckerSettingsScreen(settings, onSettingsChanged, { settingsOpen = false }, onResetSettings, preview = state)
+        CheckerSettingsScreen(settings, onSettingsChanged, { settingsOpen = false }, onResetSettings, preview = state, readabilityAvailable = readabilityAvailable)
     } else PracticeScreen(
         state, viewModel::onAction, viewModel::onPadEvent,
         activeStroke = { preview.value?.stroke }, onBack = onBack,

@@ -1,0 +1,73 @@
+<resources>
+    <string name="dashboard_home">Кандзи дэс нэ</string>
+    <string name="dashboard_tagline">Ня! Начнём?</string>
+    <string name="dashboard_checked">Следы учёбы</string>
+    <string name="dashboard_activity">Активность</string>
+    <plurals name="dashboard_streak"><item quantity="one">%1$d день подряд</item><item quantity="few">%1$d дня подряд</item><item quantity="many">%1$d дней подряд</item><item quantity="other">%1$d дня подряд</item></plurals>
+    <string name="dashboard_start">Начать тренировку</string>
+    <string name="dashboard_mix">Умный микс</string>
+    <string name="dashboard_dictionaries">Словари / 単語</string>
+    <string name="dashboard_textbooks">Каталог</string>
+    <string name="dashboard_books_count">%1$d учебников · %2$d активны</string>
+    <string name="dashboard_personal">Мой словарь</string>
+    <string name="dashboard_personal_count">Всего %1$d · изучено %2$d</string>
+    <string name="dashboard_personal_errors">%1$d с ошибками · %2$d с подсказкой</string>
+    <string name="dashboard_history">История сессий</string>
+    <string name="dashboard_history_detail">Результаты и архив ошибок</string>
+    <string name="dashboard_constructor">Конструктор тренировок</string>
+    <string name="dashboard_preset">Активный шаблон: Умный микс</string>
+    <string name="dashboard_coffee">Купить автору кофе</string>
+    <string name="dashboard_stats_description">Проверено %1$d слов. Освоено %2$d, с подсказкой %3$d, с ошибками %4$d.</string>
+    <string name="dashboard_activity_description">Активность за последние шесть недель</string>
+    <string name="dashboard_settings">Настройки</string>
+    <string name="dashboard_monday">Пн</string>
+    <string name="dashboard_wednesday">Ср</string>
+    <string name="dashboard_friday">Пт</string>
+    <string name="dashboard_stats_summary">Следы учёбы. Всего: %1$d.</string>
+    <string name="dashboard_open_statistics">Открыть подробную статистику</string>
+    <string name="dashboard_total">Выполнено заданий: %1$d</string>
+    <string name="dashboard_learned">Освоено</string>
+    <string name="dashboard_assisted">С подсказкой</string>
+    <string name="dashboard_errors">С ошибками</string>
+    <string name="dashboard_close">Закрыть</string>
+    <string name="dashboard_statistics_scope">Практика кандзи и слов</string>
+    <string name="dashboard_open_activity">Открыть подробности активности</string>
+    <string name="dashboard_activity_period">Последние шесть недель</string>
+    <string name="dashboard_active_days">Активных дней: %1$d из %2$d</string>
+    <string name="training_current">Текущая тренировка</string>
+    <string name="training_select">Выбрать тренировку</string>
+    <string name="training_actions">Действия с текущей тренировкой</string>
+    <string name="training_edit">Изменить тренировку</string>
+    <string name="training_create">Создать тренировку</string>
+    <string name="training_picker">Ваши тренировки</string>
+    <string name="training_session_config">%1$d слов за сессию · %2$d с на слово</string>
+    <string name="training_new_session">Новая сессия</string>
+    <string name="training_history">История тренировки</string>
+    <string name="training_no_sessions">Пока нет сессий</string>
+    <string name="training_history_empty">Записей сессий пока нет.</string>
+    <string name="training_name">Название</string>
+    <string name="training_words">Слов за сессию</string>
+    <string name="training_seconds">Секунд на слово</string>
+    <string name="training_words_range">От 1 до 100</string>
+    <string name="training_seconds_range">От 10 до 600</string>
+    <string name="training_create_select">Создать и выбрать</string>
+    <string name="training_save">Сохранить</string>
+    <string name="training_cancel">Отмена</string>
+    <string name="training_session_config_minutes">%1$d слов за сессию · %2$d мин на слово</string>
+    <string name="training_create_action">＋ Создать тренировку</string>
+    <string name="training_search">Поиск тренировок</string>
+    <string name="training_search_empty">Тренировки не найдены</string>
+    <string name="training_edit_named">Изменить тренировку «%1$s»</string>
+    <string name="training_change">Сменить</string>
+    <string name="training_back">Назад</string>
+    <string name="training_choose_action">Выбрать</string>
+    <string name="training_create_short">Создать</string>
+    <string name="training_choose_another">Выбрать другую</string>
+    <string name="dashboard_catalog_description">Учебники, кандзи и ключи</string>
+    <plurals name="dashboard_personal_words"><item quantity="one">%1$d слово</item><item quantity="few">%1$d слова</item><item quantity="many">%1$d слов</item><item quantity="other">%1$d слова</item></plurals>
+    <string name="training_not_practiced">Ещё не тренировались</string>
+    <string name="training_session_history_action">История сессий ›</string>
+    <plurals name="training_completed_sessions"><item quantity="one">%1$d завершённая сессия</item><item quantity="few">%1$d завершённые сессии</item><item quantity="many">%1$d завершённых сессий</item><item quantity="other">%1$d завершённой сессии</item></plurals>
+    <plurals name="training_sessions_action"><item quantity="one">%1$d сессия ›</item><item quantity="few">%1$d сессии ›</item><item quantity="many">%1$d сессий ›</item><item quantity="other">%1$d сессии ›</item></plurals>
+    <string name="dashboard_personal_description">Ваши слова, выражения и предложения</string>
+</resources>

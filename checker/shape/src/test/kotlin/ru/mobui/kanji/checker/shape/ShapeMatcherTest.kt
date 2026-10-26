@@ -40,8 +40,10 @@ class ShapeMatcherTest {
         assertEquals(CheckVerdict.Incorrect, report.verdict)
         assertTrue(report.failures.contains(CheckFailure.StrokeCount(3, 2)))
         assertTrue(report.failures.any { it is CheckFailure.ShapeCoverage })
-        assertEquals(CheckReport(CheckVerdict.Correct), checker.checkWithDetails(request.copy(sample = sample(cross))))
-        assertEquals(CheckVerdict.Incomplete, checker.check(request.copy(sample = sample(cross.take(1)))))
+        assertEquals(CheckReport(CheckVerdict.Correct, matchPercent = 100f), checker.checkWithDetails(request.copy(sample = sample(cross))))
+        val incomplete = checker.checkWithDetails(request.copy(sample = sample(cross.take(1))))
+        assertEquals(CheckVerdict.Incomplete, incomplete.verdict)
+        assertNotNull(incomplete.matchPercent)
     }
     @Test fun tuningMetricsAreOptionalAndIncludeScoresAndConfiguration() = runBlocking {
         val references = KanjiReferenceSource { reference(cross) }

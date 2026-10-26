@@ -1,0 +1,10 @@
+<resources>
+    <string name="settings_title">Настройки</string>
+    <string name="settings_back">Назад</string>
+    <string name="settings_checker">Проверка кандзи</string>
+    <string name="settings_checker_detail">Точность, допуски и правила</string>
+    <string name="settings_japanese_model">Японская языковая модель</string>
+    <string name="settings_model_loaded">Загружена</string>
+    <string name="settings_model_loading">Загружается…</string>
+    <string name="settings_model_missing">Не загружена · Скачать</string>
+</resources>
