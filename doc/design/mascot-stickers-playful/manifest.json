@@ -1,0 +1,114 @@
+[
+  {
+    "resource": "mascot_sticker_caught_cookie",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      183,
+      42,
+      1040,
+      1196
+    ],
+    "bytes": 913361,
+    "sha256": "4f234e0abcea9d5043d0697be39797d2066786437170ca66b42b77cfcdd896c8"
+  },
+  {
+    "resource": "mascot_sticker_drop_vase",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      42,
+      138,
+      1222,
+      1103
+    ],
+    "bytes": 847825,
+    "sha256": "3d104e72ef26f08871d7196c2fb99a73b49c4aef086f4f5002da86e0c789f1fe"
+  },
+  {
+    "resource": "mascot_sticker_paper_plane",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      49,
+      90,
+      1183,
+      1192
+    ],
+    "bytes": 843825,
+    "sha256": "f352366785e8d12fda5ecb1465893ad574f43c7467458972612b0c8d95db30bc"
+  },
+  {
+    "resource": "mascot_sticker_peek_corner",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      233,
+      54,
+      1009,
+      1204
+    ],
+    "bytes": 727787,
+    "sha256": "377ee58e450032a313add6496251f642748ed27c15c400ccf9ea6257e52cb77d"
+  },
+  {
+    "resource": "mascot_sticker_scratch_curtain",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      337,
+      67,
+      1008,
+      1215
+    ],
+    "bytes": 723880,
+    "sha256": "b3df140d69d3d3ea79cee71cbbc2079055e5d7190a6055cfc1cb3bb81671220e"
+  },
+  {
+    "resource": "mascot_sticker_tangled_yarn",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      128,
+      44,
+      1173,
+      1197
+    ],
+    "bytes": 1129991,
+    "sha256": "ca28af125fbc7e244e0813d78af91fad3434e47a3d140fc154704986fd061d6c"
+  },
+  {
+    "resource": "mascot_sticker_tiny_box",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      138,
+      54,
+      1110,
+      1176
+    ],
+    "bytes": 923896,
+    "sha256": "21b931212e9e2d4ebae5252df8b4ff5e0de6b8b6137e4666f997a4c941d33e17"
+  },
+  {
+    "resource": "mascot_sticker_walk_away",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      255,
+      59,
+      1045,
+      1200
+    ],
+    "bytes": 676845,
+    "sha256": "78331274e121343ca884bb3f2d26777b577b8824ce84b0534d81d480db0883a4"
+  }
+]

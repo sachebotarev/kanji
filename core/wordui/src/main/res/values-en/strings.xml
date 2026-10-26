@@ -1,0 +1,31 @@
+<resources>
+    <string name="word_reading">Full reading</string>
+    <string name="word_translation">Translation</string>
+    <string name="word_missing">Translation unavailable</string>
+    <string name="word_manual">Created manually</string>
+    <string name="word_catalog">From catalog</string>
+    <string name="word_parts">Reading parts</string>
+    <string name="word_kanji">Kanji in writing</string>
+    <string name="word_links">Study links</string>
+    <string name="word_chapter">Chapter %1$d</string>
+    <string name="word_search">Writing, reading, translation</string>
+    <string name="word_clear">Clear</string>
+    <string name="word_written">Writing</string>
+    <string name="word_translations">Translations</string>
+    <string name="word_add_translation">Add translation</string>
+    <string name="word_remove_translation">Remove translation: %1$s</string>
+    <string name="word_language">Translation language</string>
+    <string name="word_other_language">Other language…</string>
+    <string name="word_language_tag">Language tag (for example, ru or pt-BR)</string>
+    <string name="word_language_error">Enter a valid language tag</string>
+    <string name="word_choose">Choose</string>
+    <string name="word_cancel">Cancel</string>
+    <string name="word_written_hint">For example, 木漏れ日</string>
+    <string name="word_reading_hint">For example, こもれび</string>
+    <string name="word_translation_hint">Enter translation</string>
+    <string name="word_required">Required</string>
+    <string name="word_translations_error">Add a nonempty translation. Languages must be unique.</string>
+    <string name="word_create">Create word</string>
+    <string name="word_save">Save</string>
+    <string name="word_back">Back</string>
+</resources>

@@ -1,0 +1,74 @@
+Kanji learning catalog / Учебный каталог кандзи
+
+kanji.csv includes data derived from KANJIDIC2, copyright James William
+Breen and the Electronic Dictionary Research and Development Group (EDRDG).
+KANJIDIC2 database version: 2026-293, created 2026-10-20.
+https://www.edrdg.org/wiki/KANJIDIC_Project.html
+https://www.edrdg.org/edrdg/licence.html
+
+Part of the initial Russian wording was adapted from the Russian Wikipedia
+list of Joyo kanji, by its contributors. It was shortened and corrected.
+https://ru.wikipedia.org/wiki/Список_дзёё-кандзи
+https://ru.wikipedia.org/w/index.php?title=Список_дзёё-кандзи&action=history
+
+The derived kanji.csv dataset is available under Creative Commons
+Attribution-ShareAlike 4.0 International (CC BY-SA 4.0).
+https://creativecommons.org/licenses/by-sa/4.0/
+Changes: selection of educational/Joyo/Jinmeiyo characters, addition of
+the 2026 Jinmeiyo character 勒, Russian editing, radical mapping, reading
+variant fallback for four entries, and CSV conversion.
+
+YARXI (Vadim Smolensky; web implementation by Seva Alekseyev) and WARODAI
+were consulted for verification. Their complete dictionary articles and
+databases are not included in this package.
+https://yarxi.ru/online/
+https://www.warodai.ru/about/
+
+See project documentation: doc/implementation/kanji-catalog.md.
+
+Before exposing these data in application UI, provide the source and
+licence acknowledgement required by EDRDG in an accessible Sources/About
+screen and establish an update procedure.
+
+
+Basic Kanji Book I-II import vocabulary
+
+basic-kanji-book.csv: educational import dataset prepared from the community
+Anki deck Basic Kanji Books vol 1 2, publisher revision examples, and
+university lesson indexes. Russian wording was edited for recall practice;
+matching Tobira entries retain their existing translations. Source review,
+versions, changes and unresolved issues: doc/imports/basic-kanji-book/README.md.
+https://ankiweb.net/shared/info/3174372445
+https://publishing.bonjinsha.co.jp/support/bkb
+https://contsrv.icer.kyushu-u.ac.jp/web/QKANJI/index_vol1.html
+https://contsrv.icer.kyushu-u.ac.jp/web/QKANJI/index_vol2.html
+
+JMdict (EDRDG) was consulted for dictionary checks.
+https://www.edrdg.org/edrdg/licence.html
+
+Reading segmentation includes adapted JmdictFurigana data, release
+2.3.1+2026-09-25, plus editorial additions.
+https://github.com/Doublevil/JmdictFurigana
+
+MIT License
+
+Copyright (c) 2025 Doublevil
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+

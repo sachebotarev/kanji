@@ -104,6 +104,8 @@ data class CheckReport(
     val compensation: CheckCompensation = CheckCompensation(),
     val metrics: Map<String, String> = emptyMap(),
     val compensatedDrawing: ru.mobui.kanji.domain.handwriting.ComparisonDrawing? = null,
+    val checks: List<IndividualCheckResult> = emptyList(),
+    val matchPercent: Float? = null,
 )
 
 fun interface KanjiChecker {

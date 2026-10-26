@@ -13,3 +13,6 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Local dictionary sources for content preparation and review; never redistribute.
+/doc/dictionaries/local/

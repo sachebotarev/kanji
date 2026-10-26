@@ -1,0 +1,10 @@
+<resources>
+    <string name="settings_title">Settings</string>
+    <string name="settings_back">Back</string>
+    <string name="settings_checker">Kanji checking</string>
+    <string name="settings_checker_detail">Accuracy, tolerances and rules</string>
+    <string name="settings_japanese_model">Japanese language model</string>
+    <string name="settings_model_loaded">Downloaded</string>
+    <string name="settings_model_loading">Downloading…</string>
+    <string name="settings_model_missing">Not downloaded · Download</string>
+</resources>

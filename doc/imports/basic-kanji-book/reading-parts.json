@@ -1,0 +1,866 @@
+[
+  {
+    "word": "下車する",
+    "reading": "げしゃする",
+    "parts": "げ|しゃする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "低下する",
+    "reading": "ていかする",
+    "parts": "てい|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "来日する",
+    "reading": "らいにちする",
+    "parts": "らい|にちする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "見物する",
+    "reading": "けんぶつする",
+    "parts": "けん|ぶつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "教育する",
+    "reading": "きょういくする",
+    "parts": "きょう|いくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "計画する",
+    "reading": "けいかくする",
+    "parts": "けい|かくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "帰宅する",
+    "reading": "きたくする",
+    "parts": "き|たくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "開会する",
+    "reading": "かいかいする",
+    "parts": "かい|かいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "閉会する",
+    "reading": "へいかいする",
+    "parts": "へい|かいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "静止する",
+    "reading": "せいしする",
+    "parts": "せい|しする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "出荷する",
+    "reading": "しゅっかする",
+    "parts": "しゅっ|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "荷作りする",
+    "reading": "にづくりする",
+    "parts": "に|づくりする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "元気な",
+    "reading": "げんきな",
+    "parts": "げん|きな",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "所有する",
+    "reading": "しょゆうする",
+    "parts": "しょ|ゆうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "不足する",
+    "reading": "ふそくする",
+    "parts": "ふ|そくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "乗車する",
+    "reading": "じょうしゃする",
+    "parts": "じょう|しゃする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "渡米する",
+    "reading": "とべいする",
+    "parts": "と|べいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "進歩する",
+    "reading": "しんぽする",
+    "parts": "しん|ぽする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "公開する",
+    "reading": "こうかいする",
+    "parts": "こう|かいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "区別する",
+    "reading": "くべつする",
+    "parts": "く|べつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "強調する",
+    "reading": "きょうちょうする",
+    "parts": "きょう|ちょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "研修する",
+    "reading": "けんしゅうする",
+    "parts": "けん|しゅうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "訪問する",
+    "reading": "ほうもんする",
+    "parts": "ほう|もんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "返済する",
+    "reading": "へんさいする",
+    "parts": "へん|さいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "近代化する",
+    "reading": "きんだいかする",
+    "parts": "きん|だい|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "上映する",
+    "reading": "じょうえいする",
+    "parts": "じょう|えいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "正座する",
+    "reading": "せいざする",
+    "parts": "せい|ざする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "欠席する",
+    "reading": "けっせきする",
+    "parts": "けっ|せきする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "回転する",
+    "reading": "かいてんする",
+    "parts": "かい|てんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "議論する",
+    "reading": "ぎろんする",
+    "parts": "ぎ|ろんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "悪化する",
+    "reading": "あっかする",
+    "parts": "あっ|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "悪性の",
+    "reading": "あくせいの",
+    "parts": "あく|せいの",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "同意する",
+    "reading": "どういする",
+    "parts": "どう|いする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "適応する",
+    "reading": "てきおうする",
+    "parts": "てき|おうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "面接する",
+    "reading": "めんせつする",
+    "parts": "めん|せつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "説教する",
+    "reading": "せっきょうする",
+    "parts": "せっ|きょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "合格する",
+    "reading": "ごうかくする",
+    "parts": "ごう|かくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "落下する",
+    "reading": "らっかする",
+    "parts": "らっ|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "落第する",
+    "reading": "らくだいする",
+    "parts": "らく|だいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "投書する",
+    "reading": "とうしょする",
+    "parts": "とう|しょする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "投資する",
+    "reading": "とうしする",
+    "parts": "とう|しする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "流通する",
+    "reading": "りゅうつうする",
+    "parts": "りゅう|つうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "消火する",
+    "reading": "しょうかする",
+    "parts": "しょう|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "決心する",
+    "reading": "けっしんする",
+    "parts": "けっ|しんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "提案する",
+    "reading": "ていあんする",
+    "parts": "てい|あんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "案内する",
+    "reading": "あんないする",
+    "parts": "あん|ないする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "準備する",
+    "reading": "じゅんびする",
+    "parts": "じゅん|びする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "相談する",
+    "reading": "そうだんする",
+    "parts": "そう|だんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "会談する",
+    "reading": "かいだんする",
+    "parts": "かい|だんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "連絡する",
+    "reading": "れんらくする",
+    "parts": "れん|らくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "出発する",
+    "reading": "しゅっぱつする",
+    "parts": "しゅっ|ぱつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "発表する",
+    "reading": "はっぴょうする",
+    "parts": "はっ|ぴょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "到達する",
+    "reading": "とうたつする",
+    "parts": "とう|たつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "関係する",
+    "reading": "かんけいする",
+    "parts": "かん|けいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "信用する",
+    "reading": "しんようする",
+    "parts": "しん|ようする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "故障する",
+    "reading": "こしょうする",
+    "parts": "こ|しょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "注目する",
+    "reading": "ちゅうもくする",
+    "parts": "ちゅう|もくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "引用する",
+    "reading": "いんようする",
+    "parts": "いん|ようする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "営業する",
+    "reading": "えいぎょうする",
+    "parts": "えい|ぎょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "運営する",
+    "reading": "うんえいする",
+    "parts": "うん|えいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "取得する",
+    "reading": "しゅとくする",
+    "parts": "しゅ|とくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "要求する",
+    "reading": "ようきゅうする",
+    "parts": "よう|きゅうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "通知する",
+    "reading": "つうちする",
+    "parts": "つう|ちする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "服用する",
+    "reading": "ふくようする",
+    "parts": "ふく|ようする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "個々の",
+    "reading": "ここの",
+    "parts": "こ|この",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "評価する",
+    "reading": "ひょうかする",
+    "parts": "ひょう|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "生産する",
+    "reading": "せいさんする",
+    "parts": "せい|さんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "報告する",
+    "reading": "ほうこくする",
+    "parts": "ほう|こくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "選考する",
+    "reading": "せんこうする",
+    "parts": "せん|こうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "代表する",
+    "reading": "だいひょうする",
+    "parts": "だい|ひょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "全焼する",
+    "reading": "ぜんしょうする",
+    "parts": "ぜん|しょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "脱出する",
+    "reading": "だっしゅつする",
+    "parts": "だっ|しゅつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "脱落する",
+    "reading": "だつらくする",
+    "parts": "だつ|らくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "別の",
+    "reading": "べつの",
+    "parts": "べつの",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "集中する",
+    "reading": "しゅうちゅうする",
+    "parts": "しゅう|ちゅうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "並の",
+    "reading": "なみの",
+    "parts": "なみの",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "細分化する",
+    "reading": "さいぶんかする",
+    "parts": "さい|ぶん|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "出港する",
+    "reading": "しゅっこうする",
+    "parts": "しゅっ|こうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "建設する",
+    "reading": "けんせつする",
+    "parts": "けん|せつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "設立する",
+    "reading": "せつりつする",
+    "parts": "せつ|りつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "設計する",
+    "reading": "せっけいする",
+    "parts": "せっ|けいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "完了する",
+    "reading": "かんりょうする",
+    "parts": "かん|りょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "完成する",
+    "reading": "かんせいする",
+    "parts": "かん|せいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "成功する",
+    "reading": "せいこうする",
+    "parts": "せい|こうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "成立する",
+    "reading": "せいりつする",
+    "parts": "せい|りつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "放出する",
+    "reading": "ほうしゅつする",
+    "parts": "ほう|しゅつする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "設置する",
+    "reading": "せっちする",
+    "parts": "せっ|ちする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "横転する",
+    "reading": "おうてんする",
+    "parts": "おう|てんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "風邪",
+    "reading": "かぜ",
+    "parts": "かぜ",
+    "method": "exact_jmdict_furigana"
+  },
+  {
+    "word": "退学する",
+    "reading": "たいがくする",
+    "parts": "たい|がくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "退社する",
+    "reading": "たいしゃする",
+    "parts": "たい|しゃする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "訪米する",
+    "reading": "ほうべいする",
+    "parts": "ほう|べいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "洗顔する",
+    "reading": "せんがんする",
+    "parts": "せん|がんする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "必要な",
+    "reading": "ひつような",
+    "parts": "ひつ|ような",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "分類する",
+    "reading": "ぶんるいする",
+    "parts": "ぶん|るいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "説得する",
+    "reading": "せっとくする",
+    "parts": "せっ|とくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "失敗する",
+    "reading": "しっぱいする",
+    "parts": "しっ|ぱいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "失業する",
+    "reading": "しつぎょうする",
+    "parts": "しつ|ぎょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "増加する",
+    "reading": "ぞうかする",
+    "parts": "ぞう|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "加工する",
+    "reading": "かこうする",
+    "parts": "か|こうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "参加する",
+    "reading": "さんかする",
+    "parts": "さん|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "減少する",
+    "reading": "げんしょうする",
+    "parts": "げん|しょうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "移動する",
+    "reading": "いどうする",
+    "parts": "い|どうする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "相続する",
+    "reading": "そうぞくする",
+    "parts": "そう|ぞくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "連続する",
+    "reading": "れんぞくする",
+    "parts": "れん|ぞくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "通過する",
+    "reading": "つうかする",
+    "parts": "つう|かする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "対比する",
+    "reading": "たいひする",
+    "parts": "たい|ひする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "比例する",
+    "reading": "ひれいする",
+    "parts": "ひ|れいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "比較する",
+    "reading": "ひかくする",
+    "parts": "ひ|かくする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "反対する",
+    "reading": "はんたいする",
+    "parts": "はん|たいする",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "共通の",
+    "reading": "きょうつうの",
+    "parts": "きょう|つうの",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "最初の",
+    "reading": "さいしょの",
+    "parts": "さい|しょの",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "個人的な",
+    "reading": "こじんてきな",
+    "parts": "こ|じん|てきな",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "文化的な",
+    "reading": "ぶんかてきな",
+    "parts": "ぶん|か|てきな",
+    "method": "dictionary_base_plus_literal_kana"
+  },
+  {
+    "word": "ナイル川",
+    "reading": "ナイルがわ",
+    "parts": "ナイルがわ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "七月の半ば",
+    "reading": "しちがつのなかば",
+    "parts": "しち|がつの|なかば",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "三時半",
+    "reading": "さんじはん",
+    "parts": "さん|じ|はん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "三月三日",
+    "reading": "さんがつみっか",
+    "parts": "さん|がつ|みっか",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "二年",
+    "reading": "にねん",
+    "parts": "に|ねん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "二行目",
+    "reading": "にぎょうめ",
+    "parts": "に|ぎょう|め",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "五千円",
+    "reading": "ごせんえん",
+    "parts": "ご|せん|えん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "五年",
+    "reading": "ごねん",
+    "parts": "ご|ねん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "何ですか。",
+    "reading": "なんですか。",
+    "parts": "なんですか。",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "八年",
+    "reading": "はちねん",
+    "parts": "はち|ねん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "六年",
+    "reading": "ろくねん",
+    "parts": "ろく|ねん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "利根川",
+    "reading": "とねがわ",
+    "parts": "と|ね|がわ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "半分に分ける",
+    "reading": "はんぶんにわける",
+    "parts": "はん|ぶんに|わける",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "四分の三",
+    "reading": "よんぶんのさん",
+    "parts": "よん|ぶんの|さん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "土田",
+    "reading": "つちだ",
+    "parts": "つち|だ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "小林",
+    "reading": "こばやし",
+    "parts": "こ|ばやし",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "山田",
+    "reading": "やまだ",
+    "parts": "やま|だ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "岩田",
+    "reading": "いわた",
+    "parts": "いわ|た",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "成田",
+    "reading": "なりた",
+    "parts": "なり|た",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "木村",
+    "reading": "きむら",
+    "parts": "き|むら",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "森田",
+    "reading": "もりた",
+    "parts": "もり|た",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "田中",
+    "reading": "たなか",
+    "parts": "た|なか",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "百万人",
+    "reading": "ひゃくまんにん",
+    "parts": "ひゃく|まん|にん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "目覚まし時計",
+    "reading": "めざましとけい",
+    "parts": "め|ざまし|と|けい",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "真白",
+    "reading": "まっしろ",
+    "parts": "まっ|しろ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "竹田",
+    "reading": "たけだ",
+    "parts": "たけ|だ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "筑波山",
+    "reading": "つくばさん",
+    "parts": "つくば|さん",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "糸山",
+    "reading": "いとやま",
+    "parts": "いと|やま",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "金田",
+    "reading": "かねだ",
+    "parts": "かね|だ",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  },
+  {
+    "word": "高橋",
+    "reading": "たかはし",
+    "parts": "たか|はし",
+    "method": "editorial_reading_segments; some groups span multiple written characters"
+  }
+]

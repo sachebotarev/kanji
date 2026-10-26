@@ -21,7 +21,7 @@ class ShapeCalibrationTest {
         val pairs = listOf("土士", "未末", "日曰", "人入", "人八", "大丈", "牛午", "木不", "王玉", "大太", "口囗", "刀力")
         val characters = pairs.flatMap { it.toList() }.distinct()
         val drawings = characters.associateWith { requireNotNull(source.load(KanjiId("u" + it.code.toString(16)))) }
-        val profile = RecognitionSettingsViewModel(androidx.lifecycle.SavedStateHandle()).settings.value
+        val profile = ru.mobui.kanji.domain.practice.RecognitionSettings.touchInput()
         val records = JSONArray()
         val tolerances = listOf(.035f)
         fun sample(strokes: List<List<ReferencePoint>>) = WritingSample(strokes.map { s -> InkStroke(s.mapIndexed { i, p -> InkPoint(p.x, p.y, i.toLong()) }, InkTool.Finger) })

@@ -1,0 +1,114 @@
+[
+  {
+    "resource": "mascot_sticker_calligraphy",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      132,
+      41,
+      1125,
+      1212
+    ],
+    "bytes": 912502,
+    "sha256": "7bc686b20dbb975fc5f406872954c60421285f1a0b414c36511fbd819a6cf359"
+  },
+  {
+    "resource": "mascot_sticker_flashcards",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      131,
+      56,
+      1132,
+      1186
+    ],
+    "bytes": 931477,
+    "sha256": "bdcee5ec9b5af3139cded32bdb0a10080efa4938a1023f0a2d4e6dbbd39ad5ac"
+  },
+  {
+    "resource": "mascot_sticker_gaming",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      148,
+      46,
+      1065,
+      1191
+    ],
+    "bytes": 885670,
+    "sha256": "7f46f2e1ff60bf151bc0187a56a3f42e2aad3df132a7841fb8ed99750ee9d145"
+  },
+  {
+    "resource": "mascot_sticker_library",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      66,
+      118,
+      1212,
+      1170
+    ],
+    "bytes": 996917,
+    "sha256": "5d12ad6e6f5f2d048079a66039680dd009e77be422f240dd2fd760cb001937d3"
+  },
+  {
+    "resource": "mascot_sticker_lightning",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      159,
+      127,
+      1107,
+      1163
+    ],
+    "bytes": 860414,
+    "sha256": "ddff8569d49554253effa3b12ce1e2e09d1e266fa0a69641ac70354446e6ff9d"
+  },
+  {
+    "resource": "mascot_sticker_magnify",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      181,
+      41,
+      1026,
+      1214
+    ],
+    "bytes": 887598,
+    "sha256": "4209c09bca27010ce39008a4e8523b3e898f52f12994c6ee377776ae4a48b63a"
+  },
+  {
+    "resource": "mascot_sticker_read_book",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      146,
+      55,
+      1050,
+      1193
+    ],
+    "bytes": 908341,
+    "sha256": "a908f37906082c93489b64b4b829533dc3a6a53892f64c2dcbd5ad5ac39bda4c"
+  },
+  {
+    "resource": "mascot_sticker_sleep_book",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      42,
+      186,
+      1217,
+      1106
+    ],
+    "bytes": 880694,
+    "sha256": "feccb4ee62ebf6cd190fffd9093f46a8e4f28af348ea5b2153d92d58e459a850"
+  }
+]

@@ -1,0 +1,641 @@
+{
+  "date": "2026-10-20",
+  "rule": "Единые русские переводы для пяти первоначальных межфайловых расхождений и двадцати внутренних расхождений Tobira; одинаковая пара написания и чтения имеет одинаковый перевод во всех источниках.",
+  "translations": [
+    {
+      "word": "お手洗い",
+      "reading": "おてあらい",
+      "translation": "туалет — вежливое название"
+    },
+    {
+      "word": "予習する",
+      "reading": "よしゅうする",
+      "translation": "готовиться к предстоящему уроку"
+    },
+    {
+      "word": "困難",
+      "reading": "こんなん",
+      "translation": "трудный, затруднительный; трудность, затруднение"
+    },
+    {
+      "word": "授業",
+      "reading": "じゅぎょう",
+      "translation": "учебное занятие, урок"
+    },
+    {
+      "word": "泣き声",
+      "reading": "なきごえ",
+      "translation": "плач, звук плача"
+    },
+    {
+      "word": "二日",
+      "reading": "ふつか",
+      "translation": "два дня; второе число месяца"
+    },
+    {
+      "word": "三日",
+      "reading": "みっか",
+      "translation": "три дня; третье число месяца"
+    },
+    {
+      "word": "私立",
+      "reading": "しりつ",
+      "translation": "частный — об учебном заведении или учреждении"
+    },
+    {
+      "word": "生活",
+      "reading": "せいかつ",
+      "translation": "повседневная жизнь, быт"
+    },
+    {
+      "word": "大変",
+      "reading": "たいへん",
+      "translation": "трудный, тяжёлый"
+    },
+    {
+      "word": "地下",
+      "reading": "ちか",
+      "translation": "под землёй; подземное пространство, подвал"
+    },
+    {
+      "word": "体験する",
+      "reading": "たいけんする",
+      "translation": "испытывать на собственном опыте"
+    },
+    {
+      "word": "次回",
+      "reading": "じかい",
+      "translation": "следующий раз"
+    },
+    {
+      "word": "聞く",
+      "reading": "きく",
+      "translation": "слушать, слышать; спрашивать"
+    },
+    {
+      "word": "荷物",
+      "reading": "にもつ",
+      "translation": "багаж, вещи; посылка"
+    },
+    {
+      "word": "分野",
+      "reading": "ぶんや",
+      "translation": "область знаний или деятельности"
+    },
+    {
+      "word": "最後",
+      "reading": "さいご",
+      "translation": "конец; последний"
+    },
+    {
+      "word": "意思",
+      "reading": "いし",
+      "translation": "намерение, воля"
+    },
+    {
+      "word": "最高",
+      "reading": "さいこう",
+      "translation": "самый высокий; лучший, отличный"
+    },
+    {
+      "word": "両親",
+      "reading": "りょうしん",
+      "translation": "родители — отец и мать"
+    },
+    {
+      "word": "自由",
+      "reading": "じゆう",
+      "translation": "свобода; свободный"
+    },
+    {
+      "word": "絵",
+      "reading": "え",
+      "translation": "рисунок, картина"
+    },
+    {
+      "word": "最初",
+      "reading": "さいしょ",
+      "translation": "начало; первый"
+    },
+    {
+      "word": "駅",
+      "reading": "えき",
+      "translation": "железнодорожная станция"
+    },
+    {
+      "word": "幸せ",
+      "reading": "しあわせ",
+      "translation": "счастье; счастливый"
+    }
+  ],
+  "changes": [
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1260,
+      "word": "困難",
+      "reading": "こんなん",
+      "before": "трудный",
+      "after": "трудный, затруднительный; трудность, затруднение"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1412,
+      "word": "予習する",
+      "reading": "よしゅうする",
+      "before": "готовиться к занятию",
+      "after": "готовиться к предстоящему уроку"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1447,
+      "word": "泣き声",
+      "reading": "なきごえ",
+      "before": "плач, всхлипывание",
+      "after": "плач, звук плача"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1481,
+      "word": "お手洗い",
+      "reading": "おてあらい",
+      "before": "туалет",
+      "after": "туалет — вежливое название"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1598,
+      "word": "授業",
+      "reading": "じゅぎょう",
+      "before": "занятие",
+      "after": "учебное занятие, урок"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1605,
+      "word": "授業",
+      "reading": "じゅぎょう",
+      "before": "занятие",
+      "after": "учебное занятие, урок"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1868,
+      "word": "予習する",
+      "reading": "よしゅうする",
+      "before": "готовиться к занятию",
+      "after": "готовиться к предстоящему уроку"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 590,
+      "word": "困難",
+      "reading": "こんなん",
+      "before": "трудный; затруднение",
+      "after": "трудный, затруднительный; трудность, затруднение"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1230,
+      "word": "授業",
+      "reading": "じゅぎょう",
+      "before": "занятие, урок",
+      "after": "учебное занятие, урок"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1271,
+      "word": "困難",
+      "reading": "こんなん",
+      "before": "трудный; затруднение",
+      "after": "трудный, затруднительный; трудность, затруднение"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 20,
+      "word": "二日",
+      "reading": "ふつか",
+      "before": "два дня, второе число месяца",
+      "after": "два дня; второе число месяца",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 31,
+      "word": "三日",
+      "reading": "みっか",
+      "before": "три дня, третье число месяца",
+      "after": "три дня; третье число месяца",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 106,
+      "word": "私立",
+      "reading": "しりつ",
+      "before": "частный (об учебном заведении)",
+      "after": "частный — об учебном заведении или учреждении",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 160,
+      "word": "二日",
+      "reading": "ふつか",
+      "before": "второе число месяца",
+      "after": "два дня; второе число месяца",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 161,
+      "word": "三日",
+      "reading": "みっか",
+      "before": "третье число месяца",
+      "after": "три дня; третье число месяца",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 199,
+      "word": "生活",
+      "reading": "せいかつ",
+      "before": "жизнь, быт",
+      "after": "повседневная жизнь, быт",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 219,
+      "word": "大変",
+      "reading": "たいへん",
+      "before": "тяжёлый, трудный",
+      "after": "трудный, тяжёлый",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 232,
+      "word": "地下",
+      "reading": "ちか",
+      "before": "под землёй",
+      "after": "под землёй; подземное пространство, подвал",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 464,
+      "word": "次回",
+      "reading": "じかい",
+      "before": "в следующий раз",
+      "after": "следующий раз",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 474,
+      "word": "聞く",
+      "reading": "きく",
+      "before": "слушать, слышать, спрашивать",
+      "after": "слушать, слышать; спрашивать",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 483,
+      "word": "私立",
+      "reading": "しりつ",
+      "before": "частный (об учреждении)",
+      "after": "частный — об учебном заведении или учреждении",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 511,
+      "word": "荷物",
+      "reading": "にもつ",
+      "before": "багаж",
+      "after": "багаж, вещи; посылка",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 551,
+      "word": "聞く",
+      "reading": "きく",
+      "before": "слушать, спрашивать",
+      "after": "слушать, слышать; спрашивать",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 611,
+      "word": "分野",
+      "reading": "ぶんや",
+      "before": "область знаний, специальность",
+      "after": "область знаний или деятельности",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 622,
+      "word": "最後",
+      "reading": "さいご",
+      "before": "последний",
+      "after": "конец; последний",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 658,
+      "word": "意思",
+      "reading": "いし",
+      "before": "намерение",
+      "after": "намерение, воля",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 695,
+      "word": "最高",
+      "reading": "さいこう",
+      "before": "самый высокий, лучший",
+      "after": "самый высокий; лучший, отличный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 803,
+      "word": "両親",
+      "reading": "りょうしん",
+      "before": "родители",
+      "after": "родители — отец и мать",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 897,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свобода",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 898,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свободный",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 955,
+      "word": "絵",
+      "reading": "え",
+      "before": "картина, рисунок",
+      "after": "рисунок, картина",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 971,
+      "word": "最後",
+      "reading": "さいご",
+      "before": "последний, конец",
+      "after": "конец; последний",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 975,
+      "word": "最高",
+      "reading": "さいこう",
+      "before": "наивысший, отличный",
+      "after": "самый высокий; лучший, отличный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 976,
+      "word": "最初",
+      "reading": "さいしょ",
+      "before": "первый, начало",
+      "after": "начало; первый",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 986,
+      "word": "絵",
+      "reading": "え",
+      "before": "рисунок",
+      "after": "рисунок, картина",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1027,
+      "word": "荷物",
+      "reading": "にもつ",
+      "before": "багаж, посылка",
+      "after": "багаж, вещи; посылка",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1029,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свобода",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1030,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свободный",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1074,
+      "word": "最初",
+      "reading": "さいしょ",
+      "before": "начало, первый",
+      "after": "начало; первый",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1397,
+      "word": "体験する",
+      "reading": "たいけんする",
+      "before": "испытывать лично",
+      "after": "испытывать на собственном опыте",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1435,
+      "word": "駅",
+      "reading": "えき",
+      "before": "станция",
+      "after": "железнодорожная станция",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1574,
+      "word": "生活",
+      "reading": "せいかつ",
+      "before": "повседневная жизнь",
+      "after": "повседневная жизнь, быт",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1636,
+      "word": "幸せ",
+      "reading": "しあわせ",
+      "before": "счастливый",
+      "after": "счастье; счастливый",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1637,
+      "word": "幸せ",
+      "reading": "しあわせ",
+      "before": "счастье",
+      "after": "счастье; счастливый",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1711,
+      "word": "地下",
+      "reading": "ちか",
+      "before": "под землёй, подвал",
+      "after": "под землёй; подземное пространство, подвал",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "tobira-kanji.csv",
+      "line_before_update": 1738,
+      "word": "両親",
+      "reading": "りょうしん",
+      "before": "мои родители",
+      "after": "родители — отец и мать",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 2,
+      "word": "三日",
+      "reading": "みっか",
+      "before": "третье число месяца",
+      "after": "три дня; третье число месяца",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 181,
+      "word": "地下",
+      "reading": "ちか",
+      "before": "под землёй, подвал",
+      "after": "под землёй; подземное пространство, подвал",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 329,
+      "word": "荷物",
+      "reading": "にもつ",
+      "before": "багаж, посылка",
+      "after": "багаж, вещи; посылка",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 412,
+      "word": "聞く",
+      "reading": "きく",
+      "before": "слушать, спрашивать",
+      "after": "слушать, слышать; спрашивать",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 634,
+      "word": "荷物",
+      "reading": "にもつ",
+      "before": "багаж, посылка",
+      "after": "багаж, вещи; посылка",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 819,
+      "word": "地下",
+      "reading": "ちか",
+      "before": "под землёй, подвал",
+      "after": "под землёй; подземное пространство, подвал",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1055,
+      "word": "私立",
+      "reading": "しりつ",
+      "before": "частный (об учреждении)",
+      "after": "частный — об учебном заведении или учреждении",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1136,
+      "word": "生活",
+      "reading": "せいかつ",
+      "before": "повседневная жизнь",
+      "after": "повседневная жизнь, быт",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1496,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свободный",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1499,
+      "word": "自由",
+      "reading": "じゆう",
+      "before": "свободный",
+      "after": "свобода; свободный",
+      "stage": "Tobira internal conflicts"
+    },
+    {
+      "file": "basic-kanji-book.csv",
+      "line_before_update": 1798,
+      "word": "両親",
+      "reading": "りょうしん",
+      "before": "мои родители",
+      "after": "родители — отец и мать",
+      "stage": "Tobira internal conflicts"
+    }
+  ],
+  "internal_tobira_resolution": {
+    "pairs": 20,
+    "changed_rows": 47,
+    "principle": "Сохраняются нужные значения и разные части речи; формулировки краткие и пригодны для восстановления японской записи."
+  }
+}

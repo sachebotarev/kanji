@@ -1,0 +1,73 @@
+<resources>
+    <string name="dashboard_home">Kanji Desu Ne</string>
+    <string name="dashboard_tagline">Nya! Ready?</string>
+    <string name="dashboard_checked">Learning footprints</string>
+    <string name="dashboard_activity">Activity</string>
+    <plurals name="dashboard_streak"><item quantity="one">%1$d day streak</item><item quantity="other">%1$d day streak</item></plurals>
+    <string name="dashboard_start">Start practice</string>
+    <string name="dashboard_mix">Smart mix</string>
+    <string name="dashboard_dictionaries">Vocabulary / 単語</string>
+    <string name="dashboard_textbooks">Catalog</string>
+    <string name="dashboard_books_count">Textbooks: %1$d · active: %2$d</string>
+    <string name="dashboard_personal">My vocabulary</string>
+    <string name="dashboard_personal_count">Total %1$d · learned %2$d</string>
+    <string name="dashboard_personal_errors">Errors: %1$d · hints: %2$d</string>
+    <string name="dashboard_history">Session history</string>
+    <string name="dashboard_history_detail">Results and error archive</string>
+    <string name="dashboard_constructor">Practice builder</string>
+    <string name="dashboard_preset">Active preset: Smart mix</string>
+    <string name="dashboard_coffee">Buy the author a coffee</string>
+    <string name="dashboard_stats_description">Words reviewed: %1$d. Learned: %2$d, hints: %3$d, errors: %4$d.</string>
+    <string name="dashboard_activity_description">Activity over the last six weeks</string>
+    <string name="dashboard_settings">Settings</string>
+    <string name="dashboard_monday">Mon</string>
+    <string name="dashboard_wednesday">Wed</string>
+    <string name="dashboard_friday">Fri</string>
+    <string name="dashboard_stats_summary">Learning footprints. Completed exercises: %1$d.</string>
+    <string name="dashboard_open_statistics">Open detailed statistics</string>
+    <string name="dashboard_total">Completed exercises: %1$d</string>
+    <string name="dashboard_learned">Learned</string>
+    <string name="dashboard_assisted">With hints</string>
+    <string name="dashboard_errors">With errors</string>
+    <string name="dashboard_close">Close</string>
+    <string name="dashboard_statistics_scope">Kanji and vocabulary practice</string>
+    <string name="dashboard_open_activity">Open activity details</string>
+    <string name="dashboard_activity_period">Last six weeks</string>
+    <string name="dashboard_active_days">Active days: %1$d of %2$d</string>
+    <string name="training_current">Current training</string>
+    <string name="training_select">Select training</string>
+    <string name="training_actions">Current training actions</string>
+    <string name="training_edit">Edit training</string>
+    <string name="training_create">Create training</string>
+    <string name="training_picker">Your training configurations</string>
+    <string name="training_session_config">%1$d words per session · %2$d s per word</string>
+    <string name="training_new_session">New session</string>
+    <string name="training_history">Training history</string>
+    <string name="training_no_sessions">No sessions yet</string>
+    <string name="training_history_empty">No session records yet.</string>
+    <string name="training_name">Name</string>
+    <string name="training_words">Words per session</string>
+    <string name="training_seconds">Seconds per word</string>
+    <string name="training_words_range">From 1 to 100</string>
+    <string name="training_seconds_range">From 10 to 600</string>
+    <string name="training_create_select">Create and select</string>
+    <string name="training_save">Save</string>
+    <string name="training_cancel">Cancel</string>
+    <string name="training_session_config_minutes">%1$d words per session · %2$d min per word</string>
+    <string name="training_create_action">＋ Create training</string>
+    <string name="training_search">Search trainings</string>
+    <string name="training_search_empty">No matching trainings</string>
+    <string name="training_edit_named">Edit training “%1$s”</string>
+    <string name="training_change">Change</string>
+    <string name="training_back">Back</string>
+    <string name="training_choose_action">Choose</string>
+    <string name="training_create_short">Create</string>
+    <string name="training_choose_another">Choose another</string>
+    <string name="dashboard_catalog_description">Textbooks, kanji and radicals</string>
+    <plurals name="dashboard_personal_words"><item quantity="one">%1$d word</item><item quantity="other">%1$d words</item></plurals>
+    <string name="training_not_practiced">Not practiced yet</string>
+    <string name="training_session_history_action">Session history ›</string>
+    <plurals name="training_completed_sessions"><item quantity="one">%1$d completed session</item><item quantity="other">%1$d completed sessions</item></plurals>
+    <plurals name="training_sessions_action"><item quantity="one">%1$d session ›</item><item quantity="other">%1$d sessions ›</item></plurals>
+    <string name="dashboard_personal_description">Your words, expressions and sentences</string>
+</resources>

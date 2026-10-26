@@ -1,0 +1,114 @@
+[
+  {
+    "resource": "mascot_sticker_celebrate",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      203,
+      53,
+      1051,
+      1211
+    ],
+    "bytes": 766740,
+    "sha256": "a437b7d95f2e943c23a3891f4a1b854f882cfba571840826d778c05fa7ac2975"
+  },
+  {
+    "resource": "mascot_sticker_confident",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      207,
+      61,
+      1047,
+      1198
+    ],
+    "bytes": 759336,
+    "sha256": "ff1aa2b59b81fa8642fc5ae790c15b0c237744765748bba50e769113ad42813e"
+  },
+  {
+    "resource": "mascot_sticker_encourage",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      191,
+      44,
+      1062,
+      1191
+    ],
+    "bytes": 796953,
+    "sha256": "3ddf7f3fd1b5ad3cc499d9aaf59e695c5972776d12179ccb75b1f76dea6aac19"
+  },
+  {
+    "resource": "mascot_sticker_rest",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      44,
+      158,
+      1216,
+      1117
+    ],
+    "bytes": 849844,
+    "sha256": "dce30de4a8803b4c8b94908852c34b0b441cac8592cd061ea0e6c31ffe649199"
+  },
+  {
+    "resource": "mascot_sticker_sad",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      130,
+      63,
+      1124,
+      1183
+    ],
+    "bytes": 837256,
+    "sha256": "e92318a8abe1b937181fa85e114b35478265e0921537aadcb02a732ccbdcc01c"
+  },
+  {
+    "resource": "mascot_sticker_surprised",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      214,
+      65,
+      1040,
+      1184
+    ],
+    "bytes": 712687,
+    "sha256": "dd5440ad9442b4c7039fd24622d26523902f0c4022b078d89baf56b3e9be88b1"
+  },
+  {
+    "resource": "mascot_sticker_think",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      211,
+      73,
+      1029,
+      1175
+    ],
+    "bytes": 791835,
+    "sha256": "97ced002c30ddfa4e5925a47c5dc8e8c36e0178f233cfe1ec77c11c0a7830677"
+  },
+  {
+    "resource": "mascot_sticker_wave",
+    "width": 1254,
+    "height": 1254,
+    "alpha": true,
+    "bounds": [
+      191,
+      55,
+      1057,
+      1199
+    ],
+    "bytes": 771796,
+    "sha256": "cbb35b95b72d95f73b12f70865fe22cc79296b36a2cdc7f4a2002b912f26a459"
+  }
+]

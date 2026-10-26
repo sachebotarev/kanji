@@ -1,0 +1,204 @@
+{
+  "date": "2026-10-20",
+  "csv": "data/catalog/basic-kanji-book.csv",
+  "sha256": "3cd1b6a176491d30537d7954d4569e1cbb89f8afbb2cb82646d9a78981fe6e3a",
+  "rows": 2003,
+  "unique_word_readings": 1716,
+  "rows_by_volume": {
+    "1": 988,
+    "2": 1015
+  },
+  "chapters": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45
+  ],
+  "target_symbols": 500,
+  "rows_without_reading_parts": 2,
+  "changes": [
+    {
+      "note_id": 1242562464304,
+      "before": [
+        "小さ",
+        "ちいさ"
+      ],
+      "after": [
+        "小さい",
+        "ちいさい"
+      ]
+    },
+    {
+      "note_id": 1242562464307,
+      "before": [
+        "大き",
+        "おおきな"
+      ],
+      "after": [
+        "大きな",
+        "おおきな"
+      ]
+    },
+    {
+      "note_id": 1242562464314,
+      "before": [
+        "大切",
+        "たいせつな"
+      ],
+      "after": [
+        "大切",
+        "たいせつ"
+      ]
+    },
+    {
+      "note_id": 1243115008721,
+      "before": [
+        "困難",
+        "こんなんな"
+      ],
+      "after": [
+        "困難",
+        "こんなん"
+      ]
+    },
+    {
+      "note_id": 1243115008727,
+      "before": [
+        "遠い",
+        "とい"
+      ],
+      "after": [
+        "遠い",
+        "とおい"
+      ]
+    },
+    {
+      "note_id": 1243289960882,
+      "before": [
+        "便利",
+        "べんりな"
+      ],
+      "after": [
+        "便利",
+        "べんり"
+      ]
+    },
+    {
+      "note_id": 1243601133490,
+      "before": [
+        "結婚 する",
+        "けっこんする"
+      ],
+      "after": [
+        "結婚する",
+        "けっこんする"
+      ]
+    },
+    {
+      "note_id": 1244012518631,
+      "before": [
+        "指す",
+        "ゆす"
+      ],
+      "after": [
+        "指す",
+        "さす"
+      ]
+    },
+    {
+      "note_id": 1244012518675,
+      "before": [
+        "お手洗い",
+        "おてらい"
+      ],
+      "after": [
+        "お手洗い",
+        "おてあらい"
+      ]
+    },
+    {
+      "note_id": 1245916990623,
+      "word": "位",
+      "chapter_before": [
+        39
+      ],
+      "chapter_after": 40,
+      "reason": "Chapter corrected to the chapter teaching the written kanji."
+    },
+    {
+      "note_id": 1246820284066,
+      "word": "全く",
+      "chapter_before": [
+        44
+      ],
+      "chapter_after": 45,
+      "reason": "Chapter corrected to the chapter teaching the written kanji."
+    },
+    {
+      "note_id": 1246820284085,
+      "before": [
+        "２対３",
+        "２たい３"
+      ],
+      "after": [
+        "２対３",
+        "にたいさん"
+      ]
+    }
+  ],
+  "held_for_review": [
+    {
+      "note_id": 1245769941025,
+      "word": "鳴く",
+      "reading": "なく",
+      "translation": "издавать голос — о животных и птицах",
+      "chapters": [
+        36
+      ],
+      "reason": "No literal target kanji taught in the tagged chapter; do not invent a link."
+    }
+  ],
+  "association_method": "Anki lesson tags + literal occurrence of a kanji taught in that lesson; publisher additions have an explicit target. Not all associations are verified against book pages.",
+  "special_target": "々, number 397: links to kanji.id 12293; its Kangxi radical is absent."
+}

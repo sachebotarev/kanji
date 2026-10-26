@@ -2,19 +2,79 @@ package ru.mobui.kanji
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import java.io.IOException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import ru.mobui.kanji.domain.practice.*
 
-/** Saved across recreation/process restoration; a future preferences repository can own persistence. */
-class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : ViewModel() {
+/** DataStore is authoritative; SavedStateHandle migrates values from the previous in-memory screen. */
+class RecognitionSettingsViewModel(
+    private val savedState: SavedStateHandle,
+    private val repository: RecognitionSettingsRepository,
+    private val persistenceScope: CoroutineScope,
+) : ViewModel() {
     private val defaults = RecognitionSettings.touchInput()
     private val mutableSettings = MutableStateFlow(restore())
     val settings = mutableSettings.asStateFlow()
 
+    private val mutableLoaded = MutableStateFlow(false)
+    val loaded = mutableLoaded.asStateFlow()
+    private val mutableStorageError = MutableStateFlow(false)
+    val storageError = mutableStorageError.asStateFlow()
+    private val writes = Mutex()
+    private var pendingWrites = 0
+    private val mutableSaving = MutableStateFlow(false)
+    val saving = mutableSaving.asStateFlow()
+
+    init { load() }
+
+    fun retryStorage() {
+        if (!mutableLoaded.value) load() else persist(mutableSettings.value)
+    }
+
+    private fun load() {
+        viewModelScope.launch {
+            try {
+                val durable = repository.load()
+                if (durable != null) mutableSettings.value = durable
+                else if (savedState.contains("recognition.parameters")) repository.save(mutableSettings.value)
+                mutableStorageError.value = false
+                mutableLoaded.value = true
+            } catch (_: IOException) {
+                mutableStorageError.value = true
+            }
+        }
+    }
+
+    private fun persist(value: RecognitionSettings) {
+        pendingWrites++
+        mutableSaving.value = true
+        // An Activity closing must not cancel an already requested disk write.
+        persistenceScope.launch {
+            try {
+                writes.withLock { repository.save(value) }
+                mutableStorageError.value = false
+            } catch (_: IOException) {
+                mutableStorageError.value = true
+            } finally {
+                pendingWrites--
+                mutableSaving.value = pendingWrites > 0
+            }
+        }
+    }
+
     fun update(settings: RecognitionSettings) {
         val value = settings.roundedParameters()
         mutableSettings.value = value
+        persist(value)
+        savedState["recognition.readability"] = value.readabilityEnabled
+        savedState["recognition.shape"] = value.shapeEnabled
+        savedState["recognition.writing"] = value.strokeWritingEnabled
         savedState["recognition.parameters"] = floatArrayOf(
             value.requiredMatchPercent, value.distanceTolerance, value.maxTranslationPercent,
             value.maxSizeCompensationPercent ?: Float.NaN, value.maxHorizontalStretchPercent,
@@ -65,6 +125,10 @@ class RecognitionSettingsViewModel(private val savedState: SavedStateHandle) : V
                 maxVerticalStretchPercent = restored.maxVerticalStretchPercent.takeIf { CompensationStage.Stretch in oldEnabled } ?: 0f,
                 jitterTolerancePercent = restored.jitterTolerancePercent.takeIf { CompensationStage.Jitter in oldEnabled } ?: 0f,
             )
-        }.roundedParameters()
+        }.copy(
+            readabilityEnabled = savedState["recognition.readability"] ?: true,
+            shapeEnabled = savedState["recognition.shape"] ?: true,
+            strokeWritingEnabled = savedState["recognition.writing"] ?: true,
+        ).roundedParameters()
     }
 }

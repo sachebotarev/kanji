@@ -1,0 +1,13 @@
+{
+  "date": "2026-10-20",
+  "row_counts": {
+    "tobira-kanji.csv": 1955,
+    "basic-kanji-book.csv": 2003
+  },
+  "unique_pairs_across_sources": 2491,
+  "translation_conflicts": 0,
+  "sha256": {
+    "tobira-kanji.csv": "e66d0e1c2040822ffe562ca51b24ae1a730e38bbb1519ad57cbe2b253e323b43",
+    "basic-kanji-book.csv": "3cd1b6a176491d30537d7954d4569e1cbb89f8afbb2cb82646d9a78981fe6e3a"
+  }
+}

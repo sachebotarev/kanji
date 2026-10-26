@@ -1,0 +1,38 @@
+{
+  "format_version": 1,
+  "schema_version": 1,
+  "content_version": 2,
+  "identity_registry_sha256": "9a9270ff43aea2755f2f1183d1e83af005337aa0277f8eba9fb764145753b32f",
+  "schema_sha256": "625e0ae11756535938c52e56c09dbdd520cf5d87411166c206d7f484429b35bf",
+  "inputs_sha256": {
+    "radicals.csv": "c165899093c14422a5fc79278681c51947f16fc0552233dfa228186748185e2b",
+    "kanji.csv": "d7d0b38066b1a6231dcada5555daf3bc5098b344d1ebe4210bfeb0d80ea8994b",
+    "tobira-kanji.csv": "e66d0e1c2040822ffe562ca51b24ae1a730e38bbb1519ad57cbe2b253e323b43",
+    "basic-kanji-book.csv": "3cd1b6a176491d30537d7954d4569e1cbb89f8afbb2cb82646d9a78981fe6e3a"
+  },
+  "files": {
+    "catalog.sqlite": {
+      "sha256": "3001e37e602e90da8511326b3f64990e2ee6154ad2c4517138e4852d4e7c372b",
+      "bytes": 1511424
+    },
+    "catalog.json": {
+      "sha256": "cb1b099c072cac384451dd8e5d97c9acf8b38596c365809175654c05563ff6c6",
+      "bytes": 2402393
+    }
+  },
+  "counts": {
+    "catalog_metadata": 1,
+    "radicals": 214,
+    "radicals_translations": 214,
+    "kanji": 3001,
+    "kanji_translations": 3048,
+    "kanji_readings": 9566,
+    "words": 2491,
+    "words_translations": 2491,
+    "word_reading_parts": 0,
+    "sources": 2,
+    "sources_translations": 0,
+    "source_kanji": 829,
+    "source_words": 3955
+  }
+}
