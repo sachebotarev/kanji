@@ -29,7 +29,7 @@ include(":domain:handwriting", ":core:writingpad")
 
 include(":domain:practice", ":feature:practice", ":data:kanjivg", ":core:designsystem")
 
-include(":checker:shape", ":checker:readability")
+include(":checker:shape", ":checker:writing", ":checker:readability", ":checker:strokes")
 
 include(":feature:dashboard")
 

@@ -50,6 +50,7 @@ dependencies {
     implementation(project(":core:designsystem"))
     implementation(project(":data:kanjivg"))
     implementation(project(":checker:shape"))
+    implementation(project(":checker:writing"))
     implementation(project(":checker:readability"))
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.runtime.compose)

@@ -1,5 +1,7 @@
 package ru.mobui.kanji
 
+import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
+
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -19,7 +21,7 @@ class TracingCompensationTest {
         val settings = RecognitionSettings(requiredMatchPercent = 95f, distanceTolerance = .035f,
             maxTranslationPercent = 10f, maxSizeCompensationPercent = 30f, maxShearDegrees = 5f,
             maxCompensationBudgetPercent = 15f, jitterTolerancePercent = .5f)
-        val matcher = ru.mobui.kanji.checker.shape.ShapeMatcher(settings)
+        val matcher = ShapeMatcher(settings)
         val random = kotlin.random.Random(8133)
         var highest = 0f
         for (attempt in 0 until 20) {
