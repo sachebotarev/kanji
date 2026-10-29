@@ -1,5 +1,9 @@
 package ru.mobui.kanji.checker.shape
 
+import ru.mobui.kanji.checker.shape.matching.ShapeMatch
+import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
+import ru.mobui.kanji.checker.shape.rules.KanjiRuleDictionary
+
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext

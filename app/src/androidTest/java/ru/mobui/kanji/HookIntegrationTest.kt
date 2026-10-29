@@ -1,11 +1,12 @@
 package ru.mobui.kanji
 
+import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
+
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.*
 import org.junit.Test
-import ru.mobui.kanji.checker.shape.*
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
 import ru.mobui.kanji.domain.handwriting.*
 import ru.mobui.kanji.domain.practice.*

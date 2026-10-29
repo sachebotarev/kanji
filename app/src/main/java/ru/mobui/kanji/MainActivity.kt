@@ -25,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.Dispatchers
 import ru.mobui.kanji.checker.shape.ShapeKanjiChecker
-import ru.mobui.kanji.checker.shape.StrokeWritingChecker
+import ru.mobui.kanji.checker.writing.StrokeWritingChecker
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
 import ru.mobui.kanji.domain.practice.*
