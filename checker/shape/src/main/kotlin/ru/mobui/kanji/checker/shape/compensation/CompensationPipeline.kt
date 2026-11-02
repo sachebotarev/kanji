@@ -2,8 +2,7 @@ package ru.mobui.kanji.checker.shape.compensation
 
 import ru.mobui.kanji.checker.shape.ShapeCheckConfig
 import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-
-import ru.mobui.kanji.domain.practice.*
+import ru.mobui.kanji.domain.practice.CheckCompensation
 
 internal data class CompensatedShape(
     val strokes: List<List<ShapePoint>>,
@@ -29,7 +28,8 @@ internal fun compensationPipeline(cfg: ShapeCheckConfig): CompensationPipeline =
     ProcrustesShapeCompensationPipeline(
         jitter = JitterCompensator(cfg.jitterTolerancePercent),
         shear = ShearCompensator(cfg.maxShearDegrees),
-        stretch = StretchCompensator(cfg.maxHorizontalStretchPercent, cfg.maxVerticalStretchPercent),
+        stretch =
+            StretchCompensator(cfg.maxHorizontalStretchPercent, cfg.maxVerticalStretchPercent),
         maxTranslationPercent = cfg.maxTranslationPercent,
         maxSizeCompensationPercent = cfg.maxSizeCompensationPercent,
         maxRotationDegrees = cfg.maxRotationDegrees,

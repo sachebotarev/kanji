@@ -19,6 +19,8 @@
 
 ## Связанные спецификации
 
+- [Полный аудит Kotlin через detekt, 2 ноября 2026](detekt/2026-11-02.md) — результаты, приоритеты исправления и проверка подключения.
+
 - Архитектурные требования: [doc/architecture.md](../architecture.md)
 - Реализация алгоритма формы: [doc/implementation/shape-checker.md](../implementation/shape-checker.md)
 - Стандарты интерфейса: [doc/design-system/README.md](../design-system/README.md)

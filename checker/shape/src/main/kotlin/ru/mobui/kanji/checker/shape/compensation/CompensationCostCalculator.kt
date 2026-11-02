@@ -1,14 +1,23 @@
 package ru.mobui.kanji.checker.shape.compensation
 
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
 import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
 
-import kotlin.math.*
-
-/** Uses one fixed reference size; costs cannot cancel and are independent of pointer sampling rate. */
+/**
+ * Uses one fixed reference size; costs cannot cancel and are independent of pointer sampling rate.
+ */
 internal class CompensationCostCalculator(reference: List<List<ShapePoint>>) {
-    private val side: Float = reference.flatten().let { points ->
-        if (points.isEmpty()) 0f else max(points.maxOf { it.x } - points.minOf { it.x }, points.maxOf { it.y } - points.minOf { it.y })
-    }
+    private val side: Float =
+        reference.flatten().let { points ->
+            if (points.isEmpty()) 0f
+            else
+                max(
+                    points.maxOf { it.x } - points.minOf { it.x },
+                    points.maxOf { it.y } - points.minOf { it.y },
+                )
+        }
 
     fun movement(before: List<List<ShapePoint>>, after: List<List<ShapePoint>>): Float {
         var distance = 0.0
@@ -23,11 +32,15 @@ internal class CompensationCostCalculator(reference: List<List<ShapePoint>>) {
         var distance = 0.0
         for ((original, retained) in before.zip(after)) for (p in original) {
             var nearest = Double.POSITIVE_INFINITY
-            if (retained.size == 1) nearest = hypot((p.x - retained[0].x).toDouble(), (p.y - retained[0].y).toDouble())
+            if (retained.size == 1)
+                nearest = hypot((p.x - retained[0].x).toDouble(), (p.y - retained[0].y).toDouble())
             for ((a, b) in retained.zipWithNext()) {
-                val dx = (b.x - a.x).toDouble(); val dy = (b.y - a.y).toDouble()
+                val dx = (b.x - a.x).toDouble()
+                val dy = (b.y - a.y).toDouble()
                 val squared = dx * dx + dy * dy
-                val t = if (squared == 0.0) 0.0 else (((p.x - a.x) * dx + (p.y - a.y) * dy) / squared).coerceIn(0.0, 1.0)
+                val t =
+                    if (squared == 0.0) 0.0
+                    else (((p.x - a.x) * dx + (p.y - a.y) * dy) / squared).coerceIn(0.0, 1.0)
                 nearest = min(nearest, hypot(p.x - a.x - t * dx, p.y - a.y - t * dy))
             }
             if (nearest.isFinite()) distance = max(distance, nearest)
@@ -35,5 +48,13 @@ internal class CompensationCostCalculator(reference: List<List<ShapePoint>>) {
         return percent(distance)
     }
 
-    private fun percent(distance: Double): Float = if (side > 0f) (distance / side * 100).coerceAtMost(Float.MAX_VALUE.toDouble() / 8).toFloat() else 0f
+    private fun percent(distance: Double): Float =
+        if (side > 0f)
+            (distance / side * PERCENT_SCALE)
+                .coerceAtMost(Float.MAX_VALUE.toDouble() / COST_OVERFLOW_MARGIN)
+                .toFloat()
+        else 0f
 }
+
+private const val PERCENT_SCALE = 100
+private const val COST_OVERFLOW_MARGIN = 8

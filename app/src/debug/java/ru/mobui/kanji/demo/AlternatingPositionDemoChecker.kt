@@ -13,8 +13,12 @@ internal class AlternatingPositionDemoChecker(task: PracticeTask) : KanjiChecker
 
     override suspend fun check(request: CheckRequest): CheckVerdict {
         val position = positions[request.occurrenceId] ?: return CheckVerdict.Unavailable
-        if (request.taskId != taskId || request.kanjiId != position.value.kanjiId ||
-            position.value.mode != EntryMode.User) return CheckVerdict.Unavailable
+        if (
+            request.taskId != taskId ||
+                request.kanjiId != position.value.kanjiId ||
+                position.value.mode != EntryMode.User
+        )
+            return CheckVerdict.Unavailable
         if (request.sample.strokeCount == 0) return CheckVerdict.Incomplete
         return if ((position.index + 1) % 2 == 0) CheckVerdict.Correct else CheckVerdict.Incorrect
     }

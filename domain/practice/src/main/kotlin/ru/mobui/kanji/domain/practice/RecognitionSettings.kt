@@ -7,7 +7,8 @@ private const val TOUCH_MATCH_PERCENT = 73f
 private const val TOUCH_BUDGET_PERCENT = 27f
 
 data class RecognitionSettings(
-    // Generic callers have unrestricted translation/size by default; the calibrated app uses touchInput().
+    // Generic callers have unrestricted translation/size by default; the calibrated app uses
+    // touchInput().
     val requiredMatchPercent: Float = 72f,
     /** Allowed distance as a fraction of the normalized glyph's longest side. */
     val distanceTolerance: Float = 0.048f,
@@ -15,7 +16,9 @@ data class RecognitionSettings(
     val maxHorizontalStretchPercent: Float = 15f,
     val maxVerticalStretchPercent: Float = 15f,
     val maxRotationDegrees: Float = 8f,
-    /** Max shift on either axis, in percent of the field. 100 preserves unrestricted translation. */
+    /**
+     * Max shift on either axis, in percent of the field. 100 preserves unrestricted translation.
+     */
     val maxTranslationPercent: Float = 100f,
     /** Absolute uniform size correction, in percent of the drawn size. Null means unrestricted. */
     val maxSizeCompensationPercent: Float? = null,
@@ -38,33 +41,45 @@ data class RecognitionSettings(
 ) {
     companion object {
         /** Shared starting profile for finger input; values remain adjustable in settings. */
-        fun touchInput() = RecognitionSettings(
-            requiredMatchPercent = TOUCH_MATCH_PERCENT, distanceTolerance = .05f,
-            maxTranslationPercent = 12f, maxSizeCompensationPercent = 30f,
-            maxCompensationBudgetPercent = TOUCH_BUDGET_PERCENT, jitterTolerancePercent = .5f,
-            maxShearDegrees = 8f, maxRotationDegrees = 8f,
-        )
+        fun touchInput() =
+            RecognitionSettings(
+                requiredMatchPercent = TOUCH_MATCH_PERCENT,
+                distanceTolerance = .05f,
+                maxTranslationPercent = 12f,
+                maxSizeCompensationPercent = 30f,
+                maxCompensationBudgetPercent = TOUCH_BUDGET_PERCENT,
+                jitterTolerancePercent = .5f,
+                maxShearDegrees = 8f,
+                maxRotationDegrees = 8f,
+            )
     }
 
-    /** Whole percentages/degrees for user settings, with jitter in tenths of a percent.
-     * Numerical checker tests may still construct finer-grained configurations directly. */
+    /**
+     * Whole percentages/degrees for user settings, with jitter in tenths of a percent. Numerical
+     * checker tests may still construct finer-grained configurations directly.
+     */
     fun roundedParameters(): RecognitionSettings {
         fun whole(value: Float) = value.roundToInt().toFloat()
-        val rounded = copy(
-            requiredMatchPercent = whole(requiredMatchPercent).coerceIn(1f, 100f),
-            distanceTolerance = whole(distanceTolerance * 100).coerceIn(1f, 15f) / 100,
-            maxHorizontalStretchPercent = whole(maxHorizontalStretchPercent),
-            maxVerticalStretchPercent = whole(maxVerticalStretchPercent),
-            maxRotationDegrees = whole(maxRotationDegrees),
-            maxTranslationPercent = whole(maxTranslationPercent),
-            maxSizeCompensationPercent = maxSizeCompensationPercent?.let(::whole) ?: 30f,
-            jitterTolerancePercent = (jitterTolerancePercent * 10).roundToInt() / 10f,
-            maxCompensationBudgetPercent = maxCompensationBudgetPercent?.let(::whole)?.takeIf { it > 0f },
-            maxShearDegrees = maxShearDegrees?.let(::whole) ?: 0f,
-            connectionTolerancePercent = whole(connectionTolerancePercent),
-            protrusionTolerancePercent = whole(protrusionTolerancePercent),
-            lengthDifferenceTolerancePercent = whole(lengthDifferenceTolerancePercent),
-        )
+        val rounded =
+            copy(
+                requiredMatchPercent =
+                    whole(requiredMatchPercent).coerceIn(1f, PERCENT_SCALE_FLOAT),
+                distanceTolerance =
+                    whole(distanceTolerance * PERCENT_SCALE)
+                        .coerceIn(1f, MAX_DISTANCE_TOLERANCE_PERCENT) / 100,
+                maxHorizontalStretchPercent = whole(maxHorizontalStretchPercent),
+                maxVerticalStretchPercent = whole(maxVerticalStretchPercent),
+                maxRotationDegrees = whole(maxRotationDegrees),
+                maxTranslationPercent = whole(maxTranslationPercent),
+                maxSizeCompensationPercent = maxSizeCompensationPercent?.let(::whole) ?: 30f,
+                jitterTolerancePercent = (jitterTolerancePercent * 10).roundToInt() / 10f,
+                maxCompensationBudgetPercent =
+                    maxCompensationBudgetPercent?.let(::whole)?.takeIf { it > 0f },
+                maxShearDegrees = maxShearDegrees?.let(::whole) ?: 0f,
+                connectionTolerancePercent = whole(connectionTolerancePercent),
+                protrusionTolerancePercent = whole(protrusionTolerancePercent),
+                lengthDifferenceTolerancePercent = whole(lengthDifferenceTolerancePercent),
+            )
         // User controls have one source of truth: zero disables the correction.
         return rounded.copy(enabledCompensations = rounded.compensationsFromLimits())
     }
@@ -76,28 +91,75 @@ data class RecognitionSettings(
     private fun compensationsFromLimits(): Set<CompensationStage> = buildSet {
         if (maxTranslationPercent > 0f) add(CompensationStage.Translation)
         if ((maxShearDegrees ?: 0f) > 0f) add(CompensationStage.Shear)
-        if (maxSizeCompensationPercent == null || maxSizeCompensationPercent > 0f) add(CompensationStage.Size)
-        if (maxHorizontalStretchPercent > 0f || maxVerticalStretchPercent > 0f) add(CompensationStage.Stretch)
+        if (maxSizeCompensationPercent == null || maxSizeCompensationPercent > 0f)
+            add(CompensationStage.Size)
+        if (maxHorizontalStretchPercent > 0f || maxVerticalStretchPercent > 0f)
+            add(CompensationStage.Stretch)
         if (maxRotationDegrees > 0f) add(CompensationStage.Rotation)
         if (jitterTolerancePercent > 0f) add(CompensationStage.Jitter)
     }
 
     init {
-        require(lengthDifferenceTolerancePercent.isFinite() && lengthDifferenceTolerancePercent in 0f..30f)
-        require(connectionTolerancePercent.isFinite() && connectionTolerancePercent in 0f..10f)
-        require(protrusionTolerancePercent.isFinite() && protrusionTolerancePercent in 0f..10f)
-        require(maxShearDegrees == null || (maxShearDegrees.isFinite() && maxShearDegrees in 0f..20f))
-        require(maxCompensationBudgetPercent == null || (maxCompensationBudgetPercent.isFinite() && maxCompensationBudgetPercent >= 0f))
-        require(jitterTolerancePercent.isFinite() && jitterTolerancePercent in 0f..5f)
-        require(maxSizeCompensationPercent == null || (maxSizeCompensationPercent.isFinite() && maxSizeCompensationPercent >= 0f))
-        require(maxTranslationPercent.isFinite() && maxTranslationPercent in 0f..100f)
-        require(requiredMatchPercent.isFinite() && requiredMatchPercent > 0f && requiredMatchPercent <= 100f)
-        require(distanceTolerance.isFinite() && distanceTolerance in 0.001f..0.15f)
+        require(
+            lengthDifferenceTolerancePercent.isFinite() &&
+                lengthDifferenceTolerancePercent in 0f..MAX_LENGTH_DIFFERENCE_PERCENT,
+        )
+        require(
+            connectionTolerancePercent.isFinite() &&
+                connectionTolerancePercent in 0f..MAX_RELATION_TOLERANCE_PERCENT,
+        )
+        require(
+            protrusionTolerancePercent.isFinite() &&
+                protrusionTolerancePercent in 0f..MAX_RELATION_TOLERANCE_PERCENT,
+        )
+        require(
+            maxShearDegrees == null ||
+                (maxShearDegrees.isFinite() && maxShearDegrees in 0f..MAX_ANGLE_DEGREES),
+        )
+        require(
+            maxCompensationBudgetPercent == null ||
+                (maxCompensationBudgetPercent.isFinite() && maxCompensationBudgetPercent >= 0f),
+        )
+        require(
+            jitterTolerancePercent.isFinite() && jitterTolerancePercent in 0f..MAX_JITTER_PERCENT,
+        )
+        require(
+            maxSizeCompensationPercent == null ||
+                (maxSizeCompensationPercent.isFinite() && maxSizeCompensationPercent >= 0f),
+        )
+        require(
+            maxTranslationPercent.isFinite() && maxTranslationPercent in 0f..PERCENT_SCALE_FLOAT,
+        )
+        require(
+            requiredMatchPercent.isFinite() &&
+                requiredMatchPercent > 0f &&
+                requiredMatchPercent <= PERCENT_SCALE_FLOAT,
+        )
+        require(
+            distanceTolerance.isFinite() &&
+                distanceTolerance in MIN_DISTANCE_TOLERANCE..MAX_DISTANCE_TOLERANCE,
+        )
         require(maxHorizontalStretchPercent.isFinite() && maxHorizontalStretchPercent >= 0f)
         require(maxVerticalStretchPercent.isFinite() && maxVerticalStretchPercent >= 0f)
-        require(maxRotationDegrees.isFinite() && maxRotationDegrees in 0f..20f)
+        require(maxRotationDegrees.isFinite() && maxRotationDegrees in 0f..MAX_ANGLE_DEGREES)
     }
 }
 
+enum class CompensationStage {
+    Translation,
+    Shear,
+    Size,
+    Stretch,
+    Rotation,
+    Jitter,
+}
 
-enum class CompensationStage { Translation, Shear, Size, Stretch, Rotation, Jitter }
+private const val PERCENT_SCALE_FLOAT = 100f
+private const val PERCENT_SCALE = 100
+private const val MAX_DISTANCE_TOLERANCE_PERCENT = 15f
+private const val MAX_LENGTH_DIFFERENCE_PERCENT = 30f
+private const val MAX_RELATION_TOLERANCE_PERCENT = 10f
+private const val MAX_ANGLE_DEGREES = 20f
+private const val MAX_JITTER_PERCENT = 5f
+private const val MIN_DISTANCE_TOLERANCE = 0.001f
+private const val MAX_DISTANCE_TOLERANCE = 0.15f

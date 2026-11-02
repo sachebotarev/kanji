@@ -11,7 +11,28 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.mobui.kanji.core.writingpad.PadEvent
-import ru.mobui.kanji.domain.practice.*
+import ru.mobui.kanji.domain.practice.CheckCompensation
+import ru.mobui.kanji.domain.practice.CheckFailure
+import ru.mobui.kanji.domain.practice.CheckReport
+import ru.mobui.kanji.domain.practice.CheckRequest
+import ru.mobui.kanji.domain.practice.CheckVerdict
+import ru.mobui.kanji.domain.practice.HintAlgorithm
+import ru.mobui.kanji.domain.practice.HintPresentation
+import ru.mobui.kanji.domain.practice.HintRequest
+import ru.mobui.kanji.domain.practice.KanjiChecker
+import ru.mobui.kanji.domain.practice.KanjiReferenceSource
+import ru.mobui.kanji.domain.practice.PracticeResult
+import ru.mobui.kanji.domain.practice.PracticeSession
+import ru.mobui.kanji.domain.practice.PracticeState
+import ru.mobui.kanji.domain.practice.PracticeTask
+import ru.mobui.kanji.domain.practice.TraceReferenceHint
+import ru.mobui.kanji.domain.practice.addStroke
+import ru.mobui.kanji.domain.practice.clear
+import ru.mobui.kanji.domain.practice.recordHintUsed
+import ru.mobui.kanji.domain.practice.select
+import ru.mobui.kanji.domain.practice.setGestureActive
+import ru.mobui.kanji.domain.practice.setReference
+import ru.mobui.kanji.domain.practice.undo
 
 data class PracticeUiState(
     val practice: PracticeState,
@@ -28,14 +49,24 @@ data class PracticeUiState(
     val showCompensatedDrawing: Boolean = false,
 )
 
-enum class PracticeNotice { CheckerUnavailable, Incomplete }
+enum class PracticeNotice {
+    CheckerUnavailable,
+    Incomplete,
+}
+
 sealed interface PracticeAction {
     data class Select(val index: Int) : PracticeAction
+
     data object ToggleCompensatedDrawing : PracticeAction
+
     data object ToggleHint : PracticeAction
+
     data object Undo : PracticeAction
+
     data object Clear : PracticeAction
+
     data object Submit : PracticeAction
+
     data object Skip : PracticeAction
 }
 
@@ -49,7 +80,8 @@ class PracticeViewModel(
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
     private val session = PracticeSession(task)
-    private val mutableState = MutableStateFlow(PracticeUiState(session.state, debugEnabled = showCheckDiagnostics))
+    private val mutableState =
+        MutableStateFlow(PracticeUiState(session.state, debugEnabled = showCheckDiagnostics))
     val uiState = mutableState.asStateFlow()
     private val mutablePreview = MutableStateFlow<PadEvent.GesturePreview?>(null)
     val preview = mutablePreview.asStateFlow()
@@ -63,16 +95,24 @@ class PracticeViewModel(
     private val checkedRevisions = mutableMapOf<String, Long>()
 
     init {
-        task.kanji.map { it.kanjiId }.distinct().forEach { id ->
-            viewModelScope.launch {
-                val drawing = try { references.load(id) }
-                catch (cancelled: CancellationException) { throw cancelled }
-                catch (_: Exception) { null }
-                accountTime()
-                session.setReference(id, drawing)
-                publish()
+        task.kanji
+            .map { it.kanjiId }
+            .distinct()
+            .forEach { id ->
+                viewModelScope.launch {
+                    val drawing =
+                        try {
+                            references.load(id)
+                        } catch (cancelled: CancellationException) {
+                            throw cancelled
+                        } catch (_: Exception) {
+                            null
+                        }
+                    accountTime()
+                    session.setReference(id, drawing)
+                    publish()
+                }
             }
-        }
     }
 
     fun setActive(active: Boolean) {
@@ -89,7 +129,11 @@ class PracticeViewModel(
             session.setGestureActive(false)
         } else {
             ticker = viewModelScope.launch {
-                while (isActive) { delay(250); accountTime(); publish() }
+                while (isActive) {
+                    delay(TIMER_TICK_MILLIS)
+                    accountTime()
+                    publish()
+                }
             }
         }
         publish()
@@ -108,18 +152,29 @@ class PracticeViewModel(
 
     fun onAction(action: PracticeAction) {
         accountTime()
-        if (session.state.result != null) { publish(); return }
+        if (session.state.result != null) {
+            publish()
+            return
+        }
         // UI actions must not commit or change cells under an unfinished gesture.
         if (session.state.gestureActive) return
         when (action) {
             is PracticeAction.Select -> {
                 val previous = session.state.selectedIndex
                 session.select(action.index)
-                if (session.state.selectedIndex != previous) mutableState.value = mutableState.value.copy(hint = null)
+                if (session.state.selectedIndex != previous)
+                    mutableState.value = mutableState.value.copy(hint = null)
             }
             PracticeAction.ToggleCompensatedDrawing -> {
-                if (!showCheckDiagnostics || mutableState.value.debugReport?.compensatedDrawing == null) return
-                mutableState.value = mutableState.value.copy(showCompensatedDrawing = !mutableState.value.showCompensatedDrawing)
+                if (
+                    !showCheckDiagnostics ||
+                        mutableState.value.debugReport?.compensatedDrawing == null
+                )
+                    return
+                mutableState.value =
+                    mutableState.value.copy(
+                        showCompensatedDrawing = !mutableState.value.showCompensatedDrawing,
+                    )
             }
             PracticeAction.ToggleHint -> {
                 if (mutableState.value.hint != null) {
@@ -132,8 +187,14 @@ class PracticeViewModel(
                     mutableState.value = mutableState.value.copy(hint = hint)
                 }
             }
-            PracticeAction.Undo -> { cancelCheck(); session.undo() }
-            PracticeAction.Clear -> { cancelCheck(); session.clear() }
+            PracticeAction.Undo -> {
+                cancelCheck()
+                session.undo()
+            }
+            PracticeAction.Clear -> {
+                cancelCheck()
+                session.clear()
+            }
             PracticeAction.Submit -> session.submit()
             PracticeAction.Skip -> session.skip()
         }
@@ -148,8 +209,14 @@ class PracticeViewModel(
         when (event) {
             is PadEvent.GesturePreview -> {
                 if (cell?.task?.occurrenceId != event.baseVersion.cellId) return
-                if (event.stroke != null && (cell.revision != event.baseVersion.revision || session.state.result != null)) return
-                if (event.stroke == null && mutablePreview.value?.gestureId != event.gestureId) return
+                if (
+                    event.stroke != null &&
+                        (cell.revision != event.baseVersion.revision ||
+                            session.state.result != null)
+                )
+                    return
+                if (event.stroke == null && mutablePreview.value?.gestureId != event.gestureId)
+                    return
                 val wasActive = session.state.gestureActive
                 if (event.stroke != null && !wasActive) cancelCheck()
                 mutablePreview.value = event.takeIf { it.stroke != null }
@@ -159,7 +226,11 @@ class PracticeViewModel(
             }
             is PadEvent.StrokeFinished -> {
                 cancelCheck()
-                session.addStroke(event.baseVersion.cellId, event.baseVersion.revision, event.stroke)
+                session.addStroke(
+                    event.baseVersion.cellId,
+                    event.baseVersion.revision,
+                    event.stroke,
+                )
                 publish()
                 if (!session.state.gestureActive) scheduleCheck()
             }
@@ -177,10 +248,17 @@ class PracticeViewModel(
     /** Coalesce strokes; a pause is a scheduling hint, never proof that a sign is finished. */
     private fun scheduleCheck() {
         cancelCheck()
-        if (!screenActive || session.state.result != null || session.state.gestureActive || mutableState.value.hint?.blocksInput == true) return
-        val requests = session.checkRequests().filter {
-            checkedRevisions[it.occurrenceId] != it.revision
-        }
+        if (
+            !screenActive ||
+                session.state.result != null ||
+                session.state.gestureActive ||
+                mutableState.value.hint?.blocksInput == true
+        )
+            return
+        val requests =
+            session.checkRequests().filter {
+                checkedRevisions[it.occurrenceId] != it.revision
+            }
         if (requests.isEmpty()) return
         val generation = checkGeneration
         checking = viewModelScope.launch {
@@ -188,26 +266,17 @@ class PracticeViewModel(
             var unavailable = false
             var incomplete = false
             try {
-                delay(350)
+                delay(CHECK_DEBOUNCE_MILLIS)
                 mutableState.value = mutableState.value.copy(isChecking = true)
                 for (request in requests) {
-                    val report = try { checker.checkWithDetails(request) }
-                    catch (cancelled: CancellationException) { throw cancelled }
-                    catch (_: Exception) { CheckReport(CheckVerdict.Unavailable) }
+                    val report = executeCheck(checker, request)
                     // A provider may finish despite cancellation; never apply that response.
                     if (generation != checkGeneration) return@launch
                     accountTime()
-                    val verdict = report.verdict
-                    if (session.applyCheck(request, verdict)) {
-                        checkFailures[request.occurrenceId] = request.revision to report.copy(failures = report.failures.toList(), metrics = report.metrics.toMap())
-                        if (verdict != CheckVerdict.Unavailable) checkedRevisions[request.occurrenceId] = request.revision
-                        unavailable = unavailable || verdict == CheckVerdict.Unavailable
-                        incomplete = incomplete || verdict == CheckVerdict.Incomplete
-                        notice = when {
-                            unavailable -> PracticeNotice.CheckerUnavailable
-                            incomplete -> PracticeNotice.Incomplete
-                            else -> null
-                        }
+                    applyCheckResult(request, report, unavailable, incomplete)?.let { (u, i, n) ->
+                        unavailable = u
+                        incomplete = i
+                        notice = n
                         publish(notice)
                     }
                 }
@@ -218,6 +287,34 @@ class PracticeViewModel(
                 }
             }
         }
+    }
+
+    private fun applyCheckResult(
+        request: CheckRequest,
+        report: CheckReport,
+        unavailable: Boolean,
+        incomplete: Boolean,
+    ): Triple<Boolean, Boolean, PracticeNotice?>? {
+        val verdict = report.verdict
+        if (!session.applyCheck(request, verdict)) return null
+        checkFailures[request.occurrenceId] =
+            request.revision to
+                report.copy(
+                    failures = report.failures.toList(),
+                    metrics = report.metrics.toMap(),
+                )
+        if (verdict != CheckVerdict.Unavailable) {
+            checkedRevisions[request.occurrenceId] = request.revision
+        }
+        val isUnavailable = unavailable || verdict == CheckVerdict.Unavailable
+        val isIncomplete = incomplete || verdict == CheckVerdict.Incomplete
+        val notice =
+            when {
+                isUnavailable -> PracticeNotice.CheckerUnavailable
+                isIncomplete -> PracticeNotice.Incomplete
+                else -> null
+            }
+        return Triple(isUnavailable, isIncomplete, notice)
     }
 
     private fun cancelCheck() {
@@ -239,25 +336,50 @@ class PracticeViewModel(
     }
 
     private fun publish(notice: PracticeNotice? = mutableState.value.notice) {
-        val currentReport = session.state.selected?.let { cell ->
-            checkFailures[cell.task.occurrenceId]?.takeIf {
-                it.first == cell.revision && !session.state.gestureActive && session.state.result == null
-            }?.second
-        }
+        val currentReport =
+            session.state.selected?.let { cell ->
+                checkFailures[cell.task.occurrenceId]
+                    ?.takeIf {
+                        it.first == cell.revision &&
+                            !session.state.gestureActive &&
+                            session.state.result == null
+                    }
+                    ?.second
+            }
         val debugReport = currentReport.takeIf { showCheckDiagnostics }
-        mutableState.value = mutableState.value.copy(
-            practice = session.state,
-            currentCheckReport = currentReport,
-            canUndo = session.canUndo(),
-            gestureActive = session.state.gestureActive,
-            notice = notice,
-            hint = mutableState.value.hint.takeIf { session.state.result == null },
-            debugReport = debugReport,
-            showCompensatedDrawing = mutableState.value.showCompensatedDrawing && debugReport?.compensatedDrawing != null &&
-                session.state.selected?.task?.occurrenceId == mutableState.value.practice.selected?.task?.occurrenceId &&
-                session.state.selected?.revision == mutableState.value.practice.selected?.revision,
-            debugFailures = debugReport?.failures.orEmpty(),
-            debugCompensation = debugReport?.compensation?.takeIf { it.isApplied },
-        )
+        mutableState.value =
+            mutableState.value.copy(
+                practice = session.state,
+                currentCheckReport = currentReport,
+                canUndo = session.canUndo(),
+                gestureActive = session.state.gestureActive,
+                notice = notice,
+                hint = mutableState.value.hint.takeIf { session.state.result == null },
+                debugReport = debugReport,
+                showCompensatedDrawing =
+                    mutableState.value.showCompensatedDrawing &&
+                        debugReport?.compensatedDrawing != null &&
+                        session.state.selected?.task?.occurrenceId ==
+                            mutableState.value.practice.selected?.task?.occurrenceId &&
+                        session.state.selected?.revision ==
+                            mutableState.value.practice.selected?.revision,
+                debugFailures = debugReport?.failures.orEmpty(),
+                debugCompensation = debugReport?.compensation?.takeIf { it.isApplied },
+            )
     }
 }
+
+private const val TIMER_TICK_MILLIS = 250L
+private const val CHECK_DEBOUNCE_MILLIS = 350L
+
+private suspend fun executeCheck(
+    checker: KanjiChecker,
+    request: CheckRequest,
+): CheckReport =
+    try {
+        checker.checkWithDetails(request)
+    } catch (cancelled: CancellationException) {
+        throw cancelled
+    } catch (_: Exception) {
+        CheckReport(CheckVerdict.Unavailable)
+    }

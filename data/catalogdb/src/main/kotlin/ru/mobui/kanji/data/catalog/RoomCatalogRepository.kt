@@ -3,121 +3,224 @@ package ru.mobui.kanji.data.catalog
 import android.content.Context
 import android.content.res.AssetManager
 import androidx.room.withTransaction
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import ru.mobui.kanji.domain.catalog.*
+import ru.mobui.kanji.domain.catalog.CatalogContent
+import ru.mobui.kanji.domain.catalog.CatalogLink
+import ru.mobui.kanji.domain.catalog.CatalogPlacement
+import ru.mobui.kanji.domain.catalog.CatalogRadical
+import ru.mobui.kanji.domain.catalog.CatalogRepository
+import ru.mobui.kanji.domain.catalog.CatalogSnapshot
+import ru.mobui.kanji.domain.catalog.CatalogWord
+import ru.mobui.kanji.domain.catalog.DictionaryException
+import ru.mobui.kanji.domain.catalog.DictionaryFailure
+import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
+import ru.mobui.kanji.domain.catalog.ReadingPart
+import ru.mobui.kanji.domain.catalog.WordDraft
+import ru.mobui.kanji.domain.catalog.normalized
 
-class RoomCatalogRepository internal constructor(private val database: CatalogDatabase,
-    private val assets: AssetManager, private val io: CoroutineDispatcher) : CatalogRepository, PersonalDictionaryRepository {
-    constructor(context: Context, io: CoroutineDispatcher = Dispatchers.IO) :
-        this(CatalogDatabase.open(context), context.applicationContext.assets, io)
+class RoomCatalogRepository
+internal constructor(
+    private val database: CatalogDatabase,
+    private val assets: AssetManager,
+    private val io: CoroutineDispatcher,
+) : CatalogRepository, PersonalDictionaryRepository {
+    constructor(
+        context: Context,
+        io: CoroutineDispatcher = Dispatchers.IO,
+    ) : this(CatalogDatabase.open(context), context.applicationContext.assets, io)
+
     private val mutex = Mutex()
     private var snapshot: CatalogSnapshot? = null
 
     override fun observeWords(): Flow<List<CatalogWord>> = flow {
         load() // Installation finishes before Room starts emitting an initially empty database.
-        emitAll(database.catalogDao().observePersonalWords().map { rows -> rows.map { row ->
-            CatalogWord(row.word.id, row.word.written_form, row.word.reading,
-                row.translations.associate { it.language_tag to it.translation },
-                row.parts.sortedBy { it.position }.map { ReadingPart(it.written_part, it.reading_part) },
-                row.word.is_user_created == 1)
-        } })
-    }.flowOn(io)
+        emitAll(
+            database.catalogDao().observePersonalWords().map { rows ->
+                rows.map { row ->
+                    CatalogWord(
+                        row.word.id,
+                        row.word.writtenForm,
+                        row.word.reading,
+                        row.translations.associate { it.languageTag to it.translation },
+                        row.parts
+                            .sortedBy { it.position }
+                            .map { ReadingPart(it.writtenPart, it.readingPart) },
+                        row.word.isUserCreated == 1,
+                    )
+                }
+            },
+        )
+    }
+        .flowOn(io)
 
-    override suspend fun saveWord(id: Int?, draft: WordDraft): Int = withContext(io) {
-        val validated = draft.normalized()
-        load()
-        mutex.withLock { database.withTransaction {
-            val dao = database.catalogDao()
-            val old = id?.let { dao.word(it) ?: throw DictionaryException(DictionaryFailure.Missing) }
-            if (old != null && old.is_user_created != 1) throw DictionaryException(DictionaryFailure.ReadOnly)
-            if (old?.is_archived == 1) throw DictionaryException(DictionaryFailure.Missing)
-            val duplicate = dao.duplicate(validated.written, validated.reading, id ?: 0)
-            val restoring = id == null && duplicate?.is_archived == 1 && duplicate.is_user_created == 1
-            if (duplicate != null && !restoring) throw DictionaryException(DictionaryFailure.Duplicate)
-            val wordId = id ?: duplicate?.id ?: (minOf(dao.minimumWordId() ?: 0, 0) - 1)
-            dao.put_words(listOf(WordsRow(wordId, validated.written, validated.reading, 0, 1)))
-            dao.clearWordTranslations(wordId)
-            dao.put_words_translations(validated.translations.map { WordsTranslationsRow(wordId, it.languageTag, it.text) })
-            if (old != null && (old.written_form != validated.written || old.reading != validated.reading))
-                dao.clearParts(listOf(wordId))
-            if (id == null) {
-                val source = dao.sources().firstOrNull { it.source_type == "personal" && it.is_archived == 0 }
-                    ?: SourcesRow(minOf(dao.minimumSourceId() ?: 0, 0) - 1, "personal", "personal", 0).also {
-                        dao.put_sources(listOf(it))
+    override suspend fun saveWord(id: Int?, draft: WordDraft): Int =
+        withContext(io) {
+            val validated = draft.normalized()
+            load()
+            mutex.withLock {
+                database
+                    .withTransaction {
+                        val dao = database.catalogDao()
+                        val target = dao.wordWriteTarget(id, validated)
+                        val old = target.previous
+                        val wordId = target.id
+                        dao.putWords(
+                            listOf(WordsRow(wordId, validated.written, validated.reading, 0, 1)),
+                        )
+                        dao.clearWordTranslations(wordId)
+                        dao.putWordsTranslations(
+                            validated.translations.map {
+                                WordsTranslationsRow(wordId, it.languageTag, it.text)
+                            },
+                        )
+                        if (
+                            old != null &&
+                                (old.writtenForm != validated.written ||
+                                    old.reading != validated.reading)
+                        )
+                            dao.clearParts(listOf(wordId))
+                        if (id == null) dao.addPersonalLink(wordId)
+                        // Catalog details may have been opened via an unscoped kanji; avoid
+                        // returning a stale snapshot.
+                        wordId
                     }
-                dao.put_source_words(listOf(SourceWordsRow(minOf(dao.minimumLinkId() ?: 0, 0) - 1, source.id, wordId, null)))
-            }
-            // Catalog details may have been opened via an unscoped kanji; avoid returning a stale snapshot.
-            wordId
-        }.also { snapshot = null } }
-    }
-
-    override suspend fun deleteWord(id: Int) = withContext(io) {
-        load()
-        mutex.withLock { database.withTransaction {
-            val dao = database.catalogDao()
-            val old = dao.word(id) ?: throw DictionaryException(DictionaryFailure.Missing)
-            if (old.is_user_created != 1) throw DictionaryException(DictionaryFailure.ReadOnly)
-            if (old.is_archived == 1) throw DictionaryException(DictionaryFailure.Missing)
-            dao.clearPersonalLinks(id)
-            // Archive instead of breaking references held by other sources or future statistics.
-            dao.archiveManual(id)
-        }.also { snapshot = null } }
-    }
-
-    override suspend fun load(): CatalogSnapshot = withContext(io) {
-        mutex.withLock {
-            snapshot ?: run {
-                CatalogInstaller(database, assets).install()
-                readSnapshot(database.catalogDao()).also { snapshot = it }
+                    .also { snapshot = null }
             }
         }
-    }
+
+    override suspend fun deleteWord(id: Int) =
+        withContext(io) {
+            load()
+            mutex.withLock {
+                database
+                    .withTransaction {
+                        val dao = database.catalogDao()
+                        val old =
+                            dao.word(id) ?: throw DictionaryException(DictionaryFailure.Missing)
+                        if (old.isUserCreated != 1)
+                            throw DictionaryException(DictionaryFailure.ReadOnly)
+                        if (old.isArchived == 1)
+                            throw DictionaryException(DictionaryFailure.Missing)
+                        dao.clearPersonalLinks(id)
+                        // Archive instead of breaking references held by other sources or future
+                        // statistics.
+                        dao.archiveManual(id)
+                    }
+                    .also { snapshot = null }
+            }
+        }
+
+    override suspend fun load(): CatalogSnapshot =
+        withContext(io) {
+            mutex.withLock {
+                snapshot
+                    ?: run {
+                        CatalogInstaller(database, assets).install()
+                        readSnapshot(database.catalogDao()).also { snapshot = it }
+                    }
+            }
+        }
 }
 
 internal suspend fun readSnapshot(dao: CatalogDao): CatalogSnapshot {
-    val wordTranslations = dao.words_translations().groupBy { it.word_id }
-    val sourceTranslations = dao.sources_translations().groupBy { it.source_id }
-    val meanings = dao.kanji_translations().sortedBy { it.position }.groupBy { it.kanji_id }
-    val readings = dao.kanji_readings().sortedBy { it.position }.groupBy { it.kanji_id }
-    val names = dao.radicals_translations().groupBy { it.radical_id }
-    val parts = dao.word_reading_parts().sortedBy { it.position }.groupBy { it.word_id }
-    val sources = dao.sources().filter { it.source_type != "personal" && it.is_archived == 0 }.map {
-        CatalogSource(it.id, it.original_title, sourceTranslations[it.id].orEmpty().associate { r -> r.language_tag to r.title },
-            sourceTranslations[it.id].orEmpty().mapNotNull { r -> r.description?.let { text -> r.language_tag to text } }.toMap(), it.source_type, it.cover_key)
-    }
+    val wordTranslations = dao.wordsTranslations().groupBy { it.wordId }
+    val sourceTranslations = dao.sourcesTranslations().groupBy { it.sourceId }
+    val meanings = dao.kanjiTranslations().sortedBy { it.position }.groupBy { it.kanjiId }
+    val readings = dao.kanjiReadings().sortedBy { it.position }.groupBy { it.kanjiId }
+    val names = dao.radicalsTranslations().groupBy { it.radicalId }
+    val parts = dao.wordReadingParts().sortedBy { it.position }.groupBy { it.wordId }
+    val sources =
+        dao.sources()
+            .filter { it.sourceType != "personal" && it.isArchived == 0 }
+            .map {
+                it.toCatalogSource(sourceTranslations[it.id].orEmpty())
+            }
     val sourceIds = sources.map { it.id }.toSet()
-    return CatalogSnapshot(dao.catalog_metadata().single().content_version, sources,
-        dao.words().filter { it.is_archived == 0 }.map {
-            CatalogWord(it.id, it.written_form, it.reading,
-                wordTranslations[it.id].orEmpty().associate { r -> r.language_tag to r.translation },
-                parts[it.id].orEmpty().map { r -> ReadingPart(r.written_part, r.reading_part) }, it.is_user_created == 1,
-                wordTranslations[it.id].orEmpty().mapNotNull { r -> r.usage_note?.let { note -> r.language_tag to note } }.toMap())
-        },
-        dao.kanji().map {
-            CatalogKanji(it.id, it.symbol, it.stroke_count, it.radical_id, it.is_kyoiku == 1, it.is_joyo == 1,
-                it.is_jinmeiyo == 1, meanings[it.id].orEmpty().groupBy { r -> r.language_tag }
-                    .mapValues { (_, rows) -> rows.map { r -> r.meaning } },
-                readings[it.id].orEmpty().filter { r -> r.reading_type == "on" }.map { r -> r.reading },
-                readings[it.id].orEmpty().filter { r -> r.reading_type == "kun" }.map { r -> r.reading },
-                when (it.school_stage) {
-                    "elementary" -> SchoolStage.Elementary
-                    "junior_high" -> SchoolStage.JuniorHigh
-                    "high_school" -> SchoolStage.HighSchool
-                    else -> null
-                }, it.school_year, JlptLevel.entries.firstOrNull { level -> level.number == it.jlpt_level })
-        },
-        dao.radicals().map { CatalogRadical(it.id, it.symbol, it.stroke_count,
-            names[it.id].orEmpty().associate { r -> r.language_tag to r.name }) },
-        dao.source_kanji().filter { it.source_id in sourceIds }.map { CatalogPlacement(it.source_id, it.kanji_id, it.kanji_number, it.chapter_number) },
-        dao.source_words().filter { it.source_id in sourceIds }.map { CatalogLink(it.source_id, it.word_id, it.kanji_id) })
+    return CatalogSnapshot(
+        dao.catalogMetadata().single().contentVersion,
+        content =
+            CatalogContent(
+                sources,
+                dao.words()
+                    .filter { it.isArchived == 0 }
+                    .map {
+                        it.toCatalogWord(wordTranslations[it.id].orEmpty(), parts[it.id].orEmpty())
+                    },
+                dao.kanji().map {
+                    it.toCatalogKanji(meanings[it.id].orEmpty(), readings[it.id].orEmpty())
+                },
+                dao.radicals().map {
+                    CatalogRadical(
+                        it.id,
+                        it.symbol,
+                        it.strokeCount,
+                        names[it.id].orEmpty().associate { r -> r.languageTag to r.name },
+                    )
+                },
+                dao.sourceKanji()
+                    .filter { it.sourceId in sourceIds }
+                    .map {
+                        CatalogPlacement(it.sourceId, it.kanjiId, it.kanjiNumber, it.chapterNumber)
+                    },
+                dao.sourceWords()
+                    .filter { it.sourceId in sourceIds }
+                    .map { CatalogLink(it.sourceId, it.wordId, it.kanjiId) },
+            ),
+    )
+}
+
+private data class WordWriteTarget(val previous: WordsRow?, val id: Int)
+
+private suspend fun CatalogDao.checkWordTarget(id: Int?, validated: WordDraft): DictionaryFailure? {
+    val old = id?.let { word(it) }
+    val duplicate = duplicate(validated.written, validated.reading, id ?: 0)
+    val restoring = id == null && duplicate?.isArchived == 1 && duplicate.isUserCreated == 1
+    return when {
+        id != null && (old == null || old.isArchived == 1) -> DictionaryFailure.Missing
+        id != null && old != null && old.isUserCreated != 1 -> DictionaryFailure.ReadOnly
+        duplicate != null && !restoring -> DictionaryFailure.Duplicate
+        else -> null
+    }
+}
+
+private suspend fun CatalogDao.wordWriteTarget(id: Int?, validated: WordDraft): WordWriteTarget {
+    checkWordTarget(id, validated)?.let { throw DictionaryException(it) }
+    val old = id?.let { word(it) }
+    val duplicate = duplicate(validated.written, validated.reading, id ?: 0)
+    return WordWriteTarget(old, id ?: duplicate?.id ?: (minOf(minimumWordId() ?: 0, 0) - 1))
+}
+
+private suspend fun CatalogDao.addPersonalLink(wordId: Int) {
+    val source =
+        sources().firstOrNull {
+            it.sourceType == "personal" && it.isArchived == 0
+        }
+            ?: SourcesRow(
+                    minOf(minimumSourceId() ?: 0, 0) - 1,
+                    "personal",
+                    "personal",
+                    0,
+                )
+                .also {
+                    putSources(listOf(it))
+                }
+    putSourceWords(
+        listOf(
+            SourceWordsRow(
+                minOf(minimumLinkId() ?: 0, 0) - 1,
+                source.id,
+                wordId,
+                null,
+            ),
+        ),
+    )
 }

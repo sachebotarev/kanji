@@ -1,9 +1,25 @@
 package ru.mobui.kanji
 
-import androidx.compose.ui.test.*
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
-import androidx.compose.ui.graphics.asAndroidBitmap
 import android.graphics.Bitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotDisplayed
+import androidx.compose.ui.test.captureToImage
+import androidx.compose.ui.test.filter
+import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
+import androidx.compose.ui.test.onChildren
+import androidx.compose.ui.test.onFirst
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeDown
+import androidx.compose.ui.test.swipeUp
 import java.io.File
 import org.junit.Rule
 import org.junit.Test
@@ -11,17 +27,25 @@ import org.junit.Test
 /** Device review artifacts. The title and tabs stay pinned; filters scroll with the list. */
 class CatalogVisualReviewTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
+
     private fun waitTag(tag: String) {
-        compose.waitUntil(20_000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(20_000) {
+            compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
+        }
     }
+
     private fun screenshot(name: String) {
         compose.mainClock.advanceTimeBy(500)
         compose.waitForIdle()
         val image = compose.onRoot().captureToImage().asAndroidBitmap()
         val directory = File(compose.activity.filesDir, "catalog-review").apply { mkdirs() }
-        File(directory, "$name.png").outputStream().use { image.compress(Bitmap.CompressFormat.PNG, 100, it) }
+        File(directory, "$name.png").outputStream().use {
+            image.compress(Bitmap.CompressFormat.PNG, 100, it)
+        }
     }
-    @Test fun capturesCatalogAndRestoresToolbarOnReverseScroll() {
+
+    @Test
+    fun capturesCatalogAndRestoresToolbarOnReverseScroll() {
         waitTag("open-catalog")
         compose.onNodeWithTag("open-catalog").performScrollTo().performClick()
         waitTag("source-1")
@@ -64,7 +88,12 @@ class CatalogVisualReviewTest {
         compose.onNodeWithTag("catalog-tab-2").performClick()
         waitTag("word-list")
         screenshot("words")
-        compose.onNodeWithTag("word-list").onChildren().filter(hasClickAction()).onFirst().performClick()
+        compose
+            .onNodeWithTag("word-list")
+            .onChildren()
+            .filter(hasClickAction())
+            .onFirst()
+            .performClick()
         waitTag("word-written")
         screenshot("word-card")
     }

@@ -1,105 +1,213 @@
 package ru.mobui.kanji.feature.catalog
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import ru.mobui.kanji.domain.catalog.CatalogRepository
 
-@Serializable private data object CatalogHome
-@Serializable private data class SourceRoute(val sourceId: Int, val chapter: Int? = null, val tab: SourceTab = SourceTab.Chapters)
-@Serializable private data class WordRoute(val wordId: Int, val sourceId: Int?)
-@Serializable private data class KanjiRoute(val kanjiId: Int, val sourceId: Int?)
-@Serializable private data class RadicalRoute(val radicalId: Int, val sourceId: Int?)
-@Serializable private data object AllKanjiRoute
-@Serializable private data object AllRadicalsRoute
-@Serializable private data class WordsRoute(val kanjiId: Int, val sourceId: Int?)
-@Serializable private data class KanjiChapterRoute(val sourceId: Int, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
-@Serializable private data class WordChapterRoute(val sourceId: Int, val chapter: Int?, val kanji: Int?)
-@Serializable private data class KanjiChoiceRoute(val sourceId: Int, val chapter: Int?, val selectedKanji: Int?)
-@Serializable private data class RadicalChoiceRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
-@Serializable private data class KanjiStrokesRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
-@Serializable private data class RadicalStrokesRoute(val strokes: Int?)
-@Serializable private data class JlptChoiceRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
+@Serializable internal data object CatalogHome
+
+@Serializable
+internal data class SourceRoute(
+    val sourceId: Int,
+    val chapter: Int? = null,
+    val tab: SourceTab = SourceTab.Chapters,
+)
+
+@Serializable internal data class WordRoute(val wordId: Int, val sourceId: Int?)
+
+@Serializable internal data class KanjiRoute(val kanjiId: Int, val sourceId: Int?)
+
+@Serializable internal data class RadicalRoute(val radicalId: Int, val sourceId: Int?)
+
+@Serializable internal data object AllKanjiRoute
+
+@Serializable internal data object AllRadicalsRoute
+
+@Serializable internal data class WordsRoute(val kanjiId: Int, val sourceId: Int?)
+
+@Serializable
+internal data class KanjiChapterRoute(
+    val sourceId: Int,
+    val chapter: Int?,
+    val radical: Int?,
+    val strokes: Int?,
+    val jlpt: Int,
+)
+
+@Serializable
+internal data class WordChapterRoute(val sourceId: Int, val chapter: Int?, val kanji: Int?)
+
+@Serializable
+internal data class KanjiChoiceRoute(val sourceId: Int, val chapter: Int?, val selectedKanji: Int?)
+
+@Serializable
+internal data class RadicalChoiceRoute(
+    val sourceId: Int?,
+    val chapter: Int?,
+    val radical: Int?,
+    val strokes: Int?,
+    val jlpt: Int,
+)
+
+@Serializable
+internal data class KanjiStrokesRoute(
+    val sourceId: Int?,
+    val chapter: Int?,
+    val radical: Int?,
+    val strokes: Int?,
+    val jlpt: Int,
+)
+
+@Serializable internal data class RadicalStrokesRoute(val strokes: Int?)
+
+@Serializable
+internal data class JlptChoiceRoute(
+    val sourceId: Int?,
+    val chapter: Int?,
+    val radical: Int?,
+    val strokes: Int?,
+    val jlpt: Int,
+)
 
 @Composable
-fun CatalogRoute(repository: CatalogRepository, onBack: () -> Unit, initialKanjiId: Int = 0, initialSourceId: Int = 0,
-    loadDrawing: suspend (Int) -> ru.mobui.kanji.domain.handwriting.ReferenceDrawing? = { null }) {
+fun CatalogRoute(
+    repository: CatalogRepository,
+    onBack: () -> Unit,
+    initialKanjiId: Int = 0,
+    initialSourceId: Int = 0,
+    loadDrawing: suspend (Int) -> ru.mobui.kanji.domain.handwriting.ReferenceDrawing? = { null },
+) {
     val nav = rememberNavController()
     val back: () -> Unit = { if (!nav.popBackStack()) onBack() }
     BackHandler(onBack = back)
     val language = LocalConfiguration.current.locales[0].toLanguageTag()
-    val browse: (BrowseNavigation) -> Unit = { target ->
-        when (target) {
-            is BrowseNavigation.Source -> nav.navigate(SourceRoute(target.sourceId, target.chapter, if (target.chapter == null) SourceTab.Chapters else SourceTab.Kanji))
-            is BrowseNavigation.Word -> nav.navigate(WordRoute(target.wordId, target.sourceId))
-            is BrowseNavigation.Kanji -> nav.navigate(KanjiRoute(target.kanjiId, target.sourceId))
-            is BrowseNavigation.Radical -> nav.navigate(RadicalRoute(target.radicalId, null))
-            BrowseNavigation.AllKanji -> nav.navigate(AllKanjiRoute)
-            BrowseNavigation.AllRadicals -> nav.navigate(AllRadicalsRoute)
-            is BrowseNavigation.Filter -> nav.openFilter(target.request)
-        }
-    }
-    val detail: (DetailNavigation) -> Unit = { target ->
-        when (target) {
-            is DetailNavigation.Kanji -> nav.navigate(KanjiRoute(target.kanjiId, target.sourceId))
-            is DetailNavigation.Radical -> nav.navigate(RadicalRoute(target.radicalId, target.sourceId))
-            is DetailNavigation.Words -> nav.navigate(WordsRoute(target.kanjiId, target.sourceId))
-        }
-    }
+    val browse: (BrowseNavigation) -> Unit = { nav.openBrowse(it) }
+    val detail: (DetailNavigation) -> Unit = { nav.openDetail(it) }
     val select: (FilterResult) -> Unit = { result ->
         val (key, value) = result.encoded()
         nav.previousBackStackEntry?.savedStateHandle?.set(key, value)
         nav.popBackStack()
     }
-    val start: Any = remember(initialKanjiId, initialSourceId) {
-        if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
-        else if (initialSourceId != 0) SourceRoute(initialSourceId) else CatalogHome
-    }
+    val start: Any =
+        remember(initialKanjiId, initialSourceId) {
+            if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
+            else if (initialSourceId != 0) SourceRoute(initialSourceId) else CatalogHome
+        }
+    val context = CatalogGraphContext(repository, language, back, loadDrawing, browse, detail, select)
     CatalogTheme {
         NavHost(nav, startDestination = start) {
-            composable<CatalogHome> { CatalogBrowseEntry(it, BrowseRequest.Home, language, repository, back, browse) }
-            composable<SourceRoute> { entry -> val route = entry.toRoute<SourceRoute>()
-                CatalogBrowseEntry(entry, BrowseRequest.Source(route.sourceId, route.chapter, route.tab), language, repository, back, browse) }
-            composable<AllKanjiRoute> { CatalogBrowseEntry(it, BrowseRequest.AllKanji, language, repository, back, browse) }
-            composable<AllRadicalsRoute> { CatalogBrowseEntry(it, BrowseRequest.AllRadicals, language, repository, back, browse) }
-            composable<WordsRoute> { entry -> val route = entry.toRoute<WordsRoute>()
-                CatalogBrowseEntry(entry, BrowseRequest.RelatedWords(route.kanjiId, route.sourceId), language, repository, back, browse) }
-            composable<WordRoute> { entry -> val route = entry.toRoute<WordRoute>()
-                CatalogDetailEntry(entry, DetailRequest.Word(route.wordId, route.sourceId), language, repository, loadDrawing, back, detail) }
-            composable<KanjiRoute> { entry -> val route = entry.toRoute<KanjiRoute>()
-                CatalogDetailEntry(entry, DetailRequest.Kanji(route.kanjiId, route.sourceId), language, repository, loadDrawing, back, detail) }
-            composable<RadicalRoute> { entry -> val route = entry.toRoute<RadicalRoute>()
-                CatalogDetailEntry(entry, DetailRequest.Radical(route.radicalId, route.sourceId), language, repository, loadDrawing, back, detail) }
-            composable<KanjiChapterRoute> { entry -> val route = entry.toRoute<KanjiChapterRoute>()
-                CatalogFilterEntry(entry, FilterRequest.ChaptersForKanji(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
-            composable<WordChapterRoute> { entry -> val route = entry.toRoute<WordChapterRoute>()
-                CatalogFilterEntry(entry, FilterRequest.ChaptersForWords(route.sourceId, WordFilters(route.chapter, route.kanji)), language, repository, back, select) }
-            composable<KanjiChoiceRoute> { entry -> val route = entry.toRoute<KanjiChoiceRoute>()
-                CatalogFilterEntry(entry, FilterRequest.Kanji(route.sourceId, WordFilters(route.chapter, route.selectedKanji)), language, repository, back, select) }
-            composable<RadicalChoiceRoute> { entry -> val route = entry.toRoute<RadicalChoiceRoute>()
-                CatalogFilterEntry(entry, FilterRequest.Radical(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
-            composable<KanjiStrokesRoute> { entry -> val route = entry.toRoute<KanjiStrokesRoute>()
-                CatalogFilterEntry(entry, FilterRequest.KanjiStrokes(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
-            composable<RadicalStrokesRoute> { entry -> val route = entry.toRoute<RadicalStrokesRoute>()
-                CatalogFilterEntry(entry, FilterRequest.RadicalStrokes(route.strokes), language, repository, back, select) }
-            composable<JlptChoiceRoute> { entry -> val route = entry.toRoute<JlptChoiceRoute>()
-                CatalogFilterEntry(entry, FilterRequest.Jlpt(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
+            catalogBrowseSources(context)
+            catalogBrowseLibrary(context)
+            catalogRelatedWordsAndWord(context)
+            catalogSymbolDetails(context)
+            catalogChapterFilters(context)
+            catalogSymbolFilters(context)
+            catalogStrokeFilters(context)
+            catalogJlptFilters(context)
+
         }
     }
 }
 
 private fun NavHostController.openFilter(request: FilterRequest) {
     when (request) {
-        is FilterRequest.ChaptersForKanji -> with(request.filters) { navigate(KanjiChapterRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
-        is FilterRequest.ChaptersForWords -> navigate(WordChapterRoute(request.sourceId, request.filters.chapter, request.filters.kanjiId))
-        is FilterRequest.Kanji -> navigate(KanjiChoiceRoute(request.sourceId, request.filters.chapter, request.filters.kanjiId))
-        is FilterRequest.Radical -> with(request.filters) { navigate(RadicalChoiceRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
-        is FilterRequest.KanjiStrokes -> with(request.filters) { navigate(KanjiStrokesRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
+        is FilterRequest.ChaptersForKanji,
+        is FilterRequest.Radical,
+        is FilterRequest.KanjiStrokes,
+        is FilterRequest.Jlpt -> openKanjiFacetFilter(request)
+        is FilterRequest.ChaptersForWords ->
+            navigate(
+                WordChapterRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.kanjiId,
+                ),
+            )
+        is FilterRequest.Kanji ->
+            navigate(
+                KanjiChoiceRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.kanjiId,
+                ),
+            )
         is FilterRequest.RadicalStrokes -> navigate(RadicalStrokesRoute(request.selected))
-        is FilterRequest.Jlpt -> with(request.filters) { navigate(JlptChoiceRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
     }
+}
+
+private fun NavHostController.openKanjiFacetFilter(request: FilterRequest) {
+    val destination =
+        when (request) {
+            is FilterRequest.ChaptersForKanji ->
+                KanjiChapterRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.radicalId,
+                    request.filters.strokes,
+                    request.filters.jlpt.savedValue(),
+                )
+            is FilterRequest.Radical ->
+                RadicalChoiceRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.radicalId,
+                    request.filters.strokes,
+                    request.filters.jlpt.savedValue(),
+                )
+            is FilterRequest.KanjiStrokes ->
+                KanjiStrokesRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.radicalId,
+                    request.filters.strokes,
+                    request.filters.jlpt.savedValue(),
+                )
+            is FilterRequest.Jlpt ->
+                JlptChoiceRoute(
+                    request.sourceId,
+                    request.filters.chapter,
+                    request.filters.radicalId,
+                    request.filters.strokes,
+                    request.filters.jlpt.savedValue(),
+                )
+            else -> return
+        }
+    navigate(destination)
+}
+
+private fun NavHostController.openBrowse(target: BrowseNavigation) {
+when (target) {
+    is BrowseNavigation.Source ->
+        navigate(
+            SourceRoute(
+                target.sourceId,
+                target.chapter,
+                if (target.chapter == null) SourceTab.Chapters else SourceTab.Kanji,
+            ),
+        )
+    is BrowseNavigation.Word -> navigate(WordRoute(target.wordId, target.sourceId))
+    is BrowseNavigation.Kanji -> navigate(KanjiRoute(target.kanjiId, target.sourceId))
+    is BrowseNavigation.Radical -> navigate(RadicalRoute(target.radicalId, null))
+    BrowseNavigation.AllKanji -> navigate(AllKanjiRoute)
+    BrowseNavigation.AllRadicals -> navigate(AllRadicalsRoute)
+    is BrowseNavigation.Filter -> openFilter(target.request)
+}
+}
+
+private fun NavHostController.openDetail(target: DetailNavigation) {
+when (target) {
+    is DetailNavigation.Kanji -> navigate(KanjiRoute(target.kanjiId, target.sourceId))
+    is DetailNavigation.Radical ->
+        navigate(RadicalRoute(target.radicalId, target.sourceId))
+    is DetailNavigation.Words -> navigate(WordsRoute(target.kanjiId, target.sourceId))
+}
 }

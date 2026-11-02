@@ -6,5 +6,6 @@ data class JitterCompensation(
     val maxDeviationPercent: Float = 0f,
     val limitPercent: Float = 0f,
 ) {
-    val isApplied: Boolean get() = removedPoints > 0
+    val isApplied: Boolean
+        get() = removedPoints > 0
 }

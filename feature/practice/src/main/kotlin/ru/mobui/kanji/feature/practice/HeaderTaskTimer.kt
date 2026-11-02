@@ -15,18 +15,37 @@ import androidx.compose.ui.text.font.FontFamily
 /** A count-up without a limit, a color-coded countdown with one. Only time is rendered. */
 @Composable
 internal fun HeaderTaskTimer(elapsedMs: Long, limitMs: Long?, modifier: Modifier = Modifier) {
-    val dark = MaterialTheme.colorScheme.background.luminance() < .5f
-    val color = when (limitMs?.let { countdownPhase(elapsedMs, it) } ?: CountdownPhase.Normal) {
-        CountdownPhase.Normal -> MaterialTheme.colorScheme.onBackground
-        CountdownPhase.Warning -> if (dark) Color(0xFFFFD666) else Color(0xFF8A6500)
-        CountdownPhase.Critical -> if (dark) Color(0xFFFF7979) else Color(0xFFB3261E)
-    }
-    val time = if (limitMs == null) formatTime(elapsedMs.coerceAtLeast(0)) else {
-        val remaining = remainingCountdownMs(elapsedMs, limitMs)
-        // Round up without overflowing at very large limits.
-        formatTimerSeconds(remaining / 1000 + if (remaining % 1000 > 0) 1 else 0)
-    }
-    val description = stringResource(if (limitMs == null) R.string.time_elapsed else R.string.time_remaining, time)
-    Text(time, modifier.testTag("header-timer").semantics { contentDescription = description },
-        color = color, style = MaterialTheme.typography.titleMedium, fontFamily = FontFamily.Monospace)
+    val dark = MaterialTheme.colorScheme.background.luminance() < DARK_BACKGROUND_LUMINANCE
+    val color =
+        when (limitMs?.let { countdownPhase(elapsedMs, it) } ?: CountdownPhase.Normal) {
+            CountdownPhase.Normal -> MaterialTheme.colorScheme.onBackground
+            CountdownPhase.Warning ->
+                if (dark) Color(color = 0xFFFFD666) else Color(color = 0xFF8A6500)
+            CountdownPhase.Critical ->
+                if (dark) Color(color = 0xFFFF7979) else Color(color = 0xFFB3261E)
+        }
+    val time =
+        if (limitMs == null) formatTime(elapsedMs.coerceAtLeast(0))
+        else {
+            val remaining = remainingCountdownMs(elapsedMs, limitMs)
+            // Round up without overflowing at very large limits.
+            formatTimerSeconds(
+                remaining / MILLIS_PER_SECOND + if (remaining % MILLIS_PER_SECOND > 0) 1 else 0,
+            )
+        }
+    val description =
+        stringResource(
+            if (limitMs == null) R.string.time_elapsed else R.string.time_remaining,
+            time,
+        )
+    Text(
+        time,
+        modifier.testTag("header-timer").semantics { contentDescription = description },
+        color = color,
+        style = MaterialTheme.typography.titleMedium,
+        fontFamily = FontFamily.Monospace,
+    )
 }
+
+private const val DARK_BACKGROUND_LUMINANCE = .5f
+private const val MILLIS_PER_SECOND = 1000

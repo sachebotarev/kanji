@@ -1,62 +1,115 @@
 package ru.mobui.kanji.checker.shape.geometry
 
-import ru.mobui.kanji.domain.practice.StrokeRelation
-import kotlin.math.*
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.min
 import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
 import ru.mobui.kanji.checker.strokes.geometry.distanceToStroke
+import ru.mobui.kanji.domain.practice.StrokeRelation
 
 internal class StrokeRelationClassifier {
-    fun relation(a: List<ShapePoint>, b: List<ShapePoint>, gap: Float, protrusion: Float): StrokeRelation {
-        val aLength = length(a); val bLength = length(b)
-        var walkedA = 0f
+    fun relation(
+        a: List<ShapePoint>,
+        b: List<ShapePoint>,
+        gap: Float,
+        protrusion: Float,
+    ): StrokeRelation {
+        val aLength = length(a)
+        val bLength = length(b)
+        val touch = intersections(segments(a), segments(b), aLength, bLength, protrusion)
+        return when {
+            touch != StrokeRelation.Separate -> touch
+            endpointTouches(a, b, bLength, gap, protrusion) -> StrokeRelation.TouchFirst
+            endpointTouches(b, a, aLength, gap, protrusion) -> StrokeRelation.TouchSecond
+            else -> StrokeRelation.Separate
+        }
+    }
+
+    private fun segmentRelation(
+        position: Pair<Float, Float>,
+        aLength: Float,
+        bLength: Float,
+        protrusion: Float,
+    ): StrokeRelation? {
+        val interiorA = min(position.first, aLength - position.first) > protrusion
+        val interiorB = min(position.second, bLength - position.second) > protrusion
+        return when {
+            interiorA && interiorB -> StrokeRelation.Crossing
+            !interiorA && interiorB -> StrokeRelation.TouchFirst
+            interiorA && !interiorB -> StrokeRelation.TouchSecond
+            else -> null
+        }
+    }
+
+    private fun intersections(
+        a: List<StrokeSegment>,
+        b: List<StrokeSegment>,
+        aLength: Float,
+        bLength: Float,
+        protrusion: Float,
+    ): StrokeRelation {
         var touch = StrokeRelation.Separate
-        for (i in 0 until a.size - 1) {
-            val p = a[i]; val q = a[i + 1]
-            val ax = q.x - p.x; val ay = q.y - p.y; val aSegment = hypot(ax, ay)
-            var walkedB = 0f
-            for (j in 0 until b.size - 1) {
-                val r = b[j]; val s = b[j + 1]
-                val bx = s.x - r.x; val by = s.y - r.y; val bSegment = hypot(bx, by)
-                val denominator = ax * by - ay * bx
-                if (aSegment > 0f && bSegment > 0f && abs(denominator) > aSegment * bSegment * PARALLEL_THRESHOLD_SIN) {
-                    val dx = r.x - p.x; val dy = r.y - p.y
-                    val t = (dx * by - dy * bx) / denominator
-                    val u = (dx * ay - dy * ax) / denominator
-                    if (t in 0f..1f && u in 0f..1f) {
-                        val alongA = walkedA + t * aSegment; val alongB = walkedB + u * bSegment
-                        val interiorA = min(alongA, aLength - alongA) > protrusion
-                        val interiorB = min(alongB, bLength - alongB) > protrusion
-                        if (interiorA && interiorB) return StrokeRelation.Crossing
-                        if (!interiorA && interiorB) touch = StrokeRelation.TouchFirst
-                        if (interiorA && !interiorB) touch = StrokeRelation.TouchSecond
-                    }
-                }
-                walkedB += bSegment
+        for (first in a) {
+            for (second in b) {
+                val pos = intersection(first, second)
+                val relation = if (pos != null) segmentRelation(pos, aLength, bLength, protrusion) else null
+                if (relation == StrokeRelation.Crossing) return relation
+                if (relation != null) touch = relation
             }
-            walkedA += aSegment
         }
-        if (touch != StrokeRelation.Separate) return touch
-        for (end in listOf(a.first(), a.last())) {
+        return touch
+    }
+
+    private fun intersection(a: StrokeSegment, b: StrokeSegment): Pair<Float, Float>? {
+        val denominator = a.dx * b.dy - a.dy * b.dx
+        val nonparallel =
+            a.length > 0f &&
+                b.length > 0f &&
+                abs(denominator) > a.length * b.length * PARALLEL_THRESHOLD_SIN
+        return if (nonparallel) {
+            val dx = b.start.x - a.start.x
+            val dy = b.start.y - a.start.y
+            val t = (dx * b.dy - dy * b.dx) / denominator
+            val u = (dx * a.dy - dy * a.dx) / denominator
+            if (t in 0f..1f && u in 0f..1f) {
+                (a.walked + t * a.length) to (b.walked + u * b.length)
+            } else null
+        } else null
+    }
+
+    private fun endpointTouches(
+        a: List<ShapePoint>,
+        b: List<ShapePoint>,
+        bLength: Float,
+        gap: Float,
+        protrusion: Float,
+    ): Boolean =
+        listOf(a.first(), a.last()).any { end ->
             val (distance, position) = distanceToStroke(end, b)
-            if (distance <= gap && min(position, bLength - position) > protrusion) return StrokeRelation.TouchFirst
+            distance <= gap && min(position, bLength - position) > protrusion
         }
-        for (end in listOf(b.first(), b.last())) {
-            val (distance, position) = distanceToStroke(end, a)
-            if (distance <= gap && min(position, aLength - position) > protrusion) return StrokeRelation.TouchSecond
+
+    private fun segments(stroke: List<ShapePoint>): List<StrokeSegment> {
+        var walked = 0f
+        return stroke.zipWithNext().map { (p, q) ->
+            StrokeSegment(p, q, walked).also { walked += it.length }
         }
-        return StrokeRelation.Separate
     }
 
     private fun length(stroke: List<ShapePoint>): Float {
-        if (stroke.size < 2) return 0f
         var total = 0.0
-        for (i in 0 until stroke.size - 1) {
-            total += hypot(stroke[i + 1].x - stroke[i].x, stroke[i + 1].y - stroke[i].y)
-        }
+        for (i in 0 until stroke.size - 1) total +=
+            hypot(stroke[i + 1].x - stroke[i].x, stroke[i + 1].y - stroke[i].y)
         return total.toFloat()
     }
 
     private companion object {
         private const val PARALLEL_THRESHOLD_SIN = 0.342f // sin(20°)
     }
+}
+
+private class StrokeSegment(val start: ShapePoint, end: ShapePoint, val walked: Float) {
+    val dx = end.x - start.x
+    val dy = end.y - start.y
+    val length = hypot(dx, dy)
 }

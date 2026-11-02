@@ -14,7 +14,12 @@ data class SizeCompensation(
     }
 
     /** Positive means stretching, negative means shrinking, relative to the drawn size. */
-    val changePercent: Float get() = (scaleFactor - 1f) * 100f
-    val hasError: Boolean get() = !isDefined || (limitPercent != null && abs(changePercent) > limitPercent + 0.0001f)
-    val isApplied: Boolean get() = isDefined && scaleFactor != 1f
+    val changePercent: Float
+        get() = (scaleFactor - 1f) * 100f
+
+    val hasError: Boolean
+        get() = !isDefined || (limitPercent != null && abs(changePercent) > limitPercent + 0.0001f)
+
+    val isApplied: Boolean
+        get() = isDefined && scaleFactor != 1f
 }

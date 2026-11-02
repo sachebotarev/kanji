@@ -4,30 +4,65 @@ import android.content.res.Configuration
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.*
+import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.hasText
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.test.platform.app.InstrumentationRegistry
+import java.util.Locale
 import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
-import ru.mobui.kanji.domain.catalog.*
-import java.util.Locale
+import ru.mobui.kanji.domain.catalog.CatalogContent
+import ru.mobui.kanji.domain.catalog.CatalogKanji
+import ru.mobui.kanji.domain.catalog.CatalogLink
+import ru.mobui.kanji.domain.catalog.CatalogPlacement
+import ru.mobui.kanji.domain.catalog.CatalogRepository
+import ru.mobui.kanji.domain.catalog.CatalogSnapshot
+import ru.mobui.kanji.domain.catalog.CatalogSource
+import ru.mobui.kanji.domain.catalog.CatalogWord
+import ru.mobui.kanji.domain.catalog.JlptLevel
 
 class CatalogFilterNavigationTest {
     @get:Rule val compose = createComposeRule()
 
-    @Test fun switchingToWordsDoesNotRestrictChapterChoicesByHiddenStrokeFilter() {
+    @Test
+    fun switchingToWordsDoesNotRestrictChapterChoicesByHiddenStrokeFilter() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val configuration = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag("ru")) }
+        val configuration =
+            Configuration(context.resources.configuration).apply {
+                setLocale(Locale.forLanguageTag("ru"))
+            }
         val localized = context.createConfigurationContext(configuration)
-        val data = CatalogSnapshot(1, listOf(CatalogSource(1, "Учебник", emptyMap())),
-            listOf(CatalogWord(1, "一", "いち", mapOf("ru" to "один")), CatalogWord(2, "二", "に", mapOf("ru" to "два"))),
-            listOf(kanji(1, "一", 1), kanji(2, "二", 2)), emptyList(),
-            listOf(CatalogPlacement(1, 1, 1, 3), CatalogPlacement(1, 2, 2, 4)),
-            listOf(CatalogLink(1, 1, 1), CatalogLink(1, 2, 2)))
-        val repository = object : CatalogRepository { override suspend fun load() = data }
+        val data =
+            CatalogSnapshot(
+                1,
+                content =
+                    CatalogContent(
+                        listOf(CatalogSource(1, "Учебник", emptyMap())),
+                        listOf(
+                            CatalogWord(1, "一", "いち", mapOf("ru" to "один")),
+                            CatalogWord(2, "二", "に", mapOf("ru" to "два")),
+                        ),
+                        listOf(kanji(1, "一", 1), kanji(2, "二", 2)),
+                        emptyList(),
+                        listOf(CatalogPlacement(1, 1, 1, 3), CatalogPlacement(1, 2, 2, 4)),
+                        listOf(CatalogLink(1, 1, 1), CatalogLink(1, 2, 2)),
+                    ),
+            )
+        val repository =
+            object : CatalogRepository {
+                override suspend fun load() = data
+            }
         compose.setContent {
-            CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration) {
+            CompositionLocalProvider(
+                LocalContext provides localized,
+                LocalConfiguration provides configuration,
+            ) {
                 KanjiTheme { CatalogRoute(repository, {}, initialSourceId = 1) }
             }
         }
@@ -50,19 +85,53 @@ class CatalogFilterNavigationTest {
         compose.onNodeWithTag("chapter-3").assert(hasText(wordCount, substring = true).not())
     }
 
-    private fun kanji(id: Int, symbol: String, strokes: Int) = CatalogKanji(id, symbol, strokes, 1,
-        false, false, false, emptyMap(), emptyList(), emptyList())
+    private fun kanji(id: Int, symbol: String, strokes: Int) =
+        CatalogKanji(
+            id,
+            symbol,
+            strokes,
+            1,
+            false,
+            false,
+            false,
+            emptyMap(),
+            emptyList(),
+            emptyList(),
+        )
 
-    @Test fun numericFilterResultsKeepJlptAndStrokesIndependent() {
+    @Test
+    fun numericFilterResultsKeepJlptAndStrokesIndependent() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
-        val configuration = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag("ru")) }
+        val configuration =
+            Configuration(context.resources.configuration).apply {
+                setLocale(Locale.forLanguageTag("ru"))
+            }
         val localized = context.createConfigurationContext(configuration)
-        val data = CatalogSnapshot(1, emptyList(), emptyList(),
-            listOf(kanji(1, "一", 1).copy(jlptLevel = JlptLevel.N5),
-                kanji(2, "二", 2).copy(jlptLevel = JlptLevel.N4)), emptyList(), emptyList(), emptyList())
-        val repository = object : CatalogRepository { override suspend fun load() = data }
+        val data =
+            CatalogSnapshot(
+                1,
+                content =
+                    CatalogContent(
+                        emptyList(),
+                        emptyList(),
+                        listOf(
+                            kanji(1, "一", 1).copy(jlptLevel = JlptLevel.N5),
+                            kanji(2, "二", 2).copy(jlptLevel = JlptLevel.N4),
+                        ),
+                        emptyList(),
+                        emptyList(),
+                        emptyList(),
+                    ),
+            )
+        val repository =
+            object : CatalogRepository {
+                override suspend fun load() = data
+            }
         compose.setContent {
-            CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration) {
+            CompositionLocalProvider(
+                LocalContext provides localized,
+                LocalConfiguration provides configuration,
+            ) {
                 KanjiTheme { CatalogRoute(repository, {}) }
             }
         }

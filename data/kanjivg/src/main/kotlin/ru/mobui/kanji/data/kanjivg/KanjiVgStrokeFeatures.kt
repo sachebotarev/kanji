@@ -8,20 +8,22 @@ internal object KanjiVgStrokeFeatures {
     private val plain = "㇀㇄㇅㇇㇋㇏㇐㇑㇒㇓㇔㇕㇗㇙㇛㇜㇞".toSet()
 
     fun hookRequirement(type: String?): HookRequirement {
-        if (type.isNullOrBlank()) return HookRequirement.Unknown
-        val variants = type.split('/').map { variant ->
-            val value = variant.trim()
-            if (value.isEmpty() || value.drop(1).any { it !in "abcv" }) return HookRequirement.Unknown
-            when (value.first()) {
-                in hooked -> true
-                in plain -> false
-                else -> return HookRequirement.Unknown
-            }
-        }
+        val variants = type?.takeUnless { it.isBlank() }?.split('/')?.map(::variant)
         return when {
-            variants.all { it } -> HookRequirement.Required
-            variants.none { it } -> HookRequirement.NotRequired
+            variants == null || variants.any { it == null } -> HookRequirement.Unknown
+            variants.all { it == true } -> HookRequirement.Required
+            variants.all { it == false } -> HookRequirement.NotRequired
             else -> HookRequirement.Optional
+        }
+    }
+
+    private fun variant(variant: String): Boolean? {
+        val value = variant.trim()
+        return when {
+            value.isEmpty() || value.drop(1).any { it !in "abcv" } -> null
+            value.first() in hooked -> true
+            value.first() in plain -> false
+            else -> null
         }
     }
 }

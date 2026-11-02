@@ -11,11 +11,18 @@ data class TranslationCompensation(
 ) {
     init {
         require(shiftXPercent.isFinite() && shiftYPercent.isFinite())
-        require(limitPercent.isFinite() && limitPercent in 0f..100f)
+        require(limitPercent.isFinite() && limitPercent in 0f..MAX_TRANSLATION_PERCENT)
     }
 
-    val maxShiftPercent: Float get() = max(abs(shiftXPercent), abs(shiftYPercent))
+    val maxShiftPercent: Float
+        get() = max(abs(shiftXPercent), abs(shiftYPercent))
+
     // Ignore float rounding at the inclusive boundary (e.g. .3f - .2f).
-    val hasError: Boolean get() = maxShiftPercent > limitPercent + 0.00001f
-    val isApplied: Boolean get() = shiftXPercent != 0f || shiftYPercent != 0f
+    val hasError: Boolean
+        get() = maxShiftPercent > limitPercent + 0.00001f
+
+    val isApplied: Boolean
+        get() = shiftXPercent != 0f || shiftYPercent != 0f
 }
+
+private const val MAX_TRANSLATION_PERCENT = 100f

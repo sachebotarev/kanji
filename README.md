@@ -62,6 +62,12 @@
   ./gradlew lintDebug
   ```
 
+- **Статический анализ Kotlin (detekt):**
+  ```bash
+  ./gradlew detekt
+  ```
+  Проверяет исходники всех модулей и также входит в задачи `check`. Новые замечания за пределами baseline завершают проверку ошибкой. HTML-отчёт: `build/reports/detekt/detekt.html`. Полный аудит с существующими замечаниями: `./gradlew detektAll`, отчёты — в `build/reports/detekt-all/`. [Правила, baseline и ограничения анализа](doc/decisions/detekt.md).
+
 ## Навигация по документации
 
 Вся документация, спецификации и отчёты о проверках систематизированы в директории [`doc/`](doc/README.md).
