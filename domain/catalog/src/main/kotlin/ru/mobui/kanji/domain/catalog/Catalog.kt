@@ -56,8 +56,7 @@ fun CatalogRadical.name(languageTag: String): String? = names.localized(language
 private fun searchable(value: String): String = buildString {
     value.lowercase(Locale.ROOT).forEach { append(if (it in '\u30a1'..'\u30f6') (it.code - 0x60).toChar() else it) }
 }
-private fun matches(query: String, vararg values: String?): Boolean {
-    val needle = searchable(query.trim())
+private fun matches(needle: String, vararg values: String?): Boolean {
     return needle.isEmpty() || values.any { it != null && searchable(it).contains(needle) }
 }
 
@@ -91,6 +90,7 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
         val scoped = if (selection.sourceId != null) placements.filter {
             it.sourceId == selection.sourceId && (selection.chapter == null || it.chapter == selection.chapter)
         }.associate { it.kanjiId to it.number } else null
+        val needle = searchable(query.trim())
         return kanji.asSequence().filter { scoped == null || it.id in scoped }
             .filter { selection.radicalId == null || it.radicalId == selection.radicalId }
             .filter { selection.strokes == null || it.strokes == selection.strokes }
@@ -99,9 +99,12 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
                 JlptFilter.Missing -> it.jlptLevel == null
                 is JlptFilter.Exact -> it.jlptLevel == filter.level
             } }
-            .filter { query.isNotBlank() || it.radicalId != null || scoped != null }
-            .filter { matches(query, it.symbol, it.meaning(language), *it.on.toTypedArray(), *it.kun.toTypedArray()) }
-            .sortedWith(compareBy<CatalogKanji> { if (query.trim() == it.symbol) 0 else 1 }
+            .filter { needle.isNotEmpty() || it.radicalId != null || scoped != null }
+            .filter { needle.isEmpty() || searchable(it.symbol).contains(needle) ||
+                it.meaning(language)?.let { m -> searchable(m).contains(needle) } == true ||
+                it.on.any { o -> searchable(o).contains(needle) } ||
+                it.kun.any { k -> searchable(k).contains(needle) } }
+            .sortedWith(compareBy<CatalogKanji> { if (needle.isNotEmpty() && query.trim() == it.symbol) 0 else 1 }
                 .thenBy { scoped?.get(it.id) ?: it.id }).toList()
     }
 
@@ -115,8 +118,9 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
         val first = scoped.groupBy { it.wordId }.mapValues { (_, rows) ->
             rows.minOf { placementByKey[it.sourceId to it.kanjiId]?.number ?: Int.MAX_VALUE }
         }
+        val needle = searchable(query.trim())
         return words.asSequence().filter { it.id in first }
-            .filter { matches(query, it.written, it.reading, it.translation(language)) }
+            .filter { matches(needle, it.written, it.reading, it.translation(language)) }
             .sortedWith(compareBy<CatalogWord> { first[it.id] }.thenBy { it.id }).toList()
     }
 
@@ -130,8 +134,9 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
             .filter { (_, placement) -> selection.radicalId == null || kanjiById[placement.kanjiId]?.radicalId == selection.radicalId }
             .groupBy({ it.first }, { it.second }).mapValues { (_, placements) -> placements.minBy { it.number } }
         val all = words(selection, "", language).groupBy { firstPlacement[it.id]?.chapter ?: 0 }
+        val needle = searchable(query.trim())
         return all.toSortedMap().mapNotNull { (chapter, entries) ->
-            val filtered = entries.filter { matches(query, it.written, it.reading, it.translation(language)) }
+            val filtered = entries.filter { matches(needle, it.written, it.reading, it.translation(language)) }
             if (filtered.isEmpty()) null else CatalogWordGroup(chapter, entries.size, filtered)
         }
     }
@@ -172,10 +177,13 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
             if (null in levels) listOf(JlptFilter.Missing) else emptyList()
     }
 
-    fun radicals(query: String, language: String, strokes: Int? = null): List<CatalogRadical> = radicals
-        .filter { strokes == null || it.strokes == strokes }
-        .filter { matches(query, it.symbol, it.name(language), it.id.toString()) }
-        .sortedWith(compareBy<CatalogRadical> { it.strokes }.thenBy { it.id })
+    fun radicals(query: String, language: String, strokes: Int? = null): List<CatalogRadical> {
+        val needle = searchable(query.trim())
+        return radicals
+            .filter { strokes == null || it.strokes == strokes }
+            .filter { matches(needle, it.symbol, it.name(language), it.id.toString()) }
+            .sortedWith(compareBy<CatalogRadical> { it.strokes }.thenBy { it.id })
+    }
 
     fun literalKanji(word: CatalogWord): List<CatalogKanji> = word.written.codePoints().toArray()
         .distinct().mapNotNull { kanjiById[it] }

@@ -1,5 +1,6 @@
 package ru.mobui.kanji.feature.catalog
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.*
 import androidx.compose.foundation.layout.Box
 import androidx.compose.ui.Modifier
@@ -20,10 +21,13 @@ fun CatalogReviewContent(repository: CatalogRepository, scenario: Int, language:
     val source = if (variant.startsWith("tobira-")) 1 else 2
     val selected = variant in setOf("selected-filters", "selected-strokes", "large-filters")
     val filters = if (selected) KanjiFilters(strokes = 4, jlpt = JlptFilter.Exact(JlptLevel.N5)) else KanjiFilters()
-    fun saved(prefix: String) = SavedStateHandle(mapOf(
-        "$prefix.query" to if (variant.startsWith("empty")) "999" else "",
-        "$prefix.open" to variant.startsWith("empty"),
-        "index.strokes" to filters.strokes, "index.jlpt" to filters.jlpt.savedValue()))
+    @SuppressLint("VisibleForTests")
+    fun saved(prefix: String) = SavedStateHandle().apply {
+        set("$prefix.query", if (variant.startsWith("empty")) "999" else "")
+        set("$prefix.open", variant.startsWith("empty"))
+        set("index.strokes", filters.strokes)
+        set("index.jlpt", filters.jlpt.savedValue())
+    }
     val key = "review-$scenario-$language-$variant"
     CatalogTheme(dark) {
         when (scenario) {

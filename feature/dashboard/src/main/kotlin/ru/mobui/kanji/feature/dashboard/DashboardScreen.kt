@@ -28,7 +28,9 @@ fun DashboardScreen(
     onSelectTraining: (String) -> Unit = {},
     onSaveTraining: (String?, String, Int, Int) -> Unit = { _, _, _, _ -> },
 ) {
-    val training = trainings.first { it.id == selectedTrainingId }
+    val training = trainings.firstOrNull { it.id == selectedTrainingId }
+        ?: trainings.firstOrNull()
+        ?: TrainingOverview(selectedTrainingId, stringResource(R.string.dashboard_mix))
     var trainingDialog by rememberSaveable { mutableStateOf<String?>(null) }
     var editingId by rememberSaveable { mutableStateOf<String?>(null) }
     when (trainingDialog) {
@@ -36,7 +38,7 @@ fun DashboardScreen(
             onSelect = { onSelectTraining(it); trainingDialog = null },
             onEdit = { editingId = it; trainingDialog = "edit" },
             onCreate = { trainingDialog = "create" }, onDismiss = { trainingDialog = null })
-        "create", "edit" -> TrainingEditor(if (trainingDialog == "edit") trainings.first { it.id == editingId } else null,
+        "create", "edit" -> TrainingEditor(if (trainingDialog == "edit") trainings.firstOrNull { it.id == editingId } else null,
             onSubmit = { name, words, seconds ->
                 onSaveTraining(if (trainingDialog == "edit") editingId else null, name, words, seconds)
                 trainingDialog = if (trainingDialog == "edit") "choose" else null
