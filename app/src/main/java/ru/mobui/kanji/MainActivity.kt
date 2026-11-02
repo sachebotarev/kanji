@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -182,7 +184,11 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-internal fun PracticeSummary(result: PracticeResult, onClose: () -> Unit) {
+internal fun PracticeSummary(
+    result: PracticeResult,
+    onRestart: () -> Unit = {},
+    onClose: () -> Unit,
+) {
     Scaffold { safePadding ->
         Column(
             Modifier.fillMaxSize().padding(safePadding).padding(24.dp),
@@ -224,8 +230,16 @@ internal fun PracticeSummary(result: PracticeResult, onClose: () -> Unit) {
                 stringResource(R.string.reference_attribution),
                 style = MaterialTheme.typography.bodySmall,
             )
-            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.close))
+            Row(
+                Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                OutlinedButton(onClick = onRestart, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.settings_storage_retry))
+                }
+                Button(onClick = onClose, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.close))
+                }
             }
         }
     }

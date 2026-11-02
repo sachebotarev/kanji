@@ -239,8 +239,12 @@ private fun DashboardDestination(context: AppUiContext, navigate: (AppDestinatio
 @Composable
 private fun PracticeDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
     with(context) {
-        BackHandler { navigate(AppDestination.Dashboard) }
         val practice: PracticeViewModel = viewModel(key = task.taskId, factory = factory)
+        val closeAndReset: () -> Unit = {
+            practice.restart()
+            navigate(AppDestination.Dashboard)
+        }
+        BackHandler { closeAndReset() }
         LaunchedEffect(modelStatus) { practice.onCheckerSettingsChanged() }
         val state by practice.uiState.collectAsStateWithLifecycle()
         val result = state.practice.result
@@ -267,7 +271,15 @@ private fun PracticeDestination(context: AppUiContext, navigate: (AppDestination
             // result.
             PracticeSummary(
                 result,
-                onClose = { navigate(AppDestination.Dashboard) },
+                onRestart = {
+                    practice.restart()
+                    resultReceived = false
+                },
+                onClose = {
+                    practice.restart()
+                    resultReceived = false
+                    navigate(AppDestination.Dashboard)
+                },
             )
         }
     }

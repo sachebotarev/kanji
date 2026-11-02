@@ -119,8 +119,7 @@ private suspend fun AwaitPointerEventScope.trackPadStroke(
         val valid =
             change != null &&
                 size == startSize &&
-                !change.isConsumed &&
-                stroke.bounds.contains(change.position)
+                !change.isConsumed
         if (valid) {
             requireNotNull(change).consume()
             stroke.append(change, active)

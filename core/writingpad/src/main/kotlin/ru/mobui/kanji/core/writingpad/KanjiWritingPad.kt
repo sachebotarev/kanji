@@ -50,7 +50,21 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
     val currentOnEvent by rememberUpdatedState(onEvent)
     val active = remember { ActivePadGesture() }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
-    val inset = with(LocalDensity.current) { 8.dp.toPx() }
+    val density = LocalDensity.current
+    val padMetrics =
+        remember(density) {
+            with(density) {
+                PadMetrics(
+                    inset = 8.dp.toPx(),
+                    strokeWidth = 4.dp.toPx(),
+                    comparisonWidth = 2.dp.toPx(),
+                    guideWidth = 1.dp.toPx(),
+                    dashEffect =
+                        PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx())),
+                )
+            }
+        }
+    val inset = padMetrics.inset
     val paths = rememberPadPaths(state, canvasSize, inset)
     val shape = RoundedCornerShape(16.dp)
     val label = stringResource(R.string.writing_pad_label)
@@ -75,8 +89,8 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
     ) {
         val side = size.minDimension - inset * 2
         if (side > 0) {
-            drawPadGuides(guide, inset, side)
-            drawPadContent(paths, active, state.content is PadContent.Reference, ink)
+            drawPadGuides(guide, side, padMetrics)
+            drawPadContent(paths, active, state.content is PadContent.Reference, ink, padMetrics)
         }
     }
 }
@@ -92,6 +106,14 @@ private fun padDescription(content: PadContent): String {
     return if (content is PadContent.Reference) stringResource(R.string.writing_pad_reference)
     else pluralStringResource(R.plurals.writing_pad_strokes, count, count)
 }
+
+private data class PadMetrics(
+    val inset: Float,
+    val strokeWidth: Float,
+    val comparisonWidth: Float,
+    val guideWidth: Float,
+    val dashEffect: PathEffect,
+)
 
 private data class PadPaths(
     val saved: List<Pair<Path, Offset>>,
@@ -163,25 +185,26 @@ private fun <T> drawingPaths(
         Offset(inset + position(points.first()).x * side, inset + position(points.first()).y * side)
 }
 
-private fun DrawScope.drawPadGuides(guide: Color, inset: Float, side: Float) {
-    val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx()))
+private fun DrawScope.drawPadGuides(guide: Color, side: Float, metrics: PadMetrics) {
+    val inset = metrics.inset
     val mid = inset + side / 2
-    fun line(a: Offset, b: Offset) = drawLine(guide, a, b, 1.dp.toPx(), pathEffect = dash)
+    fun line(a: Offset, b: Offset) =
+        drawLine(guide, a, b, metrics.guideWidth, pathEffect = metrics.dashEffect)
     line(Offset(mid, inset), Offset(mid, inset + side))
     line(Offset(inset, mid), Offset(inset + side, mid))
     drawLine(
         guide.copy(alpha = .35f),
         Offset(inset, inset),
         Offset(inset + side, inset + side),
-        1.dp.toPx(),
-        pathEffect = dash,
+        metrics.guideWidth,
+        pathEffect = metrics.dashEffect,
     )
     drawLine(
         guide.copy(alpha = .35f),
         Offset(inset + side, inset),
         Offset(inset, inset + side),
-        1.dp.toPx(),
-        pathEffect = dash,
+        metrics.guideWidth,
+        pathEffect = metrics.dashEffect,
     )
 }
 
@@ -190,18 +213,22 @@ private fun DrawScope.drawPadContent(
     active: ActivePadGesture,
     reference: Boolean,
     ink: Color,
+    metrics: PadMetrics,
 ) {
-    val inset = 8.dp.toPx()
+    val inset = metrics.inset
     val side = size.minDimension - inset * 2
-    val width = 4.dp.toPx()
-    paths.overlay.forEach { (path, start) -> drawInk(path, start, ink.copy(alpha = .25f), width) }
+    paths.overlay.forEach { (path, start) ->
+        drawInk(path, start, ink.copy(alpha = .25f), metrics.strokeWidth)
+    }
     drawStrokeLabels(paths.numbers, inset, side)
     if (!reference || active.path == null) {
-        paths.saved.forEach { (path, start) -> drawInk(path, start, ink, width) }
+        paths.saved.forEach { (path, start) -> drawInk(path, start, ink, metrics.strokeWidth) }
     }
-    active.renderedPath?.let { drawInk(it, requireNotNull(active.dot), ink, width) }
+    active.renderedPath?.let { drawInk(it, requireNotNull(active.dot), ink, metrics.strokeWidth) }
     clipRect(inset, inset, inset + side, inset + side) {
-        paths.comparison.forEach { (path, start) -> drawInk(path, start, Color.Red, 2.dp.toPx()) }
+        paths.comparison.forEach { (path, start) ->
+            drawInk(path, start, Color.Red, metrics.comparisonWidth)
+        }
     }
 }
 

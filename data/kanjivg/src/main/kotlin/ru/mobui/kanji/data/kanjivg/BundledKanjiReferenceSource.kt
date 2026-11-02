@@ -4,6 +4,7 @@ import android.content.res.AssetManager
 import android.graphics.PathMeasure
 import android.util.Xml
 import androidx.core.graphics.PathParser
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.math.ceil
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -21,9 +22,12 @@ class BundledKanjiReferenceSource(
     private val ioDispatcher: CoroutineDispatcher,
 ) : KanjiReferenceSource {
     private val availableFiles by lazy { assets.list("kanjivg").orEmpty().toSet() }
+    private val cache = ConcurrentHashMap<KanjiId, ReferenceDrawing>()
 
-    override suspend fun load(id: KanjiId): ReferenceDrawing? =
-        withContext(ioDispatcher) {
+    override suspend fun load(id: KanjiId): ReferenceDrawing? {
+        cache[id]?.let { return it }
+        return withContext(ioDispatcher) {
+            cache[id]?.let { return@withContext it }
             val code =
                 id.value
                     .removePrefix("u")
@@ -32,7 +36,8 @@ class BundledKanjiReferenceSource(
             val file =
                 "kanjivg/${code.toString(UNICODE_HEX_RADIX).padStart(GLYPH_FILE_CODE_WIDTH, '0')}.svg"
             if (file.substringAfterLast('/') !in availableFiles) return@withContext null
-            assets.open(file).use { stream ->
+            val drawing =
+                assets.open(file).use { stream ->
                 val parser = Xml.newPullParser()
                 parser.setInput(stream, null)
                 var strokeDepth: Int? = null
@@ -162,7 +167,10 @@ class BundledKanjiReferenceSource(
                 require(strokes.isNotEmpty())
                 ReferenceDrawing(strokes, numbers, hooks)
             }
+            cache[id] = drawing
+            drawing
         }
+    }
 }
 
 private const val UNICODE_HEX_RADIX = 16

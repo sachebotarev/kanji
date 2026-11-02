@@ -51,34 +51,52 @@ fun DashboardScreen(
         trainings.firstOrNull { it.id == selectedTrainingId }
             ?: trainings.firstOrNull()
             ?: TrainingOverview(selectedTrainingId, stringResource(R.string.dashboard_mix))
-    var trainingDialog by rememberSaveable { mutableStateOf<String?>(null) }
+    var trainingDialog by rememberSaveable { mutableStateOf(TrainingDialogType.None) }
     var editingId by rememberSaveable { mutableStateOf<String?>(null) }
     when (trainingDialog) {
-        "choose" ->
-            TrainingPicker(trainings, selectedTrainingId, TrainingPickerActions(onSelect = {
-                    onSelectTraining(it)
-                    trainingDialog = null
-                }, onEdit = {
-                    editingId = it
-                    trainingDialog = "edit"
-                }, onCreate = { trainingDialog = "create" }, onDismiss = { trainingDialog = null }))
-        "create",
-        "edit" ->
+        TrainingDialogType.None -> Unit
+        TrainingDialogType.Choose ->
+            TrainingPicker(
+                trainings,
+                selectedTrainingId,
+                TrainingPickerActions(
+                    onSelect = {
+                        onSelectTraining(it)
+                        trainingDialog = TrainingDialogType.None
+                    },
+                    onEdit = {
+                        editingId = it
+                        trainingDialog = TrainingDialogType.Edit
+                    },
+                    onCreate = { trainingDialog = TrainingDialogType.Create },
+                    onDismiss = { trainingDialog = TrainingDialogType.None },
+                ),
+            )
+        TrainingDialogType.Create,
+        TrainingDialogType.Edit ->
             TrainingEditor(
-                if (trainingDialog == "edit") trainings.firstOrNull { it.id == editingId }
-                else null,
+                if (trainingDialog == TrainingDialogType.Edit) {
+                    trainings.firstOrNull { it.id == editingId }
+                } else null,
                 onSubmit = { name, words, seconds ->
                     onSaveTraining(
-                        if (trainingDialog == "edit") editingId else null,
+                        if (trainingDialog == TrainingDialogType.Edit) editingId else null,
                         name,
                         words,
                         seconds,
                     )
-                    trainingDialog = if (trainingDialog == "edit") "choose" else null
+                    trainingDialog =
+                        if (trainingDialog == TrainingDialogType.Edit) TrainingDialogType.Choose
+                        else TrainingDialogType.None
                 },
-                onDismiss = { trainingDialog = if (trainingDialog == "edit") "choose" else null },
+                onDismiss = {
+                    trainingDialog =
+                        if (trainingDialog == TrainingDialogType.Edit) TrainingDialogType.Choose
+                        else TrainingDialogType.None
+                },
             )
-        "history" -> TrainingHistory(training, onDismiss = { trainingDialog = null })
+        TrainingDialogType.History ->
+            TrainingHistory(training, onDismiss = { trainingDialog = TrainingDialogType.None })
     }
     var activityOpen by rememberSaveable { mutableStateOf(false) }
     if (activityOpen) ActivityDetailsDialog(state.activity, onDismiss = { activityOpen = false })
@@ -117,9 +135,9 @@ fun DashboardScreen(
             }
             CurrentTrainingWidget(
                 training,
-                onSelect = { trainingDialog = "choose" },
+                onSelect = { trainingDialog = TrainingDialogType.Choose },
                 onStart = onStartPractice,
-                onHistory = { trainingDialog = "history" },
+                onHistory = { trainingDialog = TrainingDialogType.History },
                 modifier = Modifier.fillMaxWidth(),
             )
             VocabularyWidget(
@@ -156,4 +174,12 @@ private fun DashboardDarkPreview() {
             trainings = listOf(TrainingOverview("default", stringResource(R.string.dashboard_mix))),
         )
     }
+}
+
+private enum class TrainingDialogType {
+    None,
+    Choose,
+    Create,
+    Edit,
+    History,
 }

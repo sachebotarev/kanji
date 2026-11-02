@@ -6,10 +6,12 @@ import com.google.mlkit.common.model.RemoteModelManager
 import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognition
 import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognitionModel
 import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognitionModelIdentifier
+import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognizer
 import com.google.mlkit.vision.digitalink.recognition.DigitalInkRecognizerOptions
 import com.google.mlkit.vision.digitalink.recognition.Ink
 import com.google.mlkit.vision.digitalink.recognition.RecognitionContext
 import com.google.mlkit.vision.digitalink.recognition.WritingArea
+import java.io.Closeable
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -20,23 +22,46 @@ import ru.mobui.kanji.domain.practice.CheckVerdict
 import ru.mobui.kanji.domain.practice.KanjiChecker
 
 /** Japanese model downloads once; ink recognition then runs on device. No target-text hints. */
-class DigitalInkKanjiChecker : KanjiChecker {
+class DigitalInkKanjiChecker : KanjiChecker, Closeable {
+    @Volatile private var modelDownloaded = false
+    @Volatile private var recognizer: DigitalInkRecognizer? = null
+
     private fun japaneseModel(): DigitalInkRecognitionModel =
         DigitalInkRecognitionModel.builder(
                 requireNotNull(DigitalInkRecognitionModelIdentifier.fromLanguageTag("ja")),
             )
             .build()
 
-    suspend fun isModelDownloaded(): Boolean =
-        RemoteModelManager.getInstance().isModelDownloaded(japaneseModel()).awaitResult()
+    suspend fun isModelDownloaded(): Boolean {
+        if (modelDownloaded) return true
+        val downloaded =
+            RemoteModelManager.getInstance().isModelDownloaded(japaneseModel()).awaitResult()
+        if (downloaded) modelDownloaded = true
+        return downloaded
+    }
 
     suspend fun downloadModel(): Boolean =
         withTimeoutOrNull(MODEL_DOWNLOAD_TIMEOUT_MILLIS) {
             RemoteModelManager.getInstance()
                 .download(japaneseModel(), DownloadConditions.Builder().build())
                 .awaitResult()
+            modelDownloaded = true
             true
         } ?: false
+
+    private fun getRecognizer(model: DigitalInkRecognitionModel): DigitalInkRecognizer =
+        recognizer ?: synchronized(this) {
+            recognizer ?: DigitalInkRecognition.getClient(
+                DigitalInkRecognizerOptions.builder(model).build(),
+            ).also { recognizer = it }
+        }
+
+    override fun close() {
+        synchronized(this) {
+            recognizer?.close()
+            recognizer = null
+        }
+    }
 
     override suspend fun check(request: CheckRequest) = checkWithDetails(request).verdict
 
@@ -52,8 +77,7 @@ class DigitalInkKanjiChecker : KanjiChecker {
                 DigitalInkRecognitionModelIdentifier.fromLanguageTag("ja")
                     ?: return@withTimeoutOrNull CheckReport(CheckVerdict.Unavailable)
             val model = DigitalInkRecognitionModel.builder(identifier).build()
-            val manager = RemoteModelManager.getInstance()
-            if (!manager.isModelDownloaded(model).awaitResult()) {
+            if (!isModelDownloaded()) {
                 return@withTimeoutOrNull CheckReport(CheckVerdict.Unavailable)
             }
             val ink = Ink.builder()
@@ -68,28 +92,23 @@ class DigitalInkKanjiChecker : KanjiChecker {
                 }
                 ink.addStroke(builder.build())
             }
-            val recognizer =
-                DigitalInkRecognition.getClient(DigitalInkRecognizerOptions.builder(model).build())
-            try {
-                val result =
-                    recognizer
-                        .recognize(
-                            ink.build(),
-                            RecognitionContext.builder()
-                                // Required by the SDK builder even for a standalone character.
-                                .setPreContext("")
-                                .setWritingArea(WritingArea(WRITING_AREA_SIZE, WRITING_AREA_SIZE))
-                                .build(),
-                        )
-                        .awaitResult()
-                val text = result.candidates.firstOrNull()?.text.orEmpty()
-                CheckReport(
-                    if (text == expected) CheckVerdict.Correct else CheckVerdict.Incorrect,
-                    metrics = mapOf("recognizedText" to text),
-                )
-            } finally {
-                recognizer.close()
-            }
+            val client = getRecognizer(model)
+            val result =
+                client
+                    .recognize(
+                        ink.build(),
+                        RecognitionContext.builder()
+                            // Required by the SDK builder even for a standalone character.
+                            .setPreContext("")
+                            .setWritingArea(WritingArea(WRITING_AREA_SIZE, WRITING_AREA_SIZE))
+                            .build(),
+                    )
+                    .awaitResult()
+            val text = result.candidates.firstOrNull()?.text.orEmpty()
+            CheckReport(
+                if (text == expected) CheckVerdict.Correct else CheckVerdict.Incorrect,
+                metrics = mapOf("recognizedText" to text),
+            )
         } ?: CheckReport(CheckVerdict.Unavailable)
     }
 }

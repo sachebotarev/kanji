@@ -4,6 +4,7 @@ import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -11,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import ru.mobui.kanji.core.writingpad.PadEvent
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.practice.CheckCompensation
 import ru.mobui.kanji.domain.practice.CheckFailure
 import ru.mobui.kanji.domain.practice.CheckReport
@@ -20,6 +22,7 @@ import ru.mobui.kanji.domain.practice.HintAlgorithm
 import ru.mobui.kanji.domain.practice.HintPresentation
 import ru.mobui.kanji.domain.practice.HintRequest
 import ru.mobui.kanji.domain.practice.KanjiChecker
+import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.KanjiReferenceSource
 import ru.mobui.kanji.domain.practice.PracticeResult
 import ru.mobui.kanji.domain.practice.PracticeSession
@@ -72,79 +75,84 @@ sealed interface PracticeAction {
 
 /** Screen-scoped owner. Task and infrastructure are supplied by the caller. */
 class PracticeViewModel(
-    task: PracticeTask,
+    private val task: PracticeTask,
     private val references: KanjiReferenceSource,
     private val checker: KanjiChecker,
     private val clock: () -> Long = SystemClock::elapsedRealtime,
     private val hintAlgorithm: HintAlgorithm = TraceReferenceHint(),
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
-    private val session = PracticeSession(task)
+    private var session = PracticeSession(task)
     private val mutableState =
         MutableStateFlow(PracticeUiState(session.state, debugEnabled = showCheckDiagnostics))
     val uiState = mutableState.asStateFlow()
     private val mutablePreview = MutableStateFlow<PadEvent.GesturePreview?>(null)
     val preview = mutablePreview.asStateFlow()
     private var ticker: Job? = null
-    private var checking: Job? = null
     private var lastTick: Long? = null
     private var screenActive = false
     private var resultDelivered = false
-    private var checkGeneration = 0L
-    private val checkFailures = mutableMapOf<String, Pair<Long, CheckReport>>()
-    private val checkedRevisions = mutableMapOf<String, Long>()
+    private val coordinator = CheckCoordinator()
 
     init {
-        task.kanji
-            .map { it.kanjiId }
-            .distinct()
-            .forEach { id ->
-                viewModelScope.launch {
-                    val drawing =
-                        try {
-                            references.load(id)
-                        } catch (cancelled: CancellationException) {
-                            throw cancelled
-                        } catch (_: Exception) {
-                            null
-                        }
-                    accountTime()
-                    session.setReference(id, drawing)
-                    publish()
-                }
-            }
+        loadTaskReferences(task, references, viewModelScope) { id, drawing ->
+            accountTime()
+            session.setReference(id, drawing)
+            publish()
+        }
     }
 
     fun setActive(active: Boolean) {
-        accountTime()
-        ticker?.cancel()
-        ticker = null
-        screenActive = active
-        // Keep the monotonic baseline while the screen is hidden. On resume,
-        // accountTime includes the whole background interval, even after device sleep.
-        if (active && lastTick == null) lastTick = clock()
         if (!active) {
+            accountTime()
+            lastTick = null
+            ticker?.cancel()
+            ticker = null
+            screenActive = false
             cancelCheck()
             mutablePreview.value = null
             session.setGestureActive(false)
         } else {
-            ticker = viewModelScope.launch {
-                while (isActive) {
-                    delay(TIMER_TICK_MILLIS)
-                    accountTime()
-                    publish()
+            screenActive = true
+            lastTick = clock()
+            ticker =
+                viewModelScope.launch {
+                    while (isActive) {
+                        delay(TIMER_TICK_MILLIS)
+                        accountTime()
+                        publish()
+                    }
                 }
-            }
+            scheduleCheck()
         }
         publish()
-        if (active) scheduleCheck()
+    }
+
+    fun restart() {
+        cancelCheck()
+        ticker?.cancel()
+        ticker = null
+        lastTick = null
+        resultDelivered = false
+        coordinator.clear()
+        session = PracticeSession(task)
+        mutableState.value =
+            PracticeUiState(session.state, debugEnabled = showCheckDiagnostics)
+        mutablePreview.value = null
+        loadTaskReferences(task, references, viewModelScope) { id, drawing ->
+            accountTime()
+            session.setReference(id, drawing)
+            publish()
+        }
+        if (screenActive) {
+            setActive(true)
+        }
     }
 
     fun onCheckerSettingsChanged() {
         if (session.state.gestureActive || session.state.result != null) return
         cancelCheck()
-        checkedRevisions.clear()
-        checkFailures.clear()
+        coordinator.clear()
         session.invalidateChecks()
         publish()
         scheduleCheck()
@@ -257,70 +265,47 @@ class PracticeViewModel(
             return
         val requests =
             session.checkRequests().filter {
-                checkedRevisions[it.occurrenceId] != it.revision
+                coordinator.revisions[it.occurrenceId] != it.revision
             }
         if (requests.isEmpty()) return
-        val generation = checkGeneration
-        checking = viewModelScope.launch {
-            var notice = mutableState.value.notice
-            var unavailable = false
-            var incomplete = false
-            try {
-                delay(CHECK_DEBOUNCE_MILLIS)
-                mutableState.value = mutableState.value.copy(isChecking = true)
-                for (request in requests) {
-                    val report = executeCheck(checker, request)
-                    // A provider may finish despite cancellation; never apply that response.
-                    if (generation != checkGeneration) return@launch
-                    accountTime()
-                    applyCheckResult(request, report, unavailable, incomplete)?.let { (u, i, n) ->
-                        unavailable = u
-                        incomplete = i
-                        notice = n
+        val generation = coordinator.generation
+        coordinator.job =
+            viewModelScope.launch {
+                var notice = mutableState.value.notice
+                var unavailable = false
+                var incomplete = false
+                try {
+                    delay(CHECK_DEBOUNCE_MILLIS)
+                    mutableState.value = mutableState.value.copy(isChecking = true)
+                    for (request in requests) {
+                        val report = executeCheck(checker, request)
+                        // A provider may finish despite cancellation; never apply that response.
+                        if (generation != coordinator.generation) return@launch
+                        accountTime()
+                        coordinator.applyResult(
+                            session,
+                            request,
+                            report,
+                            unavailable,
+                            incomplete,
+                        )?.let { (u, i, n) ->
+                            unavailable = u
+                            incomplete = i
+                            notice = n
+                            publish(notice)
+                        }
+                    }
+                } finally {
+                    if (generation == coordinator.generation) {
+                        mutableState.value = mutableState.value.copy(isChecking = false)
                         publish(notice)
                     }
                 }
-            } finally {
-                if (generation == checkGeneration) {
-                    mutableState.value = mutableState.value.copy(isChecking = false)
-                    publish(notice)
-                }
             }
-        }
-    }
-
-    private fun applyCheckResult(
-        request: CheckRequest,
-        report: CheckReport,
-        unavailable: Boolean,
-        incomplete: Boolean,
-    ): Triple<Boolean, Boolean, PracticeNotice?>? {
-        val verdict = report.verdict
-        if (!session.applyCheck(request, verdict)) return null
-        checkFailures[request.occurrenceId] =
-            request.revision to
-                report.copy(
-                    failures = report.failures.toList(),
-                    metrics = report.metrics.toMap(),
-                )
-        if (verdict != CheckVerdict.Unavailable) {
-            checkedRevisions[request.occurrenceId] = request.revision
-        }
-        val isUnavailable = unavailable || verdict == CheckVerdict.Unavailable
-        val isIncomplete = incomplete || verdict == CheckVerdict.Incomplete
-        val notice =
-            when {
-                isUnavailable -> PracticeNotice.CheckerUnavailable
-                isIncomplete -> PracticeNotice.Incomplete
-                else -> null
-            }
-        return Triple(isUnavailable, isIncomplete, notice)
     }
 
     private fun cancelCheck() {
-        checkGeneration++
-        checking?.cancel()
-        checking = null
+        coordinator.cancel()
         mutableState.value = mutableState.value.copy(isChecking = false)
     }
 
@@ -338,7 +323,7 @@ class PracticeViewModel(
     private fun publish(notice: PracticeNotice? = mutableState.value.notice) {
         val currentReport =
             session.state.selected?.let { cell ->
-                checkFailures[cell.task.occurrenceId]
+                coordinator.failures[cell.task.occurrenceId]
                     ?.takeIf {
                         it.first == cell.revision &&
                             !session.state.gestureActive &&
@@ -383,3 +368,74 @@ private suspend fun executeCheck(
     } catch (_: Exception) {
         CheckReport(CheckVerdict.Unavailable)
     }
+
+private fun loadTaskReferences(
+    task: PracticeTask,
+    references: KanjiReferenceSource,
+    scope: CoroutineScope,
+    onLoaded: (KanjiId, ReferenceDrawing?) -> Unit,
+) {
+    task.kanji
+        .map { it.kanjiId }
+        .distinct()
+        .forEach { id ->
+            scope.launch {
+                val drawing =
+                    try {
+                        references.load(id)
+                    } catch (cancelled: CancellationException) {
+                        throw cancelled
+                    } catch (_: Exception) {
+                        null
+                    }
+                onLoaded(id, drawing)
+            }
+        }
+}
+
+private class CheckCoordinator {
+    var generation = 0L
+    var job: Job? = null
+    val failures = mutableMapOf<String, Pair<Long, CheckReport>>()
+    val revisions = mutableMapOf<String, Long>()
+
+    fun cancel() {
+        generation++
+        job?.cancel()
+        job = null
+    }
+
+    fun clear() {
+        failures.clear()
+        revisions.clear()
+    }
+
+    fun applyResult(
+        session: PracticeSession,
+        request: CheckRequest,
+        report: CheckReport,
+        unavailable: Boolean,
+        incomplete: Boolean,
+    ): Triple<Boolean, Boolean, PracticeNotice?>? {
+        val verdict = report.verdict
+        if (!session.applyCheck(request, verdict)) return null
+        failures[request.occurrenceId] =
+            request.revision to
+                report.copy(
+                    failures = report.failures.toList(),
+                    metrics = report.metrics.toMap(),
+                )
+        if (verdict != CheckVerdict.Unavailable) {
+            revisions[request.occurrenceId] = request.revision
+        }
+        val isUnavailable = unavailable || verdict == CheckVerdict.Unavailable
+        val isIncomplete = incomplete || verdict == CheckVerdict.Incomplete
+        val notice =
+            when {
+                isUnavailable -> PracticeNotice.CheckerUnavailable
+                isIncomplete -> PracticeNotice.Incomplete
+                else -> null
+            }
+        return Triple(isUnavailable, isIncomplete, notice)
+    }
+}
