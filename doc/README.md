@@ -1,32 +1,42 @@
 # Документация «Кандзи дэс нэ»
 
-## Начать здесь
+Добро пожаловать в базу знаний проекта **«Кандзи дэс нэ»**. Здесь собраны действующие требования, архитектурные контракты, спецификации экранов и отчёты о верификации алгоритмов.
 
-- [Дизайн-система](design-system/README.md): актуальный макет каталога; все 17 экранов ожидают повторного согласования.
-- [Каталог Android](implementation/catalog-ui.md), [интерактивный макет](design-system/prototypes/textbooks/index.html), [обзор экранов](design-system/05-screens/catalog/review/index.html), [проверки и снимки](verification/catalog/refactor-2026-11-02/README.md).
-- [Архитектура](architecture.md): Compose, Clean Architecture, модули и DI.
-- [Обязательная многоязычность](implementation/localization.md): русский основной и fallback, переводы по language_tag.
-- [Навыки разработки](development-skills.md): назначение и маршрутизация локальных skills.
+## С чего начать
 
-## Разделы
+- [Архитектура проекта](architecture.md) — многомодульная структура (19 Gradle-модулей), Clean Architecture, стек библиотек и сборка графа зависимостей.
+- [Обязательная многоязычность](implementation/localization.md) — приоритет русского языка, правила локализации таблиц БД и интерфейса.
+- [Дизайн-система](design-system/README.md) — визуальный язык, токены, компоненты и интерактивные прототипы экранов.
+- [Навыки разработки (Skills)](development-skills.md) — каталог и маршрутизация специализированных локальных навыков для агентов.
 
-| Каталог | Назначение |
-| --- | --- |
-| [design-system](design-system/README.md) | Единственный актуальный раздел дизайна, UX и экранных требований |
-| [implementation](implementation/practice-screen.md) | Контракты и устройство Android/domain/data, без истории визуальных итераций |
-| [decisions](decisions/handwriting-verification.md) | Действующие технические и продуктовые решения |
-| [database](database/words.md) | Модели кандзи, ключей и слов/выражений/предложений |
-| [imports](imports/catalog/README.md) | Воспроизводимая подготовка учебного содержимого |
-| [dictionaries](dictionaries/local-reference-materials.md) | Источники, сверка и правила локального хранения |
-| [calibration](calibration/README.md) | Данные, сценарии и измерения проверки рукописного ввода |
-| [verification](verification/README.md) | Технические свидетельства проверок алгоритмов, отдельно от текущего дизайна |
+## Разделы документации
 
-## Основные контракты реализации
+| Раздел | Описание |
+|---|---|
+| [**Архитектура и модули**](architecture.md) | Граф зависимостей 19 модулей, соглашения по коду и DI |
+| [**Дизайн-система**](design-system/README.md) | Дизайн-токены, атомарные компоненты, навигация и макеты |
+| [**Реализация (Implementation)**](implementation/README.md) | Контракты экранов, модулей данных и алгоритмов проверки |
+| [**Архитектурные решения (Decisions)**](decisions/README.md) | Принятые технические решения и консенсусные модели |
+| [**База данных (Database)**](database/README.md) | Схемы таблиц Room/SQLite для кандзи, ключей и слов |
+| [**Импорт данных (Imports)**](imports/catalog/README.md) | Подготовка, конвертация и сборка учебных пакетов контента |
+| [**Словари и эталоны (Dictionaries)**](dictionaries/README.md) | Источники KanjiVG, ЯРКСИ, EDICT и лицензии |
+| [**Калибровка (Calibration)**](calibration/README.md) | Подбор параметров проверки рукописного ввода и замеры на корпусе Tomoe |
+| [**Верификация (Verification)**](verification/README.md) | Отчёты тестирования алгоритмов распознавания и каталога |
 
-- [Тренировка одного задания](implementation/practice-screen.md), [поле письма](implementation/ui-pad.md), [подсказка](implementation/hints.md), [таймер](implementation/task-timer.md).
-- [Три проверки](decisions/three-checkers.md), [форма](implementation/shape-checker.md), [Procrustes](implementation/procrustes.md), [словарные правила](implementation/kanji-rule-dictionary.md), [диагностика](implementation/debug-inspector.md).
-- [Хранение настроек](implementation/persistent-settings.md), [японская модель](implementation/japanese-model.md).
-- [Каталог](implementation/catalog.md), [личный словарь](implementation/personal-dictionary.md), [кандзи](implementation/kanji-catalog.md), [ключи](implementation/radicals-catalog.md).
-- Схемы: [слова и выражения](database/words.md), [кандзи](database/kanji.md), [ключи](database/radicals.md).
+## Ключевые компоненты
 
-Документ описывает действующее состояние или явно помеченное предложение. Не дублировать в нём хронологию обсуждений, старые макеты и отменённые указания. Датированные снимки, происхождение данных, лицензии и результаты измерений сохраняются как проверяемые свидетельства. Порядок обновления дизайна — [процесс](design-system/workflow.md).
+### Экраны и сценарии
+- [Главная панель (Dashboard)](implementation/dashboard.md) — виджеты статистики, активности и управление тренировками.
+- [Каталог учебников и кандзи](implementation/catalog.md) и [Интерфейс каталога](implementation/catalog-ui.md).
+- [Личный словарь](implementation/personal-dictionary.md) — пользовательские слова, выражения и предложения.
+- [Экран тренировки](implementation/practice-screen.md), [Холст ввода](implementation/ui-pad.md), [Подсказки](implementation/hints.md) и [Таймер](implementation/task-timer.md).
+
+### Проверка рукописного ввода
+- [Консенсус трёх проверок](decisions/three-checkers.md) — согласованная работа формы, читаемости и словарных правил.
+- [Алгоритм Procrustes](implementation/procrustes.md) и [Базовая проверка формы](implementation/shape-checker.md).
+- [Словарные правила кандзи](implementation/kanji-rule-dictionary.md).
+- [Рабочий профиль настроек](calibration/README.md).
+- [Диагностический инспектор штрихов](implementation/debug-inspector.md).
+
+---
+> Документация поддерживается в актуальном виде: она отражает действующее состояние кодовой базы и согласованные требования без устаревших промежуточных правок и хронологических наслоений.

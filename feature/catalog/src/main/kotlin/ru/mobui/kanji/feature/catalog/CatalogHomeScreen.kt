@@ -12,7 +12,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.mobui.kanji.domain.catalog.title
 
 @Composable
 internal fun CatalogHomeScreen(sources: List<SourceSummary>, language: String, navigate: (BrowseNavigation) -> Unit, modifier: Modifier = Modifier) {

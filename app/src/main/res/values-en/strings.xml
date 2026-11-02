@@ -7,7 +7,6 @@
     <string name="entry_empty">Not entered</string>
     <string name="entry_editing">Not checked</string>
     <string name="entry_incorrect">Incorrect</string>
-    <string name="entry_hint">Hint</string>
     <string name="entry_prefilled">Prefilled</string>
     <string name="result_cell">Character %1$d: %2$s · %3$d s</string>
     <string name="result_time">Word time: %1$d s</string>

@@ -3,16 +3,12 @@ package ru.mobui.kanji.feature.practice
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import ru.mobui.kanji.domain.practice.RecognitionSettings
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.mobui.kanji.domain.practice.PracticeResult
+import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 /** Navigation-independent entry point. The host owns the ViewModel and result destination. */
 @Composable
