@@ -1,0 +1,8 @@
+/* Workshop-only notices must never be rendered as mobile product content. */
+.review-notice{max-width:620px;margin:12px auto 20px;padding:18px 22px;border:1px solid #b9c2b5;border-radius:16px;background:#f4f2eb;color:#263e36;line-height:1.5}
+.review-notice h2{margin:0 0 8px;font-size:20px}
+.review-notice p{margin:0}
+.review-notice[hidden],.phone[hidden],.review-capture[hidden]{display:none!important}
+.review-capture{margin:0 auto;max-width:100%;width:var(--capture-width,412px)}
+.review-capture img{display:block;width:100%;height:auto;border-radius:24px}
+.review-capture figcaption{font-size:13px;line-height:1.5;color:#526055;padding:10px 4px}

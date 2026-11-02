@@ -35,7 +35,10 @@ internal data class KanjiRow(
     val radical_id: Int?,
     val is_kyoiku: Int,
     val is_joyo: Int,
-    val is_jinmeiyo: Int
+    val is_jinmeiyo: Int,
+    val school_stage: String? = null,
+    val school_year: Int? = null,
+    val jlpt_level: Int? = null
 )
 
 @Entity(tableName = "kanji_translations", primaryKeys = ["kanji_id", "language_tag", "position"], foreignKeys = [
@@ -73,7 +76,8 @@ internal data class WordsRow(
 internal data class WordsTranslationsRow(
     val word_id: Int,
     @ColumnInfo(collate = ColumnInfo.NOCASE) val language_tag: String,
-    val translation: String
+    val translation: String,
+    val usage_note: String? = null
 )
 
 @Entity(tableName = "word_reading_parts", primaryKeys = ["word_id", "position"], foreignKeys = [
@@ -91,7 +95,8 @@ internal data class SourcesRow(
     val id: Int,
     val source_type: String,
     val original_title: String,
-    @ColumnInfo(defaultValue = "0") val is_archived: Int
+    @ColumnInfo(defaultValue = "0") val is_archived: Int,
+    val cover_key: String? = null
 )
 
 @Entity(tableName = "sources_translations", primaryKeys = ["source_id", "language_tag"], foreignKeys = [
@@ -100,7 +105,8 @@ internal data class SourcesRow(
 internal data class SourcesTranslationsRow(
     val source_id: Int,
     @ColumnInfo(collate = ColumnInfo.NOCASE) val language_tag: String,
-    val title: String
+    val title: String,
+    val description: String? = null
 )
 
 @Entity(tableName = "source_kanji", primaryKeys = ["source_id", "kanji_id"], foreignKeys = [

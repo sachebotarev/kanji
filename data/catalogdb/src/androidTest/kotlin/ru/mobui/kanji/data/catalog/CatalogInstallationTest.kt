@@ -21,6 +21,11 @@ class CatalogInstallationTest {
             assertEquals(2491, dao.words().size)
             assertEquals(3955, dao.source_words().size)
             assertEquals(3001, dao.kanji().size)
+            assertEquals(2211, dao.kanji().count { it.jlpt_level != null })
+            assertEquals(1026, dao.kanji().count { it.school_stage == "elementary" })
+            assertEquals(5, dao.kanji().single { it.id == 19968 }.jlpt_level)
+            assertTrue(dao.words_translations().any { !it.usage_note.isNullOrBlank() })
+            assertTrue(dao.sources_translations().any { !it.description.isNullOrBlank() })
             installer.install() // Same-version install is idempotent.
             dao.put_sources(listOf(SourcesRow(-1, "personal", "personal", 0)))
             dao.put_words(listOf(WordsRow(-1, "私の例", "わたしのれい", 0)))

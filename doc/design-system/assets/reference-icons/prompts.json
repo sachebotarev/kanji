@@ -1,0 +1,18 @@
+{
+  "method": "built-in image_gen",
+  "references": [
+    "../../prototypes/textbooks/assets/cat-reading.png",
+    "../textbook-icons/textbook-sage.png"
+  ],
+  "icons": [
+    {
+      "file": "kanji-sage.png",
+      "prompt": "Create one illustrated Japanese 林 symbol for a kanji-learning app matching the attached cat mascot and sage book style: very dark forest-green rounded contours, broad sage-green filled strokes with restrained soft shading. Correct 林 structure, chunky broad strokes with large interior fill, no thin inset stripes, no wire appearance. Legible at36px. No card, frame, plaque, props, faces, labels or background. One front-facing 林, centered filling86percent square with true transparent background. Same matte friendly hand-drawn2D style as cat and book."
+    },
+    {
+      "file": "radical-ochre.png",
+      "prompt": "Create the companion radical icon for supplied illustrated 林 emblem. Image 1 is the exact style master: preserve its thick rounded dark forest-green contour, broad solid interior, matte softly shaded volume and simple rounded terminals. New subject: exactly ONE Japanese 木 radical, correct structure: one central vertical stroke, one horizontal crossing at upper third, and two diagonal branches descending left and right from below the crossing. Only one 木, not 林. Replace sage fill with muted warm ochre matching a book's bookmark, light golden ochre upper left, subdued ochre lower right; retain the same forest-green outline. Bold broad glyph, no thin stripes. Simplify to one broad soft highlight and one shadow plane, not glossy 3D. Front facing, compact square silhouette, equal visual weight to original emblem when at36px, center at86percent square canvas. No cards, plaques, frames, circles, labels, extra words, faces, objects or ground shadow. True transparent background. Same illustrated app icon family as supplied reference, not a different font or stock emoji."
+    }
+  ],
+  "transparent_background": true
+}

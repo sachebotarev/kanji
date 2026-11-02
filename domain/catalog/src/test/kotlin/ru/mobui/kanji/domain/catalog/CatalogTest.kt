@@ -52,8 +52,69 @@ class CatalogTest {
         val data = CatalogSnapshot(1, emptyList(), emptyList(), listOf(first, moon), emptyList(), emptyList(), emptyList())
         assertEquals(moon, data.kanji(CatalogSelection(), "月", "ru").first())
     }
+    @Test fun iterationMarkIsSearchableAndAbsentFromTheKanjiIndex() {
+        val mark = CatalogKanji(12293, "々", 3, null, false, false, false,
+            mapOf("ru" to listOf("знак повтора")), emptyList(), emptyList())
+        val data = CatalogSnapshot(1, emptyList(), emptyList(), listOf(mark, one), emptyList(), emptyList(), emptyList())
+        assertEquals(listOf(one), data.kanji(CatalogSelection(), "", "ru"))
+        assertEquals(listOf(mark), data.kanji(CatalogSelection(), "々", "ru"))
+        assertEquals(listOf(mark), data.kanji(CatalogSelection(), "знак повтора", "ru"))
+        val placed = CatalogSnapshot(1, emptyList(), emptyList(), listOf(mark, one), emptyList(),
+            listOf(CatalogPlacement(1, 12293, 1, 1), CatalogPlacement(1, 19968, 2, 1)), emptyList())
+        assertEquals(listOf(mark, one), placed.kanji(CatalogSelection(1), "", "ru"))
+    }
     @Test fun chapterOrderUsesNumericValuesAndKanjiUseBookOrder() {
         assertEquals(listOf(one, moon), snapshot.kanji(CatalogSelection(1), "", "ru"))
         assertEquals(listOf(3, 4), snapshot.chapters(1).map { it.number })
+    }
+    @Test fun radicalIndexFiltersByItsOwnStrokeCount() {
+        assertEquals(listOf(1), snapshot.radicals("", "ru", 1).map { it.id })
+        assertEquals(listOf(74), snapshot.radicals("луна", "ru", 4).map { it.id })
+        assertTrue(snapshot.radicals("луна", "ru", 1).isEmpty())
+        assertEquals(mapOf(1 to 1, 4 to 1), snapshot.radicalStrokeCounts())
+    }
+    @Test fun strokeFacetsRespectOtherConstraintsButIgnoreTheirOwnValue() {
+        assertEquals(listOf(1, 4), snapshot.availableStrokes(CatalogSelection(strokes = 99)))
+        assertEquals(listOf(4), snapshot.availableStrokes(CatalogSelection(chapter = 4, sourceId = 1)))
+        assertEquals(listOf(moon), snapshot.kanji(CatalogSelection(strokes = 4, radicalId = 74), "", "ru"))
+        assertTrue(snapshot.kanji(CatalogSelection(strokes = 1, radicalId = 74), "", "ru").isEmpty())
+    }
+    @Test fun jlptIsExactAndMissingIsDistinctFromAnyLevel() {
+        val classified = one.copy(jlptLevel = JlptLevel.N5)
+        val data = CatalogSnapshot(1, emptyList(), emptyList(), listOf(classified, moon), emptyList(), emptyList(), emptyList())
+        assertEquals(listOf(classified), data.kanji(CatalogSelection(jlpt = JlptFilter.Exact(JlptLevel.N5)), "", "ru"))
+        assertEquals(listOf(moon), data.kanji(CatalogSelection(jlpt = JlptFilter.Missing), "", "ru"))
+        assertEquals(listOf(JlptFilter.Exact(JlptLevel.N5), JlptFilter.Missing), data.availableJlpt(CatalogSelection(jlpt = JlptFilter.Missing)))
+    }
+    @Test fun usageNotesFollowTheTranslationLanguageWithoutIndependentFallback() {
+        val word = january.copy(usageNotes = mapOf("ru" to "Русское примечание"))
+        assertNull(word.usageNote("en-US"))
+        assertEquals("Русское примечание", word.usageNote("de"))
+        assertNull(word.copy(translations = emptyMap()).usageNote("ru"))
+    }
+    @Test fun groupingUsesFirstEligiblePlacementAndPreservesUnfilteredCounts() {
+        val groups = snapshot.wordGroups(CatalogSelection(1), "январь", "ru")
+        assertEquals(listOf(3), groups.map { it.chapter })
+        assertEquals(listOf(january), groups.single().words)
+        assertEquals(1, groups.single().total)
+        assertEquals(4, snapshot.wordGroups(CatalogSelection(1, kanjiId = moon.id), "", "ru").single().chapter)
+        assertTrue(snapshot.wordGroups(CatalogSelection(1), "нет совпадения", "ru").isEmpty())
+    }
+    @Test fun sourceCountsAreIndependentOfQueryAndDeduplicateWordsAcrossPlacements() {
+        assertEquals(CatalogSourceCounts(2, 2, 1), snapshot.sourceCounts[1])
+        snapshot.words(CatalogSelection(1), "нет совпадения", "ru")
+        assertEquals(1, snapshot.sourceCounts[1]?.words)
+    }
+
+    @Test fun groupingUsesOnlyPlacementsInsideTheSelectedChapter() {
+        val groups = snapshot.wordGroups(CatalogSelection(1, chapter = 4), "", "ru")
+        assertEquals(listOf(4), groups.map { it.chapter })
+        assertEquals(listOf(january), groups.single().words)
+    }
+
+    @Test fun groupingUsesOnlyPlacementsMatchingTheSelectedRadical() {
+        val groups = snapshot.wordGroups(CatalogSelection(1, radicalId = moon.radicalId), "", "ru")
+        assertEquals(listOf(4), groups.map { it.chapter })
+        assertEquals(listOf(january), groups.single().words)
     }
 }

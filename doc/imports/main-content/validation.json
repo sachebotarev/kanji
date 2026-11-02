@@ -1,0 +1,34 @@
+{
+  "kanji_count": 3001,
+  "translations_count": 2491,
+  "school_stage_counts": {
+    "elementary": 1026,
+    "junior_high": 1110
+  },
+  "school_year_counts": {
+    "1": 80,
+    "2": 160,
+    "3": 200,
+    "4": 202,
+    "5": 193,
+    "6": 191
+  },
+  "stage_without_year": 1110,
+  "without_school": 865,
+  "jlpt_counts": {
+    "1": 1232,
+    "2": 367,
+    "3": 367,
+    "4": 166,
+    "5": 79
+  },
+  "without_jlpt": 790,
+  "editorial_changes": 22,
+  "notes_count": 9,
+  "inputs_sha256": {
+    "doc/imports/main-content/sources/classification-snapshot.json": "93d535c54f427ac1d417405f8c155d0b7ea25c702315858092c4361142ce7c4e",
+    "data/catalog/seed/catalog.json": "cb1b099c072cac384451dd8e5d97c9acf8b38596c365809175654c05563ff6c6",
+    "data/catalog/kanji.csv": "d7d0b38066b1a6231dcada5555daf3bc5098b344d1ebe4210bfeb0d80ea8994b",
+    "doc/imports/main-content/build_content.py": "c640839ac2d0c9aac53373b0fe95cd7b898631ac44b6f64997926a590e967185"
+  }
+}

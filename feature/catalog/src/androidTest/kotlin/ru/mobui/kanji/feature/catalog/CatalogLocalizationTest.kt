@@ -15,31 +15,36 @@ import java.util.Locale
 
 class CatalogLocalizationTest {
     @get:Rule val compose = createComposeRule()
-    private fun open(language: String, translations: Map<String, String>) {
+    private fun open(language: String, translations: Map<String, String>, written: String = "一月") {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val configuration = Configuration(context.resources.configuration).apply { setLocale(Locale.forLanguageTag(language)) }
         val localized = context.createConfigurationContext(configuration)
-        val word = CatalogWord(1, "一月", "いちがつ", translations)
-        val data = CatalogSnapshot(1, emptyList(), listOf(word), emptyList(), emptyList(), emptyList(), emptyList())
+        val word = CatalogWord(1, written, "いちがつ", translations)
         compose.setContent {
             CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides configuration) {
-                KanjiTheme { CatalogScreen(CatalogUiState(CatalogRequest(CatalogPage.Word, id = 1, language = language), data, loading = false), CatalogActions()) }
+                KanjiTheme { CatalogDetailScreen(DetailRequest.Word(1, null), CatalogLoad.Ready(DetailContent.Word(word, emptyList(), null)), SearchState(), language, DetailActions({}, {}, {}, {}, {})) }
             }
         }
     }
     @Test fun englishUiUsesRussianContentFallback() {
         open("en", mapOf("ru" to "январь"))
-        compose.onNodeWithText("Full reading").assertIsDisplayed()
+        compose.onNodeWithText("いちがつ").assertIsDisplayed()
         compose.onNodeWithText("январь").assertIsDisplayed()
     }
     @Test fun russianUiShowsExplicitMissingTranslation() {
         open("ru", emptyMap())
-        compose.onNodeWithText("Полное чтение").assertIsDisplayed()
+        compose.onNodeWithText("いちがつ").assertIsDisplayed()
         compose.onNodeWithText("Перевод отсутствует").assertIsDisplayed()
     }
     @Test fun unsupportedUiLanguageFallsBackToRussian() {
         open("de", mapOf("ru" to "январь"))
-        compose.onNodeWithText("Полное чтение").assertIsDisplayed()
+        compose.onNodeWithText("いちがつ").assertIsDisplayed()
+        compose.onNodeWithText("январь").assertIsDisplayed()
+    }
+
+    @Test fun kanaOnlyWordDoesNotShowAnEmptyKanjiSection() {
+        open("ru", mapOf("ru" to "январь"), written = "いちがつ")
+        compose.onNodeWithText("Кандзи в написании").assertDoesNotExist()
         compose.onNodeWithText("январь").assertIsDisplayed()
     }
 }

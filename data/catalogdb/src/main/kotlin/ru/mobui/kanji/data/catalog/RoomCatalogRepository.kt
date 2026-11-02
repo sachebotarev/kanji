@@ -92,21 +92,29 @@ internal suspend fun readSnapshot(dao: CatalogDao): CatalogSnapshot {
     val names = dao.radicals_translations().groupBy { it.radical_id }
     val parts = dao.word_reading_parts().sortedBy { it.position }.groupBy { it.word_id }
     val sources = dao.sources().filter { it.source_type != "personal" && it.is_archived == 0 }.map {
-        CatalogSource(it.id, it.original_title, sourceTranslations[it.id].orEmpty().associate { r -> r.language_tag to r.title })
+        CatalogSource(it.id, it.original_title, sourceTranslations[it.id].orEmpty().associate { r -> r.language_tag to r.title },
+            sourceTranslations[it.id].orEmpty().mapNotNull { r -> r.description?.let { text -> r.language_tag to text } }.toMap(), it.source_type, it.cover_key)
     }
     val sourceIds = sources.map { it.id }.toSet()
     return CatalogSnapshot(dao.catalog_metadata().single().content_version, sources,
         dao.words().filter { it.is_archived == 0 }.map {
             CatalogWord(it.id, it.written_form, it.reading,
                 wordTranslations[it.id].orEmpty().associate { r -> r.language_tag to r.translation },
-                parts[it.id].orEmpty().map { r -> ReadingPart(r.written_part, r.reading_part) }, it.is_user_created == 1)
+                parts[it.id].orEmpty().map { r -> ReadingPart(r.written_part, r.reading_part) }, it.is_user_created == 1,
+                wordTranslations[it.id].orEmpty().mapNotNull { r -> r.usage_note?.let { note -> r.language_tag to note } }.toMap())
         },
         dao.kanji().map {
             CatalogKanji(it.id, it.symbol, it.stroke_count, it.radical_id, it.is_kyoiku == 1, it.is_joyo == 1,
                 it.is_jinmeiyo == 1, meanings[it.id].orEmpty().groupBy { r -> r.language_tag }
                     .mapValues { (_, rows) -> rows.map { r -> r.meaning } },
                 readings[it.id].orEmpty().filter { r -> r.reading_type == "on" }.map { r -> r.reading },
-                readings[it.id].orEmpty().filter { r -> r.reading_type == "kun" }.map { r -> r.reading })
+                readings[it.id].orEmpty().filter { r -> r.reading_type == "kun" }.map { r -> r.reading },
+                when (it.school_stage) {
+                    "elementary" -> SchoolStage.Elementary
+                    "junior_high" -> SchoolStage.JuniorHigh
+                    "high_school" -> SchoolStage.HighSchool
+                    else -> null
+                }, it.school_year, JlptLevel.entries.firstOrNull { level -> level.number == it.jlpt_level })
         },
         dao.radicals().map { CatalogRadical(it.id, it.symbol, it.stroke_count,
             names[it.id].orEmpty().associate { r -> r.language_tag to r.name }) },

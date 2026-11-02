@@ -15,7 +15,10 @@ internal class CatalogInstaller(private val database: CatalogDatabase, private v
         val info = manifest.getJSONObject("files").getJSONObject("catalog.json")
         val hash = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
         require(bytes.size == info.getInt("bytes") && hash == info.getString("sha256")) { "Catalog checksum mismatch" }
-        install(JSONObject(bytes.toString(Charsets.UTF_8)), hash, manifest.getInt("content_version"))
+        val root = JSONObject(bytes.toString(Charsets.UTF_8))
+        val content = PreparedCatalogContent(assets)
+        content.applyTo(root)
+        install(root, hash + content.hash, manifest.getInt("content_version"))
     }
 
     internal suspend fun install(root: JSONObject, hash: String, expectedVersion: Int = root.getInt("content_version")) {

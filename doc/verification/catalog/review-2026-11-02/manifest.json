@@ -1,0 +1,124 @@
+{
+  "device": "Pixel 10 Pro",
+  "serial": "61020DLCH005EX",
+  "date": "2026-11-02",
+  "review": "expert review, not a participant study",
+  "limitations": "Concurrent ADB control; screenshots do not certify navigation or state restoration. Debug callbacks do not provide full navigation.",
+  "captures": [
+    {
+      "file": "cat-01.png",
+      "sha256": "4ef52c7053731ac15c92ce2f5ea62ead47032a31956adb8c3250cf0aa7e7e022",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-02.png",
+      "sha256": "60287c43223a533270cd808e8f3dfbc726be9f36e3aa4d49e32982df383020be",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-03.png",
+      "sha256": "b5152182df01e8e5af63600b65e698f7d1ed06ee262f00672cb9f9c311ef2083",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-04.png",
+      "sha256": "e4df6845fcfeb15d414b0f43a136851bf7887e62f973e4420d96b2f52ce462bd",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-05.png",
+      "sha256": "49263763ab942b146d2187c0e19a412e34bd676aff38829298b49c9a0c6a4dea",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-06.png",
+      "sha256": "e842108fb725a0659d0d5c0057c641218eacaff5e91b5242340ccf17193a6dc6",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-07.png",
+      "sha256": "e07c4a3b86cb53aeef6e2f159d73d756b0f39f05946ed53f8e1831aac4227bcf",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-08.png",
+      "sha256": "60687bb17034b9c0f7c2ac714c129cc8bc8859a915bb5840287a5073139add51",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-09.png",
+      "sha256": "3d1e7f8adafd5da6e2680cbdcc578eb0fcfffc8dfbd109a894e7c303adf97bad",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-13.png",
+      "sha256": "5ea7913469e6b28b9a54e14410dd913f84d2f1e3456030e5d5ec8150ad771d55",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-16.png",
+      "sha256": "f6dc8fe329ce785b38a708a32a7b5a92f322fb78e85a40914795e23b50e2efed",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "cat-17.png",
+      "sha256": "71a72b7dc6e6a98abc32b01e04c58bd33a812e8db4c94c149b43748ea85abd79",
+      "entry": "normal app; shared device control"
+    },
+    {
+      "file": "empty-words.png",
+      "sha256": "43e40cb0102a3532508a9a485dffc78aee4010666aeea26625f3d3eb4258a4a0",
+      "entry": "debug review"
+    },
+    {
+      "file": "error.png",
+      "sha256": "afd3477b4c57e1ce9756417329b3569d90f7b755226c142c0705f1354d9f7205",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-09.png",
+      "sha256": "ae41487e619d4baec104663cb0fbca64dc592c5a55930a0993e2875f585d77b4",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-10.png",
+      "sha256": "03179ee45e10fc864babd47f53e9b1256a5b5163a831d06dd604631fe9205edf",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-11.png",
+      "sha256": "37eb71fbea526140c1599f85e58f0b1d421a135371c8588af1e06c9c457db07c",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-12.png",
+      "sha256": "33fd5ff8e2add3f56cb8f08747ceb062a6de93804dc916105883ad072fbe8327",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-14.png",
+      "sha256": "2b6ac96df09252a00d371261d8b6514ec60e42706b50c769f6d00be99f600b60",
+      "entry": "debug review"
+    },
+    {
+      "file": "fixed-15.png",
+      "sha256": "bfb10d681cfa4ce8b22c1821e30a5927d3d62db2eb068956f509562a99aca2f4",
+      "entry": "debug review"
+    },
+    {
+      "file": "kanji-light.png",
+      "sha256": "8b49fb69a40ad5aafd3e38d2da5f4d6f4f6c52f37bde8b151d5ef55079e0df0c",
+      "entry": "debug review"
+    },
+    {
+      "file": "word-large.png",
+      "sha256": "a5b47738d584c734dad48cd0c64df87999e25fff41342529e7e755357355be46",
+      "entry": "debug review"
+    },
+    {
+      "file": "word-light.png",
+      "sha256": "0f4112f42c8a220c44f48d7ee39c50ac5d382d2eebb219452023e7fab17143a4",
+      "entry": "debug review"
+    }
+  ]
+}

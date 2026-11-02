@@ -1,84 +1,32 @@
-# Документация приложения
+# Документация «Кандзи дэс нэ»
 
-## Архитектура и инструменты
+## Начать здесь
 
-- [Архитектурные требования](architecture.md): Compose, Clean Architecture, модульность, атомарность виджетов, стабильный стек и DI.
-- [Настроенные Android-навыки](development-skills.md): состав, источник и проектные настройки.
+- [Дизайн-система](design-system/README.md): актуальный макет каталога; все 17 экранов ожидают повторного согласования.
+- [Каталог Android](implementation/catalog-ui.md), [интерактивный макет](design-system/prototypes/textbooks/index.html), [обзор экранов](design-system/05-screens/catalog/review/index.html), [проверки и снимки](verification/catalog/refactor-2026-11-02/README.md).
+- [Архитектура](architecture.md): Compose, Clean Architecture, модули и DI.
+- [Обязательная многоязычность](implementation/localization.md): русский основной и fallback, переводы по language_tag.
+- [Навыки разработки](development-skills.md): назначение и маршрутизация локальных skills.
 
-## Учебные данные и словари
+## Разделы
 
-- [Модель БД: ключи и переводы](database/radicals.md).
-- [Модель БД: кандзи, значения, чтения и связь с ключами](database/kanji.md).
-- [Модель БД: словарь слов, переводы и источники](database/words.md).
-- [Исходный CSV Tobira для последующего импорта](imports/tobira/README.md).
-- [Словарь Basic Kanji Book I–II: CSV, сравнение источников и проверки](imports/basic-kanji-book/README.md).
+| Каталог | Назначение |
+| --- | --- |
+| [design-system](design-system/README.md) | Единственный актуальный раздел дизайна, UX и экранных требований |
+| [implementation](implementation/practice-screen.md) | Контракты и устройство Android/domain/data, без истории визуальных итераций |
+| [decisions](decisions/handwriting-verification.md) | Действующие технические и продуктовые решения |
+| [database](database/words.md) | Модели кандзи, ключей и слов/выражений/предложений |
+| [imports](imports/catalog/README.md) | Воспроизводимая подготовка учебного содержимого |
+| [dictionaries](dictionaries/local-reference-materials.md) | Источники, сверка и правила локального хранения |
+| [calibration](calibration/README.md) | Данные, сценарии и измерения проверки рукописного ввода |
+| [verification](verification/README.md) | Технические свидетельства проверок алгоритмов, отдельно от текущего дизайна |
 
-- [Каталог кандзи](implementation/kanji-catalog.md): CSV, списки, чтения, ключи, источники и подключение assets.
-- [Каталог 214 ключей](implementation/radicals-catalog.md): формат и состояние академической сверки русских названий.
-- [Указатель статей ЯРКСИ](dictionaries/yarxi-index.html): поиск по учебным данным и ссылки на оригинальные статьи.
-- [Словарные источники для подготовки контента](dictionaries/local-reference-materials.md): данные KANJIDIC2, WARODAI и ЯРКСИ в исключённой из Git папке, форматы и условия использования.
-- [Отчёт словарной сверки](dictionaries/kanji-verification.json): источники по каждому знаку и связанные варианты.
+## Основные контракты реализации
 
-## Проверка рукописного ввода
+- [Тренировка одного задания](implementation/practice-screen.md), [поле письма](implementation/ui-pad.md), [подсказка](implementation/hints.md), [таймер](implementation/task-timer.md).
+- [Три проверки](decisions/three-checkers.md), [форма](implementation/shape-checker.md), [Procrustes](implementation/procrustes.md), [словарные правила](implementation/kanji-rule-dictionary.md), [диагностика](implementation/debug-inspector.md).
+- [Хранение настроек](implementation/persistent-settings.md), [японская модель](implementation/japanese-model.md).
+- [Каталог](implementation/catalog.md), [личный словарь](implementation/personal-dictionary.md), [кандзи](implementation/kanji-catalog.md), [ключи](implementation/radicals-catalog.md).
+- Схемы: [слова и выражения](database/words.md), [кандзи](database/kanji.md), [ключи](database/radicals.md).
 
-- [Все согласованные правила проверки](decisions/handwriting-verification.md): цепочка компенсаций, жёсткие пределы и общий бюджет, смысловые выступы, порядок/направление, настройки, диагностика и калибровка.
-- [Словарь смысловых особенностей](implementation/kanji-rule-dictionary.md): простые отношения черт, шесть начальных записей и правила ведения.
-- [Аудит алгоритма](reviews/shape-checker-2026-10-19.md): проверенные принципы, исправления и границы применимости.
-
-## Экраны
-
-- [SCR-DASHBOARD — Главная](screens/dashboard.md): независимые виджеты, демонстрационные данные и запуск тренировки.
-
-- [SCR-CHECKER-SETTINGS — Настройки проверки](screens/checker-settings.md): ползунки, переключатели, живой результат и повторная проверка.
-- [SCR-KANJI-PRACTICE — Практика кандзи](screens/kanji-practice.md): компоновка, состояния, ввод, подсказка, переходы, прогресс и время.
-
-## Визуальные компоненты
-
-- [Каталог компонентов практики](components/practice-components.md): постоянные идентификаторы UI-STYLE, UI-PROGRESS, UI-PROMPT, UI-CELL, UI-STRIP, UI-STATUS, UI-PAD, UI-TOOLS, UI-ACTIONS.
-
-При описании других экранов используйте ссылки на спецификацию экрана и якоря компонентов, например `[UI-PAD](components/practice-components.md#writing-pad)`; путь корректируется относительно документа. Не меняйте существующие идентификаторы при правках оформления.
-
-## Реализация
-
-- [Постоянные настройки](implementation/persistent-settings.md): Preferences DataStore и вход в проверку кандзи из главной.
-
-- [Окно отладки проверки](implementation/debug-inspector.md): отдельный скрываемый инспектор с параметрами и метриками анализа.
-
-- [Сменные алгоритмы подсказки](implementation/hints.md): переключаемый фон для обводки, доступный ввод и учёт использования.
-
-- [Локальная проверка формы](implementation/shape-checker.md): обязательное количество штрихов, нормализация, настраиваемое покрытие и полный автономный набор KanjiVG.
-
-- [Экран одного слова: контракт и реализация](implementation/practice-screen.md): вход, результат, время, сменные зависимости и демо «Библиотека».
-
-- [UI-PAD — Android и независимый контракт ввода](implementation/ui-pad.md): границы ответственности, входные параметры, события и формат штрихов 0…1 и сменный компонент проверки. Виджет подключён к экрану практики; проверка передана внешнему компоненту.
-
-## Макеты
-
-- [Рисованные мару/бацу в строке статуса](design/status-marks.svg) · [PNG](design/status-marks.png).
-
-- [Состояния ячейки: светлая и тёмная темы](design/cell-states.svg) · [PNG](design/cell-states.png).
-- [Сравнение «Ввод» и «Верно»](design/practice-input-vs-correct.svg) · [PNG](design/practice-input-vs-correct.png).
-
-- [Основные состояния](design/practice-states.svg).
-- [Подсказка и завершение тренировки](design/practice-extra-states.svg).
-- [Генератор SVG](design/generate_mockups.py), запуск: `python3 doc/design/generate_mockups.py`.
-
-Макеты отражают дизайн, а не реализованный интерфейс приложения.
-
-## Скриншоты реализации
-
-- [Длинное слово и лимит времени](design/practice-timed-long-android.png): демо «Электроэнцефалография», нижняя привязка поля.
-
-- [Актуальный экран: фон для обводки с номерами KanjiVG](design/practice-tracing-android.png), исправленная рамка первой ячейки.
-
-- [«Библиотека» на Pixel 10 Pro](design/practice-library-auto-check-android.png): автоматическая проверка, сообщение над кнопками и заблокированная «Далее».
-
-- [Демо прокрутки: семь кандзи](design/practice-scroll-seven-android.png) — 東京国立博物館.
-
-- [Локализация](implementation/localization.md): русский по умолчанию, английский интерфейс и перевод отладки.
-- [Иконка приложения](design/launcher-icon.md): исходник, промпт и адаптивные варианты.
-- [Проверка крючков, иконка и локализация](reviews/hooks-localization-2026-10-19.md): изменения, проверки и ограничения.
-
-- [Каталог: экраны](screens/catalog.md) и [реализация/обновления](implementation/catalog.md).
-
-- [Мой словарь: экраны](screens/personal-dictionary.md) и [хранение/общие компоненты](implementation/personal-dictionary.md).
+Документ описывает действующее состояние или явно помеченное предложение. Не дублировать в нём хронологию обсуждений, старые макеты и отменённые указания. Датированные снимки, происхождение данных, лицензии и результаты измерений сохраняются как проверяемые свидетельства. Порядок обновления дизайна — [процесс](design-system/workflow.md).

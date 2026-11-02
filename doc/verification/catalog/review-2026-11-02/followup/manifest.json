@@ -1,0 +1,56 @@
+{
+  "device": "Pixel 10 Pro",
+  "date": "2026-11-02",
+  "entry": "normal MainActivity navigation",
+  "captures": [
+    {
+      "file": "chapter-picker-after-kanji-filter.png",
+      "sha256": "b4cb44d5a8ff2f08124c166231651b7fb7cff2fadbb7be951690dfab7a03737a"
+    },
+    {
+      "file": "chapter-picker-unfiltered.png",
+      "sha256": "362f7278d85861d175a408badc740594d2562fde3e763a9a8d0ec139820643bd"
+    },
+    {
+      "file": "chapter-search-12.png",
+      "sha256": "3ab3496402984bea9f003b0c7b82aad73013dd9a0ffbdb932808606a504cfb83"
+    },
+    {
+      "file": "chapter-search-open.png",
+      "sha256": "f6c6b3bc71124e777190eeb466d49360c01136a460d13deee311e4af54eadc89"
+    },
+    {
+      "file": "chapter3-words.png",
+      "sha256": "d8086187bb0ac9306fc829e5221f605a33d078dc0a6844088c17baa416f5b339"
+    },
+    {
+      "file": "one-stroke-kanji.png",
+      "sha256": "affb160fe10e68bb33d90a1f763f7e9cecf80bc2d1f5a5ef8c533c87fb603bde"
+    },
+    {
+      "file": "picker-search-12.png",
+      "sha256": "e3c81320497e0f902cdd2931e739c69220a8fb8e1262d26987c927cb110be340"
+    },
+    {
+      "file": "related-13.png",
+      "sha256": "c60a3c8ae1e1089c5d203eae5a560bba51161fc7985d07bdee5d7fa63d416f76"
+    },
+    {
+      "file": "short-word.png",
+      "sha256": "8f36b0d00e38a77e72f747f0655420e2b4c8e8066b9c0b83bd0acf250cd5e6c4"
+    },
+    {
+      "file": "tobira-chapters.png",
+      "sha256": "c9f26e35f6b195b615db0cd39d211ef044886eb1826375367534fe2b9c956b1c"
+    },
+    {
+      "file": "words-after-kanji-filter.png",
+      "sha256": "7b594bb56aba943a207169594179c90f89a28631d8269c87a278ca9d4c1c2dc3"
+    },
+    {
+      "file": "words-unfiltered.png",
+      "sha256": "bd0a510146c09bdfd419c12b21cc929911dd7fca459ce6018b3c1c62982c56a6"
+    }
+  ],
+  "code_changed": false
+}

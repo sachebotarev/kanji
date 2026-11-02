@@ -5,18 +5,40 @@ import java.util.Locale
 /** Catalog identity never depends on order, translated names or chapter numbers. */
 data class CatalogWord(val id: Int, val written: String, val reading: String,
     val translations: Map<String, String>, val parts: List<ReadingPart> = emptyList(),
-    val isUserCreated: Boolean = false)
+    val isUserCreated: Boolean = false, val usageNotes: Map<String, String> = emptyMap())
 data class ReadingPart(val written: String, val reading: String)
 data class CatalogKanji(val id: Int, val symbol: String, val strokes: Int, val radicalId: Int?,
     val kyoiku: Boolean, val joyo: Boolean, val jinmeiyo: Boolean,
-    val meanings: Map<String, List<String>>, val on: List<String>, val kun: List<String>)
+    val meanings: Map<String, List<String>>, val on: List<String>, val kun: List<String>,
+    val schoolStage: SchoolStage? = null, val schoolYear: Int? = null, val jlptLevel: JlptLevel? = null)
 data class CatalogRadical(val id: Int, val symbol: String, val strokes: Int, val names: Map<String, String>)
-data class CatalogSource(val id: Int, val originalTitle: String, val titles: Map<String, String>)
+data class CatalogSource(val id: Int, val originalTitle: String, val titles: Map<String, String>, val descriptions: Map<String, String> = emptyMap(),
+    val sourceType: String = "unknown", val coverKey: String? = null)
 data class CatalogPlacement(val sourceId: Int, val kanjiId: Int, val number: Int, val chapter: Int)
 data class CatalogLink(val sourceId: Int, val wordId: Int, val kanjiId: Int?)
 data class CatalogChapter(val number: Int, val kanjiCount: Int, val wordCount: Int, val preview: String)
+data class CatalogSourceCounts(val chapters: Int, val kanji: Int, val words: Int)
+data class CatalogWordGroup(val chapter: Int, val total: Int, val words: List<CatalogWord>)
 data class CatalogSelection(val sourceId: Int? = null, val chapter: Int? = null,
-    val radicalId: Int? = null, val kanjiId: Int? = null)
+    val radicalId: Int? = null, val kanjiId: Int? = null,
+    val strokes: Int? = null, val jlpt: JlptFilter = JlptFilter.AnyLevel)
+
+enum class SchoolStage { Elementary, JuniorHigh, HighSchool }
+enum class JlptLevel(val number: Int) { N5(5), N4(4), N3(3), N2(2), N1(1) }
+sealed interface JlptFilter {
+    data object AnyLevel : JlptFilter
+    data class Exact(val level: JlptLevel) : JlptFilter
+    data object Missing : JlptFilter
+}
+
+/** Resolve notes through the translation row, so languages never get mixed. */
+fun CatalogWord.usageNote(languageTag: String): String? {
+    val tag = languageTag.lowercase(Locale.ROOT)
+    val language = listOf(tag, tag.substringBefore('-'), "ru").firstOrNull { candidate ->
+        translations.keys.any { it.equals(candidate, ignoreCase = true) }
+    } ?: return null
+    return usageNotes.entries.firstOrNull { it.key.equals(language, ignoreCase = true) }?.value
+}
 
 interface CatalogRepository { suspend fun load(): CatalogSnapshot }
 
@@ -49,6 +71,14 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
     val sourceById = sources.associateBy { it.id }
     private val placementByKey = placements.associateBy { it.sourceId to it.kanjiId }
 
+    private val placementsBySource = placements.groupBy { it.sourceId }
+    private val linksBySource = links.groupBy { it.sourceId }
+    val sourceCounts: Map<Int, CatalogSourceCounts> = sources.associate { source ->
+        val rows = placementsBySource[source.id].orEmpty()
+        source.id to CatalogSourceCounts(rows.map { it.chapter }.distinct().size, rows.size,
+            linksBySource[source.id].orEmpty().map { it.wordId }.distinct().size)
+    }
+
     fun chapters(sourceId: Int): List<CatalogChapter> = placements.filter { it.sourceId == sourceId }
         .groupBy { it.chapter }.toSortedMap().map { (chapter, items) ->
             val ids = items.map { it.kanjiId }.toSet()
@@ -63,6 +93,13 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
         }.associate { it.kanjiId to it.number } else null
         return kanji.asSequence().filter { scoped == null || it.id in scoped }
             .filter { selection.radicalId == null || it.radicalId == selection.radicalId }
+            .filter { selection.strokes == null || it.strokes == selection.strokes }
+            .filter { when (val filter = selection.jlpt) {
+                JlptFilter.AnyLevel -> true
+                JlptFilter.Missing -> it.jlptLevel == null
+                is JlptFilter.Exact -> it.jlptLevel == filter.level
+            } }
+            .filter { query.isNotBlank() || it.radicalId != null || scoped != null }
             .filter { matches(query, it.symbol, it.meaning(language), *it.on.toTypedArray(), *it.kun.toTypedArray()) }
             .sortedWith(compareBy<CatalogKanji> { if (query.trim() == it.symbol) 0 else 1 }
                 .thenBy { scoped?.get(it.id) ?: it.id }).toList()
@@ -81,6 +118,22 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
         return words.asSequence().filter { it.id in first }
             .filter { matches(query, it.written, it.reading, it.translation(language)) }
             .sortedWith(compareBy<CatalogWord> { first[it.id] }.thenBy { it.id }).toList()
+    }
+
+    /** A word belongs to its first eligible placement, never to its literal spelling. */
+    fun wordGroups(selection: CatalogSelection, query: String, language: String): List<CatalogWordGroup> {
+        val sourceId = selection.sourceId ?: return emptyList()
+        val firstPlacement = links.asSequence().filter { it.sourceId == sourceId }
+            .filter { selection.kanjiId == null || it.kanjiId == selection.kanjiId }
+            .mapNotNull { link -> placementByKey[link.sourceId to link.kanjiId]?.let { link.wordId to it } }
+            .filter { (_, placement) -> selection.chapter == null || placement.chapter == selection.chapter }
+            .filter { (_, placement) -> selection.radicalId == null || kanjiById[placement.kanjiId]?.radicalId == selection.radicalId }
+            .groupBy({ it.first }, { it.second }).mapValues { (_, placements) -> placements.minBy { it.number } }
+        val all = words(selection, "", language).groupBy { firstPlacement[it.id]?.chapter ?: 0 }
+        return all.toSortedMap().mapNotNull { (chapter, entries) ->
+            val filtered = entries.filter { matches(query, it.written, it.reading, it.translation(language)) }
+            if (filtered.isEmpty()) null else CatalogWordGroup(chapter, entries.size, filtered)
+        }
     }
 
     /** Facets ignore their own selected value, while respecting every other active constraint. */
@@ -102,7 +155,25 @@ class CatalogSnapshot(val version: Int, val sources: List<CatalogSource>, val wo
         }
     }
 
-    fun radicals(query: String, language: String): List<CatalogRadical> = radicals
+    fun strokeCounts(selection: CatalogSelection): Map<Int, Int> =
+        kanji(selection.copy(strokes = null), "", "ru").groupingBy { it.strokes }.eachCount()
+
+    fun jlptCounts(selection: CatalogSelection): Map<JlptLevel?, Int> =
+        kanji(selection.copy(jlpt = JlptFilter.AnyLevel), "", "ru").groupingBy { it.jlptLevel }.eachCount()
+
+    fun availableStrokes(selection: CatalogSelection): List<Int> =
+        kanji(selection.copy(strokes = null), "", "ru").map { it.strokes }.distinct().sorted()
+
+    fun radicalStrokeCounts(): Map<Int, Int> = radicals.groupingBy { it.strokes }.eachCount()
+
+    fun availableJlpt(selection: CatalogSelection): List<JlptFilter> {
+        val levels = kanji(selection.copy(jlpt = JlptFilter.AnyLevel), "", "ru").map { it.jlptLevel }.toSet()
+        return JlptLevel.entries.filter { it in levels }.map { JlptFilter.Exact(it) } +
+            if (null in levels) listOf(JlptFilter.Missing) else emptyList()
+    }
+
+    fun radicals(query: String, language: String, strokes: Int? = null): List<CatalogRadical> = radicals
+        .filter { strokes == null || it.strokes == strokes }
         .filter { matches(query, it.symbol, it.name(language), it.id.toString()) }
         .sortedWith(compareBy<CatalogRadical> { it.strokes }.thenBy { it.id })
 

@@ -1,94 +1,105 @@
 package ru.mobui.kanji.feature.catalog
 
-import androidx.compose.runtime.*
 import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.*
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import ru.mobui.kanji.domain.catalog.CatalogRepository
 
 @Serializable private data object CatalogHome
-@Serializable private data class SourceRoute(val sourceId: Int, val chapter: Int = 0, val tab: Int = 0)
-@Serializable private data class WordRoute(val id: Int, val sourceId: Int = 0)
-@Serializable private data class KanjiRoute(val id: Int, val sourceId: Int = 0)
-@Serializable private data class RadicalRoute(val id: Int, val sourceId: Int = 0)
-@Serializable private data class FilterRoute(val sourceId: Int, val chapter: Int, val radical: Int, val key: Boolean, val kanji: Int = 0)
-@Serializable private data class KanjiFilterRoute(val sourceId: Int, val chapter: Int, val radical: Int, val selected: Int)
+@Serializable private data class SourceRoute(val sourceId: Int, val chapter: Int? = null, val tab: SourceTab = SourceTab.Chapters)
+@Serializable private data class WordRoute(val wordId: Int, val sourceId: Int?)
+@Serializable private data class KanjiRoute(val kanjiId: Int, val sourceId: Int?)
+@Serializable private data class RadicalRoute(val radicalId: Int, val sourceId: Int?)
 @Serializable private data object AllKanjiRoute
 @Serializable private data object AllRadicalsRoute
-@Serializable private data class WordsRoute(val kanjiId: Int, val sourceId: Int)
+@Serializable private data class WordsRoute(val kanjiId: Int, val sourceId: Int?)
+@Serializable private data class KanjiChapterRoute(val sourceId: Int, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
+@Serializable private data class WordChapterRoute(val sourceId: Int, val chapter: Int?, val kanji: Int?)
+@Serializable private data class KanjiChoiceRoute(val sourceId: Int, val chapter: Int?, val selectedKanji: Int?)
+@Serializable private data class RadicalChoiceRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
+@Serializable private data class KanjiStrokesRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
+@Serializable private data class RadicalStrokesRoute(val strokes: Int?)
+@Serializable private data class JlptChoiceRoute(val sourceId: Int?, val chapter: Int?, val radical: Int?, val strokes: Int?, val jlpt: Int)
 
 @Composable
-fun CatalogRoute(repository: CatalogRepository, onBack: () -> Unit, initialKanjiId: Int = 0, initialSourceId: Int = 0) {
+fun CatalogRoute(repository: CatalogRepository, onBack: () -> Unit, initialKanjiId: Int = 0, initialSourceId: Int = 0,
+    loadDrawing: suspend (Int) -> ru.mobui.kanji.domain.handwriting.ReferenceDrawing? = { null }) {
     val nav = rememberNavController()
-    BackHandler { if (!nav.popBackStack()) onBack() }
+    val back: () -> Unit = { if (!nav.popBackStack()) onBack() }
+    BackHandler(onBack = back)
     val language = LocalConfiguration.current.locales[0].toLanguageTag()
-    @Composable
-    fun Page(entry: NavBackStackEntry, initial: CatalogRequest) {
-        val request = initial.copy(language = language)
-        val model: CatalogViewModel = viewModel(entry, key = "catalog-$language", factory = viewModelFactory {
-            initializer { CatalogViewModel(createSavedStateHandle(), repository, request) }
-        })
-        val state by model.state.collectAsStateWithLifecycle()
-        val resultChapter by entry.savedStateHandle.getStateFlow("resultChapter", -1).collectAsStateWithLifecycle()
-        val resultRadical by entry.savedStateHandle.getStateFlow("resultRadical", -1).collectAsStateWithLifecycle()
-        val resultKanji by entry.savedStateHandle.getStateFlow("resultKanji", -1).collectAsStateWithLifecycle()
-        LaunchedEffect(resultKanji) { if (resultKanji >= 0) { model.kanji(resultKanji); entry.savedStateHandle["resultKanji"] = -1 } }
-        LaunchedEffect(resultChapter) { if (resultChapter >= 0) { model.chapter(resultChapter); entry.savedStateHandle["resultChapter"] = -1 } }
-        LaunchedEffect(resultRadical) { if (resultRadical >= 0) { model.radical(resultRadical); entry.savedStateHandle["resultRadical"] = -1 } }
-        CatalogScreen(state, CatalogActions(
-            back = { if (!nav.popBackStack()) onBack() }, retry = model::retry,
-            query = model::query, tab = model::tab, clear = model::clearFilters,
-            clearChapter = { model.chapter(request.chapter) }, clearRadical = { model.radical(0) },
-            source = { nav.navigate(SourceRoute(it)) },
-            chapter = { nav.navigate(SourceRoute(request.sourceId, it, 1)) },
-            word = { nav.navigate(WordRoute(it, request.sourceId)) },
-            kanji = { nav.navigate(KanjiRoute(it, request.sourceId)) },
-            radical = { nav.navigate(RadicalRoute(it, request.sourceId)) },
-            filter = { key -> nav.navigate(FilterRoute(request.sourceId, state.chapter, if (state.tab == 2) 0 else state.radical, key, if (state.tab == 2) state.selectedKanji else 0)) },
-            filterKanji = { nav.navigate(KanjiFilterRoute(request.sourceId, state.chapter, 0, state.selectedKanji)) },
-            clearKanji = { model.kanji(0) },
-            selectKanji = { value -> nav.previousBackStackEntry?.savedStateHandle?.set("resultKanji", value); nav.popBackStack() },
-            selectFilter = { value ->
-                nav.previousBackStackEntry?.savedStateHandle?.set(if (request.page == CatalogPage.RadicalFilter) "resultRadical" else "resultChapter", value)
-                nav.popBackStack()
-            },
-            allKanji = { nav.navigate(AllKanjiRoute) }, allRadicals = { nav.navigate(AllRadicalsRoute) },
-            allWords = { nav.navigate(WordsRoute(request.id, request.sourceId)) },
-            studyKanji = { id, sourceId -> nav.navigate(KanjiRoute(id, sourceId)) },
-        ))
+    val browse: (BrowseNavigation) -> Unit = { target ->
+        when (target) {
+            is BrowseNavigation.Source -> nav.navigate(SourceRoute(target.sourceId, target.chapter, if (target.chapter == null) SourceTab.Chapters else SourceTab.Kanji))
+            is BrowseNavigation.Word -> nav.navigate(WordRoute(target.wordId, target.sourceId))
+            is BrowseNavigation.Kanji -> nav.navigate(KanjiRoute(target.kanjiId, target.sourceId))
+            is BrowseNavigation.Radical -> nav.navigate(RadicalRoute(target.radicalId, null))
+            BrowseNavigation.AllKanji -> nav.navigate(AllKanjiRoute)
+            BrowseNavigation.AllRadicals -> nav.navigate(AllRadicalsRoute)
+            is BrowseNavigation.Filter -> nav.openFilter(target.request)
+        }
+    }
+    val detail: (DetailNavigation) -> Unit = { target ->
+        when (target) {
+            is DetailNavigation.Kanji -> nav.navigate(KanjiRoute(target.kanjiId, target.sourceId))
+            is DetailNavigation.Radical -> nav.navigate(RadicalRoute(target.radicalId, target.sourceId))
+            is DetailNavigation.Words -> nav.navigate(WordsRoute(target.kanjiId, target.sourceId))
+        }
+    }
+    val select: (FilterResult) -> Unit = { result ->
+        val (key, value) = result.encoded()
+        nav.previousBackStackEntry?.savedStateHandle?.set(key, value)
+        nav.popBackStack()
     }
     val start: Any = remember(initialKanjiId, initialSourceId) {
-        if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId)
+        if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
         else if (initialSourceId != 0) SourceRoute(initialSourceId) else CatalogHome
     }
-    NavHost(nav, startDestination = start) {
-        composable<CatalogHome> { Page(it, CatalogRequest(CatalogPage.Home)) }
-        composable<SourceRoute> { entry ->
-            val route = entry.toRoute<SourceRoute>()
-            Page(entry, CatalogRequest(CatalogPage.Source, route.sourceId, chapter = route.chapter, tab = route.tab))
+    CatalogTheme {
+        NavHost(nav, startDestination = start) {
+            composable<CatalogHome> { CatalogBrowseEntry(it, BrowseRequest.Home, language, repository, back, browse) }
+            composable<SourceRoute> { entry -> val route = entry.toRoute<SourceRoute>()
+                CatalogBrowseEntry(entry, BrowseRequest.Source(route.sourceId, route.chapter, route.tab), language, repository, back, browse) }
+            composable<AllKanjiRoute> { CatalogBrowseEntry(it, BrowseRequest.AllKanji, language, repository, back, browse) }
+            composable<AllRadicalsRoute> { CatalogBrowseEntry(it, BrowseRequest.AllRadicals, language, repository, back, browse) }
+            composable<WordsRoute> { entry -> val route = entry.toRoute<WordsRoute>()
+                CatalogBrowseEntry(entry, BrowseRequest.RelatedWords(route.kanjiId, route.sourceId), language, repository, back, browse) }
+            composable<WordRoute> { entry -> val route = entry.toRoute<WordRoute>()
+                CatalogDetailEntry(entry, DetailRequest.Word(route.wordId, route.sourceId), language, repository, loadDrawing, back, detail) }
+            composable<KanjiRoute> { entry -> val route = entry.toRoute<KanjiRoute>()
+                CatalogDetailEntry(entry, DetailRequest.Kanji(route.kanjiId, route.sourceId), language, repository, loadDrawing, back, detail) }
+            composable<RadicalRoute> { entry -> val route = entry.toRoute<RadicalRoute>()
+                CatalogDetailEntry(entry, DetailRequest.Radical(route.radicalId, route.sourceId), language, repository, loadDrawing, back, detail) }
+            composable<KanjiChapterRoute> { entry -> val route = entry.toRoute<KanjiChapterRoute>()
+                CatalogFilterEntry(entry, FilterRequest.ChaptersForKanji(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
+            composable<WordChapterRoute> { entry -> val route = entry.toRoute<WordChapterRoute>()
+                CatalogFilterEntry(entry, FilterRequest.ChaptersForWords(route.sourceId, WordFilters(route.chapter, route.kanji)), language, repository, back, select) }
+            composable<KanjiChoiceRoute> { entry -> val route = entry.toRoute<KanjiChoiceRoute>()
+                CatalogFilterEntry(entry, FilterRequest.Kanji(route.sourceId, WordFilters(route.chapter, route.selectedKanji)), language, repository, back, select) }
+            composable<RadicalChoiceRoute> { entry -> val route = entry.toRoute<RadicalChoiceRoute>()
+                CatalogFilterEntry(entry, FilterRequest.Radical(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
+            composable<KanjiStrokesRoute> { entry -> val route = entry.toRoute<KanjiStrokesRoute>()
+                CatalogFilterEntry(entry, FilterRequest.KanjiStrokes(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
+            composable<RadicalStrokesRoute> { entry -> val route = entry.toRoute<RadicalStrokesRoute>()
+                CatalogFilterEntry(entry, FilterRequest.RadicalStrokes(route.strokes), language, repository, back, select) }
+            composable<JlptChoiceRoute> { entry -> val route = entry.toRoute<JlptChoiceRoute>()
+                CatalogFilterEntry(entry, FilterRequest.Jlpt(route.sourceId, KanjiFilters(route.chapter, route.radical, route.strokes, decodeJlpt(route.jlpt))), language, repository, back, select) }
         }
-        composable<WordRoute> { entry -> val route = entry.toRoute<WordRoute>(); Page(entry, CatalogRequest(CatalogPage.Word, route.sourceId, route.id)) }
-        composable<KanjiRoute> { entry -> val route = entry.toRoute<KanjiRoute>(); Page(entry, CatalogRequest(CatalogPage.Kanji, route.sourceId, route.id)) }
-        composable<RadicalRoute> { entry -> val route = entry.toRoute<RadicalRoute>(); Page(entry, CatalogRequest(CatalogPage.Radical, route.sourceId, route.id)) }
-        composable<FilterRoute> { entry ->
-            val route = entry.toRoute<FilterRoute>()
-            Page(entry, CatalogRequest(if (route.key) CatalogPage.RadicalFilter else CatalogPage.ChapterFilter,
-                route.sourceId, id = route.kanji, chapter = route.chapter, radical = route.radical))
-        }
-        composable<KanjiFilterRoute> { entry ->
-            val route = entry.toRoute<KanjiFilterRoute>()
-            Page(entry, CatalogRequest(CatalogPage.KanjiFilter, route.sourceId, route.selected, route.chapter, route.radical))
-        }
-        composable<AllKanjiRoute> { Page(it, CatalogRequest(CatalogPage.AllKanji)) }
-        composable<AllRadicalsRoute> { Page(it, CatalogRequest(CatalogPage.AllRadicals)) }
-        composable<WordsRoute> { entry -> val route = entry.toRoute<WordsRoute>(); Page(entry, CatalogRequest(CatalogPage.Words, route.sourceId, route.kanjiId)) }
+    }
+}
+
+private fun NavHostController.openFilter(request: FilterRequest) {
+    when (request) {
+        is FilterRequest.ChaptersForKanji -> with(request.filters) { navigate(KanjiChapterRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
+        is FilterRequest.ChaptersForWords -> navigate(WordChapterRoute(request.sourceId, request.filters.chapter, request.filters.kanjiId))
+        is FilterRequest.Kanji -> navigate(KanjiChoiceRoute(request.sourceId, request.filters.chapter, request.filters.kanjiId))
+        is FilterRequest.Radical -> with(request.filters) { navigate(RadicalChoiceRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
+        is FilterRequest.KanjiStrokes -> with(request.filters) { navigate(KanjiStrokesRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
+        is FilterRequest.RadicalStrokes -> navigate(RadicalStrokesRoute(request.selected))
+        is FilterRequest.Jlpt -> with(request.filters) { navigate(JlptChoiceRoute(request.sourceId, chapter, radicalId, strokes, jlpt.savedValue())) }
     }
 }

@@ -110,10 +110,12 @@ class MainActivity : ComponentActivity() {
                 if (destination == AppDestination.Dictionary) {
                     ru.mobui.kanji.feature.dictionary.DictionaryRoute(dependencies.dictionary, dependencies.catalog,
                         onBack = { destination = AppDestination.Dashboard }) { kanjiId, sourceId, back ->
-                        ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, back, kanjiId, sourceId)
+                        ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, back, kanjiId, sourceId,
+                            loadDrawing = { source.load(KanjiId("u${it.toString(16)}")) })
                     }
                 } else if (destination == AppDestination.Catalog) {
-                    ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, onBack = { destination = AppDestination.Dashboard })
+                    ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, onBack = { destination = AppDestination.Dashboard },
+                        loadDrawing = { source.load(KanjiId("u${it.toString(16)}")) })
                 } else if (destination == AppDestination.Settings) {
                     BackHandler { destination = AppDestination.Dashboard }
                     SettingsScreen(onBack = { destination = AppDestination.Dashboard },

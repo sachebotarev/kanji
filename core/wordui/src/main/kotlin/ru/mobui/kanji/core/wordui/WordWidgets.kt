@@ -107,18 +107,6 @@ fun WordSearch(query: String, label: String, onQuery: (String) -> Unit, modifier
 
 data class WordStudyItem(val sourceId: Int, val kanjiId: Int?, val title: String, val subtitle: String? = null)
 
-/** Mapping is outside the widget; callers supply navigation callbacks, never repositories. */
-fun wordStudyItems(snapshot: CatalogSnapshot, wordId: Int, language: String, chapterLabel: (Int) -> String): List<WordStudyItem> = buildList {
-    snapshot.links.filter { it.wordId == wordId }.groupBy { it.sourceId }.forEach { (sourceId, links) ->
-        val source = snapshot.sourceById[sourceId] ?: return@forEach
-        add(WordStudyItem(sourceId, null, source.title(language)))
-        links.mapNotNull { it.kanjiId }.distinct().forEach { id ->
-            val placement = snapshot.placements.firstOrNull { it.sourceId == sourceId && it.kanjiId == id }
-            add(WordStudyItem(sourceId, id, snapshot.kanjiById[id]?.symbol.orEmpty(), placement?.let { chapterLabel(it.chapter) }))
-        }
-    }
-}
-
 @Composable
 fun WordDetailsContent(word: CatalogWord, language: String, kanji: List<CatalogKanji>, studyItems: List<WordStudyItem>,
     onKanji: (Int) -> Unit, onStudy: (WordStudyItem) -> Unit, modifier: Modifier = Modifier, showOrigin: Boolean = false) {

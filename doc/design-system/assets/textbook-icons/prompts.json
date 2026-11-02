@@ -1,0 +1,25 @@
+{
+  "purpose": "Original illustrated textbook icons for the catalog proposal",
+  "method": "Built-in image_gen tool",
+  "style_references": [
+    "../../prototypes/textbooks/assets/cat-reading.png",
+    "../../prototypes/textbooks/assets/book.png"
+  ],
+  "variants": [
+    {
+      "file": "textbook-sage.png",
+      "source_id": 1,
+      "palette": "sage cover, ochre bookmark",
+      "prompt": "Use case: illustration-story. Asset type: one original illustrated textbook icon for an Android kanji-learning app, not a real book cover. Input image 1 is STYLE REFERENCE ONLY: match the warm, friendly hand-drawn educational cat illustration's thick dark forest-green contours, softly rounded forms, cream paper and restrained color depth. Input image 2 is STYLE/OBJECT REFERENCE ONLY: retain the immediately recognizable chunky book silhouette and protruding ribbon bookmark, but make a new original polished illustration, more expressive and handcrafted than a generic line SVG.\nCreate exactly ONE standalone closed textbook, a slightly playful near-front three-quarter view with the spine on the left and a thin cream page block visible on the right and bottom. Compact upright book with soft slightly irregular corners, sturdy rounded binding, two broad page-edge strokes and a clearly protruding ribbon bookmark with a V-cut end. Cover muted sage green #9DBB98 with darker sage spine #729779, warm ivory pages #FFF7E7, ribbon muted warm golden ochre #DDB658. Strong elegant very dark forest-green outline #173D2E, subtle hand-drawn variation and broad flat tonal areas, charming school-stationery illustration in the same world as the cat. A very small simple inset cover panel or a pair of broad embossed lines may provide character, but no words, letters, numbers, kanji, logos or branding. Design must read clearly at 48–56 dp. Richer than a minimalist pictogram, but no tiny details or clutter. Matte 2D illustrated icon, not photoreal, not glossy 3D, not emoji stock clipart. One book only, no cat, hands, pen, desk or other props. No background tile, badge, glow, cast shadow or white sticker outline. True transparent background. Entire silhouette and bookmark fully inside the canvas, centered at approximately 82 percent canvas height with even clear margins. Square image."
+    },
+    {
+      "file": "textbook-blue.png",
+      "source_id": 2,
+      "palette": "dusty blue cover, terracotta bookmark",
+      "reference": "textbook-sage.png",
+      "prompt": "Use case: precise-object-edit. Asset type: second color variant of the supplied original textbook icon for the same mobile app. Edit target: supplied sage-green book illustration. Change ONLY the cover/spine and bookmark colors. Preserve the EXACT single-book silhouette, near-front three-quarter angle, tilt, proportions, thick rounded forest-green outline, cream pages, two page-edge strokes, inset cover border, bookmark shape and position, framing, optical size and all transparent margins. Main cover becomes muted dusty blue #91AFC6, spine and shaded cover areas restrained slate blue #64899E. Keep the existing cream inset cover border and warm ivory pages. Ribbon bookmark becomes muted warm coral/terracotta #CC896F with a gentle lighter fold. Outline remains the same very dark forest green #173D2E. Same soft handmade 2D illustrated style and restrained tonal shading, same friendly educational app palette. This is a companion icon, not a redesign. No text, logos, letters, kanji, brand marks, extra objects, background tile, cast shadow, glow or white sticker border. Keep true transparent background and original square composition. Exactly one book."
+    }
+  ],
+  "semantics": "Decorative colors only; they do not indicate JLPT, school grade, difficulty, or edition.",
+  "transparency": true
+}

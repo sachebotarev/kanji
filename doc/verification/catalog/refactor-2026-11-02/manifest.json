@@ -1,0 +1,92 @@
+{
+  "device": "Pixel 10 Pro",
+  "date": "2026-11-02",
+  "entry": "CatalogReviewActivity; production state owners and real catalog",
+  "apk_sha256": "6f3f038b11bdae9fa6016d93b93eb82216e59ef6a9e4c517018bbe4ef65cf699",
+  "captures": [
+    {
+      "file": "cat-01.png",
+      "sha256": "42c664f00de648b241c5fff223bf172dfe9df0d3686d06be165e8e10406cc2d6"
+    },
+    {
+      "file": "cat-02.png",
+      "sha256": "3c9683cf5b36cb3dca5093fd59fca492afd4d49a793c0a9ad30a3f07e1460ea0"
+    },
+    {
+      "file": "cat-03.png",
+      "sha256": "f281c2651019928d2c208fa0dfa6df49eb95b7d816f2be5c56430ff8db040c2f"
+    },
+    {
+      "file": "cat-04.png",
+      "sha256": "548cd6b6f0691d3ff6db33c0af56c749e8fc5a26e180c97d6e9247df4de7f0f4"
+    },
+    {
+      "file": "cat-05.png",
+      "sha256": "1db185517cb3bb4706844b7158374762147a41d0a0bfe3829a52969862a3d662"
+    },
+    {
+      "file": "cat-06.png",
+      "sha256": "d912a7514578a40efbaec0ee3b96cada6e035ccd5d940345b478f263b43d836f"
+    },
+    {
+      "file": "cat-07.png",
+      "sha256": "2c53ff2486cee020852234821eedac11f4de1b2a4b63f6e3181943ec0be16b0d"
+    },
+    {
+      "file": "cat-08.png",
+      "sha256": "ea15e425953e10acb13701087226147e8315a64bf09bc54902960b71e5c35461"
+    },
+    {
+      "file": "cat-09.png",
+      "sha256": "4de1f98411ebf8b3e89f82b3fcab62dfaa49bb56d72de722d0f407160184b8d1"
+    },
+    {
+      "file": "cat-10.png",
+      "sha256": "ce585acb1d9186c8af607fb2dceb0c0a3ae47ba024136a73e959cc944a74dfd6"
+    },
+    {
+      "file": "cat-11.png",
+      "sha256": "197567ef13abcabbee4dd3a05baa0dd7f136fa9875825c963fdaeece5c9a17f2"
+    },
+    {
+      "file": "cat-12.png",
+      "sha256": "ef0616e6ede5dc5c6cf76110dc62966534ff6d2dd9fea891b2ddd8fa635e306e"
+    },
+    {
+      "file": "cat-13.png",
+      "sha256": "c74a8f0c89b89f401aed3df0d757840e736b31b3dc2a21e6eaeb65df34a3b1c9"
+    },
+    {
+      "file": "cat-14.png",
+      "sha256": "c15d8e617a4a2873af293abba2abd18156abdb237f8821f7d2a4e8612badb15b"
+    },
+    {
+      "file": "cat-15.png",
+      "sha256": "ed8075cbd105f242eec003e1fde42c55fa0434151a26a597fdfd5a9a4b50862c"
+    },
+    {
+      "file": "cat-16.png",
+      "sha256": "5d44edac730dcef006af99914ffd7639212d070d9d696b82bb90b72a81421117"
+    },
+    {
+      "file": "cat-17.png",
+      "sha256": "a2b3cc30538a01ed4ef2de427f6bc5d80eeef92df99a1f7ca241bb66118c802e"
+    },
+    {
+      "file": "fallback.png",
+      "sha256": "5200a482e18c223284c501101f2c58b7506a483d28ffc9ddcfa2ee5510fe4287"
+    },
+    {
+      "file": "kanji-light.png",
+      "sha256": "cebf0e39082a6dddb01e467e7229aef8044a82b6b34cb0895d856d1527cd91be"
+    },
+    {
+      "file": "radical-large.png",
+      "sha256": "63b04deb06debce74fff02fd7dfa8eb7f28dcf62c7b5850a93183c060256202c"
+    },
+    {
+      "file": "word-en.png",
+      "sha256": "10abc7ed06cbe6ed90c43e305a9ffa0493c3172d7e4163f7885f584d70bb4946"
+    }
+  ]
+}

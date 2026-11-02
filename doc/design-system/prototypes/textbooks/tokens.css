@@ -1,0 +1,299 @@
+/* Approved catalog tokens and component roles. Internal renderer key: wip. */
+#phone[data-screen-variant=wip][data-theme=light]{
+  --w-kanji:#526348;
+  --primary:#315F47;
+  --on-primary:#FFFFFF;
+  --review-view-surface:#F1F2EB;
+  --review-action-surface:#E1E7D9;
+  --review-filter-surface:#EEF0E7;
+  --review-important-surface:#D2DDC9;
+}
+#phone[data-screen-variant=wip][data-theme=dark]{
+  --review-view-surface:#29332B;
+  --review-action-surface:#354334;
+  --review-filter-surface:#2B372D;
+  --review-important-surface:#40513C;
+  --on-primary:#19351C;
+}
+
+/* One surface per interaction role, shared by every working screen. */
+#phone[data-screen-variant=wip] .n-info-panel{
+  background:var(--review-view-surface)!important;
+}
+#phone[data-screen-variant=wip] :is(.p-book-chapter-card,.n-kanji-tile,.n-radical-tile,.n-word-row,.w-nav-row,.n-selector-all,.n-search){
+  background:var(--review-action-surface)!important;
+}
+#phone[data-screen-variant=wip] :is(.p-book-chapter-card,.n-kanji-tile,.n-radical-tile,.n-word-row,.w-nav-row,.p-source-card,.p-reference-row,.n-filter-button,.n-selector-all):active{
+  background:var(--primary-container)!important;
+}
+#phone[data-screen-variant=wip][data-theme=light] .p-book-chapter-preview{
+  color:var(--w-kanji);
+}
+#phone[data-screen-variant=wip] .p-reference-group{
+  display:grid;
+  gap:12px;
+  background:transparent;
+  border-radius:0;
+  overflow:visible;
+}
+#phone[data-screen-variant=wip] :is(.w-textbook-chip,.n-filter-button){
+  background:var(--review-filter-surface)!important;
+  border:0;
+}
+#phone[data-screen-variant=wip] .w-textbook-chip.is-active{
+  color:var(--primary);
+}
+#phone[data-screen-variant=wip] .w-chip-reset{
+  border:0;
+}
+#phone[data-screen-variant=wip] .p-book-search-toggle{
+  background:var(--review-filter-surface);
+}
+#phone[data-screen-variant=wip] .n-back{
+  background:transparent;
+}
+
+/* Keep every selected value and reset action inside the viewport. */
+#phone[data-screen-variant=wip] .w-textbook-filterbar{
+  flex-wrap:wrap;
+  overflow:visible;
+  gap:8px;
+  padding-top:12px;
+  padding-bottom:4px;
+}
+#phone[data-screen-variant=wip] .w-textbook-chip{
+  flex:0 1 auto;
+  min-width:0;
+  max-width:100%;
+}
+#phone[data-screen-variant=wip] .w-chip-open{
+  min-width:0;
+}
+#phone[data-screen-variant=wip] .w-chip-open>span{
+  white-space:normal;
+  overflow-wrap:anywhere;
+}
+#phone[data-screen-variant=wip] .w-chip-reset{
+  flex-shrink:0;
+}
+#phone[data-screen-variant=wip] .w-filter-note{
+  margin:12px 24px 0;
+  color:var(--catalog-secondary);
+  font-size:calc(12px * var(--scale));
+  line-height:calc(16px * var(--scale));
+}
+#phone[data-screen-variant=wip] .w-word-tab-gap{
+  display:none;
+}
+#phone[data-screen-variant=wip] .n-selector-all{
+  display:inline-flex;
+  align-items:center;
+  gap:12px;
+  background:var(--review-filter-surface)!important;
+}
+#phone[data-screen-variant=wip] .w-selection-check{
+  flex:none;
+  color:var(--primary);
+  font-size:calc(20px * var(--scale));
+  line-height:calc(24px * var(--scale));
+}
+#phone[data-screen-variant=wip] .w-nav-row[aria-pressed=true]{
+  color:var(--primary);
+}
+
+/* The radical is the main object of its detail card. */
+#phone[data-screen-variant=wip] .w-radical-summary{
+  display:grid;
+  justify-items:center;
+  gap:8px;
+  text-align:center;
+}
+#phone[data-screen-variant=wip] .w-radical-summary>.n-radical-symbol{
+  font-size:calc(64px * var(--scale));
+  line-height:calc(76px * var(--scale));
+}
+#phone[data-screen-variant=wip] .w-radical-summary strong{
+  font-size:calc(22px * var(--scale));
+  line-height:calc(28px * var(--scale));
+}
+#phone[data-screen-variant=wip] .w-radical-summary .w-detail-meta{
+  font-size:calc(12px * var(--scale));
+  line-height:calc(16px * var(--scale));
+}
+
+/* Catalog uses the same navigation-card language as chapters and details. */
+#phone[data-screen-variant=wip] .catalog-proposal{
+  gap:24px;
+}
+#phone[data-screen-variant=wip] :is(.p-source-card,.p-reference-row){
+  background:var(--review-action-surface)!important;
+  border-radius:24px;
+  padding:16px!important;
+  min-height:80px!important;
+}
+#phone[data-screen-variant=wip] .p-source-card{
+  background:var(--review-important-surface)!important;
+  color:var(--ink);
+}
+#phone[data-screen-variant=wip] .p-source-card .p-source-details{
+  color:var(--catalog-secondary);
+}
+#phone[data-screen-variant=wip] .p-source-card:active{
+  background:var(--primary-container)!important;
+  color:var(--ink);
+}
+#phone[data-screen-variant=wip] .p-source-card:active .p-source-details{
+  color:var(--ink);
+}
+#phone[data-screen-variant=wip] .p-reference-row::before{
+  content:none;
+}
+#phone[data-screen-variant=wip] :is(.p-section-intro h3,.p-references>h3){
+  font-size:calc(18px * var(--scale));
+  line-height:calc(24px * var(--scale));
+  font-weight:500;
+}
+#phone[data-screen-variant=wip] .p-section-intro{
+  min-height:24px;
+  margin-bottom:12px;
+}
+#phone[data-screen-variant=wip] :is(.p-source-heading strong,.p-reference-text strong){
+  font-size:calc(18px * var(--scale));
+  line-height:calc(24px * var(--scale));
+  font-weight:500;
+}
+#phone[data-screen-variant=wip] .p-source-heading{
+  gap:4px;
+}
+#phone[data-screen-variant=wip] :is(.p-book-icon,.p-reference-icon){
+  width:48px;
+  height:48px;
+  flex:none;
+}
+#phone[data-screen-variant=wip] .p-textbook-art{
+  width:48px;
+  height:48px;
+}
+/* A filled navigation card already communicates its action. Detail rows keep
+   the arrow because they sit next to similar, read-only information blocks. */
+#phone[data-screen-variant=wip] :is(.p-source-card,.p-reference-row,.p-book-chapter-card) :is(.p-reference-chevron,.p-book-chevron){
+  display:none;
+}
+
+/* Word details use the same passive panels and navigation tiles. */
+#phone[data-screen-variant=wip] .w-word-detail .n-word-hero{
+  gap:8px;
+}
+#phone[data-screen-variant=wip] .w-word-detail-reading{
+  font-size:calc(24px * var(--scale));
+  line-height:calc(32px * var(--scale));
+  font-weight:400;
+  color:var(--ink);
+  overflow-wrap:anywhere;
+}
+#phone[data-screen-variant=wip] .n-word-hero.is-long .n-word-large{
+  font-size:calc(30px * var(--scale));
+  line-height:calc(40px * var(--scale));
+  text-wrap:balance;
+}
+#phone[data-screen-variant=wip] .n-word-hero.is-long .w-word-detail-reading{
+  font-size:calc(20px * var(--scale));
+  line-height:calc(28px * var(--scale));
+  text-wrap:balance;
+}
+#phone[data-screen-variant=wip] .w-word-info .w-usage-note{
+  color:var(--catalog-secondary);
+}
+#phone[data-screen-variant=wip] :is(.w-empty,.p-book-empty) .n-text-button{
+  justify-self:start;
+  min-height:48px;
+  padding:8px 0;
+  font-size:calc(14px * var(--scale));
+  line-height:calc(20px * var(--scale));
+  color:var(--primary);
+}
+#phone[data-screen-variant=wip] .w-word-detail-translation{
+  margin:4px 0 0;
+  font-size:calc(16px * var(--scale));
+  line-height:calc(24px * var(--scale));
+  font-weight:400;
+  color:var(--catalog-secondary);
+  overflow-wrap:anywhere;
+}
+#phone[data-screen-variant=wip] .w-word-info h3{
+  margin:0;
+  font-size:calc(14px * var(--scale));
+  line-height:calc(20px * var(--scale));
+  font-weight:400;
+  color:var(--catalog-secondary);
+}
+#phone[data-screen-variant=wip] .w-word-reading-part{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  font-size:calc(20px * var(--scale));
+  line-height:calc(28px * var(--scale));
+}
+#phone[data-screen-variant=wip] .w-word-reading-part>span:first-child{
+  color:var(--w-kanji);
+}
+#phone[data-screen-variant=wip] .w-word-kanji-grid .n-kanji-grid{
+  padding:0;
+}
+
+/* Stroke count belongs to the main identity; classification is secondary. */
+#phone[data-screen-variant=wip] .w-stroke-count{
+  font-size:calc(12px * var(--scale));
+  line-height:calc(16px * var(--scale));
+  font-weight:400;
+  color:var(--catalog-secondary);
+}
+#phone[data-screen-variant=wip] .w-classification-line{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px 12px;
+  font-size:calc(14px * var(--scale));
+  line-height:calc(20px * var(--scale));
+  text-align:left;
+}
+#phone[data-screen-variant=wip] .w-classification-line .w-school-classification{
+  flex-basis:100%;
+}
+#phone[data-screen-variant=wip] .w-classification-line>span:not(.w-school-classification){
+  white-space:normal;
+}
+/* Keep source ordinals in their own band above the Japanese glyph. */
+#phone[data-screen-variant=wip] .w-compact-symbol:has(.w-kanji-ordinal){
+  padding-top:calc(24px * var(--scale))!important;
+}
+#phone[data-screen-variant=wip] .w-compact-symbol:has(.w-kanji-ordinal) .n-kanji-symbol,
+#phone[data-screen-variant=wip] .w-compact-symbol:has(.w-kanji-ordinal) .n-radical-symbol{
+  margin-top:0;
+}
+#phone[data-screen-variant=wip] .w-radical-detail{
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+  padding:12px 20px 24px;
+}
+#phone[data-screen-variant=wip] .w-radical-detail .n-section{
+  gap:8px;
+}
+#phone[data-screen-variant=wip] .w-radical-detail .w-kanji-summary{
+  padding:0 4px;
+}
+#phone[data-screen-variant=wip] .w-radical-detail .n-kanji-grid{
+  padding:4px 0 0;
+}
+/* Soften mascot artwork without replacing or modifying the source PNGs. */
+#phone[data-screen-variant=wip] :is(.p-reading-cat,.p-catalog-state-art,.w-chapter-end img,.w-empty-mascot){
+  filter:saturate(.82) contrast(.9) brightness(1.04);
+}
+#phone[data-screen-variant=wip][data-theme=dark] :is(.p-reading-cat,.p-catalog-state-art,.w-chapter-end img,.w-empty-mascot){
+  filter:url(#catalog-dark-art) saturate(.82) contrast(.9);
+}
+#phone[data-screen-variant=wip] .p-catalog-state.is-error .p-catalog-retry{
+  background:var(--primary)!important;
+  color:var(--on-primary)!important;
+  box-shadow:none;
+}

@@ -1,0 +1,75 @@
+{
+  "pending": 17,
+  "browser": "156.0.8078.80",
+  "playwright": "1.49.1",
+  "url": "http://127.0.0.1:8766/design-system/prototypes/textbooks/",
+  "revision": "2026-11-02-native-sync",
+  "visited": [
+    "CAT-01",
+    "CAT-02",
+    "CAT-03",
+    "CAT-04",
+    "CAT-05",
+    "CAT-06",
+    "CAT-07",
+    "CAT-08",
+    "CAT-09",
+    "CAT-10",
+    "CAT-11",
+    "CAT-12",
+    "CAT-13",
+    "CAT-14",
+    "CAT-15",
+    "CAT-16",
+    "CAT-17"
+  ],
+  "sizes": [
+    {
+      "width": "360",
+      "scale": "1"
+    },
+    {
+      "width": "360",
+      "scale": "1.3"
+    },
+    {
+      "width": "360",
+      "scale": "1.6"
+    },
+    {
+      "width": "411.43",
+      "scale": "1"
+    },
+    {
+      "width": "411.43",
+      "scale": "1.3"
+    },
+    {
+      "width": "411.43",
+      "scale": "1.6"
+    },
+    {
+      "width": "480",
+      "scale": "1"
+    },
+    {
+      "width": "480",
+      "scale": "1.3"
+    },
+    {
+      "width": "480",
+      "scale": "1.6"
+    }
+  ],
+  "locales": [
+    "ru",
+    "en",
+    "de"
+  ],
+  "states": [
+    "ready",
+    "loading",
+    "error"
+  ],
+  "errors": []
+}
