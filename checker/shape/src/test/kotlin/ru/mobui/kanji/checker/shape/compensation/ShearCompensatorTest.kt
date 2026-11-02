@@ -1,24 +1,37 @@
 package ru.mobui.kanji.checker.shape.compensation
 
-import ru.mobui.kanji.checker.shape.ShapeCheckConfig
-import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
-
-import org.junit.Assert.*
+import kotlin.math.PI
+import kotlin.math.tan
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertThrows
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import kotlin.math.*
-import ru.mobui.kanji.domain.handwriting.*
+import ru.mobui.kanji.checker.shape.ShapeCheckConfig
+import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
+import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
+import ru.mobui.kanji.domain.handwriting.InkPoint
+import ru.mobui.kanji.domain.handwriting.InkStroke
+import ru.mobui.kanji.domain.handwriting.InkTool
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
+import ru.mobui.kanji.domain.handwriting.ReferencePoint
+import ru.mobui.kanji.domain.handwriting.WritingSample
 import ru.mobui.kanji.domain.practice.CheckFailure
 
 class ShearCompensatorTest {
-    private val reference = listOf(
-        listOf(ShapePoint(.25f, .2f), ShapePoint(.25f, .8f)),
-        listOf(ShapePoint(.75f, .2f), ShapePoint(.75f, .8f)),
-        listOf(ShapePoint(.25f, .5f), ShapePoint(.75f, .5f)),
-    )
-    private fun slanted(degrees: Float) = reference.map { s -> s.map { ShapePoint(it.x + tan(degrees * PI.toFloat() / 180) * (it.y - .2f), it.y) } }
+    private val reference =
+        listOf(
+            listOf(ShapePoint(.25f, .2f), ShapePoint(.25f, .8f)),
+            listOf(ShapePoint(.75f, .2f), ShapePoint(.75f, .8f)),
+            listOf(ShapePoint(.25f, .5f), ShapePoint(.75f, .5f)),
+        )
 
-    @Test fun correctsBothDirectionsPreservesStrokeCountAndHorizontalLines() {
+    private fun slanted(degrees: Float) = reference.map { s ->
+        s.map { ShapePoint(it.x + tan(degrees * PI.toFloat() / 180) * (it.y - .2f), it.y) }
+    }
+
+    @Test
+    fun correctsBothDirectionsPreservesStrokeCountAndHorizontalLines() {
         for (angle in listOf(-5f, 5f)) {
             val input = slanted(angle)
             val snapshot = input.map { it.toList() }
@@ -33,10 +46,27 @@ class ShearCompensatorTest {
         }
     }
 
-    @Test fun rejectsExcessiveShearAndChargesBudgetBeforeFinalComparison() {
-        val config = ShapeCheckConfig(enabledCompensations = setOf(ru.mobui.kanji.domain.practice.CompensationStage.Shear), requiredMatchPercent = 95f, distanceTolerance = .035f, maxShearDegrees = 5f, maxCompensationBudgetPercent = 100f)
+    @Test
+    fun rejectsExcessiveShearAndChargesBudgetBeforeFinalComparison() {
+        val config =
+            ShapeCheckConfig(
+                enabledCompensations =
+                    setOf(ru.mobui.kanji.domain.practice.CompensationStage.Shear),
+                requiredMatchPercent = 95f,
+                distanceTolerance = .035f,
+                maxShearDegrees = 5f,
+                maxCompensationBudgetPercent = 100f,
+            )
         val input = slanted(8f)
-        val sample = WritingSample(input.map { s -> InkStroke(s.mapIndexed { i, p -> InkPoint(p.x, p.y, i.toLong()) }, InkTool.Finger) })
+        val sample =
+            WritingSample(
+                input.map { s ->
+                    InkStroke(
+                        s.mapIndexed { i, p -> InkPoint(p.x, p.y, i.toLong()) },
+                        InkTool.Finger,
+                    )
+                },
+            )
         val target = ReferenceDrawing(reference.map { s -> s.map { ReferencePoint(it.x, it.y) } })
         val result = ShapeMatcher(config).compare(sample, target)
         assertTrue(result.compensation.shear.hasError)
@@ -47,20 +77,33 @@ class ShearCompensatorTest {
         assertTrue(valid.isAccepted(config.copy(maxShearDegrees = 10f)))
     }
 
-    @Test fun uniformScalingDoesNotInventShearInCurvedOrDiagonalStrokes() {
-        val curved = listOf(listOf(ShapePoint(.2f, .1f), ShapePoint(.21f, .4f), ShapePoint(.5f, .8f)))
-        val scaled = curved.map { s -> s.map { ShapePoint(.5f + (it.x - .5f) * .95f, .5f + (it.y - .5f) * .95f) } }
+    @Test
+    fun uniformScalingDoesNotInventShearInCurvedOrDiagonalStrokes() {
+        val curved =
+            listOf(listOf(ShapePoint(.2f, .1f), ShapePoint(.21f, .4f), ShapePoint(.5f, .8f)))
+        val scaled = curved.map { s ->
+            s.map { ShapePoint(.5f + (it.x - .5f) * .95f, .5f + (it.y - .5f) * .95f) }
+        }
         assertFalse(ShearCompensator(5f).compensate(scaled, curved).result.isEstimated)
         val scaledVertical = reference.map { s -> s.map { ShapePoint(it.x * .9f, it.y * .9f) } }
-        assertEquals(0f, ShearCompensator(5f).compensate(scaledVertical, reference).result.degrees, .0001f)
+        assertEquals(
+            0f,
+            ShearCompensator(5f).compensate(scaledVertical, reference).result.degrees,
+            .0001f,
+        )
     }
 
-    @Test fun doesNotInventSlantWithoutVerticalEvidenceAndCanBeDisabled() {
+    @Test
+    fun doesNotInventSlantWithoutVerticalEvidenceAndCanBeDisabled() {
         val horizontal = reference.takeLast(1)
         assertFalse(ShearCompensator(5f).compensate(horizontal, horizontal).result.isEstimated)
         assertFalse(ShearCompensator(null).compensate(slanted(5f), reference).result.isEstimated)
         assertFalse(ShearCompensator(5f).compensate(reference, reference).result.isApplied)
         assertTrue(ShearCompensator(0f).compensate(slanted(1f), reference).result.hasError)
-        for (bad in listOf(-1f, 21f, Float.NaN)) assertThrows(IllegalArgumentException::class.java) { ShapeCheckConfig(maxShearDegrees = bad) }
+        for (bad in listOf(-1f, 21f, Float.NaN)) assertThrows(
+            IllegalArgumentException::class.java,
+        ) {
+            ShapeCheckConfig(maxShearDegrees = bad)
+        }
     }
 }

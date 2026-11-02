@@ -8,10 +8,7 @@
     <string name="dashboard_mix">Умный микс</string>
     <string name="dashboard_dictionaries">Словари / 単語</string>
     <string name="dashboard_textbooks">Каталог</string>
-    <string name="dashboard_books_count">%1$d учебников · %2$d активны</string>
     <string name="dashboard_personal">Мой словарь</string>
-    <string name="dashboard_personal_count">Всего %1$d · изучено %2$d</string>
-    <string name="dashboard_personal_errors">%1$d с ошибками · %2$d с подсказкой</string>
     <string name="dashboard_history">История сессий</string>
     <string name="dashboard_history_detail">Результаты и архив ошибок</string>
     <string name="dashboard_constructor">Конструктор тренировок</string>

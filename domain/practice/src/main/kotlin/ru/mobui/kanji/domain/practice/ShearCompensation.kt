@@ -9,6 +9,9 @@ data class ShearCompensation(
     val limitDegrees: Float? = null,
     val isEstimated: Boolean = false,
 ) {
-    val hasError: Boolean get() = limitDegrees != null && abs(degrees) > limitDegrees + .0001f
-    val isApplied: Boolean get() = isEstimated && factor != 0f
+    val hasError: Boolean
+        get() = limitDegrees != null && abs(degrees) > limitDegrees + .0001f
+
+    val isApplied: Boolean
+        get() = isEstimated && factor != 0f
 }

@@ -9,12 +9,18 @@ data class InkPoint(val x: Float, val y: Float, val elapsedMs: Long) {
     }
 }
 
-enum class InkTool { Finger, Stylus, Mouse, Unknown }
+enum class InkTool {
+    Finger,
+    Stylus,
+    Mouse,
+    Unknown,
+}
 
 /** An immutable snapshot, ordered from pointer down to pointer up. */
 class InkStroke(points: List<InkPoint>, val tool: InkTool) {
     private val snapshot = points.toTypedArray()
-    val points: List<InkPoint> get() = snapshot.toList()
+    val points: List<InkPoint>
+        get() = snapshot.toList()
 
     init {
         require(snapshot.isNotEmpty())
@@ -26,6 +32,9 @@ class InkStroke(points: List<InkPoint>, val tool: InkTool) {
 /** Completed strokes in writing order. Independent of recognition providers. */
 class WritingSample(strokes: List<InkStroke> = emptyList()) {
     private val snapshot = strokes.toTypedArray()
-    val strokes: List<InkStroke> get() = snapshot.toList()
-    val strokeCount: Int get() = snapshot.size
+    val strokes: List<InkStroke>
+        get() = snapshot.toList()
+
+    val strokeCount: Int
+        get() = snapshot.size
 }

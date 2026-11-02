@@ -6,7 +6,8 @@ import ru.mobui.kanji.domain.catalog.JlptFilter
 import ru.mobui.kanji.domain.catalog.JlptLevel
 
 class FilterValueTest {
-    @Test fun unknownPersistedLevelFallsBackWithoutInventingARealLevel() {
+    @Test
+    fun unknownPersistedLevelFallsBackWithoutInventingARealLevel() {
         assertEquals(JlptFilter.AnyLevel, decodeJlpt(77))
         assertEquals(JlptFilter.AnyLevel, decodeJlpt(Int.MIN_VALUE))
         assertEquals(JlptFilter.Missing, decodeJlpt(-1))

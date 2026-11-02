@@ -3,12 +3,15 @@ package ru.mobui.kanji.data.kanjivg
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
 import org.junit.Test
 import ru.mobui.kanji.domain.practice.KanjiId
 
 class BundledReferencesTest {
-    @Test fun mapsHookMetadataConservatively() {
+    @Test
+    fun mapsHookMetadataConservatively() {
         val required = ru.mobui.kanji.domain.handwriting.HookRequirement.Required
         val optional = ru.mobui.kanji.domain.handwriting.HookRequirement.Optional
         val unknown = ru.mobui.kanji.domain.handwriting.HookRequirement.Unknown
@@ -22,7 +25,8 @@ class BundledReferencesTest {
         assertEquals(unknown, KanjiVgStrokeFeatures.hookRequirement("㇚q"))
     }
 
-    @Test fun everyBundledCanonicalGlyphLoadsOffline() = runBlocking {
+    @Test
+    fun everyBundledCanonicalGlyphLoadsOffline() = runBlocking {
         val assets = InstrumentationRegistry.getInstrumentation().targetContext.assets
         val source = BundledKanjiReferenceSource(assets, Dispatchers.IO)
         val names = assets.list("kanjivg")!!.filter { it.endsWith(".svg") }
@@ -32,7 +36,9 @@ class BundledReferencesTest {
                 val drawing = source.load(KanjiId("u" + name.removeSuffix(".svg")))
                 assertNotNull(name, drawing)
                 assertEquals(name, drawing!!.strokes.size, drawing.strokeNumbers.size)
-            } catch (e: Exception) { throw AssertionError("Cannot load $name", e) }
+            } catch (e: Exception) {
+                throw AssertionError("Cannot load $name", e)
+            }
         }
         val firstNumber = source.load(KanjiId("u56f3"))!!.strokeNumbers.first()
         assertEquals(1, firstNumber.number)

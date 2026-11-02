@@ -6,30 +6,41 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class JapaneseModelLoaderTest {
-    @Test fun existingModelDoesNotDownloadAgain() {
+    @Test
+    fun existingModelDoesNotDownloadAgain() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         try {
             val loader = JapaneseModelLoader(scope, { true }, { error("Unexpected download") })
             loader.load()
             assertEquals(JapaneseModelStatus.Ready, loader.status.value)
             assertFalse(loader.error.value)
-        } finally { scope.cancel() }
+        } finally {
+            scope.cancel()
+        }
     }
 
-    @Test fun failureCanBeDismissedAndRetriedWithoutDuplicateDownloads() = runBlocking {
+    @Test
+    fun failureCanBeDismissedAndRetriedWithoutDuplicateDownloads() = runBlocking {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         try {
             var calls = 0
             val completion = CompletableDeferred<Boolean>()
-            val loader = JapaneseModelLoader(scope, { false }, {
-                calls++
-                if (calls == 1) throw IllegalStateException("Offline")
-                completion.await()
-            })
+            val loader =
+                JapaneseModelLoader(
+                    scope,
+                    { false },
+                    {
+                        calls++
+                        if (calls == 1) error("Offline")
+                        completion.await()
+                    },
+                )
             loader.load()
             assertEquals(JapaneseModelStatus.Missing, loader.status.value)
             assertTrue(loader.error.value)
@@ -43,16 +54,21 @@ class JapaneseModelLoaderTest {
             assertEquals(JapaneseModelStatus.Ready, loader.status.value)
             loader.load()
             assertEquals(2, calls)
-        } finally { scope.cancel() }
+        } finally {
+            scope.cancel()
+        }
     }
 
-    @Test fun unsuccessfulDownloadExposesRetryableError() {
+    @Test
+    fun unsuccessfulDownloadExposesRetryableError() {
         val scope = CoroutineScope(SupervisorJob() + Dispatchers.Unconfined)
         try {
             val loader = JapaneseModelLoader(scope, { false }, { false })
             loader.load()
             assertEquals(JapaneseModelStatus.Missing, loader.status.value)
             assertTrue(loader.error.value)
-        } finally { scope.cancel() }
+        } finally {
+            scope.cancel()
+        }
     }
 }

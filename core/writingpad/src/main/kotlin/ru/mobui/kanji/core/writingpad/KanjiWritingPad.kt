@@ -1,39 +1,28 @@
 package ru.mobui.kanji.core.writingpad
 
-import androidx.compose.ui.text.rememberTextMeasurer
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.drawText
-import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.awaitEachGesture
-import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.input.pointer.PointerType
-import androidx.compose.ui.input.pointer.isPrimaryPressed
+import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -43,194 +32,226 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.drawText
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.handwriting.ReferencePoint
-import ru.mobui.kanji.domain.handwriting.InkPoint
-import ru.mobui.kanji.domain.handwriting.InkStroke
-import ru.mobui.kanji.domain.handwriting.InkTool
 
 /** Drawing and input only. Completed strokes and all editing history belong to the caller. */
 @Composable
-fun KanjiWritingPad(
-    state: PadUiState,
-    onEvent: (PadEvent) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Modifier = Modifier) {
     val currentOnEvent by rememberUpdatedState(onEvent)
-    var activePath by remember { mutableStateOf<Path?>(null) }
-    var activeDot by remember { mutableStateOf<Offset?>(null) }
-    var drawRevision by remember { mutableLongStateOf(0L) }
-    val gestureCounter = remember { longArrayOf(0L) }
+    val active = remember { ActivePadGesture() }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
-    val insetPx = with(density) { 8.dp.toPx() }
-    val savedPaths = remember(state.content, canvasSize, insetPx) {
-        val side = minOf(canvasSize.width, canvasSize.height) - insetPx * 2
-        val strokes = when (val content = state.content) {
-            PadContent.Empty -> emptyList()
-            is PadContent.UserInk -> content.sample.strokes.map { stroke ->
-                stroke.points.map { ReferencePoint(it.x, it.y) }
+    val padMetrics =
+        remember(density) {
+            with(density) {
+                PadMetrics(
+                    inset = 8.dp.toPx(),
+                    strokeWidth = 4.dp.toPx(),
+                    comparisonWidth = 2.dp.toPx(),
+                    guideWidth = 1.dp.toPx(),
+                    dashEffect =
+                        PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx())),
+                )
             }
-            is PadContent.Reference -> content.drawing.strokes
         }
-        strokes.map { points ->
-            val path = Path()
-            points.forEachIndexed { index, point ->
-                val x = insetPx + point.x * side
-                val y = insetPx + point.y * side
-                if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-            }
-            path to Offset(insetPx + points.first().x * side, insetPx + points.first().y * side)
-        }
-    }
-    val overlayPaths = remember(state.overlay, canvasSize, insetPx) {
-        val side = minOf(canvasSize.width, canvasSize.height) - insetPx * 2
-        state.overlay?.strokes.orEmpty().map { points ->
-            val path = Path()
-            points.forEachIndexed { index, point ->
-                val x = insetPx + point.x * side
-                val y = insetPx + point.y * side
-                if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-            }
-            path to Offset(insetPx + points.first().x * side, insetPx + points.first().y * side)
-        }
-    }
-    val comparisonPaths = remember(state.comparisonOverlay, canvasSize, insetPx) {
-        val side = minOf(canvasSize.width, canvasSize.height) - insetPx * 2
-        state.comparisonOverlay?.strokes.orEmpty().map { points ->
-            val path = Path()
-            points.forEachIndexed { index, p ->
-                val x = insetPx + p.x * side; val y = insetPx + p.y * side
-                if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
-            }
-            path to Offset(insetPx + points.first().x * side, insetPx + points.first().y * side)
-        }
-    }
-    val textMeasurer = rememberTextMeasurer()
-    val numberColor = MaterialTheme.colorScheme.onSurfaceVariant
-    val numberLabels = remember(state.overlay, textMeasurer, numberColor) {
-        state.overlay?.strokeNumbers.orEmpty().map { number ->
-            number to textMeasurer.measure(number.number.toString(),
-                TextStyle(color = numberColor, fontSize = 12.sp, fontWeight = FontWeight.Medium))
-        }
-    }
-    val label = stringResource(R.string.writing_pad_label)
-    val strokeCount = when (val content = state.content) {
-        PadContent.Empty -> 0
-        is PadContent.UserInk -> content.sample.strokeCount
-        is PadContent.Reference -> content.drawing.strokes.size
-    }
-    val description = if (state.content is PadContent.Reference) {
-        stringResource(R.string.writing_pad_reference)
-    } else {
-        pluralStringResource(R.plurals.writing_pad_strokes, strokeCount, strokeCount)
-    }
+    val inset = padMetrics.inset
+    val paths = rememberPadPaths(state, canvasSize, inset)
     val shape = RoundedCornerShape(16.dp)
+    val label = stringResource(R.string.writing_pad_label)
+    val description = padDescription(state.content)
     val ink = MaterialTheme.colorScheme.onSurface
     val guide = MaterialTheme.colorScheme.outlineVariant
     Canvas(
-        modifier = modifier
+        modifier
             .aspectRatio(1f)
             .onSizeChanged { canvasSize = it }
             .background(MaterialTheme.colorScheme.surface, shape)
-            .border(1.dp, MaterialTheme.colorScheme.outlineVariant, shape)
+            .border(1.dp, guide, shape)
             .semantics {
                 contentDescription = label
                 stateDescription = description
                 if (!state.inputEnabled) disabled()
             }
-            .pointerInput(state.version, state.inputEnabled, canvasSize, insetPx) {
-                if (!state.inputEnabled) return@pointerInput
-                val inset = 8.dp.toPx()
-                awaitEachGesture {
-                    val down = awaitFirstDown(requireUnconsumed = true)
-                    if (down.type == PointerType.Mouse && !currentEvent.buttons.isPrimaryPressed) {
-                        return@awaitEachGesture
-                    }
-                    val startSize = size
-                    val side = minOf(size.width, size.height).toFloat() - 2 * inset
-                    if (side <= 0f) return@awaitEachGesture
-                    val bounds = Rect(inset, inset, inset + side, inset + side)
-                    if (!bounds.contains(down.position)) return@awaitEachGesture
-                    down.consume()
-                    val version = state.version
-                    val id = ++gestureCounter[0]
-                    val tool = when (down.type) {
-                        PointerType.Touch -> InkTool.Finger
-                        PointerType.Stylus -> InkTool.Stylus
-                        PointerType.Mouse -> InkTool.Mouse
-                        else -> InkTool.Unknown
-                    }
-                    val points = mutableListOf<InkPoint>()
-                    val path = Path()
-                    fun append(position: Offset, time: Long) {
-                        points.add(InkPoint(
-                            x = ((position.x - inset) / side).coerceIn(0f, 1f),
-                            y = ((position.y - inset) / side).coerceIn(0f, 1f),
-                            elapsedMs = (time - down.uptimeMillis).coerceAtLeast(0),
-                        ))
-                        if (points.size == 1) path.moveTo(position.x, position.y)
-                        else path.lineTo(position.x, position.y)
-                        activeDot = down.position
-                        activePath = path
-                        drawRevision++
-                    }
-                    try {
-                        append(down.position, down.uptimeMillis)
-                        currentOnEvent(PadEvent.GesturePreview(version, id, InkStroke(points, tool)))
-                        while (true) {
-                            val event = awaitPointerEvent()
-                            val change = event.changes.firstOrNull { it.id == down.id } ?: break
-                            if (size != startSize || change.isConsumed || !bounds.contains(change.position)) break
-                            change.consume()
-                            append(change.position, change.uptimeMillis)
-                            if (!change.pressed) {
-                                currentOnEvent(PadEvent.StrokeFinished(version, id, InkStroke(points, tool)))
-                                break
-                            }
-                            currentOnEvent(PadEvent.GesturePreview(version, id, InkStroke(points, tool)))
-                        }
-                    } finally {
-                        activePath = null
-                        activeDot = null
-                        currentOnEvent(PadEvent.GesturePreview(version, id, null))
-                    }
-                }
+            .pointerInput(state.version, state.inputEnabled, canvasSize, inset) {
+                if (state.inputEnabled)
+                    capturePadGestures(state.version, active) { currentOnEvent(it) }
             },
     ) {
-        val inset = 8.dp.toPx()
         val side = size.minDimension - inset * 2
-        if (side <= 0) return@Canvas
-        val dash = PathEffect.dashPathEffect(floatArrayOf(4.dp.toPx(), 4.dp.toPx()))
-        val mid = inset + side / 2
-        fun guideLine(a: Offset, b: Offset) = drawLine(
-            guide, a, b, strokeWidth = 1.dp.toPx(), pathEffect = dash,
+        if (side > 0) {
+            drawPadGuides(guide, side, padMetrics)
+            drawPadContent(paths, active, state.content is PadContent.Reference, ink, padMetrics)
+        }
+    }
+}
+
+@Composable
+private fun padDescription(content: PadContent): String {
+    val count =
+        when (content) {
+            PadContent.Empty -> 0
+            is PadContent.UserInk -> content.sample.strokeCount
+            is PadContent.Reference -> content.drawing.strokes.size
+        }
+    return if (content is PadContent.Reference) stringResource(R.string.writing_pad_reference)
+    else pluralStringResource(R.plurals.writing_pad_strokes, count, count)
+}
+
+private data class PadMetrics(
+    val inset: Float,
+    val strokeWidth: Float,
+    val comparisonWidth: Float,
+    val guideWidth: Float,
+    val dashEffect: PathEffect,
+)
+
+private data class PadPaths(
+    val saved: List<Pair<Path, Offset>>,
+    val overlay: List<Pair<Path, Offset>>,
+    val comparison: List<Pair<Path, Offset>>,
+    val numbers:
+        List<Pair<ru.mobui.kanji.domain.handwriting.ReferenceStrokeNumber, TextLayoutResult>>,
+)
+
+@Composable
+private fun rememberPadPaths(state: PadUiState, canvasSize: IntSize, inset: Float): PadPaths {
+    val side = minOf(canvasSize.width, canvasSize.height) - inset * 2
+    val saved =
+        remember(state.content, canvasSize, inset) {
+            val strokes =
+                when (val content = state.content) {
+                    PadContent.Empty -> emptyList()
+                    is PadContent.UserInk ->
+                        content.sample.strokes.map { stroke ->
+                            stroke.points.map { ReferencePoint(it.x, it.y) }
+                        }
+                    is PadContent.Reference -> content.drawing.strokes
+                }
+            drawingPaths(strokes, side, inset) { Offset(it.x, it.y) }
+        }
+    val overlay =
+        remember(state.overlay, canvasSize, inset) {
+            drawingPaths(state.overlay?.strokes.orEmpty(), side, inset) { Offset(it.x, it.y) }
+        }
+    val comparison =
+        remember(state.comparisonOverlay, canvasSize, inset) {
+            drawingPaths(state.comparisonOverlay?.strokes.orEmpty(), side, inset) {
+                Offset(it.x, it.y)
+            }
+        }
+    return PadPaths(saved, overlay, comparison, rememberStrokeLabels(state.overlay))
+}
+
+@Composable
+private fun rememberStrokeLabels(
+    drawing: ReferenceDrawing?,
+): List<Pair<ru.mobui.kanji.domain.handwriting.ReferenceStrokeNumber, TextLayoutResult>> {
+    val measurer = rememberTextMeasurer()
+    val color = MaterialTheme.colorScheme.onSurfaceVariant
+    return remember(drawing, measurer, color) {
+        drawing?.strokeNumbers.orEmpty().map { number ->
+            number to
+                measurer.measure(
+                    number.number.toString(),
+                    TextStyle(color = color, fontSize = 12.sp, fontWeight = FontWeight.Medium),
+                )
+        }
+    }
+}
+
+private fun <T> drawingPaths(
+    strokes: List<List<T>>,
+    side: Float,
+    inset: Float,
+    position: (T) -> Offset,
+): List<Pair<Path, Offset>> = strokes.map { points ->
+    val path = Path()
+    points.forEachIndexed { index, point ->
+        val x = inset + position(point).x * side
+        val y = inset + position(point).y * side
+        if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+    }
+    path to
+        Offset(inset + position(points.first()).x * side, inset + position(points.first()).y * side)
+}
+
+private fun DrawScope.drawPadGuides(guide: Color, side: Float, metrics: PadMetrics) {
+    val inset = metrics.inset
+    val mid = inset + side / 2
+    fun line(a: Offset, b: Offset) =
+        drawLine(guide, a, b, metrics.guideWidth, pathEffect = metrics.dashEffect)
+    line(Offset(mid, inset), Offset(mid, inset + side))
+    line(Offset(inset, mid), Offset(inset + side, mid))
+    drawLine(
+        guide.copy(alpha = .35f),
+        Offset(inset, inset),
+        Offset(inset + side, inset + side),
+        metrics.guideWidth,
+        pathEffect = metrics.dashEffect,
+    )
+    drawLine(
+        guide.copy(alpha = .35f),
+        Offset(inset + side, inset),
+        Offset(inset, inset + side),
+        metrics.guideWidth,
+        pathEffect = metrics.dashEffect,
+    )
+}
+
+private fun DrawScope.drawPadContent(
+    paths: PadPaths,
+    active: ActivePadGesture,
+    reference: Boolean,
+    ink: Color,
+    metrics: PadMetrics,
+) {
+    val inset = metrics.inset
+    val side = size.minDimension - inset * 2
+    paths.overlay.forEach { (path, start) ->
+        drawInk(path, start, ink.copy(alpha = .25f), metrics.strokeWidth)
+    }
+    drawStrokeLabels(paths.numbers, inset, side)
+    if (!reference || active.path == null) {
+        paths.saved.forEach { (path, start) -> drawInk(path, start, ink, metrics.strokeWidth) }
+    }
+    active.renderedPath?.let { drawInk(it, requireNotNull(active.dot), ink, metrics.strokeWidth) }
+    clipRect(inset, inset, inset + side, inset + side) {
+        paths.comparison.forEach { (path, start) ->
+            drawInk(path, start, Color.Red, metrics.comparisonWidth)
+        }
+    }
+}
+
+private fun DrawScope.drawStrokeLabels(
+    numbers: List<Pair<ru.mobui.kanji.domain.handwriting.ReferenceStrokeNumber, TextLayoutResult>>,
+    inset: Float,
+    side: Float,
+) {
+    numbers.forEach { (position, layout) ->
+        drawText(
+            layout,
+            topLeft =
+                Offset(
+                    (inset + position.x * side).coerceIn(
+                        inset,
+                        (inset + side - layout.size.width).coerceAtLeast(inset),
+                    ),
+                    (inset + position.y * side - layout.firstBaseline).coerceIn(
+                        inset,
+                        (inset + side - layout.size.height).coerceAtLeast(inset),
+                    ),
+                ),
         )
-        guideLine(Offset(mid, inset), Offset(mid, inset + side))
-        guideLine(Offset(inset, mid), Offset(inset + side, mid))
-        drawLine(guide.copy(alpha = .35f), Offset(inset, inset), Offset(inset + side, inset + side), 1.dp.toPx(), pathEffect = dash)
-        drawLine(guide.copy(alpha = .35f), Offset(inset + side, inset), Offset(inset, inset + side), 1.dp.toPx(), pathEffect = dash)
-        val width = 4.dp.toPx()
-        // The tracing guide is beneath committed and active user ink.
-        overlayPaths.forEach { (path, start) -> drawInk(path, start, ink.copy(alpha = 0.25f), width) }
-        numberLabels.forEach { (position, layout) ->
-            drawText(layout, topLeft = Offset(
-                (inset + position.x * side).coerceIn(inset, (inset + side - layout.size.width).coerceAtLeast(inset)),
-                (inset + position.y * side - layout.firstBaseline).coerceIn(inset, (inset + side - layout.size.height).coerceAtLeast(inset)),
-            ))
-        }
-        // A new gesture replaces a reference visually; the owner commits the replacement.
-        if (state.content !is PadContent.Reference || activePath == null) {
-            savedPaths.forEach { (path, start) -> drawInk(path, start, ink, width) }
-        }
-        // Read in the draw phase: pointer moves must not recompose the screen.
-        @Suppress("UNUSED_VARIABLE") val revision = drawRevision
-        activePath?.let { drawInk(it, activeDot!!, ink, width) }
-        clipRect(inset, inset, inset + side, inset + side) {
-            comparisonPaths.forEach { (path, start) -> drawInk(path, start, Color.Red, 2.dp.toPx()) }
-        }
     }
 }
 

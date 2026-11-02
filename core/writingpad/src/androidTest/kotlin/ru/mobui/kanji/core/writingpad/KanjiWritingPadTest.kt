@@ -31,7 +31,8 @@ class KanjiWritingPadTest {
         }
     }
 
-    @Test fun completedGestureEmitsOneNormalizedOrderedStroke() {
+    @Test
+    fun completedGestureEmitsOneNormalizedOrderedStroke() {
         show()
         compose.onNodeWithTag("pad").performTouchInput {
             down(center)
@@ -51,7 +52,8 @@ class KanjiWritingPadTest {
         }
     }
 
-    @Test fun cancelledGestureDoesNotCommitAndClearsPreview() {
+    @Test
+    fun cancelledGestureDoesNotCommitAndClearsPreview() {
         show()
         compose.onNodeWithTag("pad").performTouchInput {
             down(center)
@@ -64,9 +66,13 @@ class KanjiWritingPadTest {
         }
     }
 
-    @Test fun disabledPadEmitsNoInput() {
+    @Test
+    fun disabledPadEmitsNoInput() {
         show(enabled = false)
-        compose.onNodeWithTag("pad").performTouchInput { down(center); up() }
+        compose.onNodeWithTag("pad").performTouchInput {
+            down(center)
+            up()
+        }
         compose.runOnIdle { assertTrue(events.isEmpty()) }
     }
 }

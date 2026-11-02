@@ -1,17 +1,17 @@
 package ru.mobui.kanji.checker.shape.compensation
 
-import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-
-import org.junit.Assert.*
-import org.junit.Test
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
+import org.junit.Assert.assertEquals
+import org.junit.Test
+import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
 
 class ProcrustesCompensatorTest {
     private val compensator = ProcrustesCompensator(samplesPerStroke = 32)
 
-    private val sampleStroke1 = listOf(ShapePoint(10f, 10f), ShapePoint(50f, 10f), ShapePoint(50f, 50f))
+    private val sampleStroke1 =
+        listOf(ShapePoint(10f, 10f), ShapePoint(50f, 10f), ShapePoint(50f, 50f))
     private val sampleStroke2 = listOf(ShapePoint(20f, 30f), ShapePoint(80f, 30f))
     private val reference = listOf(sampleStroke1, sampleStroke2)
     private val identityAssignment = listOf(0, 1)
@@ -30,7 +30,9 @@ class ProcrustesCompensatorTest {
     fun testPureTranslationRecovery() {
         val dx = 15f
         val dy = -25f
-        val shiftedInput = reference.map { stroke -> stroke.map { ShapePoint(it.x + dx, it.y + dy) } }
+        val shiftedInput = reference.map { stroke ->
+            stroke.map { ShapePoint(it.x + dx, it.y + dy) }
+        }
 
         val result = compensator.compensate(shiftedInput, reference, identityAssignment)
 
@@ -52,7 +54,9 @@ class ProcrustesCompensatorTest {
     @Test
     fun testPureScalingRecovery() {
         val scale = 0.5f
-        val scaledInput = reference.map { stroke -> stroke.map { ShapePoint(it.x * scale, it.y * scale) } }
+        val scaledInput = reference.map { stroke ->
+            stroke.map { ShapePoint(it.x * scale, it.y * scale) }
+        }
 
         val result = compensator.compensate(scaledInput, reference, identityAssignment)
 

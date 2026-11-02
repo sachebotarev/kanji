@@ -1,19 +1,37 @@
 package ru.mobui.kanji.domain.practice
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import ru.mobui.kanji.domain.handwriting.*
+import ru.mobui.kanji.domain.handwriting.InkPoint
+import ru.mobui.kanji.domain.handwriting.InkStroke
+import ru.mobui.kanji.domain.handwriting.InkTool
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
+import ru.mobui.kanji.domain.handwriting.ReferencePoint
 
 class PracticeSessionTest {
-    private val stroke = InkStroke(listOf(InkPoint(.2f, .3f, 0), InkPoint(.8f, .3f, 100)), InkTool.Finger)
-    private val reference = ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .3f), ReferencePoint(.8f, .3f))))
-    private fun task(limit: Long? = null) = PracticeTask("word-1", "Библиотека", listOf(
-        KanjiTask("position-0", KanjiId("same-kanji"), EntryMode.User),
-        KanjiTask("position-1", KanjiId("same-kanji"), EntryMode.User),
-        KanjiTask("position-2", KanjiId("prefilled"), EntryMode.Prefilled),
-    ), limit)
+    private val stroke =
+        InkStroke(listOf(InkPoint(.2f, .3f, 0), InkPoint(.8f, .3f, 100)), InkTool.Finger)
+    private val reference =
+        ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .3f), ReferencePoint(.8f, .3f))))
 
-    @Test fun settingsInvalidateAcceptedVerdictAndRejectOldResponseWithoutChangingInkOrUndo() {
+    private fun task(limit: Long? = null) =
+        PracticeTask(
+            "word-1",
+            "Библиотека",
+            listOf(
+                KanjiTask("position-0", KanjiId("same-kanji"), EntryMode.User),
+                KanjiTask("position-1", KanjiId("same-kanji"), EntryMode.User),
+                KanjiTask("position-2", KanjiId("prefilled"), EntryMode.Prefilled),
+            ),
+            limit,
+        )
+
+    @Test
+    fun settingsInvalidateAcceptedVerdictAndRejectOldResponseWithoutChangingInkOrUndo() {
         val session = PracticeSession(task())
         session.addStroke("position-0", 0, stroke)
         val previous = session.checkRequests().single()
@@ -31,7 +49,8 @@ class PracticeSessionTest {
         assertEquals(0, session.state.selected!!.sample.strokeCount)
     }
 
-    @Test fun settingsAlsoInvalidateVerdictsStoredInUndoHistory() {
+    @Test
+    fun settingsAlsoInvalidateVerdictsStoredInUndoHistory() {
         val session = PracticeSession(task())
         session.addStroke("position-0", 0, stroke)
         assertTrue(session.applyCheck(session.checkRequests().single(), CheckVerdict.Correct))
@@ -42,7 +61,8 @@ class PracticeSessionTest {
         assertEquals(1, session.checkRequests().size)
     }
 
-    @Test fun timeoutClampsTimeAndAttributesItByOccurrence() {
+    @Test
+    fun timeoutClampsTimeAndAttributesItByOccurrence() {
         val session = PracticeSession(task(100))
         session.advanceTime(40)
         session.select(1)
@@ -51,10 +71,14 @@ class PracticeSessionTest {
         assertEquals(AnswerStatus.TimedOut, result.status)
         assertEquals(100L, result.elapsedMs)
         assertEquals(listOf(40L, 60L, 0L), result.kanji.map { it.elapsedMs })
-        assertEquals(listOf("position-0", "position-1", "position-2"), result.kanji.map { it.occurrenceId })
+        assertEquals(
+            listOf("position-0", "position-1", "position-2"),
+            result.kanji.map { it.occurrenceId },
+        )
     }
 
-    @Test fun undoRestoresStatusWithNewRevisionAndRejectsOldCheck() {
+    @Test
+    fun undoRestoresStatusWithNewRevisionAndRejectsOldCheck() {
         val session = PracticeSession(task())
         session.addStroke("position-0", 0, stroke)
         val request = session.checkRequests().single()
@@ -70,7 +94,8 @@ class PracticeSessionTest {
         assertTrue(session.canUndo())
     }
 
-    @Test fun hintPreservesAnswerAndCannotCompleteItButUsageSurvivesUndo() {
+    @Test
+    fun hintPreservesAnswerAndCannotCompleteItButUsageSurvivesUndo() {
         val session = PracticeSession(task())
         session.setReference(KanjiId("same-kanji"), reference)
         session.setReference(KanjiId("prefilled"), reference)
@@ -94,10 +119,14 @@ class PracticeSessionTest {
         assertEquals(AnswerStatus.Assisted, result.status)
         assertTrue(result.kanji.first().hintUsed)
         assertFalse(result.kanji[1].hintUsed)
-        assertEquals(listOf(EntryStatus.Correct, EntryStatus.Correct, EntryStatus.Prefilled), result.kanji.map { it.status })
+        assertEquals(
+            listOf(EntryStatus.Correct, EntryStatus.Correct, EntryStatus.Prefilled),
+            result.kanji.map { it.status },
+        )
     }
 
-    @Test fun skippedResultPreservesUnverifiedStrokesAndCannotBeChanged() {
+    @Test
+    fun skippedResultPreservesUnverifiedStrokesAndCannotBeChanged() {
         val session = PracticeSession(task())
         session.advanceTime(25)
         session.addStroke("position-0", 0, stroke)

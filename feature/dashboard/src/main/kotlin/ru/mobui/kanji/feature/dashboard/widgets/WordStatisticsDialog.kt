@@ -1,9 +1,18 @@
 package ru.mobui.kanji.feature.dashboard.widgets
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,27 +24,56 @@ import ru.mobui.kanji.feature.dashboard.R
 import ru.mobui.kanji.feature.dashboard.WordStatistics
 
 @Composable
-fun WordStatisticsDialog(state: WordStatistics, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
-    AlertDialog(onDismissRequest = onDismiss, modifier = modifier.testTag("word-statistics-dialog"),
+fun WordStatisticsDialog(
+    state: WordStatistics,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        modifier = modifier.testTag("word-statistics-dialog"),
         containerColor = MaterialTheme.colorScheme.surface,
         title = { Text(stringResource(R.string.dashboard_checked)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(stringResource(R.string.dashboard_total, state.total))
-                    Text(stringResource(R.string.dashboard_statistics_scope), style = MaterialTheme.typography.bodySmall)
+                    Text(
+                        stringResource(R.string.dashboard_statistics_scope),
+                        style = MaterialTheme.typography.bodySmall,
+                    )
                 }
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                val rows = listOf(
-                    Triple(R.string.dashboard_learned, state.learned, MaterialTheme.colorScheme.primary),
-                    Triple(R.string.dashboard_assisted, state.assisted, Color(0xFFE4B94F)),
-                    Triple(R.string.dashboard_errors, state.errors, MaterialTheme.colorScheme.error),
-                )
+                val rows =
+                    listOf(
+                        Triple(
+                            R.string.dashboard_learned,
+                            state.learned,
+                            MaterialTheme.colorScheme.primary,
+                        ),
+                        Triple(
+                            R.string.dashboard_assisted,
+                            state.assisted,
+                            Color(color = 0xFFE4B94F),
+                        ),
+                        Triple(
+                            R.string.dashboard_errors,
+                            state.errors,
+                            MaterialTheme.colorScheme.error,
+                        ),
+                    )
                 rows.forEach { (label, count, color) ->
-                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                         Box(Modifier.size(12.dp).background(color, CircleShape))
-                        Text(stringResource(label), Modifier.weight(1f), style = MaterialTheme.typography.bodyLarge)
+                        Text(
+                            stringResource(label),
+                            Modifier.weight(1f),
+                            style = MaterialTheme.typography.bodyLarge,
+                        )
                         Text(count.toString(), style = MaterialTheme.typography.bodyLarge)
                     }
                 }
@@ -45,5 +83,6 @@ fun WordStatisticsDialog(state: WordStatistics, onDismiss: () -> Unit, modifier:
             TextButton(onDismiss, Modifier.testTag("close-word-statistics")) {
                 Text(stringResource(R.string.dashboard_close))
             }
-        })
+        },
+    )
 }

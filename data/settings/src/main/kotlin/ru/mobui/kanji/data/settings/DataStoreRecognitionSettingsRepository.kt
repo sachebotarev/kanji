@@ -2,7 +2,11 @@ package ru.mobui.kanji.data.settings
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
 import ru.mobui.kanji.domain.practice.RecognitionSettings
@@ -11,35 +15,74 @@ import ru.mobui.kanji.domain.practice.RecognitionSettingsRepository
 // One DataStore per file across Activity recreation. Access remains inside the data adapter.
 private val Context.recognitionDataStore by preferencesDataStore(name = "recognition_settings")
 
-class DataStoreRecognitionSettingsRepository internal constructor(private val store: DataStore<Preferences>) : RecognitionSettingsRepository {
+class DataStoreRecognitionSettingsRepository
+internal constructor(private val store: DataStore<Preferences>) : RecognitionSettingsRepository {
     constructor(context: Context) : this(context.applicationContext.recognitionDataStore)
 
     override suspend fun load(): RecognitionSettings? {
         val values = store.data.first()
         if (values[Version] == null) return null
-        val defaults = RecognitionSettings.touchInput()
-        return defaults.copy(
-            requiredMatchPercent = values[RequiredMatchPercent] ?: defaults.requiredMatchPercent,
-            distanceTolerance = values[DistanceTolerance] ?: defaults.distanceTolerance,
-            maxTranslationPercent = values[MaxTranslationPercent] ?: defaults.maxTranslationPercent,
-            maxSizeCompensationPercent = values[MaxSizeCompensationPercent]?.takeUnless { it.isNaN() },
-            maxHorizontalStretchPercent = values[MaxHorizontalStretchPercent] ?: defaults.maxHorizontalStretchPercent,
-            maxVerticalStretchPercent = values[MaxVerticalStretchPercent] ?: defaults.maxVerticalStretchPercent,
-            maxRotationDegrees = values[MaxRotationDegrees] ?: defaults.maxRotationDegrees,
-            maxShearDegrees = values[MaxShearDegrees]?.takeUnless { it.isNaN() },
-            jitterTolerancePercent = values[JitterTolerancePercent] ?: defaults.jitterTolerancePercent,
-            maxCompensationBudgetPercent = values[MaxCompensationBudgetPercent]?.takeUnless { it.isNaN() },
-            connectionTolerancePercent = values[ConnectionTolerancePercent] ?: defaults.connectionTolerancePercent,
-            protrusionTolerancePercent = values[ProtrusionTolerancePercent] ?: defaults.protrusionTolerancePercent,
-            lengthDifferenceTolerancePercent = values[LengthDifferenceTolerancePercent] ?: defaults.lengthDifferenceTolerancePercent,
-            checkStrokeStructure = values[CheckStrokeStructure] ?: defaults.checkStrokeStructure,
-            checkStrokeOrder = values[CheckStrokeOrder] ?: defaults.checkStrokeOrder,
-            checkStrokeDirection = values[CheckStrokeDirection] ?: defaults.checkStrokeDirection,
-            readabilityEnabled = values[ReadabilityEnabled] ?: defaults.readabilityEnabled,
-            shapeEnabled = values[ShapeEnabled] ?: defaults.shapeEnabled,
-            strokeWritingEnabled = values[StrokeWritingEnabled] ?: defaults.strokeWritingEnabled,
-        ).roundedParameters()
+        return values.toRecognitionSettings(RecognitionSettings.touchInput())
     }
+
+    private fun Preferences.toRecognitionSettings(
+        defaults: RecognitionSettings,
+    ): RecognitionSettings =
+        defaults
+            .copy(
+                requiredMatchPercent =
+                    valueOrDefault(RequiredMatchPercent, defaults.requiredMatchPercent),
+                distanceTolerance =
+                    valueOrDefault(DistanceTolerance, defaults.distanceTolerance),
+                maxTranslationPercent =
+                    valueOrDefault(MaxTranslationPercent, defaults.maxTranslationPercent),
+                maxSizeCompensationPercent =
+                    this[MaxSizeCompensationPercent]?.takeUnless { it.isNaN() },
+                maxHorizontalStretchPercent =
+                    valueOrDefault(
+                        MaxHorizontalStretchPercent,
+                        defaults.maxHorizontalStretchPercent,
+                    ),
+                maxVerticalStretchPercent =
+                    valueOrDefault(
+                        MaxVerticalStretchPercent,
+                        defaults.maxVerticalStretchPercent,
+                    ),
+                maxRotationDegrees =
+                    valueOrDefault(MaxRotationDegrees, defaults.maxRotationDegrees),
+                maxShearDegrees = this[MaxShearDegrees]?.takeUnless { it.isNaN() },
+                jitterTolerancePercent =
+                    valueOrDefault(JitterTolerancePercent, defaults.jitterTolerancePercent),
+                maxCompensationBudgetPercent =
+                    this[MaxCompensationBudgetPercent]?.takeUnless { it.isNaN() },
+                connectionTolerancePercent =
+                    valueOrDefault(
+                        ConnectionTolerancePercent,
+                        defaults.connectionTolerancePercent,
+                    ),
+                protrusionTolerancePercent =
+                    valueOrDefault(
+                        ProtrusionTolerancePercent,
+                        defaults.protrusionTolerancePercent,
+                    ),
+                lengthDifferenceTolerancePercent =
+                    valueOrDefault(
+                        LengthDifferenceTolerancePercent,
+                        defaults.lengthDifferenceTolerancePercent,
+                    ),
+                checkStrokeStructure =
+                    valueOrDefault(CheckStrokeStructure, defaults.checkStrokeStructure),
+                checkStrokeOrder =
+                    valueOrDefault(CheckStrokeOrder, defaults.checkStrokeOrder),
+                checkStrokeDirection =
+                    valueOrDefault(CheckStrokeDirection, defaults.checkStrokeDirection),
+                readabilityEnabled =
+                    valueOrDefault(ReadabilityEnabled, defaults.readabilityEnabled),
+                shapeEnabled = valueOrDefault(ShapeEnabled, defaults.shapeEnabled),
+                strokeWritingEnabled =
+                    valueOrDefault(StrokeWritingEnabled, defaults.strokeWritingEnabled),
+            )
+            .roundedParameters()
 
     override suspend fun save(settings: RecognitionSettings) {
         val value = settings.roundedParameters()
@@ -81,7 +124,8 @@ class DataStoreRecognitionSettingsRepository internal constructor(private val st
         val MaxCompensationBudgetPercent = floatPreferencesKey("maxCompensationBudgetPercent")
         val ConnectionTolerancePercent = floatPreferencesKey("connectionTolerancePercent")
         val ProtrusionTolerancePercent = floatPreferencesKey("protrusionTolerancePercent")
-        val LengthDifferenceTolerancePercent = floatPreferencesKey("lengthDifferenceTolerancePercent")
+        val LengthDifferenceTolerancePercent =
+            floatPreferencesKey("lengthDifferenceTolerancePercent")
         val CheckStrokeStructure = booleanPreferencesKey("checkStrokeStructure")
         val CheckStrokeOrder = booleanPreferencesKey("checkStrokeOrder")
         val CheckStrokeDirection = booleanPreferencesKey("checkStrokeDirection")
@@ -90,3 +134,6 @@ class DataStoreRecognitionSettingsRepository internal constructor(private val st
         val StrokeWritingEnabled = booleanPreferencesKey("strokeWritingEnabled")
     }
 }
+
+private fun <T> Preferences.valueOrDefault(key: Preferences.Key<T>, fallback: T): T =
+    this[key] ?: fallback

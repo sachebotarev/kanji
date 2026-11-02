@@ -1,8 +1,14 @@
 package ru.mobui.kanji.checker.shape.compensation
 
 import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-
-import ru.mobui.kanji.domain.practice.*
+import ru.mobui.kanji.domain.practice.CheckCompensation
+import ru.mobui.kanji.domain.practice.CompensationBudget
+import ru.mobui.kanji.domain.practice.CompensationStage
+import ru.mobui.kanji.domain.practice.JitterCompensation
+import ru.mobui.kanji.domain.practice.RotationCompensation
+import ru.mobui.kanji.domain.practice.ShearCompensation
+import ru.mobui.kanji.domain.practice.SizeCompensation
+import ru.mobui.kanji.domain.practice.TranslationCompensation
 
 /** Joint similarity candidates, optional shear/stretch, then protected stroke cleanup. */
 internal class ProcrustesShapeCompensationPipeline(
@@ -14,7 +20,8 @@ internal class ProcrustesShapeCompensationPipeline(
     private val maxRotationDegrees: Float = 15f,
     private val enabled: Set<CompensationStage> = CompensationStage.entries.toSet(),
     private val shear: ShearCompensator = ShearCompensator(null),
-    private val stretch: StretchCompensator = StretchCompensator(15f, 15f),
+    private val stretch: StretchCompensator =
+        StretchCompensator(STRETCH_LIMIT_PERCENT, STRETCH_LIMIT_PERCENT),
 ) : CompensationPipeline {
     override fun prepare(
         strokes: List<List<ShapePoint>>,
@@ -24,62 +31,150 @@ internal class ProcrustesShapeCompensationPipeline(
     ): PreparedShapeCandidates {
         val cost = CompensationCostCalculator(reference)
         val original = mutableListOf<CompensatedShape>()
-        val identity = CheckCompensation(budget = CompensationBudget(limitPercent = budgetLimitPercent))
+        val identity =
+            CheckCompensation(budget = CompensationBudget(limitPercent = budgetLimitPercent))
 
         fun add(candidate: CompensatedShape) {
             original.add(candidate)
-            val smoothed = if (CompensationStage.Jitter in enabled)
-                jitter.compensate(candidate.strokes, protectedStrokes)
-            else SmoothedShape(candidate.strokes, JitterCompensation())
-            val result = candidate.compensation.copy(jitter = smoothed.result,
-                budget = candidate.compensation.budget.copy(
-                    jitterPercent = cost.removal(candidate.strokes, smoothed.strokes)))
+            val smoothed =
+                if (CompensationStage.Jitter in enabled)
+                    jitter.compensate(candidate.strokes, protectedStrokes)
+                else SmoothedShape(candidate.strokes, JitterCompensation())
+            val result =
+                candidate.compensation.copy(
+                    jitter = smoothed.result,
+                    budget =
+                        candidate.compensation.budget.copy(
+                            jitterPercent = cost.removal(candidate.strokes, smoothed.strokes),
+                        ),
+                )
             if (smoothed.result.isApplied) original.add(CompensatedShape(smoothed.strokes, result))
-
         }
 
         // Every subset is fitted independently: omitting a component is an actual constraint.
         // The matcher chooses the least expensive passing candidate, including the raw drawing.
-        val stages = listOf(CompensationStage.Translation, CompensationStage.Size, CompensationStage.Rotation)
-        for (mask in 0..7) {
-            if (stages.indices.any { mask and (1 shl it) != 0 && stages[it] !in enabled }) continue
-            val fitted = procrustes.compensate(strokes, reference, assignment,
-                translate = mask and 1 != 0, resize = mask and 2 != 0, rotate = mask and 4 != 0)
-            if (!fitted.rootMeanSquaredError.isFinite()) continue
-            val translated = if (fitted.translationX == 0f && fitted.translationY == 0f) strokes else strokes.map { s -> s.map { ShapePoint(it.x + fitted.translationX, it.y + fitted.translationY) } }
-            val pivotX = fitted.centroid.x + fitted.translationX
-            val pivotY = fitted.centroid.y + fitted.translationY
-            val resized = if (fitted.scaleFactor == 1f) translated else translated.map { s -> s.map {
-                ShapePoint(pivotX + (it.x - pivotX) * fitted.scaleFactor,
-                    pivotY + (it.y - pivotY) * fitted.scaleFactor)
-            } }
-            val compensation = identity.copy(
-                translation = TranslationCompensation(fitted.translationX * 100, fitted.translationY * 100, maxTranslationPercent),
-                size = SizeCompensation(fitted.scaleFactor, maxSizeCompensationPercent),
-                rotation = RotationCompensation(degrees = fitted.rotationDegrees, limitDegrees = maxRotationDegrees),
-                budget = identity.budget.copy(
-                    translationPercent = cost.movement(strokes, translated),
-                    sizePercent = cost.movement(translated, resized),
-                    rotationPercent = if (fitted.rotationDegrees == 0f) 0f else cost.movement(resized, fitted.strokes)),
+        val stages =
+            listOf(
+                CompensationStage.Translation,
+                CompensationStage.Size,
+                CompensationStage.Rotation,
             )
-            val joint = CompensatedShape(fitted.strokes, compensation)
+        for (mask in 0..ALL_TRANSFORM_FLAGS) {
+            if (stages.indices.any { mask and (1 shl it) != 0 && stages[it] !in enabled }) continue
+            val fitted =
+                procrustes.compensate(
+                    strokes,
+                    reference,
+                    assignment,
+                    translate = mask and 1 != 0,
+                    resize = mask and 2 != 0,
+                    rotate = mask and 4 != 0,
+                )
+            if (!fitted.rootMeanSquaredError.isFinite()) continue
+            val joint = createJointShape(fitted, strokes, identity, cost)
             add(joint)
-            val sheared = if (CompensationStage.Shear in enabled) shear.compensate(joint.strokes, reference)
-                else ShearedShape(joint.strokes, ShearCompensation())
-            val throughShear = CompensatedShape(sheared.strokes, compensation.copy(shear = sheared.result,
-                budget = compensation.budget.copy(shearPercent = cost.movement(joint.strokes, sheared.strokes))))
-            if (sheared.result.isApplied) add(throughShear)
-            if (CompensationStage.Stretch in enabled) {
-                // Stretch is optional independently of shear, including when shear exceeds its limit.
-                for (candidate in if (sheared.result.isApplied) listOf(joint, throughShear) else listOf(joint)) {
-                    val stretched = stretch.compensate(candidate.strokes, reference)
-                    if (stretched.result.isApplied) add(CompensatedShape(stretched.strokes,
-                        candidate.compensation.copy(stretch = stretched.result,
-                            budget = candidate.compensation.budget.copy(
-                                stretchPercent = cost.movement(candidate.strokes, stretched.strokes)))))
-                }
-            }
+            addShearAndStretch(joint, reference, cost, ::add)
         }
         return PreparedShapeCandidates(original, identity)
     }
+
+    private fun createJointShape(
+        fitted: ProcrustesResult,
+        strokes: List<List<ShapePoint>>,
+        identity: CheckCompensation,
+        cost: CompensationCostCalculator,
+    ): CompensatedShape {
+        val translated =
+            if (fitted.translationX == 0f && fitted.translationY == 0f) strokes
+            else
+                strokes.map { s ->
+                    s.map { ShapePoint(it.x + fitted.translationX, it.y + fitted.translationY) }
+                }
+        val pivotX = fitted.centroid.x + fitted.translationX
+        val pivotY = fitted.centroid.y + fitted.translationY
+        val resized =
+            if (fitted.scaleFactor == 1f) translated
+            else
+                translated.map { s ->
+                    s.map {
+                        ShapePoint(
+                            pivotX + (it.x - pivotX) * fitted.scaleFactor,
+                            pivotY + (it.y - pivotY) * fitted.scaleFactor,
+                        )
+                    }
+                }
+        val compensation =
+            identity.copy(
+                translation =
+                    TranslationCompensation(
+                        fitted.translationX * PERCENT_SCALE,
+                        fitted.translationY * PERCENT_SCALE,
+                        maxTranslationPercent,
+                    ),
+                size = SizeCompensation(fitted.scaleFactor, maxSizeCompensationPercent),
+                rotation =
+                    RotationCompensation(
+                        degrees = fitted.rotationDegrees,
+                        limitDegrees = maxRotationDegrees,
+                    ),
+                budget =
+                    identity.budget.copy(
+                        translationPercent = cost.movement(strokes, translated),
+                        sizePercent = cost.movement(translated, resized),
+                        rotationPercent =
+                            if (fitted.rotationDegrees == 0f) 0f
+                            else cost.movement(resized, fitted.strokes),
+                    ),
+            )
+        return CompensatedShape(fitted.strokes, compensation)
+    }
+
+    private fun addShearAndStretch(
+        joint: CompensatedShape,
+        reference: List<List<ShapePoint>>,
+        cost: CompensationCostCalculator,
+        add: (CompensatedShape) -> Unit,
+    ) {
+        val sheared =
+            if (CompensationStage.Shear in enabled) shear.compensate(joint.strokes, reference)
+            else ShearedShape(joint.strokes, ShearCompensation())
+        val throughShear =
+            CompensatedShape(
+                sheared.strokes,
+                joint.compensation.copy(
+                    shear = sheared.result,
+                    budget =
+                        joint.compensation.budget.copy(
+                            shearPercent = cost.movement(joint.strokes, sheared.strokes),
+                        ),
+                ),
+            )
+        if (sheared.result.isApplied) add(throughShear)
+        if (CompensationStage.Stretch in enabled) {
+            val candidates =
+                if (sheared.result.isApplied) listOf(joint, throughShear) else listOf(joint)
+            for (candidate in candidates) {
+                val stretched = stretch.compensate(candidate.strokes, reference)
+                if (stretched.result.isApplied) {
+                    add(
+                        CompensatedShape(
+                            stretched.strokes,
+                            candidate.compensation.copy(
+                                stretch = stretched.result,
+                                budget =
+                                    candidate.compensation.budget.copy(
+                                        stretchPercent =
+                                            cost.movement(candidate.strokes, stretched.strokes),
+                                    ),
+                            ),
+                        ),
+                    )
+                }
+            }
+        }
+    }
 }
+
+private const val STRETCH_LIMIT_PERCENT = 15f
+private const val ALL_TRANSFORM_FLAGS = 7
+private const val PERCENT_SCALE = 100

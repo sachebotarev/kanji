@@ -1,15 +1,17 @@
 package ru.mobui.kanji.checker.shape.compensation
 
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
 import ru.mobui.kanji.checker.shape.coverage.RasterCoverageCalculator
 import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-
-import org.junit.Assert.*
-import org.junit.Test
 
 class CompensationStagesTest {
     private val reference = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.6f, .4f)))
 
-    @Test fun stretchFitsBothAxesIndependentlyAndKeepsCenter() {
+    @Test
+    fun stretchFitsBothAxesIndependentlyAndKeepsCenter() {
         val input = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.4f, .6f)))
         val result = StretchCompensator(100f, 50f).compensate(input, reference)
         assertFalse(result.result.hasError)
@@ -23,7 +25,8 @@ class CompensationStagesTest {
         assertTrue(StretchCompensator(100f, 49f).compensate(input, reference).result.hasError)
     }
 
-    @Test fun zeroStretchDisablesOnlyTheSelectedAxis() {
+    @Test
+    fun zeroStretchDisablesOnlyTheSelectedAxis() {
         val input = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.4f, .6f)))
         val vertical = StretchCompensator(0f, 50f).compensate(input, reference)
         assertFalse(vertical.result.hasError)
@@ -39,7 +42,8 @@ class CompensationStagesTest {
         assertEquals(.6f, horizontal.strokes[0][1].y, 0f)
     }
 
-    @Test fun sharedFrameDoesNotSilentlyUndoTranslation() {
+    @Test
+    fun sharedFrameDoesNotSilentlyUndoTranslation() {
         val target = listOf(listOf(ShapePoint(.2f, .2f), ShapePoint(.8f, .6f)))
         val shifted = target.map { s -> s.map { ShapePoint(it.x + .15f, it.y) } }
         val checker = RasterCoverageCalculator(.01f)
@@ -48,8 +52,17 @@ class CompensationStagesTest {
         assertTrue(checker.compare(shifted, prepared)!!.inputPercent < 50f)
     }
 
-    @Test fun jitterRemovesSmallOscillationsWithoutChangingEndpointsOrLargeCorner() {
-        val noisy = listOf((0..20).map { i -> ShapePoint(.1f + i * .04f, if (i == 0 || i == 20) .5f else .5f + if (i % 2 == 0) .002f else -.002f) })
+    @Test
+    fun jitterRemovesSmallOscillationsWithoutChangingEndpointsOrLargeCorner() {
+        val noisy =
+            listOf(
+                (0..20).map { i ->
+                    ShapePoint(
+                        .1f + i * .04f,
+                        if (i == 0 || i == 20) .5f else .5f + if (i % 2 == 0) .002f else -.002f,
+                    )
+                },
+            )
         val snapshot = noisy.map { it.toList() }
         val result = JitterCompensator(.5f).compensate(noisy)
         assertEquals(19, result.result.removedPoints)
@@ -57,7 +70,8 @@ class CompensationStagesTest {
         assertTrue(result.result.maxDeviationPercent <= .5f)
         assertEquals(snapshot, noisy)
         assertEquals(noisy, JitterCompensator(0f).compensate(noisy).strokes)
-        val corner = listOf(listOf(ShapePoint(.1f, .1f), ShapePoint(.1f, .9f), ShapePoint(.9f, .9f)))
+        val corner =
+            listOf(listOf(ShapePoint(.1f, .1f), ShapePoint(.1f, .9f), ShapePoint(.9f, .9f)))
         assertEquals(corner, JitterCompensator(.5f).compensate(corner).strokes)
     }
 }

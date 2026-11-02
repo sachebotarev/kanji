@@ -6,7 +6,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-internal enum class JapaneseModelStatus { Loading, Missing, Ready }
+internal enum class JapaneseModelStatus {
+    Loading,
+    Missing,
+    Ready,
+}
 
 /** Application-owned download; screen navigation never cancels or duplicates it. */
 internal class JapaneseModelLoader(
@@ -26,7 +30,8 @@ internal class JapaneseModelLoader(
         scope.launch {
             try {
                 val ready = isDownloaded() || download()
-                mutableStatus.value = if (ready) JapaneseModelStatus.Ready else JapaneseModelStatus.Missing
+                mutableStatus.value =
+                    if (ready) JapaneseModelStatus.Ready else JapaneseModelStatus.Missing
                 mutableError.value = !ready
             } catch (cancelled: CancellationException) {
                 mutableStatus.value = JapaneseModelStatus.Missing
@@ -38,5 +43,7 @@ internal class JapaneseModelLoader(
         }
     }
 
-    fun dismissError() { mutableError.value = false }
+    fun dismissError() {
+        mutableError.value = false
+    }
 }

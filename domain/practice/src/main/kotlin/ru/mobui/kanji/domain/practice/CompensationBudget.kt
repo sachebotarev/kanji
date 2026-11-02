@@ -10,6 +10,15 @@ data class CompensationBudget(
     val limitPercent: Float? = null,
     val shearPercent: Float = 0f,
 ) {
-    val totalPercent: Float get() = translationPercent + sizePercent + stretchPercent + rotationPercent + jitterPercent + shearPercent
-    val hasError: Boolean get() = limitPercent != null && totalPercent > limitPercent + .0001f
+    val totalPercent: Float
+        get() =
+            translationPercent +
+                sizePercent +
+                stretchPercent +
+                rotationPercent +
+                jitterPercent +
+                shearPercent
+
+    val hasError: Boolean
+        get() = limitPercent != null && totalPercent > limitPercent + .0001f
 }

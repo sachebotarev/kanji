@@ -8,10 +8,7 @@
     <string name="dashboard_mix">Smart mix</string>
     <string name="dashboard_dictionaries">Vocabulary / 単語</string>
     <string name="dashboard_textbooks">Catalog</string>
-    <string name="dashboard_books_count">Textbooks: %1$d · active: %2$d</string>
     <string name="dashboard_personal">My vocabulary</string>
-    <string name="dashboard_personal_count">Total %1$d · learned %2$d</string>
-    <string name="dashboard_personal_errors">Errors: %1$d · hints: %2$d</string>
     <string name="dashboard_history">Session history</string>
     <string name="dashboard_history_detail">Results and error archive</string>
     <string name="dashboard_constructor">Practice builder</string>

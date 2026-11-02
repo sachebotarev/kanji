@@ -2,27 +2,52 @@ package ru.mobui.kanji.data.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.test.platform.app.InstrumentationRegistry
-import kotlinx.coroutines.*
-import org.junit.Assert.*
+import java.io.File
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.runBlocking
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNull
 import org.junit.Test
 import ru.mobui.kanji.domain.practice.RecognitionSettings
-import java.io.File
 
 class RecognitionSettingsPersistenceTest {
-    @Test fun everySettingSurvivesClosingAndReopeningTheStoreAndResetIsDurable() = runBlocking {
+    @Test
+    fun everySettingSurvivesClosingAndReopeningTheStoreAndResetIsDurable() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val file = File(context.cacheDir, "settings-${System.nanoTime()}.preferences_pb")
         var scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-        fun repository() = DataStoreRecognitionSettingsRepository(PreferenceDataStoreFactory.create(scope = scope, produceFile = { file }))
-        val changed = RecognitionSettings.touchInput().copy(
-            requiredMatchPercent = 96f, distanceTolerance = .03f, maxTranslationPercent = 8f,
-            maxSizeCompensationPercent = 0f, maxHorizontalStretchPercent = 12f, maxVerticalStretchPercent = 14f,
-            maxRotationDegrees = 6f, maxShearDegrees = 4f, jitterTolerancePercent = .3f,
-            maxCompensationBudgetPercent = null,
-            connectionTolerancePercent = 4f, protrusionTolerancePercent = 2f, lengthDifferenceTolerancePercent = 7f,
-            checkStrokeStructure = false, checkStrokeOrder = true, checkStrokeDirection = true,
-            readabilityEnabled = false, shapeEnabled = false, strokeWritingEnabled = false,
-        ).roundedParameters()
+        fun repository() =
+            DataStoreRecognitionSettingsRepository(
+                PreferenceDataStoreFactory.create(scope = scope, produceFile = { file }),
+            )
+        val changed =
+            RecognitionSettings.touchInput()
+                .copy(
+                    requiredMatchPercent = 96f,
+                    distanceTolerance = .03f,
+                    maxTranslationPercent = 8f,
+                    maxSizeCompensationPercent = 0f,
+                    maxHorizontalStretchPercent = 12f,
+                    maxVerticalStretchPercent = 14f,
+                    maxRotationDegrees = 6f,
+                    maxShearDegrees = 4f,
+                    jitterTolerancePercent = .3f,
+                    maxCompensationBudgetPercent = null,
+                    connectionTolerancePercent = 4f,
+                    protrusionTolerancePercent = 2f,
+                    lengthDifferenceTolerancePercent = 7f,
+                    checkStrokeStructure = false,
+                    checkStrokeOrder = true,
+                    checkStrokeDirection = true,
+                    readabilityEnabled = false,
+                    shapeEnabled = false,
+                    strokeWritingEnabled = false,
+                )
+                .roundedParameters()
         try {
             val first = repository()
             assertNull(first.load())

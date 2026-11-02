@@ -11,7 +11,9 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.compositionLocalOf
 
-/** Shared with the catalog scaffold so a list that already fits does not collapse the filter strip. */
+/**
+ * Shared with the catalog scaffold so a list that already fits does not collapse the filter strip.
+ */
 internal val LocalCatalogScrollable = compositionLocalOf<MutableState<Boolean>?> { null }
 
 @Composable

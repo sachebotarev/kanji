@@ -1,26 +1,69 @@
 package ru.mobui.kanji.checker.shape.compensation
 
-import ru.mobui.kanji.checker.shape.ShapeCheckConfig
-import ru.mobui.kanji.checker.shape.ShapeKanjiChecker
-import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
-import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
-
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
-import ru.mobui.kanji.domain.handwriting.*
-import ru.mobui.kanji.domain.practice.*
+import ru.mobui.kanji.checker.shape.ShapeCheckConfig
+import ru.mobui.kanji.checker.shape.ShapeKanjiChecker
+import ru.mobui.kanji.checker.shape.matching.ShapeMatcher
+import ru.mobui.kanji.checker.strokes.geometry.ShapePoint
+import ru.mobui.kanji.domain.handwriting.InkPoint
+import ru.mobui.kanji.domain.handwriting.InkStroke
+import ru.mobui.kanji.domain.handwriting.InkTool
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
+import ru.mobui.kanji.domain.handwriting.ReferencePoint
+import ru.mobui.kanji.domain.handwriting.WritingSample
+import ru.mobui.kanji.domain.practice.CheckFailure
+import ru.mobui.kanji.domain.practice.CheckRequest
+import ru.mobui.kanji.domain.practice.CheckVerdict
+import ru.mobui.kanji.domain.practice.CompensationBudget
+import ru.mobui.kanji.domain.practice.CompensationStage
+import ru.mobui.kanji.domain.practice.KanjiId
+import ru.mobui.kanji.domain.practice.KanjiReferenceSource
 
 class CompensationBudgetTest {
-    private val reference = ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .2f), ReferencePoint(.6f, .4f))))
-    private fun input(factor: Float) = WritingSample(listOf(InkStroke(reference.strokes.single().mapIndexed { i, p ->
-        InkPoint(.43f + (p.x - .4f) * factor, .32f + (p.y - .3f) * factor, i.toLong())
-    }, InkTool.Finger)))
-    private val config = ShapeCheckConfig(requiredMatchPercent = 99.9f, distanceTolerance = .002f, maxTranslationPercent = 10f, maxSizeCompensationPercent = 30f, maxCompensationBudgetPercent = 10f, enabledCompensations = setOf(CompensationStage.Translation, CompensationStage.Size))
+    private val reference =
+        ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .2f), ReferencePoint(.6f, .4f))))
 
-    @Test fun aggregateRejectsEvenWhenEachStageAndShapePass() = runBlocking {
-        val checker = ShapeKanjiChecker(KanjiReferenceSource { reference }, Dispatchers.Unconfined, config, diagnosticsEnabled = true)
+    private fun input(factor: Float) =
+        WritingSample(
+            listOf(
+                InkStroke(
+                    reference.strokes.single().mapIndexed { i, p ->
+                        InkPoint(
+                            .43f + (p.x - .4f) * factor,
+                            .32f + (p.y - .3f) * factor,
+                            i.toLong(),
+                        )
+                    },
+                    InkTool.Finger,
+                ),
+            ),
+        )
+
+    private val config =
+        ShapeCheckConfig(
+            requiredMatchPercent = 99.9f,
+            distanceTolerance = .002f,
+            maxTranslationPercent = 10f,
+            maxSizeCompensationPercent = 30f,
+            maxCompensationBudgetPercent = 10f,
+            enabledCompensations = setOf(CompensationStage.Translation, CompensationStage.Size),
+        )
+
+    @Test
+    fun aggregateRejectsEvenWhenEachStageAndShapePass() = runBlocking {
+        val checker =
+            ShapeKanjiChecker(
+                KanjiReferenceSource { reference },
+                Dispatchers.Unconfined,
+                config,
+                diagnosticsEnabled = true,
+            )
         val report = checker.checkWithDetails(CheckRequest("t", "c", KanjiId("any"), 0, input(.8f)))
         assertEquals(CheckVerdict.Incorrect, report.verdict)
         assertFalse(report.compensation.translation.hasError)
@@ -32,22 +75,34 @@ class CompensationBudgetTest {
         assertEquals(listOf(CheckFailure.Budget(report.compensation.budget)), report.failures)
         assertNotNull(report.compensatedDrawing)
         assertEquals("100.0", report.metrics["coverage.final.percent"])
-        assertEquals(CheckVerdict.Correct, checker.check(CheckRequest("t", "c", KanjiId("any"), 0, input(.99f))))
+        assertEquals(
+            CheckVerdict.Correct,
+            checker.check(CheckRequest("t", "c", KanjiId("any"), 0, input(.99f))),
+        )
     }
 
-    @Test fun thresholdIsInclusiveAndCorrectionsDoNotCancel() {
-        val exact = CompensationBudget(translationPercent = 4f, sizePercent = 6f, limitPercent = 10f)
+    @Test
+    fun thresholdIsInclusiveAndCorrectionsDoNotCancel() {
+        val exact =
+            CompensationBudget(translationPercent = 4f, sizePercent = 6f, limitPercent = 10f)
         assertFalse(exact.hasError)
         assertTrue(exact.copy(stretchPercent = .001f).hasError)
         assertFalse(exact.copy(stretchPercent = 20f, limitPercent = null).hasError)
-        val cost = CompensationCostCalculator(listOf(listOf(ShapePoint(0f, 0f), ShapePoint(1f, 0f))))
+        val cost =
+            CompensationCostCalculator(listOf(listOf(ShapePoint(0f, 0f), ShapePoint(1f, 0f))))
         val before = listOf(listOf(ShapePoint(0f, 0f), ShapePoint(1f, 0f)))
         val moved = listOf(listOf(ShapePoint(.1f, 0f), ShapePoint(1.1f, 0f)))
         assertEquals(20f, cost.movement(before, moved) + cost.movement(moved, before), .0001f)
     }
 
-    @Test fun budgetCannotWeakenAnIndividualLimitAndAllFailuresAreReturned() {
-        val tight = config.copy(maxTranslationPercent = .5f, maxSizeCompensationPercent = 1f, maxCompensationBudgetPercent = 1f)
+    @Test
+    fun budgetCannotWeakenAnIndividualLimitAndAllFailuresAreReturned() {
+        val tight =
+            config.copy(
+                maxTranslationPercent = .5f,
+                maxSizeCompensationPercent = 1f,
+                maxCompensationBudgetPercent = 1f,
+            )
         val result = ShapeMatcher(tight).compare(input(.8f), reference)
         assertFalse(result.isAccepted(tight))
         assertTrue(result.compensation.failures.any { it is CheckFailure.Translation })

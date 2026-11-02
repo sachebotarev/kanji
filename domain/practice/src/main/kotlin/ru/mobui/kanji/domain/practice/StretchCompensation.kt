@@ -15,9 +15,19 @@ data class StretchCompensation(
         require(horizontalLimitPercent.isFinite() && horizontalLimitPercent >= 0f)
         require(verticalLimitPercent.isFinite() && verticalLimitPercent >= 0f)
     }
-    val changeXPercent: Float get() = (scaleX - 1f) * 100f
-    val changeYPercent: Float get() = (scaleY - 1f) * 100f
-    val hasError: Boolean get() = !isDefined || abs(changeXPercent) > horizontalLimitPercent + .0001f ||
-        abs(changeYPercent) > verticalLimitPercent + .0001f
-    val isApplied: Boolean get() = isDefined && (scaleX != 1f || scaleY != 1f)
+
+    val changeXPercent: Float
+        get() = (scaleX - 1f) * 100f
+
+    val changeYPercent: Float
+        get() = (scaleY - 1f) * 100f
+
+    val hasError: Boolean
+        get() =
+            !isDefined ||
+                abs(changeXPercent) > horizontalLimitPercent + .0001f ||
+                abs(changeYPercent) > verticalLimitPercent + .0001f
+
+    val isApplied: Boolean
+        get() = isDefined && (scaleX != 1f || scaleY != 1f)
 }

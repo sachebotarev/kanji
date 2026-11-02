@@ -25,16 +25,27 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import kotlin.math.max
 import kotlin.math.min
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 
 /** Source-independent rendering; loading and fallback selection belong to the caller. */
 @Composable
-internal fun KanjiDrawing(symbol: String, drawing: ReferenceDrawing?, modifier: Modifier = Modifier) {
+internal fun KanjiDrawing(
+    symbol: String,
+    drawing: ReferenceDrawing?,
+    modifier: Modifier = Modifier,
+) {
     if (drawing == null) {
-        Box(modifier.fillMaxWidth().heightIn(min = 72.dp, max = 120.dp), contentAlignment = Alignment.Center) {
-            Text(symbol, style = CatalogJapaneseStyle.copy(fontSize = 72.sp), color = CatalogJapaneseColor)
+        Box(
+            modifier.fillMaxWidth().heightIn(min = 72.dp, max = 120.dp),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                symbol,
+                style = CatalogJapaneseStyle.copy(fontSize = 72.sp),
+                color = CatalogJapaneseColor,
+            )
         }
         return
     }
@@ -44,7 +55,7 @@ internal fun KanjiDrawing(symbol: String, drawing: ReferenceDrawing?, modifier: 
     val measurer = rememberTextMeasurer()
     BoxWithConstraints(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         val square = minOf(maxWidth, 188.dp)
-        val span = (bounds.bottom - bounds.top).coerceIn(0.08f, 1f)
+        val span = (bounds.bottom - bounds.top).coerceIn(MIN_VISIBLE_GLYPH_SPAN, 1f)
         val height = square * span
         Canvas(Modifier.width(square).height(height).semantics { contentDescription = symbol }) {
             val side = size.width
@@ -56,11 +67,28 @@ internal fun KanjiDrawing(symbol: String, drawing: ReferenceDrawing?, modifier: 
                     val y = point.y * side - shiftY
                     if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
                 }
-                drawPath(path, color, style = Stroke(side * 3f / 109f, cap = StrokeCap.Round, join = StrokeJoin.Round))
+                drawPath(
+                    path,
+                    color,
+                    style =
+                        Stroke(
+                            side * GLYPH_STROKE_UNITS / KANJIVG_VIEWPORT_UNITS,
+                            cap = StrokeCap.Round,
+                            join = StrokeJoin.Round,
+                        ),
+                )
             }
             drawing.strokeNumbers.forEach { number ->
-                val label = measurer.measure(number.number.toString(), TextStyle(color = secondary, fontSize = 14.sp))
-                drawText(label, topLeft = Offset(number.x * side, number.y * side - shiftY - label.firstBaseline))
+                val label =
+                    measurer.measure(
+                        number.number.toString(),
+                        TextStyle(color = secondary, fontSize = 14.sp),
+                    )
+                drawText(
+                    label,
+                    topLeft =
+                        Offset(number.x * side, number.y * side - shiftY - label.firstBaseline),
+                )
             }
         }
     }
@@ -77,6 +105,11 @@ private fun drawingBounds(drawing: ReferenceDrawing): DrawingBounds {
     }
     drawing.strokes.forEach { stroke -> stroke.forEach { include(it.y) } }
     drawing.strokeNumbers.forEach { include(it.y) }
-    val pad = 3f / 109f + 0.02f
+    val pad = GLYPH_STROKE_UNITS / KANJIVG_VIEWPORT_UNITS + GLYPH_BOUNDS_PADDING
     return DrawingBounds(minY - pad, maxY + pad)
 }
+
+private const val MIN_VISIBLE_GLYPH_SPAN = 0.08f
+private const val GLYPH_STROKE_UNITS = 3f
+private const val KANJIVG_VIEWPORT_UNITS = 109f
+private const val GLYPH_BOUNDS_PADDING = 0.02f

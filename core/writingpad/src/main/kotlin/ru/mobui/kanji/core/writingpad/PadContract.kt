@@ -1,7 +1,7 @@
 package ru.mobui.kanji.core.writingpad
 
-import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.handwriting.InkStroke
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.handwriting.WritingSample
 
 /** The owner must advance revision for every edit, including undo. */
@@ -18,7 +18,9 @@ data class PadUiState(
 /** Display content is distinct from user input; a reference is never a user answer. */
 sealed interface PadContent {
     data object Empty : PadContent
+
     data class UserInk(val sample: WritingSample) : PadContent
+
     data class Reference(val drawing: ReferenceDrawing) : PadContent
 }
 
