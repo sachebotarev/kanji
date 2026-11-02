@@ -27,7 +27,7 @@ internal class PreparedCatalogContent(assets: AssetManager) {
         val words = rows("words-translations.json")
         for (index in 0 until words.length()) {
             val item = words.getJSONObject(index)
-            translations.put("${item.getInt("wordId")}:${item.getString("languageTag")}", item)
+            translations.put("${item.getInt("word_id")}:${item.getString("language_tag")}", item)
         }
         root.put("wordContent", translations)
         val descriptions = rows("source-descriptions.json")

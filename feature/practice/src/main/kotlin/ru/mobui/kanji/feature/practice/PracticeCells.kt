@@ -259,7 +259,7 @@ private fun KanjiCell(state: KanjiCellState, activeStroke: () -> InkStroke?, onC
                 .semantics {
                     contentDescription = label
                     stateDescription = selectedLabel
-                    this.selected = selected
+                    this.selected = state.selected
                 }
                 .testTag("kanji-cell-$index"),
         ) {
