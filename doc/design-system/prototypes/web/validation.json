@@ -1,0 +1,11 @@
+{
+  "scope": "General concept prototype; textbooks use the restored module at ../textbooks/",
+  "screens": 5,
+  "layoutCases": 30,
+  "horizontalOverflow": [],
+  "catalogRedirects": 3,
+  "comparisonImagePairs": 16,
+  "errors": [],
+  "missingResources": [],
+  "limitations": "Android behavior and full accessibility are not verified by this browser check."
+}

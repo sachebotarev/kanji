@@ -1,0 +1,771 @@
+{
+  "status": "user-approved final catalog design",
+  "date": "2026-11-01T18:54:15.064Z",
+  "scope": "17 catalog screens, shared widgets and states",
+  "androidImplemented": false,
+  "defaultTheme": "dark",
+  "rendering": "Playwright / installed Chrome; CSS phone 411.43 × 914.29; supplemental width 360, font scale 1.6",
+  "errors": [],
+  "sources": [
+    {
+      "file": "doc/design-system/prototypes/textbooks/app.js",
+      "sha256": "e8b634eb2e966e55162040d741bb2fa072aee826c7f1e607028ab8f74f2172ac"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/screens.js",
+      "sha256": "d03d3dfe4fe922eb3c7970d3067dacd1a97669513b8cace4adb90b263b194ae2"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/styles.css",
+      "sha256": "01a7c9fe9e473d54b952df0be5070b6267136540fb1ec2a58d5c5b2bf57916f1"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/components.css",
+      "sha256": "a61bb4515259c85c12bda86bb8a839bbcd8c1ff355f0c66fbbab530b546615b3"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/tokens.css",
+      "sha256": "18767497dca2b9d0e9ed3e5aa6df3322fdfd0c432ee72f5a258be634e4547179"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/index.html",
+      "sha256": "e8b817ba9b0ae964b2372925ceead8174889f98a6461e9f4d7764f1fea0c7ca7"
+    },
+    {
+      "file": "doc/design-system/prototypes/textbooks/assets/catalog.js",
+      "sha256": "c725f5c9f22344be616a39e6997acad1902a636f9fc27b3ae7bc9c857bbc9649"
+    }
+  ],
+  "captures": [
+    {
+      "id": "cat-01",
+      "title": "Каталог",
+      "route": "catalog",
+      "file": "cat-01-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "78880266ac31d57d742fe56a9b439c6a6cf83f1d618c064eb5dd1494a47da45f"
+    },
+    {
+      "id": "cat-01",
+      "title": "Каталог",
+      "route": "catalog",
+      "file": "cat-01-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "47149e8ee02391a77ec3feb61c67dcc0b0294bb40ec8cc2d41b37fad5224af8e"
+    },
+    {
+      "id": "cat-02",
+      "title": "Учебник · главы",
+      "route": "source/2",
+      "file": "cat-02-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "930d771144911d7e0eb2bcc54c024af374cced613855eb13748a9bae95028ade"
+    },
+    {
+      "id": "cat-02",
+      "title": "Учебник · главы",
+      "route": "source/2",
+      "file": "cat-02-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "98add33c79b052c4cf435d062926592c0232846d0d8eb5da641d422a53081f69"
+    },
+    {
+      "id": "cat-03",
+      "title": "Кандзи учебника",
+      "route": "source/2?tab=1",
+      "file": "cat-03-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "1b017deab65ce5064958e524e129c4722a1b2d37ed1ca141b9b3a0fcd48f82b2"
+    },
+    {
+      "id": "cat-03",
+      "title": "Кандзи учебника",
+      "route": "source/2?tab=1",
+      "file": "cat-03-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "d8af8b96367e6f3807d7433d560c3f8556dc0a608461bf4cd8a73c9f9a08ea0d"
+    },
+    {
+      "id": "cat-04",
+      "title": "Слова учебника",
+      "route": "source/2?tab=2",
+      "file": "cat-04-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "48e27a7a507da8bb4cc77483ea10e6d9d0149518db6b5a1b01e17559240a9950"
+    },
+    {
+      "id": "cat-04",
+      "title": "Слова учебника",
+      "route": "source/2?tab=2",
+      "file": "cat-04-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3738f23dcca73b3fe8741fcfae24e6b1eb6fc7c0ef0f559bdbe6350a69d7ab14"
+    },
+    {
+      "id": "cat-05",
+      "title": "Глава · кандзи",
+      "route": "chapter/2/1",
+      "file": "cat-05-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "b7072b5abea5028c76344733d6135669f106e52b6762571fa908187e0386113a"
+    },
+    {
+      "id": "cat-05",
+      "title": "Глава · кандзи",
+      "route": "chapter/2/1",
+      "file": "cat-05-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "79d9ee11d75da27ea4ed421b52fa01177c6a7977b501cabe02fcfb1fe2691a96"
+    },
+    {
+      "id": "cat-06",
+      "title": "Глава · слова",
+      "route": "chapter/2/1?tab=2",
+      "file": "cat-06-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "1a67467e99512c910dc915a60a98e7fd1ca9d336f3451867743581b02246982f"
+    },
+    {
+      "id": "cat-06",
+      "title": "Глава · слова",
+      "route": "chapter/2/1?tab=2",
+      "file": "cat-06-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "2a8cee0b07ef53e84469008d90993619c5f4160044c15c5a64f0d8f988ceb4e8"
+    },
+    {
+      "id": "cat-07",
+      "title": "Карточка слова",
+      "route": "word/109/2",
+      "file": "cat-07-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3d494b78c12abd9cf4a936a3994313892570f515233a7a67a67787c7595a9a9e"
+    },
+    {
+      "id": "cat-07",
+      "title": "Карточка слова",
+      "route": "word/109/2",
+      "file": "cat-07-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "57903db72d8633655673498c038be89a96e591fce11e5def0fa3d55f264c9a34"
+    },
+    {
+      "id": "cat-08",
+      "title": "Карточка кандзи",
+      "route": "kanji/26085/2",
+      "file": "cat-08-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "55dcf27c2c07385317f111748da5cdbc205f623057c0e0eab0c89bdbcaca3d33"
+    },
+    {
+      "id": "cat-08",
+      "title": "Карточка кандзи",
+      "route": "kanji/26085/2",
+      "file": "cat-08-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "5debbb0b579b80e5174add100150f99697110a33cadf2a867fbb7174fb65a18f"
+    },
+    {
+      "id": "cat-09",
+      "title": "Карточка ключа",
+      "route": "radical/72/2",
+      "file": "cat-09-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "4ef94961c4f7a6cfe5def2a7fb90847bc7484bfef53150f2abc0c2e9ccc65c26"
+    },
+    {
+      "id": "cat-09",
+      "title": "Карточка ключа",
+      "route": "radical/72/2",
+      "file": "cat-09-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "28d22fb58946e64512f9a40b17ed7b645c241b3267cb5df3b72a6567e627999a"
+    },
+    {
+      "id": "cat-10",
+      "title": "Выбор главы",
+      "route": "filter/chapter",
+      "file": "cat-10-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3db11f865d3e03423f23df18f0ad47ef653fc5021bf981ee5d085fc49b72c208"
+    },
+    {
+      "id": "cat-10",
+      "title": "Выбор главы",
+      "route": "filter/chapter",
+      "file": "cat-10-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "d246dc621bb7c47befe83cebbab50361477a20e7d51a3be5d6496852dfb0aa21"
+    },
+    {
+      "id": "cat-11",
+      "title": "Выбор кандзи",
+      "route": "filter/kanji",
+      "file": "cat-11-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "14f5a31d48a34c9f00a7a30f4c2f7e94a079c3abb67d1bb002e8bc82fb029877"
+    },
+    {
+      "id": "cat-11",
+      "title": "Выбор кандзи",
+      "route": "filter/kanji",
+      "file": "cat-11-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3c593cd0e332ea2b5451c85d7b9c123a5e8f496660ec5358baa48252bb2436c4"
+    },
+    {
+      "id": "cat-12",
+      "title": "Выбор ключа",
+      "route": "filter/radical",
+      "file": "cat-12-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3f95f3dea5c54279d906005ed8ab943d2c09c6df3b91b057030c858635f8e0d3"
+    },
+    {
+      "id": "cat-12",
+      "title": "Выбор ключа",
+      "route": "filter/radical",
+      "file": "cat-12-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "d570ba49bf79f6e303121b38f0a9fddd4867ebedc6757d049ebfbc5e0d1f3839"
+    },
+    {
+      "id": "cat-13",
+      "title": "Все кандзи",
+      "route": "all-kanji",
+      "file": "cat-13-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "f61cb6d0b60dbd152fb4db4462f8cd2df87a69d35f57c43ac743743767ed3539"
+    },
+    {
+      "id": "cat-13",
+      "title": "Все кандзи",
+      "route": "all-kanji",
+      "file": "cat-13-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "7574d69632e7272c9480117e4705ec42b36ffd3624932b09c56aa84b9a0a5680"
+    },
+    {
+      "id": "cat-14",
+      "title": "Ключи Канси",
+      "route": "all-radicals",
+      "file": "cat-14-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "8e1163a49b7ee7a64a4d4ce8260a36401362d94df663c259618f0be987b4c1ea"
+    },
+    {
+      "id": "cat-14",
+      "title": "Ключи Канси",
+      "route": "all-radicals",
+      "file": "cat-14-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "50d9556c0a28ed16897bf11b5235e4baa9a777748612eab28c852b10df4789af"
+    },
+    {
+      "id": "cat-15",
+      "title": "Связанные слова",
+      "route": "words/26085/2",
+      "file": "cat-15-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "bc4b2bb33845bcd4a9504c4a7c2d8ee99eafe4554d933b198051954003fe2138"
+    },
+    {
+      "id": "cat-15",
+      "title": "Связанные слова",
+      "route": "words/26085/2",
+      "file": "cat-15-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3af3a5e084a926c1db4701753e592381ceb087bf6d9314a37bbbff1d560ba151"
+    },
+    {
+      "id": "cat-16",
+      "title": "Выбор числа черт",
+      "route": "filter/strokes",
+      "file": "cat-16-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "ceba6bd71be3b793580594330382324978c57521c8168322312accf28c2f510f"
+    },
+    {
+      "id": "cat-16",
+      "title": "Выбор числа черт",
+      "route": "filter/strokes",
+      "file": "cat-16-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "3d216890ca46a21e1d8e7cce9ff83b073aa128336912315e97bd5bd5306c5c00"
+    },
+    {
+      "id": "cat-17",
+      "title": "Выбор JLPT",
+      "route": "filter/jlpt",
+      "file": "cat-17-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "885a5e9cccd323876cc293b0013e7731a938eb4956b188e8a402d0b3d0c81363"
+    },
+    {
+      "id": "cat-17",
+      "title": "Выбор JLPT",
+      "route": "filter/jlpt",
+      "file": "cat-17-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "0f7e31802de50557036535faa2ed8c787d642103e3a2df1234822313b974de13"
+    },
+    {
+      "id": "tobira-chapters",
+      "title": "Tobira · главы",
+      "route": "source/1",
+      "file": "tobira-chapters-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "4bdb104f84b4a161c70819abd138668454275d5273113ac9cdce6bbf0512cca7"
+    },
+    {
+      "id": "tobira-words",
+      "title": "Tobira · слова",
+      "route": "source/1?tab=2",
+      "file": "tobira-words-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "43f37a000da192f156e44808166f971a087e2b526c3105c70418497a83ecbefb"
+    },
+    {
+      "id": "word-note",
+      "title": "Слово с примечанием",
+      "route": "word/9/0",
+      "file": "word-note-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "e38571eafe5381b9a5fbcf3d4a9e41144ce0d15cca0704de8750e0bd657aebac"
+    },
+    {
+      "id": "catalog-loading",
+      "title": "Каталог · loading",
+      "route": "catalog",
+      "file": "catalog-loading-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "state": "loading",
+      "sha256": "4088714ab2995b1d1407cf3c98d832c537cc015546361bd21adc781708651800"
+    },
+    {
+      "id": "catalog-error",
+      "title": "Каталог · error",
+      "route": "catalog",
+      "file": "catalog-error-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "state": "error",
+      "sha256": "d3bdd884d042f0af9d9429030eb44b488138e2518bd6da89a4013b641a170860"
+    },
+    {
+      "id": "selected-filters",
+      "title": "Выбранные черты и JLPT",
+      "route": "all-kanji",
+      "file": "selected-filters-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "5b8936261719284e2e129078ef7631485c658ac8bd288a59b6985ab196c310e7"
+    },
+    {
+      "id": "selected-strokes",
+      "title": "Выбранное значение черт",
+      "route": "filter/strokes",
+      "file": "selected-strokes-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "4bed43c9d604c9464747df033416dd8b22fde09e87fa6efdb707efc3366df8e7"
+    },
+    {
+      "id": "empty-kanji",
+      "title": "Пустой поиск кандзи",
+      "route": "all-kanji",
+      "file": "empty-kanji-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "259241e326b7e2229aec9fc7cb881227c2a59c56c5e8a9d5447be15812c770c7"
+    },
+    {
+      "id": "empty-words",
+      "title": "Пустой поиск слов",
+      "route": "source/2?tab=2",
+      "file": "empty-words-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "996ced76ecbf1b3e2c8a626cd1aff38b71a79786a18cebb262da3147deeb8af6"
+    },
+    {
+      "id": "empty-chapters",
+      "title": "Пустой поиск главы",
+      "route": "source/2",
+      "file": "empty-chapters-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "a2c1437339ad535368612afe4fafc8878c918087b1edb959ddf24ee32724cad4"
+    },
+    {
+      "id": "large-kanji",
+      "title": "Кандзи · крупный текст",
+      "route": "kanji/26085/2",
+      "file": "large-kanji-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "2473ed45fdae8c8e569b5b3f94ecddb9dc6c45197e46337eff57ec37d9cecb7c"
+    },
+    {
+      "id": "large-radical",
+      "title": "Ключ · крупный текст",
+      "route": "radical/72/2",
+      "file": "large-radical-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "67950e401688ebb73f480bae2151969b66927b0f9d5f436c4c8b8dbab569f89e"
+    },
+    {
+      "id": "large-word",
+      "title": "Длинная запись",
+      "route": "word/912/0",
+      "file": "large-word-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "4ec32e00fdd0430c7df49deb196a4d8ecb32282981b85fc9ce64f9aaaa1e1dfc"
+    },
+    {
+      "id": "large-filters",
+      "title": "Фильтры · крупный текст",
+      "route": "all-kanji",
+      "file": "large-filters-dark.png",
+      "theme": "dark",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "a7a0d8c601a3ce890091961585df738623e1adc413faaa30289ff52d46c2d186"
+    },
+    {
+      "id": "english",
+      "title": "Английский UI",
+      "route": "all-kanji",
+      "file": "english-dark.png",
+      "theme": "dark",
+      "locale": "en",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "1e331c937cdeedfb10ad735a7275bb5edd14b27b12ad54094a9c2e27e0310cb1"
+    },
+    {
+      "id": "fallback",
+      "title": "Русский fallback",
+      "route": "all-kanji",
+      "file": "fallback-dark.png",
+      "theme": "dark",
+      "locale": "de",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "f61cb6d0b60dbd152fb4db4462f8cd2df87a69d35f57c43ac743743767ed3539"
+    },
+    {
+      "id": "tobira-chapters",
+      "title": "Tobira · главы",
+      "route": "source/1",
+      "file": "tobira-chapters-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "ae9e769be809cad6be210c997a43d48521df1ddb700866d60a21afd5cb22e836"
+    },
+    {
+      "id": "tobira-words",
+      "title": "Tobira · слова",
+      "route": "source/1?tab=2",
+      "file": "tobira-words-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "630e602634283d58b8f8ecede784521f1b681911276babff648dd17d204498df"
+    },
+    {
+      "id": "word-note",
+      "title": "Слово с примечанием",
+      "route": "word/9/0",
+      "file": "word-note-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "391e3051f31731a479953d85d0bf5bb72d97e52c5b94ec7f0394fbd637cff2be"
+    },
+    {
+      "id": "catalog-loading",
+      "title": "Каталог · loading",
+      "route": "catalog",
+      "file": "catalog-loading-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "state": "loading",
+      "sha256": "b40797fbcfc8a4b19c309b5abda8376baa52e6a8f31a5667870afb993e8db98d"
+    },
+    {
+      "id": "catalog-error",
+      "title": "Каталог · error",
+      "route": "catalog",
+      "file": "catalog-error-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "state": "error",
+      "sha256": "6db441ad906c18fcc7aceff1cce10bbd1bb1fb15c096252e20b64ac55ef9dafb"
+    },
+    {
+      "id": "selected-filters",
+      "title": "Выбранные черты и JLPT",
+      "route": "all-kanji",
+      "file": "selected-filters-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "37dd4a9278407e81246dfad4fa65ca2c8c3abc2c5495ff6d4f3f5e42a8e96029"
+    },
+    {
+      "id": "selected-strokes",
+      "title": "Выбранное значение черт",
+      "route": "filter/strokes",
+      "file": "selected-strokes-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "161239ecef57a3df3ff6e974497289c5de4143b68ae7c333d293a94406509fb0"
+    },
+    {
+      "id": "empty-kanji",
+      "title": "Пустой поиск кандзи",
+      "route": "all-kanji",
+      "file": "empty-kanji-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "e351934b7595c850b551fdd262cbb168a1444f002f2941d64c040e94e9b2f3ff"
+    },
+    {
+      "id": "empty-words",
+      "title": "Пустой поиск слов",
+      "route": "source/2?tab=2",
+      "file": "empty-words-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "ae49d70e36e00d9a0c2fa3cff246b81a54ffd83e2db509296df4d154e8db05e7"
+    },
+    {
+      "id": "empty-chapters",
+      "title": "Пустой поиск главы",
+      "route": "source/2",
+      "file": "empty-chapters-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "9228c79b888ddc03d18e5f4ef316a938461315a3e6e86bdc5ce04eacf140e7f9"
+    },
+    {
+      "id": "large-kanji",
+      "title": "Кандзи · крупный текст",
+      "route": "kanji/26085/2",
+      "file": "large-kanji-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "b01b34cd63924fd69db1c919335a0b379823d8c8bf2bdd6a33b59cf79e54f759"
+    },
+    {
+      "id": "large-radical",
+      "title": "Ключ · крупный текст",
+      "route": "radical/72/2",
+      "file": "large-radical-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "4f945d3ca12f6c5ee6a5af981d55c1f331a18ed9a166a9e40e0c15a12c207e39"
+    },
+    {
+      "id": "large-word",
+      "title": "Длинная запись",
+      "route": "word/912/0",
+      "file": "large-word-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "a5e51a77a817b23b70f63c0665aba898b8b8b17218f54fecf923ed102773605e"
+    },
+    {
+      "id": "large-filters",
+      "title": "Фильтры · крупный текст",
+      "route": "all-kanji",
+      "file": "large-filters-light.png",
+      "theme": "light",
+      "locale": "ru",
+      "width": "360",
+      "textScale": "1.6",
+      "sha256": "91ed76ce8a51896ff4e12510c2deae0e1ab21896bbf29b5cb59c8532bc41cb36"
+    },
+    {
+      "id": "english",
+      "title": "Английский UI",
+      "route": "all-kanji",
+      "file": "english-light.png",
+      "theme": "light",
+      "locale": "en",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "5a1a79aabe16dd8b6b65771b3645df2204c22c97cf817f187824107195313832"
+    },
+    {
+      "id": "fallback",
+      "title": "Русский fallback",
+      "route": "all-kanji",
+      "file": "fallback-light.png",
+      "theme": "light",
+      "locale": "de",
+      "width": "411.43",
+      "textScale": "1",
+      "sha256": "7574d69632e7272c9480117e4705ec42b36ffd3624932b09c56aa84b9a0a5680"
+    }
+  ]
+}

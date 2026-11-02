@@ -15,6 +15,7 @@ android {
 }
 dependencies {
     api(project(":domain:catalog"))
+    api(project(":domain:handwriting"))
     implementation(project(":core:designsystem"))
     implementation(project(":core:wordui"))
     implementation(platform(libs.androidx.compose.bom))

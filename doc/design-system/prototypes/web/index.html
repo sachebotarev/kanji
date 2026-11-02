@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Кандзи дэс нэ — мастерская экранов</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="assets/catalog-data.js" defer></script>
+  <script src="../shared/screen-review.js" defer></script>
+  <script src="app.js" defer></script>
+  <link rel="stylesheet" href="../shared/screen-review.css">
+</head>
+<body>
+  <aside class="workbench">
+    <a class="brand" href="#home"><span class="brand-mark" lang="ja">漢</span><span>Кандзи дэс нэ<small>Мастерская интерфейса · v1</small></span></a>
+    <p class="bench-intro">Знакомый характер.<br>Общие правила.</p>
+    <nav aria-label="Экраны прототипа" id="screen-nav"></nav>
+    <div class="bench-controls">
+      <label>Вариант экрана<select id="screen-variant"><option value="baseline">Текущий · как в приложении</option><option value="approved">Согласованный</option><option value="wip" selected>В работе</option></select></label>
+      <label>Тема<select id="theme"><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label>
+      <label>Ширина окна<select id="width"><option value="360">360 · узкое</option><option value="412" selected>412 · обычное</option><option value="480">480 · широкое</option></select></label>
+      <label class="check-label"><input type="checkbox" id="large-text"> Увеличенный текст</label>
+      <label class="check-label"><input type="checkbox" id="long-text"> Длинные подписи</label>
+      <label>Язык интерфейса<select id="locale"><option value="ru">Русский</option><option value="en">English</option></select></label>
+      <label id="practice-state-label">Состояние тренировки<select id="practice-state"><option value="empty">Пусто</option><option value="editing">В процессе</option><option value="incorrect">Нужно исправить</option><option value="correct">Все знаки верны</option><option value="assisted">Все знаки верны, с подсказкой</option><option value="unavailable">Проверка недоступна</option></select></label>
+      <label id="dictionary-state-label">Состояние словаря<select id="dictionary-state"><option value="ready">Есть записи</option><option value="empty">Пустой</option><option value="loading">Загрузка</option><option value="error">Ошибка</option></select></label>
+    </div>
+    <a class="evidence-link" href="../../01-audit/captures/2026-11-01/index.html" target="_blank">Скриншоты Android ↗</a>
+    <p class="bench-note">Локальный HTML-прототип. Данные учебные, изменения живут до перезагрузки. Проверка почерка и системное поведение Android здесь не воспроизводятся.</p>
+  </aside>
+  <main class="stage">
+    <header class="stage-header"><div><span class="eyebrow" id="view-status">ВИЗУАЛЬНОЕ ПРЕДЛОЖЕНИЕ</span><h1 id="screen-title">Главная</h1></div><span class="draft-pill" id="view-badge">Для обсуждения</span></header>
+    <section class="review-notice" id="review-notice" aria-live="polite" hidden></section>
+    <figure class="review-capture" id="review-capture" hidden><img id="review-capture-image" alt=""><figcaption id="review-capture-caption"></figcaption></figure>
+    <div class="phone" id="phone" data-theme="light">
+      <div class="system-bar" aria-hidden="true"><span>9:41</span><span class="system-icons">▂▄▆ <svg viewBox="0 0 20 14"><path d="M2 5q8-7 16 0M5 8q5-4 10 0M8 11q2-2 4 0"/></svg><span class="battery"></span></span></div>
+      <div id="app" class="app"></div>
+      <div class="gesture-bar" aria-hidden="true"><span></span></div>
+      <div id="modal-root"></div>
+    </div>
+    <footer class="stage-caption" id="screen-caption"></footer>
+  </main>
+</body>
+</html>

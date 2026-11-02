@@ -1,0 +1,13 @@
+{
+  "revision": "2026-11-02-native-sync",
+  "sha256": {
+    "doc/design-system/prototypes/textbooks/app.js": "b5bd4616a23895a0fa3debbef35bf79237db044a2239542e49d865acf6e2dbc3",
+    "doc/design-system/prototypes/textbooks/screens.js": "5adf59617071a877635fba309df700b63f1fcb873f917b364c73288ae9cd58bb",
+    "doc/design-system/prototypes/textbooks/index.html": "a856ab57a89317628755a02051a64f0f4dbbb9bbce1349bb72175592e32b18e1",
+    "doc/design-system/prototypes/textbooks/styles.css": "2c157df4c27c2088da88116547e065f307bb54c45ad838a6e8679e9748e2eb0d",
+    "doc/design-system/prototypes/textbooks/components.css": "3a25cb2ea80e6c20e7626140c62d76d82bdebe8687b42a35aa24852dea48cf48",
+    "doc/design-system/prototypes/textbooks/tokens.css": "22655b56394572a206d917d7510bc952197996b530d9ef08a7f539cdcdbebd72",
+    "doc/design-system/prototypes/textbooks/assets/catalog.js": "b92548ca33ee05ec3de38538d5c93b45ec2547d5ed3e177a741a7761e39020cd",
+    "doc/design-system/05-screens/catalog/review-status.json": "2c5690df38076579acc0192541ce719d5e44650800beea64744a7abb3195d5bb"
+  }
+}

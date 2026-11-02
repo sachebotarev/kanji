@@ -1,0 +1,11 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Use case: identity-preserving mascot illustration. Create ONE new action pose of the EXACT cream-white cat mascot in image 1, in the exact same illustrated style. Image 1 defines identity: round chubby cream cat, large dark oval eyes with one tiny white highlight, pink inner ears, small smiling mouth, two short dark cheek marks, fluffy curved tail, green student cap with its broad curved brim, red band and round gold button. Preserve this distinctive cap, face proportions and thick soft very dark forest-green outline. Image 2 defines book styling only: sage covers, cream pages, simple broad shaded forms and ribbon. Scene: the cat is standing next to a small waist-high book shelf and carefully sliding ONE sage-green book into an upright row with both front paws. Face remains visible in a friendly three-quarter view, looking toward the book. Shelf to cat's right, simple single shelf level with two short side supports, not a tall bookcase. Three other books already standing neatly on the shelf, muted sage, dusty blue and warm ochre colors. Clearly show the cat's paw contacting the book spine and the book partly entering the row, unmistakably arranging books, not reading or holding an open book. Compact approximately square composition, whole cat including cap, paws, feet and tail and whole shelf visible, even 7percent safe margins. Warm friendly matte hand-drawn 2D educational app illustration, rounded contours, soft restrained tonal shading, no glossy 3D, no different mascot style. No clothes except original cap, no words, letters, numbers, kanji, logos, sparkles, motion streaks or extra props. TRUE transparent background with alpha, no wall, floor, backdrop, ground shadow, white outline or sticker border.",
+  "references": [
+    "../../prototypes/textbooks/assets/cat-reading.png",
+    "../textbook-icons/textbook-sage.png"
+  ],
+  "file": "cat-shelving-books.png",
+  "androidResource": "core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_shelving_books.png",
+  "transparent_background": true
+}

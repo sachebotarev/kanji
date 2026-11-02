@@ -1,0 +1,167 @@
+/* Visual language for locked textbook lists and the remaining working catalog screens. */
+.native-phone[data-working-catalog-screen=true]{--w-kanji:#3E653F}
+.native-phone[data-working-catalog-screen=true][data-theme=dark]{--w-kanji:#E4D4AE}
+.native-phone[data-working-catalog-screen=true] .p-book-appbar h2{flex:1;min-width:0;font-size:calc(22px * var(--scale));line-height:calc(28px * var(--scale));font-weight:500}
+.native-phone[data-working-catalog-screen=true] .n-source-context{margin:0;padding:0 20px 8px;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-tabs .n-tab{min-height:48px!important;padding:12px 8px 10px!important;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));align-items:center;justify-content:center}
+.native-phone[data-working-catalog-screen=true] .n-search{margin:8px 20px}
+.native-phone[data-working-catalog-screen=true] .n-filter-row{gap:8px}
+.native-phone[data-working-catalog-screen=true] .n-filter-button{min-height:48px!important;background:var(--surface-low)!important;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--ink)!important;overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-filter-button svg{flex-shrink:0}
+.native-phone[data-working-catalog-screen=true] .n-result-count{padding:12px 24px 0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary)}
+.native-phone[data-working-catalog-screen=true] :is(.n-kanji-grid,.n-radical-grid){grid-template-columns:repeat(auto-fit,minmax(min(100%,120px),1fr));gap:12px;padding:16px 20px 24px}
+.native-phone[data-working-catalog-screen=true] :is(.n-kanji-tile,.n-radical-tile){min-height:136px!important;border-radius:24px;padding:16px 12px!important;gap:8px}
+.native-phone[data-working-catalog-screen=true] :is(.n-kanji-symbol,.n-radical-symbol){font-size:calc(40px * var(--scale));line-height:calc(48px * var(--scale));color:var(--w-kanji)}
+.native-phone[data-working-catalog-screen=true] .n-kanji-meaning{display:block;min-height:0;overflow:visible;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--ink)}
+.native-phone[data-working-catalog-screen=true] :is(.n-selected-label,.n-radical-number){font-size:calc(12px * var(--scale));line-height:calc(18px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-word-list{gap:12px;padding:16px 20px 24px}
+.native-phone[data-working-catalog-screen=true] .w-word-row{display:flex;align-items:center;gap:12px;padding:16px!important;border-radius:24px}
+.w-word-body{display:grid;gap:4px;flex:1;min-width:0}
+.native-phone[data-working-catalog-screen=true] .n-word-written{font-size:calc(26px * var(--scale));line-height:calc(36px * var(--scale));color:var(--w-kanji)}
+.native-phone[data-working-catalog-screen=true] .n-word-reading{font-size:calc(16px * var(--scale));line-height:calc(24px * var(--scale));color:var(--catalog-secondary)}
+.native-phone[data-working-catalog-screen=true] .n-word-translation{font-size:calc(16px * var(--scale));line-height:calc(24px * var(--scale));color:var(--ink);overflow-wrap:anywhere}
+.w-chevron{width:18px;height:18px;flex:none;color:var(--catalog-secondary)}
+.native-phone[data-working-catalog-screen=true] .n-detail{padding:16px 20px 24px;gap:24px}
+.native-phone[data-working-catalog-screen=true] .n-info-panel{padding:20px;border-radius:24px;gap:12px;background:var(--surface-high)}
+.native-phone[data-working-catalog-screen=true] .n-section{gap:12px}
+.native-phone[data-working-catalog-screen=true] .n-section>h3{padding:0 4px;font-size:calc(18px * var(--scale));line-height:calc(24px * var(--scale));font-weight:500;color:var(--ink)}
+.native-phone[data-working-catalog-screen=true] .n-section .n-info-panel{background:var(--surface-low)}
+.native-phone[data-working-catalog-screen=true] .n-info-panel p{margin:0;overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-info-label{font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary)}
+.native-phone[data-working-catalog-screen=true] .n-word-large{font-size:calc(40px * var(--scale));line-height:calc(48px * var(--scale));color:var(--w-kanji)}
+.native-phone[data-working-catalog-screen=true] .n-word-large.long{font-size:calc(30px * var(--scale));line-height:calc(40px * var(--scale))}
+.native-phone[data-working-catalog-screen=true] .n-title-large{font-size:calc(20px * var(--scale));line-height:calc(28px * var(--scale))}
+.native-phone[data-working-catalog-screen=true] .n-kanji-hero{padding:0;font-size:calc(64px * var(--scale));line-height:calc(76px * var(--scale));color:var(--w-kanji)}
+.w-symbol-summary{display:grid;gap:12px;text-align:center}
+.w-symbol-summary p{margin:0}
+.w-kanji-vg{width:min(100%,calc(220px * var(--scale)));margin:0 auto}
+.w-kanji-vg svg{display:block;width:100%;height:auto}
+.w-kanji-vg svg [id^="kvg:StrokePaths"]{stroke:var(--w-kanji)!important;fill:none}
+.w-kanji-vg svg [id^="kvg:StrokeNumbers"]{fill:var(--ink)!important;font-family:inherit}
+.w-detail-meta{margin:0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.w-radical-summary{display:flex;align-items:center;gap:20px;min-width:0}
+.w-radical-summary>div{min-width:0;display:grid;gap:8px}
+.w-radical-summary strong{font-size:calc(22px * var(--scale));line-height:calc(28px * var(--scale));font-weight:500;overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .w-nav-row{gap:12px;padding:16px!important;background:var(--surface-low)!important}
+.native-phone[data-working-catalog-screen=true] .w-nav-row strong{font-size:calc(18px * var(--scale));line-height:calc(24px * var(--scale));overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .w-nav-row small{font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-text-button{min-height:48px!important;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));overflow-wrap:anywhere}
+.w-selector-controls{padding:4px 20px}
+.w-selector-controls .n-selector-all{margin:0;padding:10px 16px!important;border-radius:24px;background:var(--surface-low)!important}
+.w-empty{display:grid;gap:8px;padding:24px 20px}
+.w-empty--search{justify-items:center;text-align:center}
+.native-phone[data-working-catalog-screen=true] .n-content:has(.w-empty--search){display:flex;flex-direction:column}
+.w-empty--search{flex:1;align-content:center;min-height:0}
+.w-empty-mascot{width:min(156px,42%);height:auto;max-height:min(156px,28vh);object-fit:contain}
+.w-empty strong{font-size:calc(18px * var(--scale));line-height:calc(26px * var(--scale));font-weight:500;overflow-wrap:anywhere}
+.w-empty p{margin:0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .n-content>.n-info-panel{margin:16px 20px 24px}
+.native-phone[data-working-catalog-screen=true] .n-content>.n-section>h3{padding:0 24px}
+.native-phone[data-working-catalog-screen=true] :is(.n-word-row,.n-kanji-tile,.n-radical-tile,.n-nav-row):active{background:var(--primary-container)!important}
+
+/* Compact textbook-kanji view. Other grids remain independent review candidates. */
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:1"] .n-kanji-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(88px * var(--scale))),1fr));gap:12px;padding-top:12px}
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:1"] .n-kanji-tile{min-height:120px!important;padding:10px 8px!important;gap:4px;border-radius:24px}
+.w-kanji-strokes{font-size:calc(12px * var(--scale));line-height:calc(16px * var(--scale));color:var(--catalog-secondary);text-align:center;font-variant-numeric:tabular-nums}
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:1"] .n-kanji-symbol{font-size:calc(36px * var(--scale));line-height:calc(44px * var(--scale))}
+.p-textbook-kanji-count{margin:0;padding:12px 24px 0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary)}
+
+/* Textbook ordinal cells: an index from the source, never the filtered row number. */
+.w-numbered-kanji{position:relative}
+.w-kanji-ordinal{position:absolute;top:7px;right:10px;font-size:calc(12px * var(--scale));line-height:calc(16px * var(--scale));font-weight:400;color:var(--catalog-secondary);font-variant-numeric:tabular-nums;opacity:.92}
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:1"] .w-numbered-kanji .n-kanji-symbol{margin-top:8px}
+.w-textbook-filterbar{display:flex;flex-wrap:wrap;gap:8px;padding:8px 20px 4px;position:sticky;top:0;z-index:4;background:var(--bg)}
+.w-textbook-filterbar.is-concealed{pointer-events:none}
+.w-textbook-chip{display:inline-flex;align-items:stretch;min-width:0;max-width:100%;border-radius:24px;background:var(--surface-low);border:1px solid transparent;overflow:hidden}
+.w-textbook-chip.is-active{background:var(--primary-container);border-color:var(--primary)}
+.native-app .w-chip-open{display:flex;align-items:center;gap:6px;min-height:48px;padding:10px 12px;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));min-width:0;text-align:left}
+.w-chip-open>span{min-width:0;overflow-wrap:anywhere}
+.w-chip-open>svg{width:16px;height:16px;flex:none}
+.native-app .w-chip-reset{display:grid;place-items:center;min-height:48px;min-width:48px;width:48px;padding:12px;border-left:1px solid var(--outline)}
+.w-chip-reset svg{width:18px;height:18px}
+.w-chip-open:active,.w-chip-reset:active{background:var(--surface-high)}
+
+.native-phone[data-theme=dark] .w-kanji-ordinal{opacity:.84}
+
+.w-kanji-summary{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 16px;padding:12px 24px 0}
+.w-kanji-summary .p-textbook-kanji-count{padding:0}
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:1"] .w-numbered-kanji .n-kanji-meaning{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));height:auto;min-height:0;max-height:calc(40px * var(--scale))}
+
+.w-kanji-caption-slot{display:flex;align-items:center;justify-content:center;width:100%;height:calc(40px * var(--scale));min-height:calc(40px * var(--scale));flex-shrink:0}
+
+/* Reusable WIP grid cells: compact shape, stable captions, source ordinals only. */
+.native-phone[data-working-catalog-screen=true] .w-compact-grid{grid-template-columns:repeat(auto-fill,minmax(min(100%,calc(88px * var(--scale))),1fr));gap:10px;padding:12px 20px 24px}
+.native-phone[data-working-catalog-screen=true] .w-compact-symbol{position:relative;min-height:96px!important;padding:10px 8px!important;gap:4px;border-radius:24px}
+.native-phone[data-working-catalog-screen=true] .w-compact-symbol :is(.n-kanji-symbol,.n-radical-symbol){font-size:calc(36px * var(--scale));line-height:calc(44px * var(--scale));margin-top:8px}
+.native-phone[data-working-catalog-screen=true] .w-compact-symbol .n-kanji-meaning{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));height:auto;min-height:0;max-height:calc(40px * var(--scale))}
+.native-phone[data-working-catalog-screen=true] .w-compact-symbol[aria-pressed=true]{outline:1px solid var(--primary);outline-offset:-1px}
+.w-choice-check{position:absolute;top:8px;left:8px;color:var(--primary)}
+.w-choice-check svg{display:block;width:16px;height:16px}
+
+/* Chapter / textbook words: same chrome stack as textbook kanji (filters → count → list). */
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .n-word-list{gap:12px;padding-top:12px}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .w-word-row{padding:16px!important;border-radius:24px}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .w-word-body{gap:2px}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .n-word-reading{color:var(--ink);font-weight:400}
+:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .w-empty .n-text-button{justify-self:start;text-align:start;padding:8px 0;color:var(--primary)}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .n-source-context{padding-bottom:0}
+.w-word-tab-gap{height:12px}
+
+/* Word rows as separate tappable cards (not a flat divided list). */
+.w-word-card-stack{margin:0;padding:12px 20px 24px;container-type:inline-size;container-name:chapter-words;font-size:calc(16px * var(--scale))}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .w-chapter-word-list{display:flex;flex-direction:column;gap:12px;padding:0}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row{position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);align-items:start;gap:6px 12px;padding:16px!important;border-radius:24px!important;min-height:72px;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;background:var(--surface-high);border:0;box-shadow:none}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row--open:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row--open:active{background:var(--primary-container)!important;box-shadow:none}
+.native-phone[data-working-catalog-screen=true][data-screen-key="textbook:2"] .w-kanji-summary{padding-bottom:16px}
+.w-word-card-stack--grouped{padding-top:0}
+.w-word-chapter-block+.w-word-chapter-block{margin-top:28px}
+.w-word-chapter-heading{position:sticky;top:var(--w-filter-stick,0px);z-index:2;margin:0 -20px;padding:12px 20px;background:var(--bg)}
+.w-word-chapter-heading h3{display:flex;align-items:baseline;flex-wrap:wrap;margin:0;font-size:calc(18px * var(--scale));line-height:calc(24px * var(--scale));font-weight:500;color:var(--ink);overflow-wrap:anywhere}
+.w-word-chapter-volume{font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));font-weight:400;color:var(--catalog-secondary)}
+.w-chapter-word-cards{display:flex;flex-direction:column;gap:12px;container-type:inline-size;container-name:chapter-words}
+.native-phone[data-working-catalog-screen=true]:is([data-screen-key="chapter:2"],[data-screen-key="textbook:2"],[data-screen-key="words"]) .w-chapter-word-list--grouped{display:block;gap:0;padding:0}
+.w-dictionary-japanese{display:grid;gap:1px;min-width:0}
+.w-dictionary-japanese :is(.n-word-written,.n-word-reading){overflow-wrap:anywhere}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row .n-word-written{font-size:calc(24px * var(--scale));line-height:calc(32px * var(--scale))}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row .n-word-reading{font-size:calc(16px * var(--scale));line-height:calc(24px * var(--scale));color:var(--ink);font-weight:400}
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row .n-word-translation{font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary)}
+.w-dictionary-row.is-long{grid-template-columns:minmax(0,1fr)!important;align-items:start}
+.w-dictionary-row.is-long .w-dictionary-japanese,.w-dictionary-row.is-long .n-word-translation{grid-column:1}
+@container chapter-words (max-width:22em){
+.native-phone[data-working-catalog-screen=true] .w-dictionary-row{grid-template-columns:minmax(0,1fr);gap:4px 12px;align-items:start}
+.w-dictionary-row .w-dictionary-japanese,.w-dictionary-row .n-word-translation{grid-column:1}
+}
+.w-chapter-end{display:flex;align-items:center;justify-content:center;gap:12px;padding:20px 24px 28px}
+.w-chapter-end img{width:120px;height:120px;object-fit:contain;flex:none}
+.w-chapter-end p{margin:0;font-size:calc(16px * var(--scale));line-height:calc(24px * var(--scale));color:var(--catalog-secondary);overflow-wrap:anywhere}
+.native-phone[data-theme=dark] .w-chapter-end img{filter:url(#catalog-dark-art)}
+/* Kanji card: the drawing is the subject. Filled rows are the only taps. */
+.native-phone[data-working-catalog-screen=true][data-screen-key="kanji"] .n-detail{gap:20px;padding-top:8px}
+.native-phone[data-working-catalog-screen=true][data-screen-key="kanji"] .n-detail .n-section{gap:2px}
+.native-phone[data-working-catalog-screen=true][data-screen-key="kanji"] .n-detail .n-section>h3{padding:0 16px;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));font-weight:500;color:var(--catalog-secondary)}
+.native-phone[data-working-catalog-screen=true] .w-kanji-identity{display:grid;justify-items:center;gap:4px;text-align:center}
+.w-kanji-identity .w-kanji-vg{width:min(100%,calc(188px * var(--scale)))}
+.w-kanji-meaning{margin:4px 0 0;font-size:calc(22px * var(--scale));line-height:calc(28px * var(--scale));font-weight:500}
+.w-readings{display:grid;gap:16px}
+.w-reading{margin:0;padding:0 16px;font-size:calc(28px * var(--scale));line-height:calc(36px * var(--scale));font-weight:500;color:var(--ink)}
+.w-kanji-facts{display:grid;justify-items:center;gap:2px}
+.w-stroke-count{margin:0;font-size:calc(16px * var(--scale));line-height:calc(22px * var(--scale));font-weight:500;color:var(--ink)}
+.w-classification-line{margin:0;padding:0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));color:var(--catalog-secondary);text-align:left}
+.w-kanji-classification{background:var(--surface-low)}
+.native-phone[data-working-catalog-screen=true][data-screen-key="kanji"] .n-detail .w-nav-row{cursor:pointer;background:var(--surface-high)!important}
+.native-phone[data-working-catalog-screen=true][data-screen-key="words"] .w-kanji-summary{padding-bottom:16px}
+.w-classification{margin:0;display:grid;gap:16px}
+.w-classification div{display:grid;gap:4px;min-width:0}
+.w-classification dt{color:var(--catalog-secondary);font-size:calc(14px * var(--scale));line-height:1.5}
+.w-classification dd{margin:0;font-size:calc(16px * var(--scale));line-height:1.5;overflow-wrap:anywhere}
+.w-usage-note{margin:0;font-size:calc(16px * var(--scale));line-height:1.5;overflow-wrap:anywhere}
+
+
+.native-phone[data-working-catalog-screen=true] .w-full-caption .n-kanji-meaning{display:block;-webkit-line-clamp:unset;max-height:none;overflow:visible;min-height:calc(40px * var(--scale))}
+#phone[data-screen-variant=wip] :is(.w-placement-legend,.w-selection-hint,.w-reading-hint){margin:0;padding:8px 20px 0;font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));font-weight:400;color:var(--catalog-secondary)}
+#phone[data-screen-variant=wip] .w-reading-hint{padding:0 16px}
+#phone[data-screen-variant=wip] .w-radical-detail .w-placement-legend{padding:8px 4px 0}
+#phone[data-screen-variant=wip] .w-full-caption .w-kanji-caption-slot{height:auto;min-height:calc(40px * var(--scale))}
+.nav-link[hidden]{display:none}
+#view-badge[data-approval=unapproved]{background:#f5e4c3;color:#714b17}

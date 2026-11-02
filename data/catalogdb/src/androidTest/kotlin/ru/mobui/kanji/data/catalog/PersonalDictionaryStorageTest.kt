@@ -1,6 +1,5 @@
 package ru.mobui.kanji.data.catalog
 
-import android.database.sqlite.SQLiteDatabase
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -90,45 +89,4 @@ class PersonalDictionaryStorageTest {
         } finally { db.close(); context.deleteDatabase(name) }
     }
 
-    @Test fun migratesVersionOnePreservingDataAndExistingConstraints() = runBlocking {
-        val context = instrumentation.targetContext
-        val name = "personal-migration-${System.nanoTime()}.db"
-        val file = context.getDatabasePath(name).apply { parentFile?.mkdirs() }
-        val schema = JSONObject(instrumentation.context.assets.open("ru.mobui.kanji.data.catalog.CatalogDatabase/1.json")
-            .bufferedReader().use { it.readText() }).getJSONObject("database")
-        SQLiteDatabase.openOrCreateDatabase(file, null).use { sql ->
-            val entities = schema.getJSONArray("entities")
-            for (i in 0 until entities.length()) {
-                val entity = entities.getJSONObject(i)
-                val table = entity.getString("tableName")
-                sql.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
-                val indices = entity.optJSONArray("indices") ?: continue
-                for (j in 0 until indices.length()) sql.execSQL(indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", table))
-            }
-            val setup = schema.getJSONArray("setupQueries")
-            for (i in 0 until setup.length()) sql.execSQL(setup.getString(i))
-            instrumentation.targetContext.assets.open("catalog-checks.sql").bufferedReader().useLines { lines ->
-                lines.filter { it.isNotBlank() }.forEach(sql::execSQL)
-            }
-            sql.execSQL("CREATE UNIQUE INDEX source_words_with_kanji ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL")
-            sql.execSQL("CREATE UNIQUE INDEX source_words_without_kanji ON source_words(source_id,word_id) WHERE kanji_id IS NULL")
-            sql.execSQL("INSERT INTO words VALUES(1,'猫','ねこ',0)")
-            sql.execSQL("INSERT INTO words_translations VALUES(1,'ru','кошка')")
-            sql.execSQL("INSERT INTO sources VALUES(-1,'personal','personal',0)")
-            sql.execSQL("INSERT INTO source_words VALUES(-1,-1,1,NULL)")
-            sql.version = 1
-        }
-        val db = CatalogDatabase.open(context, name)
-        try {
-            val dao = db.catalogDao()
-            assertEquals(0, dao.word(1)?.is_user_created)
-            assertEquals("кошка", dao.words_translations().single().translation)
-            assertEquals(1, dao.source_words().size)
-            assertEquals(2, db.openHelper.writableDatabase.version)
-            try { db.openHelper.writableDatabase.execSQL("INSERT INTO source_words VALUES(-2,-1,1,NULL)"); fail("Partial unique index must survive") }
-            catch (_: android.database.sqlite.SQLiteConstraintException) { }
-            try { db.openHelper.writableDatabase.execSQL("INSERT INTO words VALUES(-1,'','ねこ',0,1)"); fail("Validation trigger must survive") }
-            catch (_: android.database.sqlite.SQLiteConstraintException) { }
-        } finally { db.close(); context.deleteDatabase(name) }
-    }
 }

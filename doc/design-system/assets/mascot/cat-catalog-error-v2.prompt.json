@@ -1,0 +1,19 @@
+{
+  "tool": "built-in image_gen",
+  "prompt": "Create one new error-state pose of the EXACT cat mascot from reference image 1. Same cream-white round chubby cat, large dark oval eyes, green student cap with broad curved brim, red band and round golden button, short dark cheek marks, pink inner ears, fluffy curved tail. Preserve identity, face proportions, cap silhouette, thick rounded dark forest-green contours, matte soft shading. Cat sits holding ONE closed sage-green book with one paw, other paw gently raised in a small puzzled shrug. Expression mildly concerned but kind and encouraging: slightly raised inner eyebrows, small mouth, NO crying, no tears, no exaggerated grief or guilt. Entire character visible and centered, about84percent of square canvas with generous even safe margins. Correct paws, no extra limbs. This is for an app load error, no error symbol, text, letters, labels, badge or props. TRUE TRANSPARENT background alpha. VERY IMPORTANT: the cat's forest-green contours, facial features, cap dark border and all dark ink MUST remain fully opaque solid pixels; only outside the silhouette is transparent. Do NOT remove dark ink as background; do not use a dark matte backdrop, checkerboard texture, white rim, sticker edge, glow or ground shadow. Image must read equally clearly on cream and dark green surfaces. The only transparent areas are genuinely empty background. Original illustration style, not a redesign or simplified replacement.",
+  "reference": "../../prototypes/textbooks/assets/cat-reading.png",
+  "file": "cat-catalog-error-v2.png",
+  "transparent_background": true,
+  "validation": {
+    "size": [
+      1254,
+      1254
+    ],
+    "alphaRange": [
+      0,
+      255
+    ],
+    "meanDarkAlpha": 238.8,
+    "opaqueDarkPixels": 218042
+  }
+}

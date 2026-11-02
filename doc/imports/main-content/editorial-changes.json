@@ -1,0 +1,222 @@
+[
+  {
+    "word_id": 9,
+    "language_tag": "ru",
+    "translation": "ваш дом",
+    "usage_note": "Вежливое обращение.",
+    "original_translation": "ваш дом — вежливо",
+    "written_form": "お宅",
+    "reading": "おたく",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 16,
+    "language_tag": "ru",
+    "translation": "туалет",
+    "usage_note": "Вежливое название.",
+    "original_translation": "туалет — вежливое название",
+    "written_form": "お手洗い",
+    "reading": "おてあらい",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 20,
+    "language_tag": "ru",
+    "translation": "благодарность",
+    "usage_note": "Вежливое слово.",
+    "original_translation": "благодарность — вежливое слово",
+    "written_form": "お礼",
+    "reading": "おれい",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 216,
+    "language_tag": "ru",
+    "translation": "два человека",
+    "usage_note": null,
+    "original_translation": "два человека — чтение ににん",
+    "written_form": "二人",
+    "reading": "ににん",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 338,
+    "language_tag": "ru",
+    "translation": "что это?",
+    "usage_note": "Вежливый вопрос.",
+    "original_translation": "что это? — вежливый вопрос",
+    "written_form": "何ですか。",
+    "reading": "なんですか。",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 847,
+    "language_tag": "ru",
+    "translation": "жена собеседника или другого человека",
+    "usage_note": "Вежливое обозначение.",
+    "original_translation": "жена собеседника или другого человека — вежливо",
+    "written_form": "奥さん",
+    "reading": "おくさん",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 848,
+    "language_tag": "ru",
+    "translation": "жена собеседника или другого человека",
+    "usage_note": "Особо вежливое обозначение.",
+    "original_translation": "жена собеседника или другого человека — особо вежливо",
+    "written_form": "奥様",
+    "reading": "おくさま",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 948,
+    "language_tag": "ru",
+    "translation": "ребёнок",
+    "usage_note": "В этой записи 小人 читается こども.",
+    "original_translation": "ребёнок — написание 小人, чтение こども",
+    "written_form": "小人",
+    "reading": "こども",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1002,
+    "language_tag": "ru",
+    "translation": "рынок",
+    "usage_note": null,
+    "original_translation": "рынок — чтение いちば",
+    "written_form": "市場",
+    "reading": "いちば",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1078,
+    "language_tag": "ru",
+    "translation": "получать, приобретать",
+    "usage_note": null,
+    "original_translation": "получать, приобретать — чтение える",
+    "written_form": "得る",
+    "reading": "える",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1110,
+    "language_tag": "ru",
+    "translation": "злословие, дурные слова о ком-либо",
+    "usage_note": null,
+    "original_translation": "злословие, дурные слова о ком-либо — чтение わるくち",
+    "written_form": "悪口",
+    "reading": "わるくち",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1225,
+    "language_tag": "ru",
+    "translation": "буквы, письменные знаки",
+    "usage_note": null,
+    "original_translation": "буквы, письменные знаки — чтение もんじ",
+    "written_form": "文字",
+    "reading": "もんじ",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1255,
+    "language_tag": "ru",
+    "translation": "солнце; день",
+    "usage_note": null,
+    "original_translation": "солнце; день — чтение ひ",
+    "written_form": "日",
+    "reading": "ひ",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1258,
+    "language_tag": "ru",
+    "translation": "Япония",
+    "usage_note": null,
+    "original_translation": "Япония — чтение にっぽん",
+    "written_form": "日本",
+    "reading": "にっぽん",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1261,
+    "language_tag": "ru",
+    "translation": "японец",
+    "usage_note": null,
+    "original_translation": "японец — чтение にっぽんじん",
+    "written_form": "日本人",
+    "reading": "にっぽんじん",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1282,
+    "language_tag": "ru",
+    "translation": "завтра",
+    "usage_note": null,
+    "original_translation": "завтра — чтение あす",
+    "written_form": "明日",
+    "reading": "あす",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1283,
+    "language_tag": "ru",
+    "translation": "завтра",
+    "usage_note": "Официальное чтение みょうにち.",
+    "original_translation": "завтра — официальное чтение みょうにち",
+    "written_form": "明日",
+    "reading": "みょうにち",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1505,
+    "language_tag": "ru",
+    "translation": "каждый месяц",
+    "usage_note": null,
+    "original_translation": "каждый месяц — чтение まいげつ",
+    "written_form": "毎月",
+    "reading": "まいげつ",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1823,
+    "language_tag": "ru",
+    "translation": "исследовательский институт",
+    "usage_note": null,
+    "original_translation": "исследовательский институт — чтение けんきゅうじょ",
+    "written_form": "研究所",
+    "reading": "けんきゅうじょ",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1839,
+    "language_tag": "ru",
+    "translation": "я",
+    "usage_note": "Вежливая и официальная форма.",
+    "original_translation": "я (вежливо и официально)",
+    "written_form": "私",
+    "reading": "わたくし",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1989,
+    "language_tag": "ru",
+    "translation": "хороший",
+    "usage_note": null,
+    "original_translation": "хороший — чтение よい",
+    "written_form": "良い",
+    "reading": "よい",
+    "reason": "redundant_reading"
+  },
+  {
+    "word_id": 2406,
+    "language_tag": "ru",
+    "translation": "поверхность; сторона",
+    "usage_note": null,
+    "original_translation": "поверхность; сторона — чтение めん",
+    "written_form": "面",
+    "reading": "めん",
+    "reason": "redundant_reading"
+  }
+]

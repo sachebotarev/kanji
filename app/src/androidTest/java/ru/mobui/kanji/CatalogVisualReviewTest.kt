@@ -8,7 +8,7 @@ import java.io.File
 import org.junit.Rule
 import org.junit.Test
 
-/** Device review artifacts plus the enter-always interaction requested for long catalog lists. */
+/** Device review artifacts. The title and tabs stay pinned; filters scroll with the list. */
 class CatalogVisualReviewTest {
     @get:Rule val compose = createAndroidComposeRule<MainActivity>()
     private fun waitTag(tag: String) {
@@ -39,11 +39,16 @@ class CatalogVisualReviewTest {
         compose.onNodeWithTag("catalog-tab-1").performClick()
         waitTag("kanji-19968")
         screenshot("kanji")
+        compose.onNodeWithTag("catalog-back").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-tab-1").assertIsDisplayed()
         compose.onNodeWithTag("kanji-grid").performTouchInput { swipeUp() }
-        compose.onNodeWithTag("catalog-search").assertIsNotDisplayed()
+        compose.onNodeWithTag("catalog-back").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-tab-1").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-filter-radical").assertIsNotDisplayed()
         screenshot("scrolled")
         compose.onNodeWithTag("kanji-grid").performTouchInput { swipeDown() }
-        compose.onNodeWithTag("catalog-search").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-filter-radical").assertIsDisplayed()
+        compose.onNodeWithTag("catalog-tab-1").assertIsDisplayed()
         screenshot("restored")
         compose.onNodeWithTag("kanji-grid").performScrollToNode(hasTestTag("kanji-19968"))
         compose.onNodeWithTag("kanji-19968").performClick()

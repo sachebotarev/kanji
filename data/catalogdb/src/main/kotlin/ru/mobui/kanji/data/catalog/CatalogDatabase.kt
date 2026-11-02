@@ -4,12 +4,11 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
 @Database(entities = [
     CatalogMetadataRow::class, RadicalsRow::class, RadicalsTranslationsRow::class, KanjiRow::class, KanjiTranslationsRow::class, KanjiReadingsRow::class, WordsRow::class, WordsTranslationsRow::class, WordReadingPartsRow::class, SourcesRow::class, SourcesTranslationsRow::class, SourceKanjiRow::class, SourceWordsRow::class, InstallationRow::class
-], version = 2, exportSchema = true)
+], version = 4, exportSchema = true)
 internal abstract class CatalogDatabase : RoomDatabase() {
     abstract fun catalogDao(): CatalogDao
 
@@ -24,17 +23,6 @@ internal abstract class CatalogDatabase : RoomDatabase() {
 
         fun open(context: Context, name: String = "learning.db"): CatalogDatabase =
             Room.databaseBuilder(context.applicationContext, CatalogDatabase::class.java, name)
-                .addMigrations(object : Migration(1, 2) {
-                    override fun migrate(db: SupportSQLiteDatabase) {
-                        // Existing entries have no proven manual origin: retain read-only ownership.
-                        db.execSQL("ALTER TABLE words ADD COLUMN is_user_created INTEGER NOT NULL DEFAULT 0")
-                        installOriginChecks(db)
-                        // Room cannot represent partial indexes in its exported entity schema.
-                        // Remove them only for validation; onOpen restores them before exposing the DB.
-                        db.execSQL("DROP INDEX IF EXISTS source_words_with_kanji")
-                        db.execSQL("DROP INDEX IF EXISTS source_words_without_kanji")
-                    }
-                })
                 .addCallback(object : Callback() {
                     override fun onOpen(db: SupportSQLiteDatabase) {
                         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS source_words_with_kanji ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL")
