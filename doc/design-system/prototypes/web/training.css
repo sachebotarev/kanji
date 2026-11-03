@@ -1,0 +1,104 @@
+.training-content{padding:12px 18px 28px;display:grid;gap:16px;font-size:calc(15px * var(--scale));overflow-wrap:anywhere}
+.training-note{color:var(--muted);font-size:calc(13px * var(--scale));line-height:1.45;margin:0}
+.training-status-msg{padding:10px 14px;background:var(--primary-container);color:var(--on-container);border-radius:12px;font-weight:500;margin:0}
+
+/* Fixed chrome and an independent list keep creation available at any scroll position. */
+.app:has(.training-list-screen){overflow:hidden}
+.training-list-screen{position:relative;height:100%;min-height:0;display:flex;flex-direction:column}
+.training-list-screen>.appbar{flex:none}
+.training-list-scroll{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;scroll-padding:12px 0 96px;scrollbar-width:none}
+.training-list-scroll::-webkit-scrollbar{display:none}
+.training-list-content{gap:16px;padding:4px 20px 100px}
+.training-welcome{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:92px;padding:0 4px}
+.training-welcome p{font-size:calc(18px * var(--scale));line-height:1.4;font-weight:500;margin:0 0 5px!important}
+.training-welcome span{font-size:calc(13px * var(--scale));color:var(--muted)}
+.training-welcome img{width:96px;height:96px;object-fit:contain;flex:none;filter:saturate(.82) contrast(.9)}
+.plans-list{display:grid;gap:12px}
+/* Every card has the same geometry at a given text scale, including selected cards. */
+.plan-card{height:calc(108px * var(--scale) + 24px);box-sizing:border-box;display:block;background:var(--review-action-surface);border-radius:24px;padding:12px 12px 12px 16px;position:relative;isolation:isolate;min-width:0}
+.plan-card-selected{background:var(--review-important-surface)}
+.plan-card-selected:after{content:'';position:absolute;inset:0;border:2px solid var(--primary);border-radius:inherit;pointer-events:none;opacity:1}
+.plan-card-main{display:grid;grid-template-rows:calc(46.8px * var(--scale)) calc(18.85px * var(--scale)) calc(19.6px * var(--scale));gap:6px;width:100%;min-width:0;padding:0!important;text-align:left;border-radius:12px;cursor:pointer;align-content:start}
+.plan-title-row{display:flex;align-items:flex-start;gap:10px;padding-right:40px;min-width:0}
+.plan-art{display:grid;place-items:center;width:36px;height:36px;border-radius:12px;background:var(--review-filter-surface);flex:none;color:var(--primary);font-size:17px;font-weight:600}
+.plan-art img{width:36px;height:36px;object-fit:contain}
+.plan-art .svg-icon{width:23px;height:23px}
+.plan-title{font-size:calc(18px * var(--scale));line-height:1.3;font-weight:500;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.plan-material{font-size:calc(13px * var(--scale));line-height:1.45;color:var(--muted);white-space:nowrap;text-overflow:ellipsis;overflow:hidden;min-width:0}
+.plan-metrics{display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:calc(14px * var(--scale));line-height:1.4;align-items:start}
+.plan-metrics>span{display:flex;align-items:flex-start;gap:6px;min-width:0}
+.plan-metrics .svg-icon{width:16px;height:16px;flex:none;color:var(--primary);margin-top:1px}
+.plan-menu-wrap{position:absolute;right:8px;top:8px;z-index:2}
+.plan-menu-open{z-index:5}
+.plan-menu-btn{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;cursor:pointer;padding:0!important;color:var(--muted)!important}
+.plan-menu-btn:hover,.plan-menu-btn[aria-expanded=true]{background:var(--review-filter-surface)!important;color:var(--primary)!important}
+.burger-icon{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round}
+.plan-dropdown-menu{display:none;position:absolute;right:0;top:52px;z-index:6;background:var(--review-view-surface);border:1px solid var(--outline);border-radius:20px;box-shadow:0 6px 18px color-mix(in srgb,var(--md-sys-color-shadow) 12%,transparent);width:max-content;min-width:204px;max-width:calc(100vw - 90px);padding:6px;flex-direction:column;gap:2px;max-height:340px;overflow:auto}
+.plan-menu-wrap.is-open .plan-dropdown-menu{display:flex}
+.plan-menu-wrap[data-placement=above] .plan-dropdown-menu{top:auto;bottom:52px}
+.dropdown-item{display:flex;align-items:center;gap:12px;width:100%;min-height:48px;padding:12px!important;font-size:calc(14px * var(--scale));line-height:1.4;border-radius:14px;cursor:pointer;text-align:left;flex:none}
+.dropdown-item:hover,.dropdown-item:focus-visible{background:var(--review-filter-surface)!important}
+.dropdown-item .svg-icon{width:20px;height:20px;flex:none}
+.dropdown-item.danger{color:var(--error)!important}
+.plan-card-selected .plan-art{background:var(--primary);color:var(--on-primary);width:40px;height:40px;border-radius:14px}
+.plan-card-selected .plan-art .svg-icon{width:28px;height:28px;transform:rotate(-12deg)}
+.plan-active-label{color:var(--primary);font-weight:700}
+.training-create-bar{position:absolute;right:20px;bottom:16px;z-index:10;pointer-events:none}
+#app .training-create{display:flex;align-items:center;justify-content:center;gap:10px;width:auto;border-radius:18px;background:var(--primary);color:var(--on-primary);min-height:56px;padding:16px 20px;box-shadow:0 3px 12px color-mix(in srgb,var(--md-sys-color-shadow) 20%,transparent);pointer-events:auto;font-size:calc(14px * var(--scale));font-weight:500;cursor:pointer}
+#app .training-create:active{opacity:.85}
+.plan-card-main:active{opacity:.8}
+.training-plan-details{line-height:1.6;overflow-wrap:anywhere}
+.training-plan-details h4{margin:0 0 8px}
+.training-plan-details ul{padding-left:20px;margin:0 0 16px}
+.training-empty{display:grid;justify-items:center;padding:16px 0}
+.training-empty>img{width:120px;height:120px;object-fit:contain}
+.training-empty .empty-state{padding:12px 0}
+
+/* Editor Form Components */
+.training-content h3{font-size:calc(18px * var(--scale));font-weight:600;margin:0 0 12px}
+.source-list{display:grid;gap:8px;margin:14px 0}
+.source-row{display:flex;align-items:center;background:var(--review-action-surface);border-radius:20px;padding:6px 10px}
+.source-row button:first-child{display:grid;gap:5px;flex:1;text-align:left;padding:10px;min-width:0;border:0;background:transparent;cursor:pointer}
+.source-row button:last-child{font-size:24px;min-width:44px;min-height:44px;border:0;background:transparent;cursor:pointer;color:var(--muted)}
+.source-row strong{display:flex;align-items:center;gap:12px;font-size:calc(17px * var(--scale));font-weight:500;overflow-wrap:anywhere}
+.training-book-icon{width:36px;height:36px;object-fit:contain;flex:none}
+
+.limit-choices{display:flex;background:var(--review-filter-surface);border-radius:24px;overflow:hidden;margin-bottom:12px;flex-wrap:wrap}
+.limit-choices button{flex:1;padding:12px;font-size:inherit;min-width:100px;min-height:48px;cursor:pointer;border:0;background:transparent}
+.limit-choices button[aria-pressed=true]{background:var(--review-important-surface);color:var(--on-container);font-weight:700}
+.limit-choices button[aria-pressed=true]:before{content:'✓ '}
+
+.training-preview{background:var(--review-view-surface);border:0;border-radius:20px;padding:16px;line-height:1.6}
+.training-preview small{color:var(--muted)}
+.training-word-preview{max-height:300px;overflow:auto;display:grid;gap:12px;margin-top:10px}
+.source-picker{display:grid;gap:12px;min-width:0}
+.source-picker select,.source-picker input{max-width:100%;min-width:0}
+.source-picker input:disabled{opacity:0.4;cursor:not-allowed}
+.source-picker summary,.training-content summary{min-height:48px;display:flex;align-items:center;cursor:pointer;color:var(--primary);font-weight:500}
+.source-picker summary:before,.training-content summary:before{content:'+ ';margin-right:8px}
+.source-picker details[open] summary:before,.training-content details[open] summary:before{content:'− '}
+.chapter-range{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.source-picker .field{margin-bottom:12px}
+.modal{max-height:calc(100% - 48px);overflow:auto}
+.training-content button:focus-visible,.source-picker :focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+.training-content .primary-button{white-space:normal;min-height:48px}
+.training-content select,.source-picker select{font:inherit;line-height:1.5;width:100%;min-height:50px;padding:10px 12px;border:1px solid var(--outline);border-radius:14px;color:var(--ink);background:var(--review-filter-surface,var(--surface-low))}
+.training-word-preview [lang=ja]{font-family:TrainingJapanese,AppRoboto,sans-serif}
+@font-face{font-family:TrainingJapanese;src:url('../textbooks/assets/NotoSansCJK-JP.woff2') format('woff2');font-weight:400;font-display:swap}
+
+/* Per-kind containers are bound to shared Material roles in material-components.css. */
+.plan-time{width:fit-content}
+.plan-time.is-timed{background:var(--timer-badge);color:var(--timer-ink);padding:3px 6px;border-radius:8px;margin-top:-3px}
+.plan-dropdown-menu{color:var(--ink)}
+#phone[data-training-screen=true] .appbar h2{font-size:calc(24px * var(--scale));line-height:1.3;font-weight:500}
+#phone[data-training-screen=true] .appbar{padding:4px 12px}
+@media(prefers-reduced-motion:reduce){.training-content *{transition:none!important}}
+
+
+/* Larger text uses a taller common size, with room for two metric lines. */
+.phone.large-text .plan-card{height:calc(126px * var(--scale) + 24px)}
+.phone.large-text .plan-card-main{grid-template-rows:calc(46.8px * var(--scale)) calc(18.85px * var(--scale)) calc(39.2px * var(--scale))}
+.training-list-scroll:focus-visible{outline:2px solid var(--primary);outline-offset:-2px}
+.plan-card[data-kind=words]{}
+.plan-card-selected .plan-time.is-timed .svg-icon{color:var(--timer-ink)}
+.plan-time.is-timed .svg-icon{color:var(--timer-ink)}

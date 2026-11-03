@@ -45,7 +45,12 @@ class TrainingDashboardNavigationTest {
             .performTextReplacement("Подготовка к JLPT N5: глаголы и прилагательные")
         compose.onNodeWithTag("training-seconds").performTextReplacement("90")
         compose.onNodeWithTag("save-training").performScrollTo().performClick()
-        androidx.test.espresso.Espresso.pressBack()
+        waitForTrainingPicker()
+        pressSystemBack()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("training-picker").fetchSemanticsNodes().isEmpty() &&
+                compose.onAllNodesWithTag("current-training-name").fetchSemanticsNodes().isNotEmpty()
+        }
         compose
             .onNodeWithTag("current-training-name")
             .assertTextContains("Подготовка к JLPT N5: глаголы и прилагательные")
@@ -58,7 +63,12 @@ class TrainingDashboardNavigationTest {
         compose.onNodeWithTag("edit-training-default").performClick()
         compose.onNodeWithTag("training-name").performTextReplacement("Другая тренировка")
         compose.onNodeWithTag("save-training").performScrollTo().performClick()
-        androidx.test.espresso.Espresso.pressBack()
+        waitForTrainingPicker()
+        pressSystemBack()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("training-picker").fetchSemanticsNodes().isEmpty() &&
+                compose.onAllNodesWithTag("current-training-name").fetchSemanticsNodes().isNotEmpty()
+        }
         compose
             .onNodeWithTag("current-training-name")
             .assertTextContains("Подготовка к JLPT N5: глаголы и прилагательные")
@@ -77,5 +87,12 @@ class TrainingDashboardNavigationTest {
             .assertTextContains("Подготовка к JLPT N5: глаголы и прилагательные")
         compose.onNodeWithTag("start-practice").performClick()
         compose.onNodeWithTag("practice-pad").assertExists()
+    }
+
+    private fun waitForTrainingPicker() {
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("training-editor").fetchSemanticsNodes().isEmpty() &&
+                compose.onAllNodesWithTag("training-picker").fetchSemanticsNodes().isNotEmpty()
+        }
     }
 }

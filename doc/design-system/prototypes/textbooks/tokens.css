@@ -1,20 +1,4 @@
-/* Approved catalog tokens and component roles. Internal renderer key: wip. */
-#phone[data-screen-variant=wip][data-theme=light]{
-  --w-kanji:#526348;
-  --primary:#315F47;
-  --on-primary:#FFFFFF;
-  --review-view-surface:#F1F2EB;
-  --review-action-surface:#E1E7D9;
-  --review-filter-surface:#EEF0E7;
-  --review-important-surface:#D2DDC9;
-}
-#phone[data-screen-variant=wip][data-theme=dark]{
-  --review-view-surface:#29332B;
-  --review-action-surface:#354334;
-  --review-filter-surface:#2B372D;
-  --review-important-surface:#40513C;
-  --on-primary:#19351C;
-}
+
 
 /* One surface per interaction role, shared by every working screen. */
 #phone[data-screen-variant=wip] .n-info-panel{
@@ -132,7 +116,7 @@
   min-height:80px!important;
 }
 #phone[data-screen-variant=wip] .p-source-card{
-  background:var(--review-important-surface)!important;
+  background:color-mix(in srgb,var(--md-sys-color-secondary-container) 45%,var(--md-sys-color-surface-container-high))!important;
   color:var(--ink);
 }
 #phone[data-screen-variant=wip] .p-source-card .p-source-details{
@@ -257,7 +241,8 @@
   text-align:left;
 }
 #phone[data-screen-variant=wip] .w-classification-line .w-school-classification{
-  flex-basis:100%;
+  flex:0 1 auto;
+  max-width:100%;
 }
 #phone[data-screen-variant=wip] .w-classification-line>span:not(.w-school-classification){
   white-space:normal;

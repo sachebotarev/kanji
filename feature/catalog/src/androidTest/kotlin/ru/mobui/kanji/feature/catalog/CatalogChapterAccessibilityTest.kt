@@ -1,5 +1,13 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.filter.CatalogFilterScreen
+import ru.mobui.kanji.feature.catalog.filter.FilterActions
+import ru.mobui.kanji.feature.catalog.filter.FilterContent
+import ru.mobui.kanji.feature.catalog.filter.FilterRequest
+import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
+import ru.mobui.kanji.feature.catalog.presentation.KanjiFilters
+import ru.mobui.kanji.feature.catalog.presentation.SearchState
+
 import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.hasText

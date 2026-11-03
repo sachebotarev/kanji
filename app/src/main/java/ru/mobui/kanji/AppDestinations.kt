@@ -159,6 +159,7 @@ private fun AppDestinationContent(
 @Composable
 private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
     with(context) {
+        val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         ru.mobui.kanji.feature.dictionary.DictionaryRoute(
             dependencies.dictionary,
             dependencies.catalog,
@@ -170,6 +171,7 @@ private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestinati
                 kanjiId,
                 sourceId,
                 loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) },
+                revision = revision,
             )
         }
     }
@@ -178,10 +180,12 @@ private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestinati
 @Composable
 private fun CatalogDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
     with(context) {
+        val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         ru.mobui.kanji.feature.catalog.CatalogRoute(
             dependencies.catalog,
             onBack = { navigate(AppDestination.Dashboard) },
             loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) },
+            revision = revision,
         )
     }
 }

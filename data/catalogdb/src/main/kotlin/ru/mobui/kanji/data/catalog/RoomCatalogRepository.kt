@@ -6,6 +6,8 @@ import androidx.room.withTransaction
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -40,6 +42,13 @@ internal constructor(
 
     private val mutex = Mutex()
     private var snapshot: CatalogSnapshot? = null
+    private val mutableRevision = MutableStateFlow(0L)
+    val revision = mutableRevision.asStateFlow()
+
+    private fun invalidateSnapshot() {
+        snapshot = null
+        mutableRevision.value += 1
+    }
 
     override fun observeWords(): Flow<List<CatalogWord>> = flow {
         load() // Installation finishes before Room starts emitting an initially empty database.
@@ -93,7 +102,7 @@ internal constructor(
                         // returning a stale snapshot.
                         wordId
                     }
-                    .also { snapshot = null }
+                    .also { invalidateSnapshot() }
             }
         }
 
@@ -115,7 +124,7 @@ internal constructor(
                         // statistics.
                         dao.archiveManual(id)
                     }
-                    .also { snapshot = null }
+                    .also { invalidateSnapshot() }
             }
         }
 

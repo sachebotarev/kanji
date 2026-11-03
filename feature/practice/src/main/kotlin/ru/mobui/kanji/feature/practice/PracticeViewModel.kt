@@ -103,9 +103,10 @@ class PracticeViewModel(
     }
 
     fun setActive(active: Boolean) {
+        if (active == screenActive && (!active || ticker != null)) return
         if (!active) {
             accountTime()
-            lastTick = null
+            // Stop UI ticks, not elapsed wall time: account for the background gap on resume.
             ticker?.cancel()
             ticker = null
             screenActive = false
@@ -114,6 +115,7 @@ class PracticeViewModel(
             session.setGestureActive(false)
         } else {
             screenActive = true
+            accountTime()
             lastTick = clock()
             ticker =
                 viewModelScope.launch {

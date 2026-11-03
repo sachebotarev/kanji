@@ -108,7 +108,7 @@ fun WordNavigationRow(
         shape = RoundedCornerShape(24.dp),
         color =
             if (selected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surfaceContainerHigh,
+            else MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             Modifier.fillMaxWidth()
@@ -144,7 +144,7 @@ fun WordRow(
     Surface(
         onClick,
         modifier.fillMaxWidth().testTag("word-${word.id}"),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         shape = RoundedCornerShape(24.dp),
     ) {
         val origin =

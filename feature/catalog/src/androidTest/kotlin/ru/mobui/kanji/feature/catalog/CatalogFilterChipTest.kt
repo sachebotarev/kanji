@@ -1,5 +1,8 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.components.CatalogFilterChip
+import ru.mobui.kanji.feature.catalog.theme.CatalogTheme
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.width
 import androidx.compose.ui.Modifier

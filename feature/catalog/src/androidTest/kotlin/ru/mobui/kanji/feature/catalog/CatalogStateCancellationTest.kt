@@ -1,5 +1,9 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.presentation.CatalogStateViewModel
+
+import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
+
 import androidx.lifecycle.ViewModelStore
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.LinkedBlockingQueue
@@ -68,14 +72,14 @@ class CatalogStateCancellationTest {
         repository: CatalogRepository,
         dispatcher: CoroutineDispatcher,
         private val input: MutableStateFlow<String>,
-    ) : CatalogStateViewModel<String, String>(repository, dispatcher) {
+    ) : CatalogStateViewModel<String, String>(repository, dispatcher, "ru") {
         init {
             retry()
         }
 
         override fun inputs() = input
 
-        override suspend fun content(snapshot: CatalogSnapshot, input: String) = input
+        override suspend fun content(snapshot: CatalogSnapshot, input: String, language: String) = input
     }
 
     private class QueuedDispatcher : CoroutineDispatcher() {

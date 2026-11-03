@@ -1,5 +1,12 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.detail.CatalogDetailScreen
+import ru.mobui.kanji.feature.catalog.detail.DetailActions
+import ru.mobui.kanji.feature.catalog.detail.DetailContent
+import ru.mobui.kanji.feature.catalog.detail.DetailRequest
+import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
+import ru.mobui.kanji.feature.catalog.presentation.SearchState
+
 import android.content.res.Configuration
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalConfiguration

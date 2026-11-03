@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru" data-theme="light" data-viewer-module="theme">
+<head>
+ <script src="../shared/viewer-entry.js"></script>
+ <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Тема приложения — дизайн</title><link rel="icon" href="data:,">
+ <link rel="stylesheet" href="../web/styles.css"><link rel="stylesheet" href="material-theme.css"><link rel="stylesheet" href="material-components.css"><link rel="stylesheet" href="theme-preview.css">
+ <script type="module" src="theme-controls.js"></script><script src="theme-preview.js" defer></script>
+<link rel="stylesheet" href="../shared/viewer-embed.css"><script src="../shared/viewer-bridge.js" defer></script>
+</head>
+<body>
+ <aside class="workbench"><a class="brand" href="../web/#home"><span class="brand-mark" lang="ja">漢</span><span>Кандзи дэс нэ<small>Дизайн-система</small></span></a><p class="bench-intro">Тема приложения</p><nav><a class="nav-link active" href="theme-preview.html">Цвета и роли</a><a class="nav-link" href="../web/#home">Главная и тренировки</a><a class="nav-link" href="../web/#settings">Настройки</a><a class="nav-link" href="../textbooks/#catalog">Каталог</a></nav><div class="bench-controls"><label>Просмотр темы<select id="theme"><option value="light">Светлая</option><option value="dark">Тёмная</option></select></label></div><p class="bench-note">Локальный черновик палитры применяется ко всем экранам и открытым вкладкам просмотрщика. Android-код и статусы согласования не меняются.</p></aside>
+ <main class="theme-studio"><header><span class="draft-pill">Не согласовано</span><h1>Одна палитра для всего приложения</h1><p>Поменяйте базовый цвет: обе схемы и производные роли пересчитаются автоматически.</p></header>
+ <section class="key-colors" aria-label="Базовые цвета">
+  <label class="color-control"><span>Primary · основные действия</span><span class="color-inputs"><input type="color" data-theme-key="primary" aria-label="Выбрать Primary"><input type="text" data-theme-hex="primary" aria-label="HEX Primary" spellcheck="false" maxlength="7"></span></label>
+  <label class="color-control"><span>Secondary · второстепенные элементы</span><span class="color-inputs"><input type="color" data-theme-key="secondary" aria-label="Выбрать Secondary"><input type="text" data-theme-hex="secondary" aria-label="HEX Secondary" spellcheck="false" maxlength="7"></span></label>
+  <label class="color-control"><span>Tertiary · дополнительные акценты</span><span class="color-inputs"><input type="color" data-theme-key="tertiary" aria-label="Выбрать Tertiary"><input type="text" data-theme-hex="tertiary" aria-label="HEX Tertiary" spellcheck="false" maxlength="7"></span></label>
+  <label class="color-control"><span>Error · ошибки и удаление</span><span class="color-inputs"><input type="color" data-theme-key="error" aria-label="Выбрать Error"><input type="text" data-theme-hex="error" aria-label="HEX Error" spellcheck="false" maxlength="7"></span></label>
+ </section>
+ <div class="studio-actions"><button id="reset-theme" type="button">Исходная палитра</button><button id="export-theme" type="button">Выгрузить конфигурацию</button><a href="../web/#home" target="_blank">Открыть экраны ↗</a><a href="../textbooks/#catalog" target="_blank">Открыть каталог ↗</a></div>
+ <p id="theme-feedback" role="status"></p><p id="contrast-feedback" role="status"></p>
+ <section class="sample-section" aria-label="Пример компонентов"><h2>Как это выглядит</h2><div class="component-samples"><section class="sample-card"><h3>Учебный материал</h3><p>Поверхности и основной текст</p><button class="sample-primary" type="button">Начать тренировку</button></section><section class="sample-selected"><h3>✓ Выбранная тренировка</h3><p>primary / onPrimary</p></section><section class="sample-secondary"><h3>Фильтры и выбор</h3><p>secondaryContainer / onSecondaryContainer</p></section><section class="sample-tertiary"><h3>Время на слово</h3><p>tertiaryContainer / onTertiaryContainer</p></section><section class="sample-error"><h3>Ошибка ввода</h3><p>errorContainer / onErrorContainer</p></section></div></section>
+ <section><h2>Роли текущей темы</h2><div id="role-grid" class="role-grid"></div></section>
+ <section><h2>Типографика</h2><div id="type-specimens"></div></section>
+ <section><h2>Статусы экранов</h2><p>Источник — <a href="../../theme/screens.json">screens.json</a>. Выбор цвета не меняет согласование.</p><div id="screen-register"></div></section>
+ </main>
+</body></html>

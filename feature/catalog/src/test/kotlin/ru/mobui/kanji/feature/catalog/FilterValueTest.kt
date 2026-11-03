@@ -1,5 +1,7 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.components.decodeJlpt
+
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import ru.mobui.kanji.domain.catalog.JlptFilter
