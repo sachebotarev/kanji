@@ -3,13 +3,14 @@ package ru.mobui.kanji.feature.catalog.detail
 import ru.mobui.kanji.feature.catalog.R
 import ru.mobui.kanji.feature.catalog.browse.rememberCatalogColumnState
 import ru.mobui.kanji.feature.catalog.components.CatalogEmptyState
-import ru.mobui.kanji.feature.catalog.components.CatalogHint
 import ru.mobui.kanji.feature.catalog.components.CatalogMaterialCount
 import ru.mobui.kanji.feature.catalog.components.CatalogPanel
 import ru.mobui.kanji.feature.catalog.components.CatalogRow
 import ru.mobui.kanji.feature.catalog.components.DetailColumn
 import ru.mobui.kanji.feature.catalog.components.KanjiGrid
+import ru.mobui.kanji.feature.catalog.components.NumberingHelpButton
 import ru.mobui.kanji.feature.catalog.components.numbers
+import ru.mobui.kanji.feature.catalog.components.radicalDisplayName
 import ru.mobui.kanji.feature.catalog.filter.jlptLabel
 import ru.mobui.kanji.feature.catalog.presentation.MaterialKind
 import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseColor
@@ -25,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,7 +56,7 @@ internal fun KanjiDetail(
         return
     }
     DetailColumn {
-        CatalogPanel {
+        Column {
             Column(
                 Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -81,20 +83,13 @@ internal fun KanjiDetail(
                 )
             }
         }
-        Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-            if (kanji.on.isNotEmpty())
-                CatalogReadings(stringResource(R.string.catalog_on), kanji.on)
-            if (kanji.kun.isNotEmpty())
-                CatalogReadings(stringResource(R.string.catalog_kun), kanji.kun)
-            if (kanji.on.isEmpty() && kanji.kun.isEmpty())
-                Text(stringResource(R.string.catalog_no_reading))
-            else
-                Text(
-                    stringResource(R.string.catalog_reading_hint),
-                    Modifier.padding(horizontal = 16.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+        if (kanji.on.isNotEmpty() || kanji.kun.isNotEmpty()) {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (kanji.on.isNotEmpty())
+                    CatalogReadings(stringResource(R.string.catalog_on), kanji.on)
+                if (kanji.kun.isNotEmpty())
+                    CatalogReadings(stringResource(R.string.catalog_kun), kanji.kun)
+            }
         }
         if (
             kanji.schoolStage != null ||
@@ -103,9 +98,13 @@ internal fun KanjiDetail(
                 kanji.kyoiku ||
                 kanji.jinmeiyo
         )
-            CatalogPanel(spacing = 4.dp) {
+            FlowRow(
+                modifier = Modifier.padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
                 kanji.schoolStage?.let { stage ->
-                    Text(
+                    ClassificationTag(
                         when (stage) {
                             SchoolStage.Elementary ->
                                 kanji.schoolYear?.let {
@@ -114,14 +113,9 @@ internal fun KanjiDetail(
                             SchoolStage.JuniorHigh -> stringResource(R.string.catalog_school_junior)
                             SchoolStage.HighSchool -> stringResource(R.string.catalog_school_high)
                         },
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                ) {
+                run {
                     val labels =
                         listOfNotNull(
                             kanji.jlptLevel?.let { jlptLabel(JlptFilter.Exact(it)) },
@@ -129,13 +123,7 @@ internal fun KanjiDetail(
                             if (kanji.kyoiku) stringResource(R.string.catalog_kyoiku) else null,
                             if (kanji.jinmeiyo) stringResource(R.string.catalog_jinmeiyo) else null,
                         )
-                    labels.forEach {
-                        Text(
-                            it,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
+                    labels.forEach { ClassificationTag(it) }
                 }
             }
         state.radical?.let { radical ->
@@ -143,15 +131,32 @@ internal fun KanjiDetail(
                 stringResource(R.string.catalog_radical),
                 radical.symbol +
                     " · " +
-                    (radical.name(language) ?: stringResource(R.string.catalog_missing)),
+                    radicalDisplayName(radical, language),
                 { onRadical(radical.id) },
                 Modifier.testTag("kanji-key"),
+                inlineSubtitle = true,
             )
         }
         CatalogRow(
             stringResource(R.string.catalog_related_words),
             pluralStringResource(R.plurals.catalog_word_count, state.wordCount, state.wordCount),
             onWords,
+            inlineSubtitle = true,
+        )
+    }
+}
+
+@Composable
+private fun ClassificationTag(label: String) {
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+    ) {
+        Text(
+            label,
+            Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            style = MaterialTheme.typography.bodySmall,
         )
     }
 }
@@ -165,7 +170,7 @@ private fun CatalogReadings(label: String, readings: List<String>) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         Text(
-            readings.joinToString(" · "),
+            readings.joinToString("、"),
             style =
                 CatalogJapaneseStyle.copy(
                     fontSize = 28.sp,
@@ -211,12 +216,11 @@ internal fun RadicalDetail(
                         state.rows.entries.size,
                         MaterialKind.Kanji,
                         inset = false,
+                        action =
+                            if (numbers.isNotEmpty()) {
+                                { NumberingHelpButton(stringResource(R.string.catalog_placement_legend)) }
+                            } else null,
                     )
-                    if (numbers.isNotEmpty())
-                        CatalogHint(
-                            stringResource(R.string.catalog_placement_legend),
-                            inset = false,
-                        )
                 }
             },
         )
@@ -244,7 +248,7 @@ private fun RadicalIntro(radical: CatalogRadical, language: String, inset: Boole
                     color = CatalogJapaneseColor,
                 )
                 Text(
-                    radical.name(language) ?: stringResource(R.string.catalog_missing),
+                    radicalDisplayName(radical, language),
                     style =
                         MaterialTheme.typography.titleLarge.copy(
                             fontSize = 22.sp,

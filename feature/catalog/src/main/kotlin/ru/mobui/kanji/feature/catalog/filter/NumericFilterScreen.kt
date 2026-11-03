@@ -2,17 +2,19 @@ package ru.mobui.kanji.feature.catalog.filter
 
 import ru.mobui.kanji.feature.catalog.R
 import ru.mobui.kanji.feature.catalog.browse.rememberCatalogListState
+import ru.mobui.kanji.feature.catalog.components.CatalogClearFilterButton
 import ru.mobui.kanji.feature.catalog.components.CatalogRow
 import ru.mobui.kanji.feature.catalog.presentation.MaterialKind
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.ui.Alignment
+import ru.mobui.kanji.feature.catalog.components.NumberingHelpButton
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,23 +51,18 @@ internal fun <T : Any> NumericFilterScreen(
         state = listState,
         userScrollEnabled = listState.canScrollForward || listState.canScrollBackward,
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         item {
-            FilledTonalButton(
-                onClear,
-                Modifier.padding(bottom = 8.dp).heightIn(min = 48.dp),
-                colors =
-                    ButtonDefaults.filledTonalButtonColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                    ),
-            ) {
-                Text(clearLabel)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                CatalogClearFilterButton(clearLabel, onClear, inset = false)
+                if (explanation != null) NumberingHelpButton(
+                    explanation,
+                    title = stringResource(R.string.catalog_jlpt_help),
+                    description = stringResource(R.string.catalog_jlpt_help),
+                )
             }
         }
-        if (explanation != null)
-            item { Text(explanation, style = MaterialTheme.typography.bodySmall) }
         items(options, key = { it.value.toString() }) { option ->
             CatalogRow(
                 option.title,
@@ -78,6 +75,7 @@ internal fun <T : Any> NumericFilterScreen(
                 { onSelect(option.value) },
                 selected = option.value == selected,
                 selection = true,
+                compact = true,
             )
         }
     }

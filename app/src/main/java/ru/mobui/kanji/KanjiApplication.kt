@@ -28,6 +28,9 @@ class KanjiApplication : Application() {
     val catalog: ru.mobui.kanji.domain.catalog.CatalogRepository
         get() = wordStorage
 
+    val catalogRevision: kotlinx.coroutines.flow.StateFlow<Long>
+        get() = wordStorage.revision
+
     val dictionary: ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
         get() = wordStorage
 

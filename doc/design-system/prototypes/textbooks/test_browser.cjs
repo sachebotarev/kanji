@@ -45,14 +45,18 @@ const path=require('node:path');
     assert.equal(await page.locator('[data-action^="select-chapter:"]').count(),2);
     assert.doesNotMatch(await page.locator('[data-action="select-chapter:3"] small').innerText(),/слов/);
     await page.evaluate(()=>quickNavigate('words/19968/1'));
-    assert.match(await page.locator('.w-word-chapter-heading').innerText(),/13 слов/);
+    assert.match(await page.locator('.w-kanji-summary').innerText(),/13 слов/);
+    assert.match(await page.locator('.w-word-chapter-heading').innerText(),/Глава 3/);
+    assert.doesNotMatch(await page.locator('.w-word-chapter-heading').innerText(),/13 слов/);
     assert.doesNotMatch(await page.locator('.w-word-chapter-heading').innerText(),/из 13/);
     await page.evaluate(()=>quickNavigate('source/2?tab=2'));
     const reading=await page.locator('.n-word-reading').first().evaluate(n=>({size:getComputedStyle(n).fontSize,line:getComputedStyle(n).lineHeight}));
     assert.deepEqual(reading,{size:'16px',line:'24px'});
     await page.evaluate(()=>quickNavigate('source/2?tab=1'));
-    const legend=await page.locator('.w-placement-legend').evaluate(n=>({left:n.getBoundingClientRect().left,phone:document.querySelector('#phone').getBoundingClientRect().left,padding:getComputedStyle(n).paddingLeft}));
-    assert.equal(legend.padding,'20px');
+    assert.equal(await page.locator('.w-kanji-summary .w-numbering-help summary svg').count(),1);
+    await page.locator('.w-numbering-help summary').click();
+    assert.equal(await page.locator('.w-numbering-help p').isVisible(),true);
+    assert.match(await page.locator('.w-numbering-help p').innerText(),/Номер на плитке/);
     const sizes=[];
     for(const width of ['360','411.43','480'])for(const scale of ['1','1.3','1.6']){
       await page.selectOption('#width',width);await page.selectOption('#text-scale',scale);
@@ -62,7 +66,7 @@ const path=require('node:path');
     }
     for(const locale of ['ru','en','de']){
       await page.selectOption('#locale',locale);await page.evaluate(()=>quickNavigate('kanji/26085/2'));
-      assert.match(await page.locator('.w-kanji-classification').innerText(),locale==='en'?/Japanese school/:/Японская школа/);
+      assert.match(await page.locator('.w-kanji-classification').innerText(),locale==='en'?/Elementary school/:/Начальная школа/);
     }
     await page.selectOption('#locale','ru');await page.selectOption('#width','411.43');await page.selectOption('#text-scale','1');
     for(const state of ['loading','error']){
@@ -70,7 +74,7 @@ const path=require('node:path');
       assert.match(await page.locator('#view-status').innerText(),/Не согласовано/);
     }
     await page.selectOption('#load-state','ready');await page.selectOption('#review-filter','unapproved');
-    assert.equal(await page.locator('.nav-link:visible').count(),pending);
+    assert.equal(await page.locator('.nav-link[data-quick]:visible').count(),pending);
     await page.evaluate(()=>quickNavigate('source/2?tab=1'));
     await page.locator('.workbench').evaluate(n=>n.scrollTop=0);
     if(output){fs.mkdirSync(output,{recursive:true});await page.screenshot({path:path.join(output,'overview.png'),fullPage:true});}

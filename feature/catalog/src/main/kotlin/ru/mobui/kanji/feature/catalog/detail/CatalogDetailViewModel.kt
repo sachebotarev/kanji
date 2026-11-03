@@ -19,10 +19,10 @@ internal class CatalogDetailViewModel(
     saved: SavedStateHandle,
     repository: CatalogRepository,
     val request: DetailRequest,
-    private val language: String,
+    language: String,
     private val loadDrawing: suspend (Int) -> ReferenceDrawing?,
     compute: CoroutineDispatcher = Dispatchers.Default,
-) : CatalogStateViewModel<String, DetailContent>(repository, compute) {
+) : CatalogStateViewModel<String, DetailContent>(repository, compute, language) {
     val search = CatalogSearchState(saved, "detail.search")
     private var drawingLoaded = false
     private var drawing: ReferenceDrawing? = null
@@ -33,7 +33,11 @@ internal class CatalogDetailViewModel(
 
     override fun inputs() = search.state.map { it.query }
 
-    override suspend fun content(snapshot: CatalogSnapshot, input: String): DetailContent {
+    override suspend fun content(
+        snapshot: CatalogSnapshot,
+        input: String,
+        language: String,
+    ): DetailContent {
         val source = request.sourceId?.let { snapshot.sourceById[it] }
         return when (val target = request) {
             is DetailRequest.Word -> {

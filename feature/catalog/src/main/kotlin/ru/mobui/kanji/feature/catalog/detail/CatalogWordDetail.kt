@@ -37,10 +37,7 @@ internal fun WordDetail(state: DetailContent.Word, language: String, onKanji: (I
         return
     }
     DetailColumn {
-        Surface(
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerLow,
-        ) {
+        Column {
             Column(
                 Modifier.fillMaxWidth().padding(20.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,

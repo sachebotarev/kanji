@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -22,6 +23,7 @@ internal fun CatalogMaterialCount(
     kind: MaterialKind,
     modifier: Modifier = Modifier,
     inset: Boolean = true,
+    action: (@Composable () -> Unit)? = null,
 ) {
     val quantity =
         when (kind) {
@@ -30,18 +32,27 @@ internal fun CatalogMaterialCount(
             MaterialKind.Radical -> R.plurals.catalog_radical_count
             MaterialKind.Chapter -> R.plurals.catalog_chapter_count
         }
-    val horizontal = if (inset) 24.dp else 0.dp
+    val horizontal = if (inset) 20.dp else 0.dp
     Row(
-        modifier.fillMaxWidth().padding(start = horizontal, end = horizontal, top = 12.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(start = horizontal, end = horizontal, top = 8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         val totalLabel = pluralStringResource(quantity, total, total)
         Text(
-            if (count == total) totalLabel
-            else stringResource(R.string.catalog_shown_count, count, totalLabel),
+            modifier = Modifier.weight(1f),
+            text =
+                if (count == total) totalLabel
+                else stringResource(R.string.catalog_shown_count, count, totalLabel),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        if (action != null) {
+            action()
+        }
     }
 }
 

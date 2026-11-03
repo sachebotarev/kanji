@@ -26,9 +26,9 @@ internal class CatalogFilterViewModel(
     saved: SavedStateHandle,
     repository: CatalogRepository,
     val request: FilterRequest,
-    private val language: String,
+    language: String,
     compute: CoroutineDispatcher = Dispatchers.Default,
-) : CatalogStateViewModel<String, FilterContent>(repository, compute) {
+) : CatalogStateViewModel<String, FilterContent>(repository, compute, language) {
     val search = CatalogSearchState(saved, "filter.search")
 
     init {
@@ -37,7 +37,11 @@ internal class CatalogFilterViewModel(
 
     override fun inputs() = search.state.map { it.query }
 
-    override suspend fun content(snapshot: CatalogSnapshot, input: String): FilterContent =
+    override suspend fun content(
+        snapshot: CatalogSnapshot,
+        input: String,
+        language: String,
+    ): FilterContent =
         when (val target = request) {
             is FilterRequest.ChaptersForKanji ->
                 chapters(

@@ -11,11 +11,13 @@ import ru.mobui.kanji.feature.catalog.presentation.KanjiFilters
 import ru.mobui.kanji.feature.catalog.presentation.WordFilters
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.count
 import kotlinx.coroutines.flow.filter
@@ -49,9 +51,9 @@ internal class CatalogBrowseViewModel(
     private val saved: SavedStateHandle,
     repository: CatalogRepository,
     val request: BrowseRequest,
-    private val language: String,
+    language: String,
     compute: CoroutineDispatcher = Dispatchers.Default,
-) : CatalogStateViewModel<BrowseInput, BrowseContent>(repository, compute) {
+) : CatalogStateViewModel<BrowseInput, BrowseContent>(repository, compute, language) {
     private val source = request as? BrowseRequest.Source
     private val currentTab =
         MutableStateFlow(
@@ -69,8 +71,13 @@ internal class CatalogBrowseViewModel(
     private fun activeSearch() =
         if (source != null) searches.getValue(currentTab.value) else singleSearch
 
-    private val mutableSearch = MutableStateFlow(activeSearch().state.value)
-    val search = mutableSearch.asStateFlow()
+    private val tabSearches = combine(searches.values.map { it.state }) { states ->
+        SourceTab.entries.zip(states.toList()).toMap()
+    }
+    val search =
+        if (source == null) singleSearch.state
+        else combine(currentTab, tabSearches) { tab, states -> states.getValue(tab) }
+            .stateIn(viewModelScope, SharingStarted.Eagerly, activeSearch().state.value)
 
     init {
         retry()
@@ -78,17 +85,14 @@ internal class CatalogBrowseViewModel(
 
     fun query(value: String) {
         activeSearch().query(value)
-        mutableSearch.value = activeSearch().state.value
     }
 
     fun toggleSearch() {
         activeSearch().toggle()
-        mutableSearch.value = activeSearch().state.value
     }
 
     fun tab(value: SourceTab) {
         if (source == null || source.chapter != null && value == SourceTab.Chapters) return
-        mutableSearch.value = searches.getValue(value).state.value
         currentTab.value = value
         saved["source.tab"] = value.name
     }
@@ -121,9 +125,9 @@ internal class CatalogBrowseViewModel(
                     currentTab,
                     saved.kanjiFilters("kanji", KanjiFilters(chapter = target.chapter)),
                     saved.wordFilters(target.chapter),
-                    search,
-                ) { tab, kanji, words, search ->
-                    BrowseInput.Source(target, tab, kanji, words, search.query)
+                    tabSearches,
+                ) { tab, kanji, words, searches ->
+                    BrowseInput.Source(target, tab, kanji, words, searches.getValue(tab).query)
                 }
             BrowseRequest.AllKanji ->
                 combine(saved.kanjiFilters("index"), search) { filters, search ->
@@ -138,8 +142,11 @@ internal class CatalogBrowseViewModel(
             is BrowseRequest.RelatedWords -> search.map { BrowseInput.Words(target, it.query) }
         }
 
-    override suspend fun content(snapshot: CatalogSnapshot, input: BrowseInput): BrowseContent =
-        browseContent(snapshot, input, language)
+    override suspend fun content(
+        snapshot: CatalogSnapshot,
+        input: BrowseInput,
+        language: String,
+    ): BrowseContent = browseContent(snapshot, input, language)
 
 }
 

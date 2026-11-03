@@ -49,14 +49,19 @@ internal data class WordRows(
 internal sealed interface SourceRows {
     data class Chapters(val entries: List<CatalogChapter>, val range: IntRange?) : SourceRows
 
-    data class Kanji(val rows: KanjiRows, val filters: KanjiFilters, val radicalSymbol: String?) :
-        SourceRows
+    data class Kanji(
+        val rows: KanjiRows,
+        val filters: KanjiFilters,
+        val radicalSymbol: String?,
+        val canChangeChapter: Boolean = true,
+    ) : SourceRows
 
     data class Words(
         val rows: WordRows,
         val filters: WordFilters,
         val kanjiSymbol: String?,
         val showEnd: Boolean,
+        val canChangeChapter: Boolean = true,
     ) : SourceRows
 }
 

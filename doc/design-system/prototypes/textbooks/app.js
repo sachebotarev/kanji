@@ -267,7 +267,7 @@ function render({keepFocus=false}={}) {
     const mark=ok?'<path d="M2.2 6.1 4.6 8.5 9.8 3.3"/>':'<circle cx="6" cy="6" r="3.1"/>';
     return `<a class="nav-link ${routeHash(current.route)===routeHash(route)?'active':''}" href="#${hash}" data-quick="${hash}" data-approval="${status.status}" ${onlyPending&&ok?'hidden':''}><span class="nav-number">${String(index+1).padStart(2,'0')}</span><span class="nav-label">${html(en?name:ru)}</span><span class="nav-flag ${ok?'is-approved':'is-open'}" role="img" aria-label="${html(reviewLabel(ok))}" title="${html(reviewLabel(ok))}"><svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${mark}</svg></span></a>`;
   }).join('');
-  $('#screen-caption').textContent=en?'Material 3 design prototype. Android code is unchanged. Approval is recorded per screen.':'Макет Material 3. Android-код не менялся. Статус согласования указан для каждого экрана отдельно.';
+  $('#screen-caption').textContent=en?'Material 3 design prototype. Android implementation is tracked separately. Approval is recorded per screen.':'Макет Material 3. Проверки Android-реализации учитываются отдельно. Статус согласования указан для каждого экрана отдельно.';
   $('#collapse-header').disabled=isDesignedTextbook()||showsWorkingModule();
   configureChrome(initial);
   $('.n-content').scrollTop=keepFocus?contentScroll||0:current.scrolls[current.tab]||0;

@@ -51,7 +51,10 @@ class PersonalDictionaryStorageTest {
             val pending = async {
                 withTimeout(15_000) { repository.observeWords().first { it.isNotEmpty() } }
             }
+            assertEquals(0L, repository.revision.value)
             val id = repository.saveWord(null, draft)
+            assertEquals(1L, repository.revision.value)
+            assertEquals("木漏れ日の例文です。", repository.load().wordById[id]?.written)
             assertTrue(pending.await().single().isUserCreated)
             assertTrue(id < 0)
             assertEquals(
@@ -67,6 +70,8 @@ class PersonalDictionaryStorageTest {
                         ),
                 )
             repository.saveWord(id, edited)
+            assertEquals(2L, repository.revision.value)
+            assertEquals("Новый перевод", repository.load().wordById[id]?.translation("ru"))
             val word = repository.observeWords().first().single()
             assertEquals("Новый перевод", word.translation("en"))
             assertNull(word.translations["en"])
@@ -76,6 +81,8 @@ class PersonalDictionaryStorageTest {
             repository = RoomCatalogRepository(db, instrumentation.context.assets, Dispatchers.IO)
             assertEquals(id, repository.observeWords().first().single().id)
             repository.deleteWord(id)
+            assertEquals(1L, repository.revision.value)
+            assertNull(repository.load().wordById[id])
             assertTrue(repository.observeWords().first().isEmpty())
             assertEquals(1, db.catalogDao().word(id)?.isArchived)
             assertEquals(
@@ -109,6 +116,7 @@ class PersonalDictionaryStorageTest {
             expect(DictionaryFailure.ReadOnly) { repository.saveWord(supplied.id, draft) }
             expect(DictionaryFailure.ReadOnly) { repository.deleteWord(supplied.id) }
             expect(DictionaryFailure.Duplicate) { repository.saveWord(null, draft) }
+            assertEquals(0L, repository.revision.value)
             assertEquals(original, db.catalogDao().word(supplied.id))
             val manualDraft =
                 WordDraft(
@@ -119,6 +127,7 @@ class PersonalDictionaryStorageTest {
             val id = repository.saveWord(null, manualDraft)
             expect(DictionaryFailure.Duplicate) { repository.saveWord(null, manualDraft) }
             expect(DictionaryFailure.Duplicate) { repository.saveWord(id, draft) }
+            assertEquals(1L, repository.revision.value)
             assertEquals(manualDraft.written, db.catalogDao().word(id)?.writtenForm)
             try {
                 db.openHelper.writableDatabase.execSQL(

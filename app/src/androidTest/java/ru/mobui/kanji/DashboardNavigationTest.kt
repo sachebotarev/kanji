@@ -49,7 +49,10 @@ class DashboardNavigationTest {
         compose.onNodeWithTag("close-word-statistics").performClick()
         compose.onNodeWithTag("word-statistics-dialog").assertDoesNotExist()
         compose.onNodeWithTag("open-word-statistics").performClick()
-        androidx.test.espresso.Espresso.pressBack()
+        pressSystemBack()
+        compose.waitUntil(5_000) {
+            compose.onAllNodesWithTag("word-statistics-dialog").fetchSemanticsNodes().isEmpty()
+        }
         compose.onNodeWithTag("word-statistics-dialog").assertDoesNotExist()
         compose.onNodeWithTag("dashboard-screen").assertIsDisplayed()
     }

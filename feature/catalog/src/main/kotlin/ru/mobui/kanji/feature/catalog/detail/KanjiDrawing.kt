@@ -1,14 +1,11 @@
 package ru.mobui.kanji.feature.catalog.detail
 
-import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseColor
-import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseStyle
-
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -18,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.drawscope.withTransform
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
@@ -28,91 +27,72 @@ import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlin.math.max
-import kotlin.math.min
 import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
+import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseColor
+import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseStyle
 
-/** Source-independent rendering; loading and fallback selection belong to the caller. */
+/** Fixed writing cell: preserve source coordinates and whitespace for every glyph. */
 @Composable
 internal fun KanjiDrawing(
     symbol: String,
     drawing: ReferenceDrawing?,
     modifier: Modifier = Modifier,
 ) {
-    if (drawing == null) {
-        Box(
-            modifier.fillMaxWidth().heightIn(min = 72.dp, max = 120.dp),
-            contentAlignment = Alignment.Center,
-        ) {
-            Text(
-                symbol,
-                style = CatalogJapaneseStyle.copy(fontSize = 72.sp),
-                color = CatalogJapaneseColor,
-            )
-        }
-        return
-    }
-    val bounds = remember(drawing) { drawingBounds(drawing) }
     val color = CatalogJapaneseColor
     val secondary = MaterialTheme.colorScheme.onSurfaceVariant
+    val outline = MaterialTheme.colorScheme.outline
+    val guide = MaterialTheme.colorScheme.outlineVariant
+    val surface = MaterialTheme.colorScheme.surfaceContainerLow
     val measurer = rememberTextMeasurer()
-    BoxWithConstraints(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        val square = minOf(maxWidth, 188.dp)
-        val span = (bounds.bottom - bounds.top).coerceIn(MIN_VISIBLE_GLYPH_SPAN, 1f)
-        val height = square * span
-        Canvas(Modifier.width(square).height(height).semantics { contentDescription = symbol }) {
-            val side = size.width
-            val shiftY = bounds.top * side
-            drawing.strokes.forEach { points ->
-                val path = Path()
+    val paths = remember(drawing) {
+        drawing?.strokes.orEmpty().map { points ->
+            Path().apply {
                 points.forEachIndexed { index, point ->
-                    val x = point.x * side
-                    val y = point.y * side - shiftY
-                    if (index == 0) path.moveTo(x, y) else path.lineTo(x, y)
+                    if (index == 0) moveTo(point.x, point.y) else lineTo(point.x, point.y)
                 }
-                drawPath(
-                    path,
-                    color,
-                    style =
-                        Stroke(
-                            side * GLYPH_STROKE_UNITS / KANJIVG_VIEWPORT_UNITS,
-                            cap = StrokeCap.Round,
-                            join = StrokeJoin.Round,
-                        ),
-                )
             }
-            drawing.strokeNumbers.forEach { number ->
-                val label =
-                    measurer.measure(
-                        number.number.toString(),
-                        TextStyle(color = secondary, fontSize = 14.sp),
-                    )
-                drawText(
-                    label,
-                    topLeft =
-                        Offset(number.x * side, number.y * side - shiftY - label.firstBaseline),
+        }
+    }
+    val numbers = remember(drawing) { drawing?.strokeNumbers.orEmpty() }
+    BoxWithConstraints(modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        Box(
+            Modifier.width(minOf(maxWidth, 188.dp)).aspectRatio(1f)
+                .semantics(mergeDescendants = true) { contentDescription = symbol },
+            contentAlignment = Alignment.Center,
+        ) {
+            Canvas(Modifier.fillMaxSize()) {
+                val side = size.width
+                drawRect(surface)
+                val border = 1.dp.toPx()
+                drawRect(
+                    outline,
+                    topLeft = Offset(border / 2, border / 2),
+                    size = androidx.compose.ui.geometry.Size(size.width - border, size.height - border),
+                    style = Stroke(border),
                 )
+                val dash = PathEffect.dashPathEffect(floatArrayOf(3.dp.toPx(), 3.dp.toPx()))
+                drawLine(guide, Offset(side / 2, 0f), Offset(side / 2, side), border, pathEffect = dash)
+                drawLine(guide, Offset(0f, side / 2), Offset(side, side / 2), border, pathEffect = dash)
+                withTransform({ scale(side, side, pivot = Offset.Zero) }) {
+                    paths.forEach { path ->
+                        drawPath(
+                            path, color,
+                            style = Stroke(GLYPH_STROKE_WIDTH, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                        )
+                    }
+                }
+                numbers.forEach { number ->
+                    val label = measurer.measure(
+                        number.number.toString(), TextStyle(color = secondary, fontSize = 14.sp),
+                    )
+                    drawText(label, topLeft = Offset(number.x * side, number.y * side - label.firstBaseline))
+                }
+            }
+            if (drawing == null) {
+                Text(symbol, style = CatalogJapaneseStyle.copy(fontSize = 72.sp), color = color)
             }
         }
     }
 }
 
-private data class DrawingBounds(val top: Float, val bottom: Float)
-
-private fun drawingBounds(drawing: ReferenceDrawing): DrawingBounds {
-    var minY = Float.POSITIVE_INFINITY
-    var maxY = Float.NEGATIVE_INFINITY
-    fun include(y: Float) {
-        minY = min(minY, y)
-        maxY = max(maxY, y)
-    }
-    drawing.strokes.forEach { stroke -> stroke.forEach { include(it.y) } }
-    drawing.strokeNumbers.forEach { include(it.y) }
-    val pad = GLYPH_STROKE_UNITS / KANJIVG_VIEWPORT_UNITS + GLYPH_BOUNDS_PADDING
-    return DrawingBounds(minY - pad, maxY + pad)
-}
-
-private const val MIN_VISIBLE_GLYPH_SPAN = 0.08f
-private const val GLYPH_STROKE_UNITS = 3f
-private const val KANJIVG_VIEWPORT_UNITS = 109f
-private const val GLYPH_BOUNDS_PADDING = 0.02f
+private const val GLYPH_STROKE_WIDTH = 3f / 109f

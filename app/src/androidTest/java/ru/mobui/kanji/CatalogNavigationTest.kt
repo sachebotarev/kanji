@@ -12,7 +12,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToLog
@@ -27,7 +27,8 @@ class CatalogNavigationTest {
             compose.waitUntil(30_000) {
                 compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty()
             }
-        } catch (error: AssertionError) {
+            compose.waitForIdle()
+        } catch (error: androidx.compose.ui.test.ComposeTimeoutException) {
             compose.onRoot().printToLog("CatalogFailure")
             throw error
         }
@@ -35,7 +36,7 @@ class CatalogNavigationTest {
 
     private fun openCatalog() {
         waitTag("open-catalog")
-        compose.onNodeWithTag("open-catalog").performScrollTo().performClick()
+        compose.onNodeWithTag("open-catalog").bringIntoViewIfNeeded().performClick()
         waitTag("source-1")
     }
 
@@ -53,7 +54,7 @@ class CatalogNavigationTest {
         compose.onNodeWithTag("catalog-filter-radical").performClick()
         waitTag("radical-1")
         compose.onNodeWithTag("catalog-toggle-search").performClick()
-        compose.onNodeWithTag("catalog-search").performTextInput("85")
+        compose.onNodeWithTag("catalog-search").performTextInput("999999")
         compose.waitUntil(5_000) {
             compose
                 .onAllNodesWithText(
@@ -70,7 +71,7 @@ class CatalogNavigationTest {
         waitTag("kanji-19968")
         compose.onNodeWithTag("kanji-19968").performClick()
         waitTag("kanji-symbol")
-        compose.onNodeWithTag("kanji-key").performScrollTo().performClick()
+        compose.onNodeWithTag("kanji-key").bringIntoViewIfNeeded().performClick()
         waitTag("kanji-grid")
         androidx.test.espresso.Espresso.pressBack()
         waitTag("kanji-symbol")
@@ -123,7 +124,7 @@ class CatalogNavigationTest {
     @Test
     fun referencesOpenAndBackReturnsToDashboard() {
         openCatalog()
-        compose.onNodeWithTag("catalog-all-kanji").performScrollTo().performClick()
+        compose.onNodeWithTag("catalog-all-kanji").bringIntoViewIfNeeded().performClick()
         waitTag("kanji-grid")
         compose.onNodeWithTag("catalog-toggle-search").performClick()
         compose.onNodeWithTag("catalog-search").performTextInput("月")
@@ -133,6 +134,8 @@ class CatalogNavigationTest {
         androidx.test.espresso.Espresso.pressBack()
         waitTag("catalog-search")
         compose.onNodeWithTag("catalog-search").assertTextContains("月")
+        compose.onNodeWithTag("catalog-search").performImeAction()
+        compose.waitForIdle()
         androidx.test.espresso.Espresso.pressBack()
         waitTag("source-1")
         androidx.test.espresso.Espresso.pressBack()

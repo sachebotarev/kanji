@@ -103,6 +103,7 @@ fun CatalogRoute(
     initialKanjiId: Int = 0,
     initialSourceId: Int = 0,
     loadDrawing: suspend (Int) -> ru.mobui.kanji.domain.handwriting.ReferenceDrawing? = { null },
+    revision: Long = 0L,
 ) {
     val nav = rememberNavController()
     val back: () -> Unit = { if (!nav.popBackStack()) onBack() }
@@ -120,7 +121,7 @@ fun CatalogRoute(
             if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
             else if (initialSourceId != 0) SourceRoute(initialSourceId) else CatalogHome
         }
-    val context = CatalogGraphContext(repository, language, back, loadDrawing, browse, detail, select)
+    val context = CatalogGraphContext(repository, language, back, loadDrawing, browse, detail, select, revision)
     CatalogTheme {
         NavHost(nav, startDestination = start) {
             catalogBrowseSources(context)

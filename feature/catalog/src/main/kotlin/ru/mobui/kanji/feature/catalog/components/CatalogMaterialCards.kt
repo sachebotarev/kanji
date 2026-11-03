@@ -78,6 +78,7 @@ internal fun KanjiGrid(
     selectedId: Int? = null,
     numbers: Map<Int, String> = emptyMap(),
     header: (@Composable () -> Unit)? = null,
+    selectionMode: Boolean = false,
 ) {
     val gridState = rememberCatalogGridState()
     LazyVerticalGrid(
@@ -107,7 +108,8 @@ internal fun KanjiGrid(
                 language,
                 { onClick(kanji.id) },
                 selected = kanji.id == selectedId,
-                number = numbers[kanji.id],
+                number = if (selectionMode) null else numbers[kanji.id],
+                showStrokes = !selectionMode,
             )
         }
     }
@@ -120,7 +122,7 @@ internal fun RadicalGrid(
     onClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     selectedId: Int? = null,
-    fullNames: Boolean = false,
+    fullNames: Boolean = true,
     header: (@Composable () -> Unit)? = null,
 ) {
     val scale = androidx.compose.ui.platform.LocalDensity.current.fontScale.coerceAtLeast(1f)
@@ -145,7 +147,7 @@ internal fun RadicalGrid(
             SymbolTile(
                 SymbolTileContent(
                     radical.symbol,
-                    radical.name(language) ?: stringResource(R.string.catalog_missing),
+                    radicalDisplayName(radical, language),
                     radical.id.toString(),
                     null,
                 ),
@@ -153,6 +155,7 @@ internal fun RadicalGrid(
                 { onClick(radical.id) },
                 Modifier.testTag("radical-${radical.id}"),
                 fullCaption = fullNames,
+                containerColor = radicalContainerColor(radical.strokes),
             )
         }
     }
@@ -166,6 +169,7 @@ internal fun KanjiTile(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     number: String? = null,
+    showStrokes: Boolean = true,
 ) {
     val fullMeaning = kanji.meaning(language) ?: stringResource(R.string.catalog_missing)
     val strokeText =
@@ -176,7 +180,7 @@ internal fun KanjiTile(
         )
     val caption = kanji.meanings.localized(language)?.firstOrNull() ?: fullMeaning
     SymbolTile(
-        SymbolTileContent(kanji.symbol, caption, number, strokeText),
+        SymbolTileContent(kanji.symbol, caption, number, if (showStrokes) strokeText else null),
         selected,
         onClick,
         modifier.testTag("kanji-${kanji.id}").semantics {
@@ -192,14 +196,17 @@ private fun SymbolTile(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     fullCaption: Boolean = false,
+    containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceContainer,
 ) {
     with(content) {
     val density = androidx.compose.ui.platform.LocalDensity.current
     Surface(
         onClick,
         modifier.semantics { this.selected = selected },
-        shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = MaterialTheme.shapes.medium,
+        color =
+            if (selected) MaterialTheme.colorScheme.primaryContainer
+            else containerColor,
     ) {
         Box {
             Column(

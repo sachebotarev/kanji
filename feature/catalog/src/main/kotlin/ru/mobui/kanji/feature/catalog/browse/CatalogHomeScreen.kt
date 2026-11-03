@@ -44,9 +44,13 @@ internal fun CatalogHomeScreen(
         item {
             Text(
                 stringResource(R.string.catalog_sources),
-                Modifier.padding(start = 4.dp).semantics { heading() },
+                Modifier.padding(start = 4.dp, bottom = 4.dp).semantics { heading() },
                 style =
-                    MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 18.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    ),
             )
         }
         items(sources, key = { it.source.id }) { summary ->
@@ -64,9 +68,13 @@ internal fun CatalogHomeScreen(
         item {
             Text(
                 stringResource(R.string.catalog_reference),
-                Modifier.padding(start = 4.dp, top = 12.dp).semantics { heading() },
+                Modifier.padding(start = 4.dp, top = 24.dp, bottom = 4.dp).semantics { heading() },
                 style =
-                    MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = 18.sp,
+                        lineHeight = 24.sp,
+                        fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    ),
             )
         }
         item {
@@ -88,7 +96,7 @@ internal fun CatalogHomeScreen(
             )
         }
         item {
-            Box(Modifier.fillMaxWidth().padding(top = 12.dp), contentAlignment = Alignment.Center) {
+            Box(Modifier.fillMaxWidth().padding(top = 16.dp, bottom = 8.dp), contentAlignment = Alignment.Center) {
                 CatalogArtwork(R.drawable.catalog_reading, Modifier.size(156.dp), mascot = true)
             }
         }

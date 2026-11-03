@@ -34,8 +34,8 @@
     <string name="catalog_parts">Части чтения</string>
     <string name="catalog_literal_kanji">Кандзи в написании</string>
     <string name="catalog_links">Учебные привязки</string>
-    <string name="catalog_on">Онъёми · чтения китайского происхождения</string>
-    <string name="catalog_kun">Кунъёми · японские чтения</string>
+    <string name="catalog_on">Онъёми</string>
+    <string name="catalog_kun">Кунъёми</string>
     <string name="catalog_no_reading">Нет собственных чтений</string>
     <string name="catalog_joyo">常用 · общеупотребительные</string>
     <string name="catalog_kyoiku">教育 · начальная школа</string>
@@ -79,7 +79,7 @@
     <string name="catalog_jlpt_explanation">Уровни — учебный ориентир, не официальный список JLPT.</string>
     <string name="catalog_usage">Употребление</string>
     <string name="catalog_reading_parts">Части чтения</string>
-    <string name="catalog_school_elementary">Японская школа: %1$d-й год начальной школы</string>
+    <string name="catalog_school_elementary">Начальная школа · %1$d-й год</string>
     <string name="catalog_school_junior">Японская школа: средняя ступень</string>
     <string name="catalog_school_high">Японская школа: старшая ступень</string>
     <string name="catalog_word_kanji">Кандзи в написании</string>
@@ -131,4 +131,8 @@
     <string name="catalog_choose_kanji_hint">Выберите кандзи, чтобы отфильтровать слова.</string>
     <string name="catalog_global_reference">Общий справочник</string>
     <string name="catalog_reading_hint">Чтение кандзи зависит от слова. Проверяйте полное чтение в карточке слова.</string>
+    <string name="catalog_numbering_title">Нумерация</string>
+    <string name="catalog_numbering_help">Пояснение к нумерации</string>
+    <string name="catalog_radical_second">Второй</string>
+    <string name="catalog_jlpt_help">Об уровнях JLPT</string>
 </resources>

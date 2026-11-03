@@ -77,7 +77,7 @@ internal fun CatalogPanel(
 ) {
     Surface(
         modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(spacing)) {
@@ -133,13 +133,31 @@ internal fun CatalogRow(
     selected: Boolean = false,
     selection: Boolean = false,
     card: Boolean = true,
+    compact: Boolean = false,
+    inlineSubtitle: Boolean = false,
 ) {
     val body: @Composable RowScope.() -> Unit = {
-        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        if (inlineSubtitle) {
+            Row(
+                Modifier.weight(1f),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(title, Modifier.weight(1f), style = MaterialTheme.typography.titleMedium)
+                if (subtitle != null) Text(
+                    subtitle,
+                    Modifier.weight(1f),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.End,
+                )
+            }
+        } else Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 title,
-                style =
-                    MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = if (compact) 16.sp else 18.sp, lineHeight = 24.sp,
+                ),
             )
             if (subtitle != null)
                 Text(
@@ -162,11 +180,14 @@ internal fun CatalogRow(
         Surface(
             onClick,
             modifier.fillMaxWidth().semantics { this.selected = selected },
-            shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+            shape = MaterialTheme.shapes.medium,
+            color =
+                if (selected) MaterialTheme.colorScheme.primaryContainer
+                else MaterialTheme.colorScheme.surfaceContainer,
         ) {
             Row(
-                Modifier.heightIn(min = 80.dp).padding(16.dp),
+                Modifier.heightIn(min = if (compact) 56.dp else 80.dp)
+                    .padding(horizontal = 16.dp, vertical = if (compact) 12.dp else 16.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
                 content = { body() },
@@ -210,6 +231,9 @@ internal fun SourceCard(
     )
 }
 
+private const val SOURCE_CARD_SECONDARY_FRACTION = 0.45f
+private const val IDLE_FILTER_STRENGTH = 0.4f
+
 @Composable
 internal fun CatalogIllustratedCard(
     title: String,
@@ -219,34 +243,50 @@ internal fun CatalogIllustratedCard(
     modifier: Modifier = Modifier,
     important: Boolean = false,
 ) {
+    val containerColor =
+        if (important) {
+            androidx.compose.ui.graphics.lerp(
+                MaterialTheme.colorScheme.surfaceContainerHigh,
+                MaterialTheme.colorScheme.secondaryContainer,
+                SOURCE_CARD_SECONDARY_FRACTION,
+            )
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        }
     Surface(
         onClick,
         modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color =
-            if (important) MaterialTheme.colorScheme.surfaceContainerHighest
-            else MaterialTheme.colorScheme.surfaceContainerHigh,
+        shape = MaterialTheme.shapes.medium,
+        color = containerColor,
     ) {
         Row(
             Modifier.heightIn(min = 80.dp).padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
-                CatalogArtwork(illustration, Modifier.size(if (important) 48.dp else 36.dp))
+                CatalogArtwork(illustration, Modifier.size(48.dp))
             }
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(
+                Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
                 Text(
                     title,
                     style =
                         MaterialTheme.typography.titleMedium.copy(
                             fontSize = 18.sp,
                             lineHeight = 24.sp,
+                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
                         ),
                 )
                 Text(
                     subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style =
+                        MaterialTheme.typography.bodyMedium.copy(
+                            fontSize = 14.sp,
+                            lineHeight = 20.sp,
+                        ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -278,9 +318,16 @@ internal fun CatalogSearch(
 ) {
     val focus = androidx.compose.runtime.remember { androidx.compose.ui.focus.FocusRequester() }
     val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
+    val focusRequested = androidx.compose.runtime.saveable.rememberSaveable {
+        androidx.compose.runtime.mutableStateOf(false)
+    }
     androidx.compose.runtime.LaunchedEffect(Unit) {
-        focus.requestFocus()
-        keyboard?.show()
+        if (!focusRequested.value) {
+            focusRequested.value = true
+            focus.requestFocus()
+            keyboard?.show()
+        }
     }
     OutlinedTextField(
         query,
@@ -308,7 +355,10 @@ internal fun CatalogSearch(
                 imeAction = androidx.compose.ui.text.input.ImeAction.Search,
             ),
         keyboardActions =
-            androidx.compose.foundation.text.KeyboardActions(onSearch = { keyboard?.hide() }),
+            androidx.compose.foundation.text.KeyboardActions(onSearch = {
+                focusManager.clearFocus()
+                keyboard?.hide()
+            }),
         shape = RoundedCornerShape(24.dp),
         colors =
             OutlinedTextFieldDefaults.colors(
@@ -326,69 +376,65 @@ internal fun CatalogFilterChip(
     onOpen: () -> Unit,
     onClear: (() -> Unit)?,
     modifier: Modifier = Modifier,
+    openEnabled: Boolean = true,
 ) {
     val active = onClear != null
+    val containerColor =
+        if (active) MaterialTheme.colorScheme.tertiaryContainer
+        else androidx.compose.ui.graphics.lerp(
+            MaterialTheme.colorScheme.surface,
+            MaterialTheme.colorScheme.tertiaryContainer,
+            IDLE_FILTER_STRENGTH,
+        )
+    val contentColor = MaterialTheme.colorScheme.onTertiaryContainer
+
     Surface(
-        modifier.semantics { selected = active },
+        modifier = modifier.semantics { selected = active },
         shape = RoundedCornerShape(24.dp),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = containerColor,
     ) {
-        androidx.compose.ui.layout.Layout(
-            content = {
-                TextButton(
-                    onOpen,
-                    Modifier.heightIn(min = 48.dp),
-                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 10.dp),
-                ) {
-                    Text(
-                        label,
-                        Modifier.weight(1f, fill = false),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color =
-                            if (active) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurface,
-                    )
-                    if (!active)
-                        Icon(
-                            painterResource(R.drawable.catalog_chevron_down),
-                            null,
-                            Modifier.padding(start = 6.dp).size(16.dp),
-                            tint = MaterialTheme.colorScheme.onSurface,
-                        )
-                }
-                if (onClear != null)
-                    IconButton(onClear, Modifier.size(48.dp)) {
-                        Icon(
-                            painterResource(R.drawable.catalog_close),
-                            stringResource(R.string.catalog_clear_filter, label),
-                            Modifier.size(18.dp),
-                            tint = MaterialTheme.colorScheme.primary,
-                        )
-                    }
-            },
-        ) { measurables, constraints ->
-            val reset =
-                measurables
-                    .getOrNull(1)
-                    ?.measure(
-                        androidx.compose.ui.unit.Constraints.fixed(
-                            48.dp.roundToPx(),
-                            48.dp.roundToPx(),
-                        ),
-                    )
-            val labelButton =
-                measurables[0].measure(
-                    constraints.copy(
-                        minWidth = 0,
-                        minHeight = 0,
-                        maxWidth = (constraints.maxWidth - (reset?.width ?: 0)).coerceAtLeast(0),
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.heightIn(min = 40.dp),
+        ) {
+            TextButton(
+                onClick = onOpen,
+                enabled = openEnabled,
+                contentPadding =
+                    PaddingValues(
+                        start = 14.dp,
+                        end = if (active) 4.dp else 12.dp,
+                        top = 8.dp,
+                        bottom = 8.dp,
                     ),
+                colors = ButtonDefaults.textButtonColors(contentColor = contentColor),
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = contentColor,
                 )
-            val width = constraints.constrainWidth(labelButton.width + (reset?.width ?: 0))
-            val height = constraints.constrainHeight(maxOf(labelButton.height, reset?.height ?: 0))
-            layout(width, height) {
-                labelButton.placeRelative(0, (height - labelButton.height) / 2)
-                reset?.placeRelative(labelButton.width, (height - reset.height) / 2)
+                if (!active) {
+                    Icon(
+                        painter = painterResource(R.drawable.catalog_chevron_down),
+                        contentDescription = null,
+                        modifier = Modifier.padding(start = 6.dp).size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+            if (onClear != null) {
+                IconButton(
+                    onClick = onClear,
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.catalog_close),
+                        contentDescription = stringResource(R.string.catalog_clear_filter, label),
+                        modifier = Modifier.size(16.dp),
+                        tint = contentColor,
+                    )
+                }
             }
         }
     }
@@ -397,14 +443,55 @@ internal fun CatalogFilterChip(
 @Composable
 internal fun CatalogClearFilterButton(label: String, onClear: () -> Unit, inset: Boolean = true) {
     FilledTonalButton(
-        onClear,
-        Modifier.padding(start = if (inset) 20.dp else 0.dp).heightIn(min = 48.dp),
+        onClick = onClear,
+        modifier =
+            Modifier.padding(start = if (inset) 20.dp else 0.dp)
+                .heightIn(min = 40.dp),
+        shape = RoundedCornerShape(24.dp),
         colors =
             ButtonDefaults.filledTonalButtonColors(
-                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                contentColor = MaterialTheme.colorScheme.onSurface,
+                containerColor = androidx.compose.ui.graphics.lerp(
+                    MaterialTheme.colorScheme.surface,
+                    MaterialTheme.colorScheme.tertiaryContainer,
+                    IDLE_FILTER_STRENGTH,
+                ),
+                contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
             ),
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
     ) {
-        Text(label, style = MaterialTheme.typography.bodyMedium)
+        Text(label, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onTertiaryContainer)
+    }
+}
+
+@Composable
+internal fun NumberingHelpButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    title: String = stringResource(R.string.catalog_numbering_title),
+    description: String = stringResource(R.string.catalog_numbering_help),
+) {
+    val open = androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+    IconButton(
+        onClick = { open.value = true },
+        modifier = modifier.size(48.dp),
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.catalog_help),
+            contentDescription = description,
+            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.size(20.dp),
+        )
+    }
+    if (open.value) {
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { open.value = false },
+            confirmButton = {
+                TextButton(onClick = { open.value = false }) {
+                    Text(stringResource(android.R.string.ok))
+                }
+            },
+            title = { Text(title) },
+            text = { Text(text, style = MaterialTheme.typography.bodyMedium) },
+        )
     }
 }

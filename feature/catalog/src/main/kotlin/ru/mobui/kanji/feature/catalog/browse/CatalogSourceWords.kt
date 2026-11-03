@@ -51,6 +51,7 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
                     val title =
                         androidx.compose.ui.text.buildAnnotatedString {
                             append(stringResource(R.string.catalog_chapter, group.chapter))
+                            if (groups.size > 1) {
                             pushStyle(
                                 androidx.compose.ui.text.SpanStyle(
                                     fontSize = 14.sp,
@@ -69,6 +70,7 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
                                 ),
                             )
                             pop()
+                            }
                         }
                     Text(
                         title,
@@ -87,7 +89,7 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
                 }
             }
         }
-        if (showEnd)
+        if (showEnd && !fixedChapter)
             item {
                 Row(
                     Modifier.fillMaxWidth()

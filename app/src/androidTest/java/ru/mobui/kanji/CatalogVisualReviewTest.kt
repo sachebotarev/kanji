@@ -15,7 +15,6 @@ import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeDown
@@ -47,7 +46,7 @@ class CatalogVisualReviewTest {
     @Test
     fun capturesCatalogAndRestoresToolbarOnReverseScroll() {
         waitTag("open-catalog")
-        compose.onNodeWithTag("open-catalog").performScrollTo().performClick()
+        compose.onNodeWithTag("open-catalog").bringIntoViewIfNeeded().performClick()
         waitTag("source-1")
         screenshot("home")
         compose.onNodeWithTag("source-1").performClick()
@@ -78,7 +77,7 @@ class CatalogVisualReviewTest {
         compose.onNodeWithTag("kanji-19968").performClick()
         waitTag("kanji-symbol")
         screenshot("kanji-card")
-        compose.onNodeWithTag("kanji-key").performScrollTo().performClick()
+        compose.onNodeWithTag("kanji-key").bringIntoViewIfNeeded().performClick()
         waitTag("kanji-grid")
         screenshot("radical-card")
         androidx.test.espresso.Espresso.pressBack()

@@ -2,8 +2,8 @@ package ru.mobui.kanji.feature.catalog.browse
 
 import ru.mobui.kanji.feature.catalog.R
 import ru.mobui.kanji.feature.catalog.components.CatalogFilterChip
-import ru.mobui.kanji.feature.catalog.components.CatalogHint
 import ru.mobui.kanji.feature.catalog.components.CatalogMaterialCount
+import ru.mobui.kanji.feature.catalog.components.NumberingHelpButton
 import ru.mobui.kanji.feature.catalog.filter.FilterRequest
 import ru.mobui.kanji.feature.catalog.filter.FilterResult
 import ru.mobui.kanji.feature.catalog.filter.KanjiFilterContext
@@ -41,6 +41,7 @@ internal fun BrowseTools(content: BrowseContent, actions: BrowseActions) {
                             content.request.sourceId,
                             content.request.chapter != null,
                             false,
+                            rows.canChangeChapter,
                         ),
                         actions,
                     )
@@ -48,8 +49,7 @@ internal fun BrowseTools(content: BrowseContent, actions: BrowseActions) {
                 }
                 is SourceRows.Words -> {
                     WordFilterBar(
-                        rows.filters,
-                        rows.kanjiSymbol,
+                        rows,
                         content.request.sourceId,
                         content.request.chapter != null,
                         actions,
@@ -89,9 +89,15 @@ internal fun BrowseTools(content: BrowseContent, actions: BrowseActions) {
 
 @Composable
 private fun KanjiCount(rows: KanjiRows, legend: Boolean) {
-    CatalogMaterialCount(rows.entries.size, rows.total, MaterialKind.Kanji)
-    if (legend && rows.entries.isNotEmpty())
-        CatalogHint(stringResource(R.string.catalog_placement_legend))
+    CatalogMaterialCount(
+        rows.entries.size,
+        rows.total,
+        MaterialKind.Kanji,
+        action =
+            if (legend && rows.entries.isNotEmpty()) {
+                { NumberingHelpButton(stringResource(R.string.catalog_placement_legend)) }
+            } else null,
+    )
 }
 
 @Composable
@@ -114,6 +120,7 @@ private fun KanjiFilterBar(filters: KanjiFilters, radical: String?, context: Kan
                 if (filters.chapter == null) null
                 else ({ actions.filter(FilterResult.Chapter(null)) }),
                 Modifier.testTag("catalog-filter-chapter"),
+                openEnabled = canChangeChapter,
             )
         CatalogFilterChip(
             filters.strokes?.let { pluralStringResource(R.plurals.catalog_strokes, it, it) }
@@ -150,12 +157,14 @@ private fun KanjiFilterBar(filters: KanjiFilters, radical: String?, context: Kan
 
 @Composable
 private fun WordFilterBar(
-    filters: WordFilters,
-    symbol: String?,
+    rows: SourceRows.Words,
     sourceId: Int,
     fixed: Boolean,
     actions: BrowseActions,
 ) {
+    val filters = rows.filters
+    val symbol = rows.kanjiSymbol
+    val canChangeChapter = rows.canChangeChapter
     FlowRow(
         Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -173,6 +182,7 @@ private fun WordFilterBar(
                 if (filters.chapter == null) null
                 else ({ actions.filter(FilterResult.Chapter(null)) }),
                 Modifier.testTag("catalog-filter-chapter"),
+                openEnabled = canChangeChapter,
             )
         CatalogFilterChip(
             symbol?.let { stringResource(R.string.catalog_kanji_filter, it) }

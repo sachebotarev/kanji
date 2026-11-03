@@ -1,5 +1,7 @@
 package ru.mobui.kanji.feature.catalog.browse
 
+import ru.mobui.kanji.domain.catalog.availableChapters
+
 import ru.mobui.kanji.feature.catalog.components.chapterRange
 import ru.mobui.kanji.feature.catalog.components.numbers
 import ru.mobui.kanji.feature.catalog.presentation.KanjiRows
@@ -101,6 +103,8 @@ private fun sourceKanjiRows(
         ),
         input.kanji,
         input.kanji.radicalId?.let { snapshot.radicalById[it]?.symbol },
+        canChangeChapter = input.kanji.chapter == null ||
+            snapshot.availableChapters(input.kanji.selection(target.sourceId)).any { it.number != input.kanji.chapter },
     )
 }
 
@@ -128,5 +132,7 @@ private fun sourceWordRows(
         input.query.isBlank() &&
             input.words.kanjiId == null &&
             input.words.chapter == target.chapter,
+        canChangeChapter = input.words.chapter == null ||
+            snapshot.availableChapters(selection).any { it.number != input.words.chapter },
     )
 }

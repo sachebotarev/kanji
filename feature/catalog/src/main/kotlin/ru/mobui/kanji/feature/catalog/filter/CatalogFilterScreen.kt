@@ -7,6 +7,7 @@ import ru.mobui.kanji.feature.catalog.components.CatalogHint
 import ru.mobui.kanji.feature.catalog.components.CatalogMaterialCount
 import ru.mobui.kanji.feature.catalog.components.ChapterList
 import ru.mobui.kanji.feature.catalog.components.KanjiGrid
+import ru.mobui.kanji.feature.catalog.components.NumberingHelpButton
 import ru.mobui.kanji.feature.catalog.components.RadicalGrid
 import ru.mobui.kanji.feature.catalog.components.SearchUi
 import ru.mobui.kanji.feature.catalog.components.numbers
@@ -82,14 +83,11 @@ private fun FilterTools(content: FilterContent, select: (FilterResult) -> Unit) 
                 stringResource(R.string.catalog_all_kanji),
                 { select(FilterResult.Kanji(null)) },
             )
-            CatalogHint(stringResource(R.string.catalog_choose_kanji_hint))
             CatalogMaterialCount(
                 content.rows.entries.size,
                 content.rows.entries.size,
                 MaterialKind.Kanji,
             )
-            if (content.rows.entries.isNotEmpty())
-                CatalogHint(stringResource(R.string.catalog_placement_legend))
         }
         is FilterContent.Radical -> {
             CatalogClearFilterButton(
@@ -139,6 +137,7 @@ private fun ChapterFilterBody(content: FilterContent.Chapters, search: SearchSta
                                 Modifier.fillMaxSize(),
                                 content.selected,
                                 content.showWordCount,
+                                compactSelection = true,
                             )
 }
 
@@ -158,7 +157,7 @@ private fun KanjiFilterBody(
             { select(FilterResult.Kanji(it)) },
             Modifier.fillMaxSize(),
             content.selected,
-            content.rows.numbers,
+            selectionMode = true,
         )
     }
 }

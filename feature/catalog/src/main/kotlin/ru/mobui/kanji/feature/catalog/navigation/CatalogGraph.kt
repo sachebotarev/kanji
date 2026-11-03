@@ -53,7 +53,10 @@ internal data class CatalogGraphContext(
     val loadDrawing: suspend (Int) -> ReferenceDrawing?,
     val browse: (BrowseNavigation) -> Unit, val detail: (DetailNavigation) -> Unit,
     val select: (FilterResult) -> Unit,
-)
+    val revision: Long = 0L,
+) {
+    val entryContext = CatalogEntryContext(repository, language, back, revision)
+}
 
 internal fun NavGraphBuilder.catalogBrowseSources(context: CatalogGraphContext) {
     with(context) {
@@ -61,7 +64,7 @@ internal fun NavGraphBuilder.catalogBrowseSources(context: CatalogGraphContext) 
             CatalogBrowseEntry(
                 it,
                 BrowseRequest.Home,
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 browse,
             )
         }
@@ -70,7 +73,7 @@ internal fun NavGraphBuilder.catalogBrowseSources(context: CatalogGraphContext) 
             CatalogBrowseEntry(
                 entry,
                 BrowseRequest.Source(route.sourceId, route.chapter, route.tab),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 browse,
             )
         }
@@ -83,7 +86,7 @@ internal fun NavGraphBuilder.catalogBrowseLibrary(context: CatalogGraphContext) 
             CatalogBrowseEntry(
                 it,
                 BrowseRequest.AllKanji,
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 browse,
             )
         }
@@ -91,7 +94,7 @@ internal fun NavGraphBuilder.catalogBrowseLibrary(context: CatalogGraphContext) 
             CatalogBrowseEntry(
                 it,
                 BrowseRequest.AllRadicals,
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 browse,
             )
         }
@@ -105,7 +108,7 @@ internal fun NavGraphBuilder.catalogRelatedWordsAndWord(context: CatalogGraphCon
             CatalogBrowseEntry(
                 entry,
                 BrowseRequest.RelatedWords(route.kanjiId, route.sourceId),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 browse,
             )
         }
@@ -114,7 +117,7 @@ internal fun NavGraphBuilder.catalogRelatedWordsAndWord(context: CatalogGraphCon
             CatalogDetailEntry(
                 entry,
                 DetailRequest.Word(route.wordId, route.sourceId),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 loadDrawing,
                 detail,
             )
@@ -129,7 +132,7 @@ internal fun NavGraphBuilder.catalogSymbolDetails(context: CatalogGraphContext) 
             CatalogDetailEntry(
                 entry,
                 DetailRequest.Kanji(route.kanjiId, route.sourceId),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 loadDrawing,
                 detail,
             )
@@ -139,7 +142,7 @@ internal fun NavGraphBuilder.catalogSymbolDetails(context: CatalogGraphContext) 
             CatalogDetailEntry(
                 entry,
                 DetailRequest.Radical(route.radicalId, route.sourceId),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 loadDrawing,
                 detail,
             )
@@ -162,7 +165,7 @@ internal fun NavGraphBuilder.catalogChapterFilters(context: CatalogGraphContext)
                         decodeJlpt(route.jlpt),
                     ),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -174,7 +177,7 @@ internal fun NavGraphBuilder.catalogChapterFilters(context: CatalogGraphContext)
                     route.sourceId,
                     WordFilters(route.chapter, route.kanji),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -191,7 +194,7 @@ internal fun NavGraphBuilder.catalogSymbolFilters(context: CatalogGraphContext) 
                     route.sourceId,
                     WordFilters(route.chapter, route.selectedKanji),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -208,7 +211,7 @@ internal fun NavGraphBuilder.catalogSymbolFilters(context: CatalogGraphContext) 
                         decodeJlpt(route.jlpt),
                     ),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -230,7 +233,7 @@ internal fun NavGraphBuilder.catalogStrokeFilters(context: CatalogGraphContext) 
                         decodeJlpt(route.jlpt),
                     ),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -239,7 +242,7 @@ internal fun NavGraphBuilder.catalogStrokeFilters(context: CatalogGraphContext) 
             CatalogFilterEntry(
                 entry,
                 FilterRequest.RadicalStrokes(route.strokes),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }
@@ -261,7 +264,7 @@ internal fun NavGraphBuilder.catalogJlptFilters(context: CatalogGraphContext) {
                         decodeJlpt(route.jlpt),
                     ),
                 ),
-                CatalogEntryContext(repository, language, back),
+                entryContext,
                 select,
             )
         }

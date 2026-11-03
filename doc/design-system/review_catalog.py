@@ -18,7 +18,7 @@ def main():
     assert len(screens) == 17 and len({s['id'] for s in screens}) == 17
     assert all(s['status'] in {'approved', 'unapproved'} for s in screens)
     pending = sum(s['status'] != 'approved' for s in screens)
-    summary = f'Ожидают согласования: {pending} из {len(screens)}.'
+    summary = f'Согласовано: {len(screens) - pending} из {len(screens)}. Ожидают согласования: {pending}.'
     rows, cards = [], []
     review = CATALOG / 'review'
     review.mkdir(exist_ok=True)
@@ -38,14 +38,14 @@ def main():
         image = ROOT / 'doc/verification/catalog/refactor-2026-11-02' / (screen['id'].lower() + '.png')
         image_src = os.path.relpath(image, review)
         mockup = '../../../prototypes/index.html#catalog/' + screen['id']
-        cards.append(f'''<article><p class="status" data-approval="{screen['status']}">{html.escape(screen['id'])} · {status}</p><h2>{html.escape(ru['title'])}</h2><p>{html.escape(ru['changes'])}</p><a href="{html.escape(mockup)}">Открыть интерактивный макет</a><details><summary>Снимок текущего Android</summary><img loading="lazy" src="{html.escape(image_src)}" alt="{html.escape(ru['title'])}"></details></article>''')
-    (CATALOG / 'README.md').write_text('''# Каталог: экраны для повторного согласования
+        cards.append(f'''<article><p class="status" data-approval="{screen['status']}">{html.escape(screen['id'])} · {status}</p><h2>{html.escape(ru['title'])}</h2><p>{html.escape(ru['changes'])}</p><a href="{html.escape(mockup)}">Открыть интерактивный макет</a><details><summary>Снимок Android от 2026-11-02</summary><img loading="lazy" src="{html.escape(image_src)}" alt="{html.escape(ru['title'])}"></details></article>''')
+    (CATALOG / 'README.md').write_text('''# Каталог: спецификации экранов
 
-Все экраны перерисованы под общую тему Material 3. REVIEW_SUMMARY Это дизайн-макет; Android-код не менялся.
+Все экраны используют общую тему Material 3. REVIEW_SUMMARY Согласование пользователем: 2026-11-03. HTML-макет и Android-реализация различаются средой исполнения. Текущий перенос компонентов и границы проверки описаны в [отчёте](../../../verification/catalog/material-implementation.md).
 
 [Открыть интерактивный макет](../../prototypes/textbooks/index.html) · [Обзор экранов и снимки Android](review/index.html) · [Конфигурация статусов](../../theme/screens.json).
 
-| ID | Экран | Статус | Изменения для просмотра |
+| ID | Экран | Статус | Текущая редакция |
 | --- | --- | --- | --- |
 '''.replace('REVIEW_SUMMARY', summary) + '\n'.join(rows) + '''
 
@@ -55,7 +55,7 @@ def main():
 
 [Исходные эталоны](approved/index.html) сохранены для сравнения и не подтверждают согласование текущей редакции. В каталоге нет конструктора, редактирования слов и статистики. Добавление языка не меняет маршруты и бизнес-логику.
 ''')
-    (review / 'index.html').write_text('''<!doctype html><html lang="ru" data-theme="light"><link rel="stylesheet" href="../../../prototypes/shared/material-theme.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Каталог — повторное согласование</title><style>body{font:16px/1.5 system-ui;margin:0;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}main{max-width:1200px;margin:auto;padding:32px}a{color:var(--md-sys-color-primary)}h1{margin:0}header{margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}article{background:var(--md-sys-color-surface-container);padding:20px;border-radius:20px}h2{font-size:20px;margin:8px 0}.status{font-weight:600;color:var(--md-sys-color-tertiary)}.status[data-approval=approved]{color:var(--md-sys-color-primary)}img{display:block;max-width:100%;height:auto;margin:12px auto 0}details{margin-top:16px}summary{cursor:pointer}</style><main><header><h1>Каталог: повторное согласование</h1><p>REVIEW_SUMMARY Откройте интерактивный макет для проверки переходов, тем и масштаба. Android-снимки показывают текущую реализацию; новых копий изображений здесь нет.</p><a href="../../../prototypes/textbooks/">Открыть макет</a> · <a href="../review-status.json">Реестр статусов</a></header><div class="grid">'''.replace('REVIEW_SUMMARY', summary) + ''.join(cards) + '</div></main>\n')
+    (review / 'index.html').write_text('''<!doctype html><html lang="ru" data-theme="light"><link rel="stylesheet" href="../../../prototypes/shared/material-theme.css"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Каталог — спецификации экранов</title><style>body{font:16px/1.5 system-ui;margin:0;background:var(--md-sys-color-surface);color:var(--md-sys-color-on-surface)}main{max-width:1200px;margin:auto;padding:32px}a{color:var(--md-sys-color-primary)}h1{margin:0}header{margin-bottom:24px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}article{background:var(--md-sys-color-surface-container);padding:20px;border-radius:20px}h2{font-size:20px;margin:8px 0}.status{font-weight:600;color:var(--md-sys-color-tertiary)}.status[data-approval=approved]{color:var(--md-sys-color-primary)}img{display:block;max-width:100%;height:auto;margin:12px auto 0}details{margin-top:16px}summary{cursor:pointer}</style><main><header><h1>Каталог: спецификации экранов</h1><p>REVIEW_SUMMARY Откройте интерактивный макет для проверки переходов, тем и масштаба. Android-снимки от 2026-11-02 — материалы проверки, а не гарантия актуальности всех деталей.</p><a href="../../../prototypes/textbooks/">Открыть макет</a> · <a href="../review-status.json">Реестр статусов</a></header><div class="grid">'''.replace('REVIEW_SUMMARY', summary) + ''.join(cards) + '</div></main>\n')
     print(f"Review documentation generated: {len(screens)} screens")
 
 

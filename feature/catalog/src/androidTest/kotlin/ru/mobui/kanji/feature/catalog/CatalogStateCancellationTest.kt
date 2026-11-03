@@ -72,14 +72,14 @@ class CatalogStateCancellationTest {
         repository: CatalogRepository,
         dispatcher: CoroutineDispatcher,
         private val input: MutableStateFlow<String>,
-    ) : CatalogStateViewModel<String, String>(repository, dispatcher) {
+    ) : CatalogStateViewModel<String, String>(repository, dispatcher, "ru") {
         init {
             retry()
         }
 
         override fun inputs() = input
 
-        override suspend fun content(snapshot: CatalogSnapshot, input: String) = input
+        override suspend fun content(snapshot: CatalogSnapshot, input: String, language: String) = input
     }
 
     private class QueuedDispatcher : CoroutineDispatcher() {

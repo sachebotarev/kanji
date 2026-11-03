@@ -43,7 +43,7 @@ internal fun CatalogBrowseEntry(
     val model: CatalogBrowseViewModel =
         viewModel(
             entry,
-            key = "browse-$language",
+            key = "browse",
             factory =
                 viewModelFactory {
                     initializer {
@@ -68,6 +68,7 @@ internal fun CatalogBrowseEntry(
             }
         }
     }
+    LaunchedEffect(model, language, revision) { model.updateContext(language, revision) }
     CatalogBrowseScreen(
         request,
         state,
@@ -98,7 +99,7 @@ internal fun CatalogDetailEntry(
     val model: CatalogDetailViewModel =
         viewModel(
             entry,
-            key = "detail-$language",
+            key = "detail",
             factory =
                 viewModelFactory {
                     initializer {
@@ -114,6 +115,7 @@ internal fun CatalogDetailEntry(
         )
     val state by model.state.collectAsStateWithLifecycle()
     val search by model.search.state.collectAsStateWithLifecycle()
+    LaunchedEffect(model, language, revision) { model.updateContext(language, revision) }
     CatalogDetailScreen(
         request,
         state,
@@ -135,7 +137,7 @@ internal fun CatalogFilterEntry(
     val model: CatalogFilterViewModel =
         viewModel(
             entry,
-            key = "filter-$language",
+            key = "filter",
             factory =
                 viewModelFactory {
                     initializer {
@@ -150,6 +152,7 @@ internal fun CatalogFilterEntry(
         )
     val state by model.state.collectAsStateWithLifecycle()
     val search by model.search.state.collectAsStateWithLifecycle()
+    LaunchedEffect(model, language, revision) { model.updateContext(language, revision) }
     CatalogFilterScreen(
         request,
         state,
@@ -187,4 +190,9 @@ internal fun FilterResult.encoded(): Pair<String, Int> =
         is FilterResult.Jlpt -> CatalogResultKind.Jlpt.key to value.savedValue()
     }
 
-internal data class CatalogEntryContext(val repository: CatalogRepository, val language: String, val back: () -> Unit)
+internal data class CatalogEntryContext(
+    val repository: CatalogRepository,
+    val language: String,
+    val back: () -> Unit,
+    val revision: Long = 0L,
+)

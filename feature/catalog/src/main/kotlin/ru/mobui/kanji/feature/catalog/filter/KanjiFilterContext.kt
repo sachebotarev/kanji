@@ -13,4 +13,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.domain.catalog.JlptFilter
 
-internal data class KanjiFilterContext(val sourceId: Int?, val fixed: Boolean, val jlpt: Boolean)
+internal data class KanjiFilterContext(
+    val sourceId: Int?,
+    val fixed: Boolean,
+    val jlpt: Boolean,
+    val canChangeChapter: Boolean = true,
+)

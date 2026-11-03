@@ -5,6 +5,14 @@ const path=require('node:path');
 (async()=>{
  const browser=await chromium.launch({channel:'chrome',headless:true});
  const context=await browser.newContext({viewport:{width:1440,height:1250}});
+ await context.addInitScript(()=>{
+  window.__themeWrites=0;
+  const setItem=Storage.prototype.setItem;
+  Storage.prototype.setItem=function(key,value){
+   if(key==='kanji-design-theme')window.__themeWrites++;
+   return setItem.call(this,key,value);
+  };
+ });
  const errors=[];context.on('page',p=>{p.on('pageerror',e=>errors.push(e.message));p.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url())})});
  const base=process.argv[2]||'http://127.0.0.1:8767/design-system/';
  const out=process.argv[3]||'doc/verification/material-theme';fs.mkdirSync(out,{recursive:true});
@@ -20,6 +28,13 @@ const path=require('node:path');
   await studio.locator('#theme').selectOption('light');
   await web.waitForFunction(()=>document.querySelector('#phone').dataset.theme==='light');
   await cat.waitForFunction(()=>document.querySelector('#phone').dataset.theme==='light');
+  const writes=await web.evaluate(()=>window.__themeWrites);
+  await web.evaluate(async()=>{
+   const phone=document.querySelector('#phone');phone.dataset.theme=phone.dataset.theme;
+   await new Promise(resolve=>requestAnimationFrame(resolve));
+  });
+  assert.equal(await web.evaluate(()=>window.__themeWrites),writes,'Redraw must not echo the shared theme into storage');
+  checks.push('Theme redraw does not echo storage events across tabs');
   await studio.locator('[data-theme-hex=primary]').fill('#6750A4');
   await web.waitForFunction(()=>getComputedStyle(document.querySelector('#phone')).getPropertyValue('--primary').trim()==='#6750A4');
   await cat.waitForFunction(()=>getComputedStyle(document.querySelector('#phone')).getPropertyValue('--primary').trim()==='#6750A4');

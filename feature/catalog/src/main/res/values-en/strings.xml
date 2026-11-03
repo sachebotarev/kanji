@@ -34,8 +34,8 @@
     <string name="catalog_parts">Reading parts</string>
     <string name="catalog_literal_kanji">Kanji in the written form</string>
     <string name="catalog_links">Learning links</string>
-    <string name="catalog_on">On’yomi · readings of Chinese origin</string>
-    <string name="catalog_kun">Kun’yomi · Japanese readings</string>
+    <string name="catalog_on">On’yomi</string>
+    <string name="catalog_kun">Kun’yomi</string>
     <string name="catalog_no_reading">No readings of its own</string>
     <string name="catalog_joyo">常用 · common-use kanji</string>
     <string name="catalog_kyoiku">教育 · elementary school kanji</string>
@@ -77,7 +77,7 @@
     <string name="catalog_jlpt_explanation">Levels are a study guide, not an official JLPT list.</string>
     <string name="catalog_usage">Usage</string>
     <string name="catalog_reading_parts">Reading parts</string>
-    <string name="catalog_school_elementary">Japanese school: elementary year %1$d</string>
+    <string name="catalog_school_elementary">Elementary school · year %1$d</string>
     <string name="catalog_school_junior">Japanese school: junior high level</string>
     <string name="catalog_school_high">Japanese school: high school level</string>
     <string name="catalog_word_kanji">Kanji in this word</string>
@@ -121,4 +121,8 @@
     <string name="catalog_choose_kanji_hint">Choose a kanji to filter the words.</string>
     <string name="catalog_global_reference">General reference</string>
     <string name="catalog_reading_hint">Kanji readings depend on the word. Check the full reading on the word card.</string>
+    <string name="catalog_numbering_title">Numbering</string>
+    <string name="catalog_numbering_help">Numbering help</string>
+    <string name="catalog_radical_second">Second</string>
+    <string name="catalog_jlpt_help">About JLPT levels</string>
 </resources>

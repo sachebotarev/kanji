@@ -6,7 +6,7 @@
       "id": "CAT-01",
       "key": "catalog",
       "spec": "catalog-screen.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "catalog",
       "translations": [
         {
@@ -27,7 +27,7 @@
       "id": "CAT-02",
       "key": "textbook:0",
       "spec": "textbook-chapters.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "source/2",
       "translations": [
         {
@@ -48,7 +48,7 @@
       "id": "CAT-03",
       "key": "textbook:1",
       "spec": "textbook-kanji.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "source/2?tab=1",
       "translations": [
         {
@@ -69,7 +69,7 @@
       "id": "CAT-04",
       "key": "textbook:2",
       "spec": "textbook-words.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "source/2?tab=2",
       "translations": [
         {
@@ -90,7 +90,7 @@
       "id": "CAT-05",
       "key": "chapter:1",
       "spec": "chapter-kanji.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "chapter/2/1",
       "translations": [
         {
@@ -111,7 +111,7 @@
       "id": "CAT-06",
       "key": "chapter:2",
       "spec": "chapter-words.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "chapter/2/1?tab=2",
       "translations": [
         {
@@ -132,7 +132,7 @@
       "id": "CAT-07",
       "key": "word",
       "spec": "word-card.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "word/109/2",
       "translations": [
         {
@@ -153,7 +153,7 @@
       "id": "CAT-08",
       "key": "kanji",
       "spec": "kanji-card.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "kanji/26085/2",
       "translations": [
         {
@@ -174,7 +174,7 @@
       "id": "CAT-09",
       "key": "radical",
       "spec": "radical-card.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "radical/72/2",
       "translations": [
         {
@@ -195,7 +195,7 @@
       "id": "CAT-10",
       "key": "filter:chapter",
       "spec": "select-chapter.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "filter/chapter",
       "translations": [
         {
@@ -216,7 +216,7 @@
       "id": "CAT-11",
       "key": "filter:kanji",
       "spec": "select-kanji.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "filter/kanji",
       "translations": [
         {
@@ -237,7 +237,7 @@
       "id": "CAT-12",
       "key": "filter:radical",
       "spec": "select-radical.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "filter/radical",
       "translations": [
         {
@@ -258,7 +258,7 @@
       "id": "CAT-13",
       "key": "all-kanji",
       "spec": "all-kanji.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "all-kanji",
       "translations": [
         {
@@ -279,7 +279,7 @@
       "id": "CAT-14",
       "key": "all-radicals",
       "spec": "all-radicals.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "all-radicals",
       "translations": [
         {
@@ -300,7 +300,7 @@
       "id": "CAT-15",
       "key": "words",
       "spec": "related-words.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "words/26085/2",
       "translations": [
         {
@@ -321,7 +321,7 @@
       "id": "CAT-16",
       "key": "filter:strokes",
       "spec": "select-strokes.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "filter/strokes",
       "translations": [
         {
@@ -342,7 +342,7 @@
       "id": "CAT-17",
       "key": "filter:jlpt",
       "spec": "select-jlpt.md",
-      "status": "unapproved",
+      "status": "approved",
       "route": "filter/jlpt",
       "translations": [
         {

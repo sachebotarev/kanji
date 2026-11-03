@@ -50,6 +50,7 @@ internal fun ChapterList(
     modifier: Modifier = Modifier,
     selected: Int? = null,
     showWordCount: Boolean = true,
+    compactSelection: Boolean = false,
     header: (@Composable () -> Unit)? = null,
 ) {
     val listState = rememberCatalogListState()
@@ -70,15 +71,17 @@ internal fun ChapterList(
             item(key = "header") { Column(Modifier.padding(top = 12.dp)) { header() } }
         if (chapters.isEmpty()) item { Text(stringResource(R.string.catalog_empty)) }
         items(chapters, key = { it.number }) { chapter ->
-            Surface(
+            if (compactSelection) {
+                ChapterChoiceCard(chapter, showWordCount, chapter.number == selected) { onClick(chapter.number) }
+            } else Surface(
                 onClick = { onClick(chapter.number) },
                 Modifier.fillMaxWidth().testTag("chapter-${chapter.number}").semantics {
                     this.selected = chapter.number == selected
                 },
-                shape = RoundedCornerShape(24.dp),
+                shape = MaterialTheme.shapes.medium,
                 color =
                     if (chapter.number == selected) MaterialTheme.colorScheme.primaryContainer
-                    else MaterialTheme.colorScheme.surfaceContainerHigh,
+                    else MaterialTheme.colorScheme.surfaceContainer,
             ) {
                 Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

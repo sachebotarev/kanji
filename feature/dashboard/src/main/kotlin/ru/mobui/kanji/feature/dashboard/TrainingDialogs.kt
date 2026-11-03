@@ -36,6 +36,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -177,6 +179,8 @@ internal fun TrainingEditor(
             time != null &&
             time in DEFAULT_WORDS_PER_SESSION..MAX_SECONDS_PER_WORD
     Dialog(onDismiss) {
+        val focusManager = LocalFocusManager.current
+        val keyboard = LocalSoftwareKeyboardController.current
         Surface(shape = RoundedCornerShape(24.dp), modifier = Modifier.testTag("training-editor")) {
             Column(
                 Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
@@ -217,7 +221,11 @@ internal fun TrainingEditor(
                 )
                 Button(
                     onClick = {
-                        if (valid) onSubmit(name, requireNotNull(wordCount), requireNotNull(time))
+                        if (valid) {
+                            focusManager.clearFocus()
+                            keyboard?.hide()
+                            onSubmit(name, requireNotNull(wordCount), requireNotNull(time))
+                        }
                     },
                     enabled = valid,
                     modifier = Modifier.fillMaxWidth().testTag("save-training"),
