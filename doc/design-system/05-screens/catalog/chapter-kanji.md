@@ -1,6 +1,6 @@
 # Глава · кандзи — CAT-05
 
-[Текущий макет](../../prototypes/textbooks/index.html#chapter/2/1) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-05) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `chapter/2/1`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

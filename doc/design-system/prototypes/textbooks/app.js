@@ -126,7 +126,7 @@ function back() {
   rememberScroll();
   if(current.parent) { history.back(); }
   else if(current.route.kind !== 'catalog') {quickNavigate('catalog');}
-  else {location.href='../web/#home';}
+  else {if(parent!==window)parent.postMessage({type:'kanji-viewer-navigate',module:'web',route:'home'},location.origin);else location.href='../web/#home';}
 }
 window.addEventListener('popstate', event => {
   const saved=entries.get(event.state?.catalogEntry);
@@ -179,7 +179,7 @@ const referenceDescriptions = Object.freeze({
   radicals:[{language_tag:'ru',text:'Части кандзи и их значения'},{language_tag:'en',text:'Kanji components and their meanings'}]
 });
 function catalogArtFilter() {
-  return '<svg class="p-art-filter" width="0" height="0" aria-hidden="true"><defs><filter id="catalog-dark-art" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3 -4 -1 2 0" result="inkMask"/><feFlood flood-color="#36543D" result="ink"/><feComposite in="ink" in2="inkMask" operator="in" result="adaptedInk"/><feComposite in="adaptedInk" in2="SourceGraphic" operator="atop"/></filter></defs></svg>';
+  return '<svg class="p-art-filter" width="0" height="0" aria-hidden="true"><defs><filter id="catalog-dark-art" color-interpolation-filters="sRGB"><feColorMatrix in="SourceGraphic" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -3 -4 -1 2 0" result="inkMask"/><feFlood flood-color="var(--md-ref-artwork-dark-outline)" result="ink"/><feComposite in="ink" in2="inkMask" operator="in" result="adaptedInk"/><feComposite in="adaptedInk" in2="SourceGraphic" operator="atop"/></filter></defs></svg>';
 }
 function catalogStatusCopy(){return {loadingTitle:text('catalog_loading'),loadingBody:'',errorTitle:text('catalog_error'),errorBody:'',retry:text('catalog_retry')};}
 function setLoadState(value,{focus=false}={}) {
@@ -267,7 +267,7 @@ function render({keepFocus=false}={}) {
     const mark=ok?'<path d="M2.2 6.1 4.6 8.5 9.8 3.3"/>':'<circle cx="6" cy="6" r="3.1"/>';
     return `<a class="nav-link ${routeHash(current.route)===routeHash(route)?'active':''}" href="#${hash}" data-quick="${hash}" data-approval="${status.status}" ${onlyPending&&ok?'hidden':''}><span class="nav-number">${String(index+1).padStart(2,'0')}</span><span class="nav-label">${html(en?name:ru)}</span><span class="nav-flag ${ok?'is-approved':'is-open'}" role="img" aria-label="${html(reviewLabel(ok))}" title="${html(reviewLabel(ok))}"><svg viewBox="0 0 12 12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${mark}</svg></span></a>`;
   }).join('');
-  $('#screen-caption').textContent=en?'Interactive draft synchronized with the native catalog. Approval is recorded separately for each screen.':'Интерактивный макет синхронизирован с нативным каталогом. Статус согласования указан для каждого экрана отдельно.';
+  $('#screen-caption').textContent=en?'Material 3 design prototype. Android code is unchanged. Approval is recorded per screen.':'Макет Material 3. Android-код не менялся. Статус согласования указан для каждого экрана отдельно.';
   $('#collapse-header').disabled=isDesignedTextbook()||showsWorkingModule();
   configureChrome(initial);
   $('.n-content').scrollTop=keepFocus?contentScroll||0:current.scrolls[current.tab]||0;
@@ -425,9 +425,9 @@ window.addEventListener('resize',()=>{rememberScroll();render();});
 // Browser initialization. Unit tests load declarations without bootstrapping DOM/history.
 async function startPrototype(){
   try{
-    const response=await fetch('../../05-screens/catalog/review-status.json',{cache:'no-store'});
+    const response=await fetch('../../theme/screens.json',{cache:'no-store'});
     if(!response.ok)throw new Error('Review registry unavailable');
-    reviewRegistry=await response.json();
+    reviewRegistry=await response.json();reviewRegistry={...reviewRegistry,screens:reviewRegistry.screens.filter(s=>s.module==='catalog')};
     quickRoutes=reviewRegistry.screens.map(screen=>[screen.route,screen.translations.find(t=>t.language_tag==='ru').title,screen.translations.find(t=>t.language_tag==='en').title]);
     current=createEntry(parseRoute(location.hash));applyBench();
     history.replaceState({catalogEntry:current.key},'', '#'+routeHash(current.route));render();

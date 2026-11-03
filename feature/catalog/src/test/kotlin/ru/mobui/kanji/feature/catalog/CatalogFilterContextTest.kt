@@ -1,5 +1,11 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.filter.FilterRequest
+import ru.mobui.kanji.feature.catalog.filter.FilterResult
+import ru.mobui.kanji.feature.catalog.presentation.CatalogResultKind
+import ru.mobui.kanji.feature.catalog.presentation.WordFilters
+import ru.mobui.kanji.feature.catalog.presentation.encoded
+
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Test

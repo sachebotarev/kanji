@@ -24,70 +24,41 @@ const strokes=[[],[],[]];
 let modalClose=null;
 let selectedWordOrigin=null;
 let screen='home';
-const screens=['home','practice','dictionary','word','editor','catalog','book','chapter'];
-const names={home:'home',practice:'practice',dictionary:'dictionary',word:'word',editor:'editor',catalog:'catalog',book:'book',chapter:'chapter'};
-const captions={home:'Согласованное направление. Статистика остаётся наверху, кот и «Ня! Начнём?» сохраняют характер. Название тренировки больше не уступает место иллюстрации.',practice:'Предложение: зелёная тема, видимый возврат, статусы со знаком результата. Поле принимает штрихи; состояния проверки выбираются слева и не вычисляются по рисунку.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
+const screens=['settings','checker-settings','trainings','training-editor', 'home','practice','dictionary','word','editor','catalog','book','chapter'];
+const names={settings:'settings','checker-settings':'checkerSettings',trainings:'trainings','training-editor':'trainingEditor',home:'home',practice:'practice',dictionary:'dictionary',word:'word',editor:'editor',catalog:'catalog',book:'book',chapter:'chapter'};
+const captions={home:'Новая редакция в общей теме Material 3. Статистика и выбранная тренировка демонстрационные.',practice:'Предложение: зелёная тема, видимый возврат, статусы со знаком результата. Поле принимает штрихи; состояния проверки выбираются слева и не вычисляются по рисунку.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
 const wordById=()=>words.find(w=>w.id===selectedId)||window.CATALOG_DATA.flatMap(b=>b.chapters.flatMap(c=>c.words)).find(w=>w.id===selectedId)||words[0];
 function translation(word){return word.translations.find(x=>x.language_tag===locale)?.text||word.translations.find(x=>x.language_tag==='ru')?.text||t('translationMissing');}
-function go(next){if(['catalog','book','chapter'].includes(next)){location.href='../textbooks/#'+next;return;}if(!screens.includes(next))next='home';closeModal();screen=next;location.hash=next;render();$('#app').scrollTop=0;}
-function requestGo(next){if(screen==='editor'&&draft&&JSON.stringify(draft)!==draftOriginal){showModal(t('unsaved'),`<p>${t('unsavedText')}</p>`,[{label:t('keepEditing'),fn:closeModal},{label:t('discard'),fn:()=>{draft=null;go(next)}},{label:t('save'),fn:()=>saveWord(next)}]);}else go(next);}
-function webReviewKey(){return screen==='editor'?(editingId?'editor:edit':'editor:create'):screen;}
+function go(next){if(['catalog','book','chapter'].includes(next)){if(parent!==window){parent.postMessage({type:'kanji-viewer-navigate',module:'catalog',route:next==='catalog'?'catalog':next==='book'?'source/2':'chapter/2/1'},location.origin);return;}location.href='../textbooks/#'+next;return;}if(!screens.includes(next))next='home';closeModal();screen=next;location.hash=next;render();$('#app').scrollTop=0;}
+function requestGo(next){if(screen==='training-editor'&&trainingDirty()){trainingLeave(next);return;}if(screen==='editor'&&draft&&JSON.stringify(draft)!==draftOriginal){showModal(t('unsaved'),`<p>${t('unsavedText')}</p>`,[{label:t('keepEditing'),fn:closeModal},{label:t('discard'),fn:()=>{draft=null;go(next)}},{label:t('save'),fn:()=>saveWord(next)}]);}else go(next);}
+function webReviewKey(){return screen==='editor'?(editingId?'editor:edit':'editor:create'):screen==='training-editor'?(trainingDraft?.id?'training-editor:edit':'training-editor:create'):screen;}
 function applyScreenReview(){
- const key=webReviewKey(),variant=ScreenReview.get('web:'+key,'wip');
- $('#screen-variant').value=variant;
- $('#phone').dataset.screenVariant=variant;
- const review=ScreenReview.describe(variant,false);
- $('#view-status').textContent=review.title;$('#view-badge').textContent=review.badge;
- $('#phone').hidden=variant!=='wip';
- $('#review-capture').hidden=true;$('#review-notice').hidden=true;
- if(variant==='approved'){
-  $('#review-notice').hidden=false;
-  $('#review-notice').innerHTML='<h2>Согласованный вариант ещё не задан</h2><p>'+(screen==='home'?'Для главной выбрано направление, но отдельный экранный эталон ещё не зафиксирован.':'Для этого экрана отдельный эталон ещё не зафиксирован.')+' Доступны текущий экран Android и вариант «В работе».</p>';
-  $('#screen-caption').textContent='Согласованный макет отсутствует.';
- }else if(variant==='baseline'){
-  const theme=$('#theme').value;
-  let file=null;
-  if(screen==='home')file='home-'+theme+'.png';
-  if(screen==='word')file='dictionary-word-'+theme+'.png';
-  if(screen==='editor')file='dictionary-'+(editingId?'edit-filled':'editor')+'-'+theme+'.png';
-  if(screen==='dictionary'){
-   const state=$('#dictionary-state').value;
-   if(state==='ready'||state==='empty')file='dictionary-'+(state==='ready'?'list':'empty')+'-'+theme+'.png';
-  }
-  if(screen==='practice'){
-   const state=$('#practice-state').value;
-   if(state==='empty')file='practice-empty-'+theme+'.png';
-   else if(state==='editing'&&theme==='light')file='practice-incomplete-light.png';
-   else if(state==='assisted'&&theme==='light')file='practice-hint-light.png';
-  }
-  if(file){
-   const image=$('#review-capture-image');image.src='../../01-audit/captures/2026-11-01/'+file;image.alt='Снимок текущей Android-реализации: '+t(names[screen]);
-   $('#review-capture').hidden=false;
-   $('#review-capture').style.setProperty('--capture-width',$('#width').value+'px');
-   $('#review-capture-caption').textContent='Снимок Android · 2026-11-01 · русский язык · системный текст 100%. Неинтерактивный эталон текущей реализации; ширина просмотра масштабирует изображение.';
-   $('#screen-caption').textContent='Текущая Android-реализация показана снимком. Интерактивный HTML доступен в варианте «В работе».';
-  }else{
-   $('#review-notice').hidden=false;
-   $('#review-notice').innerHTML='<h2>Снимок этого состояния отсутствует</h2><p>Выберите другое состояние или тему. Рабочий HTML доступен в варианте «В работе».</p>';
-   $('#screen-caption').textContent='Для выбранного состояния нет снимка Android; рабочий макет не подменяет текущую реализацию.';
-  }
- }else $('#screen-caption').textContent='В работе. '+captions[screen];
- for(const id of ['large-text','long-text','locale'])$('#'+id).disabled=variant!=='wip';
+ const state=ScreenReview.status('web',webReviewKey(),locale),en=locale==='en';
+ $('#phone').dataset.screenVariant='wip';$('#phone').dataset.approval=state.status;
+ $('#view-status').textContent=en?'DESIGN PROTOTYPE':'МАКЕТ ДИЗАЙНА';
+ $('#view-badge').textContent=state.status==='approved'?(en?'Approved':'Согласовано'):(en?'Not approved':'Не согласовано');
+ $('#view-badge').dataset.approval=state.status;
+ $('#review-capture').hidden=true;$('#review-notice').hidden=false;
+ $('#review-notice').innerHTML=`<h2>${state.error?(en?'Approval registry unavailable':'Реестр статусов недоступен'):state.status==='approved'?(en?'Approved design':'Согласованный дизайн'):(en?'Screen not approved':'Экран не согласован')}</h2><p>${escapeHTML(state.changes)}</p>`;
+ $('#screen-caption').textContent=(en?'Design only. Android code is unchanged. ':'Только дизайн. Android-код не менялся. ')+(captions[screen]||'');
+ for(const id of ['large-text','long-text','locale'])$('#'+id).disabled=false;
 }
 function render(){
  $('#phone').hidden=false;
+ $('#phone').dataset.trainingScreen=String(['trainings','training-editor'].includes(screen));
  document.documentElement.lang=locale;$('#app').lang=locale;
  $('#screen-nav').innerHTML=screens.map((id,i)=>`<a class="nav-link ${id===screen?'active':''}" href="#${id}" ${id===screen?'aria-current="page"':''}><span class="nav-number">${String(i+1).padStart(2,'0')}</span>${escapeHTML(t(names[id]))}</a>`).join('');
  $('#screen-title').textContent=t(screen==='editor'&&editingId?'edit':names[screen]);$('#screen-caption').textContent=captions[screen];
+ $('#model-state-label').hidden=screen!=='settings';
  $('#practice-state-label').hidden=screen!=='practice';$('#dictionary-state-label').hidden=screen!=='dictionary';
- const views={home:homeView,practice:practiceView,dictionary:dictionaryView,word:wordView,editor:editorView,catalog:catalogView,book:bookView,chapter:chapterView};
+ const views={settings:settingsView,'checker-settings':checkerSettingsView,trainings:trainingsView,'training-editor':trainingEditorView,home:homeView,practice:practiceView,dictionary:dictionaryView,word:wordView,editor:editorView,catalog:catalogView,book:bookView,chapter:chapterView};
  $('#app').innerHTML=views[screen]();
  if(screen==='practice')setupCanvas();
  applyScreenReview();
 }
 function homeView(){
  const heat=Array.from({length:42},(_,i)=>`<i style="--heat:${[.12,.35,.2,.65,.4,.8,.25][(i*5+i%3)%7]}"></i>`).join('');
- return `<div class="home"><header class="appbar"><h2>${t('app')}</h2><button class="icon-button" data-action="settings" aria-label="${t('settings')}"><img class="settings-art" src="assets/settings.png" alt=""></button></header><div class="stats-row"><button class="stat-card" data-action="stats" aria-label="${t('traces')}: 1248"><span class="stat-title">${t('traces')}</span>${icon('paw','paw')}<div class="ring"><strong>1248</strong></div></button><button class="stat-card" data-action="activity" aria-label="${t('streak')}"><span class="stat-title"><span class="flame" aria-hidden="true">♨</span> ${t('streak')}</span><div class="heatmap" aria-hidden="true">${heat}</div></button></div><div class="section-heading"><h3>${t('current')}</h3><button class="text-button" data-action="choose">${t('choose')}</button></div><section class="training-card"><div class="training-description"><h3>${escapeHTML($('#long-text').checked?t('longName'):trainingName||t('mix'))}</h3><p>${t('config')}</p><p>${t('notYet')}</p></div><button class="launch" data-action="go:practice" aria-label="${locale==='ru'?'Начать тренировку':'Start practice'}"><span><strong>${t('launch')}</strong><small>${t('newSession')}</small></span><img class="cat" src="assets/mascot.png" alt="">${icon('arrow')}</button></section><div class="section-heading"><h3>${t('dictionaries')}</h3></div><div class="vocabulary"><button class="navigation-row" data-action="go:catalog"><img src="assets/books.png" alt=""><span><strong>${t('catalogLabel')}</strong><small>${t('catalogDesc')}</small></span></button><button class="navigation-row" data-action="go:dictionary"><img src="assets/notebook.png" alt=""><span><strong>${t('dictionary')}</strong><small>${t('wordsCount')}</small></span></button></div></div>`;
+ return `<div class="home"><header class="appbar"><h2>${t('app')}</h2><button class="icon-button" data-action="settings" aria-label="${t('settings')}"><img class="settings-art" src="assets/settings.png" alt=""></button></header><div class="stats-row"><button class="stat-card" data-action="stats" aria-label="${t('traces')}: 1248"><span class="stat-title">${t('traces')}</span>${icon('paw','paw')}<div class="ring"><strong>1248</strong></div></button><button class="stat-card" data-action="activity" aria-label="${t('streak')}"><span class="stat-title"><span class="flame" aria-hidden="true">♨</span> ${t('streak')}</span><div class="heatmap" aria-hidden="true">${heat}</div></button></div><div class="section-heading"><h3>${t('current')}</h3><button class="text-button" data-action="choose">${t('choose')}</button></div><section class="training-card"><div class="training-description"><h3>${escapeHTML($('#long-text').checked?t('longName'):currentTrainingName())}</h3><p>${escapeHTML(currentTrainingSummary())}</p><p>${t('notYet')}</p></div><button class="launch" data-action="go:${activeTraining()?'practice':'trainings'}" aria-label="${locale==='ru'?'Начать тренировку':'Start practice'}"><span><strong>${t('launch')}</strong><small>${t('newSession')}</small></span><img class="cat" src="assets/mascot.png" alt="">${icon('arrow')}</button></section><div class="section-heading"><h3>${t('dictionaries')}</h3></div><div class="vocabulary"><button class="navigation-row" data-action="go:catalog"><img src="assets/books.png" alt=""><span><strong>${t('catalogLabel')}</strong><small>${t('catalogDesc')}</small></span></button><button class="navigation-row" data-action="go:dictionary"><img src="assets/notebook.png" alt=""><span><strong>${t('dictionary')}</strong><small>${t('wordsCount')}</small></span></button></div></div>`;
 }
 function wordRows(list){return list.map(w=>`<button class="word-row" data-action="word:${w.id}"><span><span class="word-ja" lang="ja">${escapeHTML(w.written)}</span><span class="word-reading" lang="ja">${escapeHTML(w.reading)}</span><p class="word-translation">${escapeHTML(translation(w))}</p></span>${icon('chevron')}</button>`).join('');}
 function emptyView(title,body='',image=true){return `<div class="empty-state">${image?'<img src="assets/magnify.png" alt="">':''}<h3>${title}</h3>${body?`<p>${body}</p>`:''}</div>`;}
@@ -132,10 +103,11 @@ document.addEventListener('click',e=>{
  const nav=e.target.closest('.nav-link,.brand');if(nav){e.preventDefault();requestGo(nav.hash.slice(1));return;}
  const button=e.target.closest('[data-action]');if(!button||button.disabled)return;const [action,value]=button.dataset.action.split(':');
  if(action==='go')requestGo(value);
- else if(action==='settings'||action==='practice-info')infoModal(t('settings'),t('modelInfo'));
+ else if(action==='settings'){settingsReturn=screen;go('settings');}
+ else if(action==='practice-info'){settingsReturn='practice';go('checker-settings');}
  else if(action==='stats')infoModal(t('statTitle'),t('statInfo'));
  else if(action==='activity')infoModal(t('streak'),t('activityInfo'));
- else if(action==='choose'){showModal(t('trainingOptions'),`<div class="modal-list">${[t('mix'),locale==='ru'?'Мои слова':'My words'].map((name,i)=>`<button data-training="${i}">${escapeHTML(name)}<small style="display:block;margin-top:6px">${t('chooseHint')}</small></button>`).join('')}</div>`,[{label:t('cancel'),fn:closeModal}]);document.querySelectorAll('[data-training]').forEach(b=>b.onclick=()=>{trainingName=b.dataset.training==='0'?null:(locale==='ru'?'Мои слова':'My words');closeModal();render()});}
+ else if(action==='choose')requestGo('trainings');
  else if(action==='word'){selectedId=Number(value);wordSource=['chapter','book'].includes(screen)?screen:'dictionary';selectedWordOrigin=wordSource!=='dictionary'?{title:books[bookId].title,chapter:chapterId}:null;go('word');}
  else if(action==='new'){initDraft();go('editor');}
  else if(action==='edit'){initDraft(selectedId);go('editor');}
@@ -164,8 +136,7 @@ document.addEventListener('input',e=>{
 });
 document.addEventListener('change',e=>{
  const target=e.target;
- if(target.id==='screen-variant'){ScreenReview.set('web:'+webReviewKey(),target.value);closeModal();render();}
- else if(target.id==='theme'){$('#phone').dataset.theme=target.value;applyScreenReview();if(screen==='practice'&&!$('#phone').hidden)setupCanvas();}
+ if(target.id==='theme'){$('#phone').dataset.theme=target.value;applyScreenReview();if(screen==='practice'&&!$('#phone').hidden)setupCanvas();}
  else if(target.id==='width'){$('#phone').style.width=target.value+'px';applyScreenReview();if(screen==='practice'&&!$('#phone').hidden)setupCanvas();}
  else if(target.id==='large-text'){$('#phone').classList.toggle('large-text',target.checked);if(screen==='practice')setupCanvas();}
  else if(target.id==='locale'){locale=target.value;render();}
@@ -175,4 +146,3 @@ document.addEventListener('change',e=>{
 });
 document.addEventListener('submit',e=>{if(e.target.id==='word-form'){e.preventDefault();saveWord();}});
 window.addEventListener('hashchange',()=>{const next=location.hash.slice(1);if(screens.includes(next)&&next!==screen)requestGo(next);});
-screen=screens.includes(location.hash.slice(1))?location.hash.slice(1):'home';if(['catalog','book','chapter'].includes(screen))go(screen);else render();

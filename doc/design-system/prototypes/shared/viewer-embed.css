@@ -1,0 +1,6 @@
+html.viewer-embedded,html.viewer-embedded body{display:block;min-height:0;height:auto;background:transparent}
+.viewer-embedded .workbench,.viewer-embedded .stage-header,.viewer-embedded .review-notice,.viewer-embedded .stage-caption,.viewer-embedded .review-capture{display:none!important}
+.viewer-embedded .stage{padding:12px 20px 24px;min-width:0}
+.viewer-embedded .phone{margin:0 auto;max-width:100%}
+.viewer-embedded .theme-studio{max-width:none;padding:8px 24px 32px}
+.viewer-embedded .theme-studio>header .draft-pill{display:none}

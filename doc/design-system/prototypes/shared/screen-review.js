@@ -1,21 +1,12 @@
 'use strict';
-// Review controls live outside the mobile UI. Screens without a locked design have no approved renderer.
-window.ScreenReview = (() => {
-  const memory=new Map();
-  const valid=new Set(['baseline','approved','wip']);
-  function get(key,fallback='baseline') {
-    try { const value=sessionStorage.getItem('kanji-screen-review:'+key);if(valid.has(value))return value; } catch {}
-    return memory.get(key)||fallback;
-  }
-  function set(key,value) {
-    if(!valid.has(value))return;
-    memory.set(key,value);
-    try {sessionStorage.setItem('kanji-screen-review:'+key,value);} catch {}
-  }
-  function describe(variant,approved) {
-    return variant==='baseline'?{title:'ТЕКУЩИЙ · КАК В ПРИЛОЖЕНИИ',badge:'Android'}:
-      variant==='wip'?{title:'В РАБОТЕ',badge:'Черновик'}:
-      approved?{title:'СОГЛАСОВАННЫЙ ДИЗАЙН',badge:'Эталон'}:{title:'СОГЛАСОВАННЫЙ ДИЗАЙН',badge:'Ещё не задан'};
-  }
-  return {get,set,describe};
+// Approval is configuration data. There is no browser action that grants approval.
+window.ScreenReview=(()=>{
+ let registry=null,error=null;
+ const ready=fetch('../../theme/screens.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Screen registry HTTP '+r.status);return r.json()}).then(value=>{registry=value;return value}).catch(e=>{error=e;return null});
+ function status(module,key,language='ru'){
+  const row=registry?.screens.find(x=>x.module===module&&x.key===key);
+  const tr=row?.translations.find(t=>t.language_tag===language)||row?.translations.find(t=>t.language_tag==='ru');
+  return {status:row?.status||registry?.default_status||'unapproved',id:row?.id||'',title:tr?.title||key,changes:tr?.changes||'',error};
+ }
+ return {ready,status,get registry(){return registry}};
 })();

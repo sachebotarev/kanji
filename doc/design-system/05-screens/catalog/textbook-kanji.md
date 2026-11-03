@@ -1,6 +1,6 @@
 # Кандзи учебника — CAT-03
 
-[Текущий макет](../../prototypes/textbooks/index.html#source/2?tab=1) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-03) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `source/2?tab=1`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

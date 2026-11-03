@@ -1,5 +1,5 @@
 {
-  "revision": "2026-11-02-native-sync",
+  "revision": "material-unified-2026-11-02",
   "default_status": "unapproved",
   "screens": [
     {
@@ -12,14 +12,16 @@
         {
           "language_tag": "ru",
           "title": "Каталог",
-          "changes": "Основная композиция без изменений. Общие состояния загрузки и ошибки приведены к приложению."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Catalog",
-          "changes": "Main composition unchanged. Shared loading and error states synchronized with the app."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-02",
@@ -31,14 +33,16 @@
         {
           "language_tag": "ru",
           "title": "Учебник · главы",
-          "changes": "Основная композиция без изменений. Общие состояния загрузки и ошибки приведены к приложению."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Textbook · chapters",
-          "changes": "Main composition unchanged. Shared loading and error states synchronized with the app."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-03",
@@ -50,14 +54,16 @@
         {
           "language_tag": "ru",
           "title": "Кандзи учебника",
-          "changes": "Пояснение номеров учебных размещений."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Textbook kanji",
-          "changes": "Textbook placement number legend."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-04",
@@ -69,14 +75,16 @@
         {
           "language_tag": "ru",
           "title": "Слова учебника",
-          "changes": "Чтения слов увеличены до 16/24."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Textbook words",
-          "changes": "Word readings increased to 16/24."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-05",
@@ -88,14 +96,16 @@
         {
           "language_tag": "ru",
           "title": "Глава · кандзи",
-          "changes": "Пояснение номеров учебных размещений."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Chapter · kanji",
-          "changes": "Textbook placement number legend."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-06",
@@ -107,14 +117,16 @@
         {
           "language_tag": "ru",
           "title": "Глава · слова",
-          "changes": "Чтения слов увеличены до 16/24."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Chapter · words",
-          "changes": "Word readings increased to 16/24."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-07",
@@ -126,14 +138,16 @@
         {
           "language_tag": "ru",
           "title": "Карточка слова",
-          "changes": "У слов без кандзи скрыт пустой раздел состава."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Word details",
-          "changes": "Empty kanji section hidden for kana-only words."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-08",
@@ -145,14 +159,16 @@
         {
           "language_tag": "ru",
           "title": "Карточка кандзи",
-          "changes": "Пояснения чтений, классификаций и японской школьной ступени."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Kanji details",
-          "changes": "Reading and classification explanations; Japanese school context."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-09",
@@ -164,14 +180,16 @@
         {
           "language_tag": "ru",
           "title": "Карточка ключа",
-          "changes": "Легенда учебных номеров в связанных кандзи."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Radical details",
-          "changes": "Placement legend for related textbook kanji."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-10",
@@ -183,14 +201,16 @@
         {
           "language_tag": "ru",
           "title": "Выбор главы",
-          "changes": "В выборе для кандзи убрано количество слов; добавлена галочка выбора."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Choose chapter",
-          "changes": "Word count hidden when choosing for kanji; visible selection check."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-11",
@@ -202,14 +222,16 @@
         {
           "language_tag": "ru",
           "title": "Выбор кандзи",
-          "changes": "Инструкция выбора кандзи и легенда учебных номеров."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Choose kanji",
-          "changes": "Selection instruction and textbook placement legend."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-12",
@@ -221,14 +243,16 @@
         {
           "language_tag": "ru",
           "title": "Выбор ключа",
-          "changes": "Название ключа полностью видно до применения фильтра."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Choose radical",
-          "changes": "Full radical names visible before selection."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-13",
@@ -240,14 +264,16 @@
         {
           "language_tag": "ru",
           "title": "Все кандзи",
-          "changes": "Подпись «Общий справочник»."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "All kanji",
-          "changes": "General reference subtitle."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-14",
@@ -259,14 +285,16 @@
         {
           "language_tag": "ru",
           "title": "Ключи Канси",
-          "changes": "Подпись «Общий справочник»."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Kangxi radicals",
-          "changes": "General reference subtitle."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-15",
@@ -278,14 +306,16 @@
         {
           "language_tag": "ru",
           "title": "Связанные слова",
-          "changes": "Чтения 16/24; количество слов группы вместо доли «из N»."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Related words",
-          "changes": "Readings 16/24; per-group word count replaces fractions."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-16",
@@ -297,14 +327,16 @@
         {
           "language_tag": "ru",
           "title": "Выбор числа черт",
-          "changes": "Основная композиция без изменений. Общие состояния загрузки и ошибки приведены к приложению."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Choose stroke count",
-          "changes": "Main composition unchanged. Shared loading and error states synchronized with the app."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
         }
-      ]
+      ],
+      "module": "catalog",
+      "feature": "catalog"
     },
     {
       "id": "CAT-17",
@@ -316,14 +348,124 @@
         {
           "language_tag": "ru",
           "title": "Выбор JLPT",
-          "changes": "Основная композиция без изменений. Общие состояния загрузки и ошибки приведены к приложению."
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
         },
         {
           "language_tag": "en",
           "title": "Choose JLPT",
-          "changes": "Main composition unchanged. Shared loading and error states synchronized with the app."
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    }
+  ],
+  "features": [
+    {
+      "id": "home",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Главная",
+          "description": "Первый экран приложения и переходы к фичам"
+        },
+        {
+          "language_tag": "en",
+          "title": "Home",
+          "description": "The first app screen and feature navigation"
+        }
+      ]
+    },
+    {
+      "id": "training-builder",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Конструктор тренировок",
+          "description": "Рецепты, источники и параметры сессии"
+        },
+        {
+          "language_tag": "en",
+          "title": "Training builder",
+          "description": "Recipes, sources and session options"
+        }
+      ]
+    },
+    {
+      "id": "practice",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тренировка",
+          "description": "Задание, письмо и результаты проверки"
+        },
+        {
+          "language_tag": "en",
+          "title": "Practice",
+          "description": "Tasks, writing and checker results"
+        }
+      ]
+    },
+    {
+      "id": "dictionary",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Мой словарь",
+          "description": "Список, карточка и редактор слова"
+        },
+        {
+          "language_tag": "en",
+          "title": "My dictionary",
+          "description": "Word list, details and editor"
+        }
+      ]
+    },
+    {
+      "id": "catalog",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Каталог",
+          "description": "Учебники, главы, кандзи, ключи и фильтры"
+        },
+        {
+          "language_tag": "en",
+          "title": "Catalog",
+          "description": "Textbooks, chapters, kanji, radicals and filters"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Настройки",
+          "description": "Параметры приложения и проверки"
+        },
+        {
+          "language_tag": "en",
+          "title": "Settings",
+          "description": "Application and checker settings"
+        }
+      ]
+    },
+    {
+      "id": "theme",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тема приложения",
+          "description": "Общие цвета и роли для всего макета"
+        },
+        {
+          "language_tag": "en",
+          "title": "App theme",
+          "description": "Shared colors and roles for every screen"
         }
       ]
     }
-  ]
+  ],
+  "generated_from": "../../theme/screens.json"
 }

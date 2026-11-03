@@ -1,0 +1,14 @@
+{
+  "name": "kanji-design-theme",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node generate_theme.mjs && esbuild palette.mjs --bundle --format=esm --minify --legal-comments=linked --outfile=../prototypes/shared/material-colors.js"
+  },
+  "dependencies": {
+    "@material/material-color-utilities": "0.4.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}

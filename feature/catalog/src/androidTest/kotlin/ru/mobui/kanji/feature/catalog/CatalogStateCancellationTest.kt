@@ -1,5 +1,9 @@
 package ru.mobui.kanji.feature.catalog
 
+import ru.mobui.kanji.feature.catalog.presentation.CatalogStateViewModel
+
+import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
+
 import androidx.lifecycle.ViewModelStore
 import androidx.test.platform.app.InstrumentationRegistry
 import java.util.concurrent.LinkedBlockingQueue

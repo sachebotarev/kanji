@@ -1,0 +1,300 @@
+{
+  "status": "passed",
+  "configuration": {
+    "primary": "#1E6A4B",
+    "secondary": "#585D72",
+    "tertiary": "#80543D",
+    "error": "#BA1A1A"
+  },
+  "checks": [
+    "Home is the first application screen with six feature entry points; nested viewer chrome is hidden",
+    "All 28 screen variants work in the single shell in both themes with common controls and unapproved status",
+    "Width, text scale, locale and context-specific state are managed through the same toolbar",
+    "Home/catalog/back and builder/editor flows synchronize the feature navigation without nested standalone viewers",
+    "Theme editor is a viewer feature and updates the whole shell and screen renderers",
+    "Old public links redirect to the same viewer entry point"
+  ],
+  "screen_checks": [
+    {
+      "id": "CAT-01",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-02",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-03",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-04",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-05",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-06",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-07",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-08",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-09",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-10",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-11",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-12",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-13",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-14",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-15",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-16",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-17",
+      "theme": "light",
+      "feature": "catalog"
+    },
+    {
+      "id": "APP-01",
+      "theme": "light",
+      "feature": "home"
+    },
+    {
+      "id": "APP-02",
+      "theme": "light",
+      "feature": "practice"
+    },
+    {
+      "id": "APP-03",
+      "theme": "light",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-04",
+      "theme": "light",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-05",
+      "theme": "light",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-06",
+      "theme": "light",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-07",
+      "theme": "light",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-08",
+      "theme": "light",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-09",
+      "theme": "light",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-10",
+      "theme": "light",
+      "feature": "settings"
+    },
+    {
+      "id": "APP-11",
+      "theme": "light",
+      "feature": "settings"
+    },
+    {
+      "id": "CAT-01",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-02",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-03",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-04",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-05",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-06",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-07",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-08",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-09",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-10",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-11",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-12",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-13",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-14",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-15",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-16",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-17",
+      "theme": "dark",
+      "feature": "catalog"
+    },
+    {
+      "id": "APP-01",
+      "theme": "dark",
+      "feature": "home"
+    },
+    {
+      "id": "APP-02",
+      "theme": "dark",
+      "feature": "practice"
+    },
+    {
+      "id": "APP-03",
+      "theme": "dark",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-04",
+      "theme": "dark",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-05",
+      "theme": "dark",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-06",
+      "theme": "dark",
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-07",
+      "theme": "dark",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-08",
+      "theme": "dark",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-09",
+      "theme": "dark",
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-10",
+      "theme": "dark",
+      "feature": "settings"
+    },
+    {
+      "id": "APP-11",
+      "theme": "dark",
+      "feature": "settings"
+    }
+  ],
+  "errors": []
+}

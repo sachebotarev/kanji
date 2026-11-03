@@ -46,14 +46,14 @@ function workingChapterCard(chapter,select=false){
   const scale=Number($('#text-scale').value);
   const available=Math.min(Number($('#width').value),$('#phone').clientWidth)-72;
   const capacity=Math.max(1,Math.floor((available+12)/(26*scale+12)));
-  const rows=Math.max(1,Math.ceil(chapter.symbols.length/capacity));
+  const rows=select?1:Math.max(1,Math.ceil(chapter.symbols.length/capacity));
   const perRow=Math.floor(chapter.symbols.length/rows),extra=chapter.symbols.length%rows;
   let offset=0;
   const preview=Array.from({length:rows},(_,row)=>{
     const count=perRow+(row<extra?1:0),symbols=chapter.symbols.slice(offset,offset+count);offset+=count;
     return `<span class="p-book-kanji-row">${symbols.map(symbol=>`<span lang="ja">${html(symbol)}</span>`).join('')}</span>`;
   }).join('');
-  return `<button class="n-chapter-card p-book-chapter-card" data-id="${chapter.number}" data-action="${select?'select-chapter':'chapter'}:${chapter.number}" ${select?`aria-pressed="${chapter.number===(current.route.selected||0)}"`:''} aria-label="${html(label+'. '+counts)}"><span class="p-book-card-heading"><span class="p-book-card-labels"><strong>${html(label)}</strong><small>${html(counts)}</small>${select&&chapter.number===current.route.selected?`<span class="w-selection-check" aria-hidden="true">✓</span>`:''}</span>${chevron}</span><span class="p-book-chapter-preview" aria-hidden="true">${preview}</span></button>`;
+  return `<button class="n-chapter-card p-book-chapter-card${select?' p-chapter-choice':''}" data-id="${chapter.number}" data-action="${select?'select-chapter':'chapter'}:${chapter.number}" ${select?`aria-pressed="${chapter.number===(current.route.selected||0)}"`:''} aria-label="${html(label+'. '+counts)}"><span class="p-book-card-heading"><span class="p-book-card-labels"><strong>${html(label)}</strong><small>${html(counts)}</small></span>${chevron}</span><span class="p-book-chapter-preview" aria-hidden="true">${preview}</span></button>`;
 
 }
 function workingChapterList(chapters,select=false){
@@ -80,8 +80,8 @@ function workingSourceView() {
   const items=words?wordsFor({...selection,radical:0},current.query):kanjiFor(selection,current.query);
   const base={sourceId:current.route.sourceId,chapter:fixed};
   const total=words?wordsFor(base).length:kanjiFor(base).length;
-  const summary=words?workingWordsSummary(items.length,total,true):workingListSummary(items.length,total,'kanji');
-  const content=workingFilterBar(words)+summary+(!words?placementLegend():'')+(words?workingWordList(items):workingKanjiGrid(items));
+  const summary=words?workingWordsSummary(items.length,total,true):workingListSummary(items.length,total,'kanji',true);
+  const content=workingFilterBar(words)+summary+(words?workingWordList(items):workingKanjiGrid(items));
   const wordGap=words?'<div class="w-word-tab-gap" aria-hidden="true"></div>':'';
   return {extra:`<div class="n-tabs" role="tablist">${tabs}</div>${workingSearchControl()}${wordGap}`,content};
 }
@@ -127,7 +127,7 @@ function workingJlptFilterView(){
   const label=code=>code===-1?(en?'No JLPT data':'Нет данных JLPT'):`JLPT N${code}`;
   const rows=[5,4,3,2,1,-1].filter(code=>count(code)>0||code===picked).map(code=>`<button class="n-nav-row w-nav-row" data-action="select-jlpt:${code}" aria-pressed="${code===picked}"><span><strong>${html(label(code))}</strong><small>${html(catalogQuantity(count(code),'kanji'))}</small></span>${code===picked?'<span class="w-selection-check" aria-hidden="true">✓</span>':''}</button>`).join('');
   const note=en?'Levels are a study guide, not an official JLPT list.':'Уровни — учебный ориентир, не официальный список JLPT.';
-  return {extra:'',content:`<div class="w-selector-controls"><button class="n-text-button n-selector-all" data-action="select-jlpt:0">${html(en?'All levels':'Все уровни')}</button></div><p class="w-filter-note">${html(note)}</p><div class="n-word-list">${rows||workingEmpty()}</div>`};
+  return {extra:'',content:`<div class="w-selector-controls"><button class="n-text-button n-selector-all" data-action="select-jlpt:0">${html(en?'All levels':'Все уровни')}</button>${workingHelp(en?'About levels':'Об уровнях',note)}</div><div class="n-word-list w-choice-options">${rows||workingEmpty()}</div>`};
 }
 function workingFilterBar(words=false){
   const ru=uiLanguage()==='ru',fixed=current.route.fixedChapter||0;
@@ -137,7 +137,9 @@ function workingFilterBar(words=false){
   const label=selected?(words?(ru?'Кандзи ':'Kanji '):(ru?'Ключ ':'Radical '))+selected.symbol:(words?idleKanji:(ru?'Все ключи':'All radicals'));
   const arrow='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
   const close='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="m7 7 10 10M17 7 7 17"/></svg>';
-  const chip=(title,type,active,clear,clearLabel)=>`<span class="w-textbook-chip${active?' is-active':''}" role="group" aria-label="${html(title)}"><button class="w-chip-open" data-action="filter:${type}"><span>${html(title)}</span>${active&&catalogLayout==='wip'?'':arrow}</button>${active?`<button class="w-chip-reset" data-action="${clear}" aria-label="${html(clearLabel)}">${close}</button>`:''}</span>`;
+  const chapterOptions=current.route.sourceId?chaptersFor(current.route.sourceId,sourceSelection()):[];
+  const chapterLocked=Boolean(current.chapter)&&chapterOptions.length===1&&chapterOptions[0].number===current.chapter;
+  const chip=(title,type,active,clear,clearLabel)=>`<span class="w-textbook-chip${active?' is-active':''}" role="group" aria-label="${html(title)}"><button class="w-chip-open" data-action="filter:${type}"${type==='chapter'&&chapterLocked?' disabled':''}><span>${html(title)}</span>${active&&catalogLayout==='wip'?'':arrow}</button>${active?`<button class="w-chip-reset" data-action="${clear}" aria-label="${html(clearLabel)}">${close}</button>`:''}</span>`;
   const chapter=current.route.sourceId&&!fixed?chip(chapterLabel,'chapter',Boolean(current.chapter),'clear-chapter',text('catalog_remove_chapter')):'';
   const strokeLabel=current.strokes?plural('catalog_strokes',current.strokes):(ru?'Все черты':'All stroke counts');
   const strokes=!words?chip(strokeLabel,'strokes',Boolean(current.strokes),'clear-strokes',ru?'Сбросить число черт':'Clear stroke count'):'';
@@ -166,10 +168,10 @@ function workingWordsSummary(count,total,always=false){
   const label=narrowed?(uiLanguage()==='en'?`Showing ${count} of ${catalogQuantity(total,'word')}`:`Показано ${count} из ${catalogQuantity(total,'word')}`):catalogQuantity(total,'word');
   return `<div class="w-kanji-summary"><p class="p-textbook-kanji-count" role="status">${html(label)}</p></div>`;
 }
-function workingListSummary(count,total,noun){
+function workingListSummary(count,total,noun,numbered=false){
   const filtered=count!==total||Boolean(current.query)||current.chapter!==(current.route.fixedChapter||0)||Boolean(current.radical||current.selectedKanji||current.strokes||current.jlpt);
   const label=filtered?(uiLanguage()==='en'?`Showing ${count} of ${catalogQuantity(total,noun)}`:`Показано ${count} из ${catalogQuantity(total,noun)}`):catalogQuantity(total,noun);
-  return `<div class="w-kanji-summary"><p class="p-textbook-kanji-count" role="status">${html(label)}</p></div>`;
+  return `<div class="w-kanji-summary"><p class="p-textbook-kanji-count" role="status">${html(label)}</p>${numbered?placementLegend():''}</div>`;
 }
 function workingKanjiMeaningVariants(kanji){
   const tags=[...new Set([language.toLowerCase(),language.toLowerCase().split('-')[0],'ru'])];
@@ -194,15 +196,15 @@ function workingSymbolGrid(items,{select=false,radicals=false,showPlacement=true
     const ordinal=chapter&&number?chapter+'–'+number:number;
     const full=radicals?radicalName(item):meaning(item);
     const variants=radicals?[full]:workingKanjiMeaningVariants(item);
-    const strokesLabel=!radicals&&item.stroke_count?plural('catalog_strokes',item.stroke_count):'';
+    const strokesLabel=!radicals&&!select&&item.stroke_count?plural('catalog_strokes',item.stroke_count):'';
     const label=(chapter?text('catalog_chapter',chapter)+'. ':'')+(number?(radicals?text('catalog_radical_number',number):(ru?'Кандзи № ':'Kanji no. ')+number)+'. ':'')+(strokesLabel?strokesLabel+'. ':'')+item.symbol+' · '+full;
     const selected=select&&item.id===(current.route.selected||0);
     const mark=selected?'<span class="w-choice-check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 4 4L19 6"/></svg></span>':'';
     const target=radicals?'radical':'kanji';
-    return `<button class="${radicals?'n-radical-tile':'n-kanji-tile'} w-numbered-kanji w-compact-symbol${select&&radicals?' w-full-caption':''}" data-id="${item.id}" data-action="${select?'select-'+target:target}:${item.id}" aria-label="${html(label)}"${select?` aria-pressed="${selected}"`:''}>${number?`<span class="w-kanji-ordinal" aria-hidden="true">${html(ordinal)}</span>`:''}${mark}<span class="${radicals?'n-radical-symbol':'n-kanji-symbol'}" lang="ja" aria-hidden="true">${html(item.symbol)}</span><span class="w-kanji-caption-slot" aria-hidden="true"><span class="n-kanji-meaning" data-meaning-variants="${html(JSON.stringify(variants))}">${html(full)}</span></span>${strokesLabel?`<span class="w-kanji-strokes">${html(strokesLabel)}</span>`:''}</button>`;
+    return `<button class="${radicals?'n-radical-tile':'n-kanji-tile'} w-numbered-kanji w-compact-symbol${radicals?' w-full-caption':''}" data-id="${item.id}"${radicals?` data-stroke-tone="${(Math.max(1,item.stroke_count)-1)%4}"`:''} data-action="${select?'select-'+target:target}:${item.id}" aria-label="${html(label)}"${select?` aria-pressed="${selected}"`:''}>${number?`<span class="w-kanji-ordinal" aria-hidden="true">${html(ordinal)}</span>`:''}${mark}<span class="${radicals?'n-radical-symbol':'n-kanji-symbol'}" lang="ja" aria-hidden="true">${html(item.symbol)}</span><span class="w-kanji-caption-slot" aria-hidden="true"><span class="n-kanji-meaning" data-meaning-variants="${html(JSON.stringify(variants))}">${html(full)}</span></span>${strokesLabel?`<span class="w-kanji-strokes">${html(strokesLabel)}</span>`:''}</button>`;
   }).join('')}</div>`;
 }
-function workingKanjiGrid(items,select=false){return workingSymbolGrid(items,{select});}
+function workingKanjiGrid(items,select=false){return workingSymbolGrid(items,{select,showPlacement:!select});}
 function workingRadicalGrid(items,select=false){return workingSymbolGrid(items,{select,radicals:true});}
 
 function isWorkingSourceWords(){return current.route.kind==='source'&&current.tab===2;}
@@ -228,7 +230,7 @@ function workingWordListByChapter(items,groupChapters,scope=null){
     if(!b.chapter)return `<section class="w-word-chapter-block w-word-chapter-block--plain"><div class="w-chapter-word-cards">${cards}</div></section>`;
     const id=`w-word-ch-${sourceId}-${b.chapter}`;
     const volume=catalogQuantity(b.words.length,'word');
-    return `<section class="w-word-chapter-block" aria-labelledby="${id}"><header class="w-word-chapter-heading"><h3 id="${id}">${html(text('catalog_chapter',b.chapter))}<span class="w-word-chapter-volume">${html((catalogLayout==='wip'?'\u00a0·\u00a0':' · ')+volume)}</span></h3></header><div class="w-chapter-word-cards">${cards}</div></section>`;
+    return `<section class="w-word-chapter-block" aria-labelledby="${id}"><header class="w-word-chapter-heading"><h3 id="${id}">${html(text('catalog_chapter',b.chapter))}${blocks.length>1?`<span class="w-word-chapter-volume">${html((catalogLayout==='wip'?'\u00a0·\u00a0':' · ')+volume)}</span>`:''}</h3></header><div class="w-chapter-word-cards">${cards}</div></section>`;
   }).join('');
   return `<div class="n-word-list w-chapter-word-list w-chapter-word-list--grouped">${sections}</div>`;
 }
@@ -242,7 +244,7 @@ function workingWordList(items){
     const sourceId=current.route.sourceId;
     const ordered=isWorkingSourceWords()?items.slice().sort((a,b)=>(wordSourceChapter(a,sourceId)||0)-(wordSourceChapter(b,sourceId)||0)):items;
     const list=workingWordListByChapter(ordered,groupChapters,scope);
-    const ending=complete&&isWorkingSourceWords()?`<div class="w-chapter-end">${catalogArtFilter()}<img src="assets/cat-reading.png" alt="" width="120" height="120"><p>${html(current.route.fixedChapter?(uiLanguage()==='en'?'That’s the whole chapter':'Вот и вся глава'):(uiLanguage()==='en'?'That’s the whole word list':'Вот и все слова учебника'))}</p></div>`:'';
+    const ending=complete&&isWorkingSourceWords()&&!current.route.fixedChapter?`<div class="w-chapter-end">${catalogArtFilter()}<img src="assets/cat-reading.png" alt="" width="120" height="120"><p>${html(current.route.fixedChapter?(uiLanguage()==='en'?'That’s the whole chapter':'Вот и вся глава'):(uiLanguage()==='en'?'That’s the whole word list':'Вот и все слова учебника'))}</p></div>`:'';
     return `<div class="w-word-card-stack${groupChapters?' w-word-card-stack--grouped':''}">${list}</div>${ending}`;
   }
   if(!items.length&&related)return workingRelatedWordsEmpty();
@@ -255,7 +257,7 @@ function workingWordDetails() {
   const literal=[...new Set([...word.written].map(c=>kanjiById.get(c.codePointAt(0))).filter(Boolean))];
   const infoBlock=(title,body)=>`<section class="n-info-panel w-word-info"><h3>${html(title)}</h3>${body}</section>`;
   const longWord=[...word.written].length>6||[...word.reading].length>12;
-  const identity=workingPanel(`<div class="n-word-hero${longWord?' is-long':''}"><span class="n-word-large ${[...word.written].length>8?'long':''}" lang="ja">${html(word.written)}</span><span class="w-word-detail-reading" lang="ja">${html(word.reading)}</span><p class="w-word-detail-translation">${html(translation(word))}</p></div>`);
+  const identity=`<div class="n-word-hero w-word-identity${longWord?' is-long':''}"><span class="n-word-large ${[...word.written].length>8?'long':''}" lang="ja">${html(word.written)}</span><span class="w-word-detail-reading" lang="ja">${html(word.reading)}</span><p class="w-word-detail-translation">${html(translation(word))}</p></div>`;
   const usage=wordContent(word)?.usage_note?infoBlock(uiLanguage()==='en'?'Usage':'Употребление',`<p class="w-usage-note" lang="${html(wordContent(word).language_tag)}">${html(wordContent(word).usage_note)}</p>`):'';
   const parts=word.parts.length?infoBlock(text('word_parts'),word.parts.map(p=>`<p class="w-word-reading-part"><span lang="ja">${html(p.written_part)}</span><span lang="ja">${html(p.reading_part)}</span></p>`).join('')):'';
   const kanji=literal.length?workingDetailSection(text('word_kanji'),`<div class="w-word-kanji-grid">${workingSymbolGrid(literal,{showPlacement:false})}</div>`):'';
@@ -287,21 +289,9 @@ function mountKanjiVg(root=document){
       const svg=slot.querySelector('svg');
       if(svg){
         svg.setAttribute('aria-label',label);
-        const nodes=[...svg.querySelectorAll('[id^="kvg:StrokePaths"],[id^="kvg:StrokeNumbers"]')];
-        let x0=Infinity,y0=Infinity,x1=-Infinity,y1=-Infinity;
-        for(const node of nodes){
-          if(!node.getBBox)continue;
-          const box=node.getBBox();
-          if(!box.width&&!box.height)continue;
-          x0=Math.min(x0,box.x);y0=Math.min(y0,box.y);
-          x1=Math.max(x1,box.x+box.width);y1=Math.max(y1,box.y+box.height);
-        }
-        if(x1>x0&&y1>y0){
-          const pad=4,width=x1-x0+pad*2,height=y1-y0+pad*2;
-          svg.setAttribute('viewBox',`${x0-pad} ${y0-pad} ${width} ${height}`);
-          const scale=188/109;
-          slot.style.width=`min(100%, ${width*scale}px)`;
-        }
+        // Preserve KanjiVG's writing-cell coordinates, including intentional whitespace.
+        svg.setAttribute('viewBox','0 0 109 109');
+        svg.setAttribute('preserveAspectRatio','xMidYMid meet');
         if(typeof lockFittedContent==='function')lockFittedContent();
       }
     };
@@ -316,7 +306,8 @@ function mountKanjiVg(root=document){
 function workingKanjiMark(k){
   return `<div class="w-kanji-vg" data-kanji-vg="${k.id}" aria-label="${html(k.symbol)}"><div class="n-kanji-hero" lang="ja">${html(k.symbol)}</div></div>`;
 }
-function placementLegend(){return `<p class="w-placement-legend">${html(text('catalog_placement_legend'))}</p>`;}
+function workingHelp(label,body){return `<details class="w-inline-help w-numbering-help"><summary aria-label="${html(label)}" title="${html(label)}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9a2.5 2.5 0 0 1 5 .3c0 1.7-2.5 1.9-2.5 3.7"/><path d="M12 16.5h.01"/></svg></summary><p>${html(body)}</p></details>`;}
+function placementLegend(){return workingHelp(uiLanguage()==='en'?'Tile numbers':'Нумерация',text('catalog_placement_legend'));}
 function workingKanjiClassification(k){
   const c=k.classification||{},parts=[];
   if(c.school_stage){
@@ -333,15 +324,15 @@ function workingKanjiDetails() {
   const related=wordsFor({sourceId:current.route.sourceId,kanji:k.id});
   const on=k.readings.filter(r=>r.reading_type==='on').map(r=>r.text),kun=k.readings.filter(r=>r.reading_type==='kun').map(r=>r.text);
   const radical=radicalById.get(k.radical_id);
-  const identity=`<div class="n-info-panel w-kanji-identity">${workingKanjiMark(k)}<p class="w-kanji-meaning">${html(meaning(k))}</p><p class="w-stroke-count">${html(plural('catalog_strokes',k.stroke_count))}</p></div>`;
+  const identity=`<div class="w-kanji-identity">${workingKanjiMark(k)}<p class="w-kanji-meaning">${html(meaning(k))}</p><p class="w-stroke-count">${html(plural('catalog_strokes',k.stroke_count))}</p></div>`;
   const classificationContent=workingKanjiClassification(k);
-  const classification=classificationContent?`<div class="n-info-panel w-kanji-classification">${classificationContent}</div>`:'';
-  const reading=(title,values)=>values.length?`<section class="n-section w-reading-block"><h3>${html(title)}</h3><p class="w-reading" lang="ja">${html(values.join(' · '))}</p></section>`:'';
-  const readings=`<div class="w-readings">${reading(text('catalog_on'),on)}${reading(text('catalog_kun'),kun)}<p class="w-reading-hint">${html(text('catalog_reading_hint'))}</p></div>`;
+  const classification=classificationContent?`<div class="w-kanji-classification">${classificationContent}</div>`:'';
+  const reading=(title,values)=>values.length?`<section class="n-section w-reading-block"><h3>${html(title)}</h3><p class="w-reading" lang="ja">${html(values.join('、'))}</p></section>`:'';
+  const readings=`<div class="w-readings">${reading(text('catalog_on'),on)}${reading(text('catalog_kun'),kun)}</div>`;
   const radicalRow=radical?workingNavRow(text('catalog_radical'),`${radical.symbol} · ${radicalName(radical)}`,`radical:${radical.id}`,`${text('catalog_radical')}. ${radical.symbol}. ${radicalName(radical)}`):'';
   const wordCount=catalogQuantity(related.length,'word');
   const words=workingNavRow(text('catalog_related_words'),wordCount,`related:${k.id}`,`${text('catalog_related_words')}. ${wordCount}`);
-  return `<div class="n-detail">${identity}${on.length||kun.length?readings:`<p>${html(text('catalog_no_reading'))}</p>`}${classification}${radicalRow}${words}</div>`;
+  return `<div class="n-detail">${identity}${on.length||kun.length?readings:''}${classification}${radicalRow}${words}</div>`;
 }
 
 function workingFilterView() {
@@ -363,12 +354,12 @@ function workingFilterView() {
     const picked=current.route.selected||0;
     const noun=radicalIndex?'radical':'kanji';
     const rows=[...groups.keys()].sort((a,b)=>a-b).map(n=>`<button class="n-nav-row w-nav-row" data-action="select-strokes:${n}" aria-pressed="${n===picked}"><span><strong>${html(plural('catalog_strokes',n))}</strong><small>${html(catalogQuantity(groups.get(n),noun))}</small></span>${n===picked?'<span class="w-selection-check" aria-hidden="true">✓</span>':''}</button>`).join('');
-    return {extra:'',content:all+`<div class="n-word-list">${rows}</div>`};
+    return {extra:'',content:all+`<div class="n-word-list w-choice-options">${rows}</div>`};
   }
   const radicals=route.filter==='radical';
   const items=radicals?radicalsFor(selection,current.query):kanjiFor({...selection,radical:0},current.query);
   const total=radicals?radicalsFor(selection).length:kanjiFor({...selection,radical:0}).length;
-  return {extra:workingSearchControl(),content:all+workingListSummary(items.length,total,radicals?'radical':'kanji')+(!radicals?`<p class="w-selection-hint">${html(text('catalog_choose_kanji_hint'))}</p>`+placementLegend():'')+(radicals?workingRadicalGrid(items,true):workingKanjiGrid(items,true))};
+  return {extra:workingSearchControl(),content:all+workingListSummary(items.length,total,radicals?'radical':'kanji')+(radicals?workingRadicalGrid(items,true):workingKanjiGrid(items,true))};
 }
 function workingView() {
   const route=current.route;
@@ -391,7 +382,7 @@ function workingView() {
     if(!radical)return {extra:'',content:workingEmpty(true)};
     const base={sourceId:route.sourceId,radical:route.id},items=kanjiFor(base,current.query),total=kanjiFor(base).length;
     const hero=`<div class="w-radical-summary"><span class="n-radical-symbol" lang="ja">${html(radical.symbol)}</span><div><strong>${html(radicalName(radical))}</strong><p class="w-detail-meta">${html(text('catalog_radical_number',radical.id))} · ${html(plural('catalog_strokes',radical.stroke_count))}</p></div></div>`;
-    return {extra:workingSearchControl(),content:`<div class="w-radical-detail">${workingPanel(hero)}${workingSection(workingListSummary(items.length,total,'kanji')+(route.sourceId&&items.length?placementLegend():'')+workingKanjiGrid(items),text('catalog_related_kanji'))}</div>`};
+    return {extra:workingSearchControl(),content:`<div class="w-radical-detail">${workingPanel(hero)}${workingSection(workingListSummary(items.length,total,'kanji',Boolean(route.sourceId&&items.length))+workingKanjiGrid(items),text('catalog_related_kanji'))}</div>`};
   }
   const base={sourceId:route.sourceId,kanji:route.id},items=wordsFor(base,current.query);
   return {extra:workingSearchControl(),content:workingWordsSummary(items.length,wordsFor(base).length,true)+workingWordList(items)};

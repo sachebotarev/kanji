@@ -62,6 +62,13 @@ def export():
     radicals = [{**row, "translations": translations("radicals_translations", "radical_id", row["id"], "name")}
                 for row in rows("radicals")]
 
+    # Short Russian display name for the radical in the HTML prototype.
+    for radical in radicals:
+        if radical['id'] == 5:
+            for translation in radical['translations']:
+                if translation['language_tag'] == 'ru':
+                    translation['text'] = 'Второй'
+
     strings, plurals = {}, {}
     for language, directory in [("ru", "values"), ("en", "values-en")]:
         strings[language], plurals[language] = {}, {}
@@ -72,6 +79,11 @@ def export():
                     strings[language][item.attrib["name"]] = "".join(item.itertext())
                 elif item.tag == "plurals":
                     plurals[language][item.attrib["name"]] = {x.attrib["quantity"]: "".join(x.itertext()) for x in item}
+    # Prototype headings are intentionally shorter than the current Android copy.
+    for language, labels in {"ru": ("Онъёми", "Кунъёми"), "en": ("On’yomi", "Kun’yomi")}.items():
+        strings[language].update(catalog_on=labels[0], catalog_kun=labels[1])
+    strings['ru']['catalog_school_elementary'] = 'Начальная школа · %1$d-й год'
+    strings['en']['catalog_school_elementary'] = 'Elementary school · year %1$d'
     payload = {"schema_version": 1, "source_sha256": hashlib.sha256(SOURCE.read_bytes()).hexdigest(),
                "content_sha256": {p.name: hashlib.sha256(p.read_bytes()).hexdigest()
                                   for p in sorted(content_dir.glob('*.json'))},

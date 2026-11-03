@@ -1,6 +1,6 @@
 # Выбор ключа — CAT-12
 
-[Текущий макет](../../prototypes/textbooks/index.html#filter/radical) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-12) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `filter/radical`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

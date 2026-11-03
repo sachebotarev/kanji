@@ -1,6 +1,6 @@
 # Каталог — CAT-01
 
-[Текущий макет](../../prototypes/textbooks/index.html#catalog) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-01) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `catalog`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

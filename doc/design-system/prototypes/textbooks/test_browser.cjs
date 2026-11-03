@@ -4,7 +4,8 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
 (async()=>{
-  const base=process.argv[2]||'http://127.0.0.1:8766/design-system/prototypes/textbooks/';
+  const rawBase=process.argv[2]||'http://127.0.0.1:8767/design-system/prototypes/textbooks/';
+  const base=rawBase.includes('?')?rawBase:rawBase+'?standalone=1';
   const output=process.argv[3];
   const browser=await chromium.launch({headless:true,channel:'chrome'});
   const page=await browser.newPage({viewport:{width:1440,height:1250}});

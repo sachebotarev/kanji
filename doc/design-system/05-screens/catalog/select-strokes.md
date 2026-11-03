@@ -1,6 +1,6 @@
 # Выбор числа черт — CAT-16
 
-[Текущий макет](../../prototypes/textbooks/index.html#filter/strokes) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-16) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `filter/strokes`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

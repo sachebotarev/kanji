@@ -1,6 +1,6 @@
 # Слова учебника — CAT-04
 
-[Текущий макет](../../prototypes/textbooks/index.html#source/2?tab=2) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/CAT-04) · [Статус и изменения](review-status.json).
 
 Статус: не согласовано. HTML-маршрут: `source/2?tab=2`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 

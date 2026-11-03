@@ -1,0 +1,13 @@
+{
+  "asset": "cat-crafting-cards.png",
+  "purpose": "Training builder header, decorative static mascot",
+  "method": "built-in image_gen",
+  "reference": "../../prototypes/textbooks/assets/cat-reading.png",
+  "transparent_background": true,
+  "prompt": "Same cream cat and dark green outlines; green student cap with red band and gold button. New pose: happy craftsperson in a soft blue apron behind a tiny wooden workbench, arranging pastel learning cards, holding a pencil, small ruler. Compact square, no text, transparent background, no outer shadow. Preserve recognizable character identity and flat illustrated style.",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "sha256": "d3c1632a171da3d2a441edde1eb0f0a3e01928d5c59e170ae36f072dc2f49d8f"
+}

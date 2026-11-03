@@ -1,0 +1,690 @@
+{
+  "revision": "material-unified-2026-11-02",
+  "default_status": "unapproved",
+  "screens": [
+    {
+      "id": "CAT-01",
+      "key": "catalog",
+      "spec": "catalog-screen.md",
+      "status": "unapproved",
+      "route": "catalog",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Каталог",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Catalog",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-02",
+      "key": "textbook:0",
+      "spec": "textbook-chapters.md",
+      "status": "unapproved",
+      "route": "source/2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Учебник · главы",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Textbook · chapters",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-03",
+      "key": "textbook:1",
+      "spec": "textbook-kanji.md",
+      "status": "unapproved",
+      "route": "source/2?tab=1",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Кандзи учебника",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Textbook kanji",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-04",
+      "key": "textbook:2",
+      "spec": "textbook-words.md",
+      "status": "unapproved",
+      "route": "source/2?tab=2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Слова учебника",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Textbook words",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-05",
+      "key": "chapter:1",
+      "spec": "chapter-kanji.md",
+      "status": "unapproved",
+      "route": "chapter/2/1",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Глава · кандзи",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Chapter · kanji",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-06",
+      "key": "chapter:2",
+      "spec": "chapter-words.md",
+      "status": "unapproved",
+      "route": "chapter/2/1?tab=2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Глава · слова",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Chapter · words",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-07",
+      "key": "word",
+      "spec": "word-card.md",
+      "status": "unapproved",
+      "route": "word/109/2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Карточка слова",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Word details",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-08",
+      "key": "kanji",
+      "spec": "kanji-card.md",
+      "status": "unapproved",
+      "route": "kanji/26085/2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Карточка кандзи",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Kanji details",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-09",
+      "key": "radical",
+      "spec": "radical-card.md",
+      "status": "unapproved",
+      "route": "radical/72/2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Карточка ключа",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Radical details",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-10",
+      "key": "filter:chapter",
+      "spec": "select-chapter.md",
+      "status": "unapproved",
+      "route": "filter/chapter",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор главы",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose chapter",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-11",
+      "key": "filter:kanji",
+      "spec": "select-kanji.md",
+      "status": "unapproved",
+      "route": "filter/kanji",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор кандзи",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose kanji",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-12",
+      "key": "filter:radical",
+      "spec": "select-radical.md",
+      "status": "unapproved",
+      "route": "filter/radical",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор ключа",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose radical",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-13",
+      "key": "all-kanji",
+      "spec": "all-kanji.md",
+      "status": "unapproved",
+      "route": "all-kanji",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Все кандзи",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "All kanji",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-14",
+      "key": "all-radicals",
+      "spec": "all-radicals.md",
+      "status": "unapproved",
+      "route": "all-radicals",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Ключи Канси",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Kangxi radicals",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-15",
+      "key": "words",
+      "spec": "related-words.md",
+      "status": "unapproved",
+      "route": "words/26085/2",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Связанные слова",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Related words",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-16",
+      "key": "filter:strokes",
+      "spec": "select-strokes.md",
+      "status": "unapproved",
+      "route": "filter/strokes",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор числа черт",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose stroke count",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "CAT-17",
+      "key": "filter:jlpt",
+      "spec": "select-jlpt.md",
+      "status": "unapproved",
+      "route": "filter/jlpt",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор JLPT",
+          "changes": "Единая тема Material 3: роли цвета, типографика, формы и состояния."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose JLPT",
+          "changes": "Unified Material 3 theme: color roles, typography, shapes and interaction states."
+        }
+      ],
+      "module": "catalog",
+      "feature": "catalog"
+    },
+    {
+      "id": "APP-01",
+      "module": "web",
+      "key": "home",
+      "route": "home",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Главная",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Home",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "home"
+    },
+    {
+      "id": "APP-02",
+      "module": "web",
+      "key": "practice",
+      "route": "practice",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тренировка",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Practice",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "practice"
+    },
+    {
+      "id": "APP-03",
+      "module": "web",
+      "key": "dictionary",
+      "route": "dictionary",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Мой словарь",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "My dictionary",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-04",
+      "module": "web",
+      "key": "word",
+      "route": "word",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Карточка слова",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Word details",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-05",
+      "module": "web",
+      "key": "editor:create",
+      "route": "editor",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Новое слово",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "New word",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-06",
+      "module": "web",
+      "key": "editor:edit",
+      "route": "editor",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Редактирование слова",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Edit word",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "dictionary"
+    },
+    {
+      "id": "APP-07",
+      "module": "web",
+      "key": "trainings",
+      "route": "trainings",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Конструктор тренировок",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Training builder",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-08",
+      "module": "web",
+      "key": "training-editor:create",
+      "route": "training-editor",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Новая тренировка",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "New training plan",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-09",
+      "module": "web",
+      "key": "training-editor:edit",
+      "route": "training-editor",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Редактор тренировки",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Training editor",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "training-builder"
+    },
+    {
+      "id": "APP-10",
+      "module": "web",
+      "key": "settings",
+      "route": "settings",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Настройки",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Settings",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "settings"
+    },
+    {
+      "id": "APP-11",
+      "module": "web",
+      "key": "checker-settings",
+      "route": "checker-settings",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Параметры проверки",
+          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Checker settings",
+          "changes": "Unified Material 3 theme. The new design requires approval."
+        }
+      ],
+      "feature": "settings"
+    }
+  ],
+  "features": [
+    {
+      "id": "home",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Главная",
+          "description": "Первый экран приложения и переходы к фичам"
+        },
+        {
+          "language_tag": "en",
+          "title": "Home",
+          "description": "The first app screen and feature navigation"
+        }
+      ]
+    },
+    {
+      "id": "training-builder",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Конструктор тренировок",
+          "description": "Рецепты, источники и параметры сессии"
+        },
+        {
+          "language_tag": "en",
+          "title": "Training builder",
+          "description": "Recipes, sources and session options"
+        }
+      ]
+    },
+    {
+      "id": "practice",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тренировка",
+          "description": "Задание, письмо и результаты проверки"
+        },
+        {
+          "language_tag": "en",
+          "title": "Practice",
+          "description": "Tasks, writing and checker results"
+        }
+      ]
+    },
+    {
+      "id": "dictionary",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Мой словарь",
+          "description": "Список, карточка и редактор слова"
+        },
+        {
+          "language_tag": "en",
+          "title": "My dictionary",
+          "description": "Word list, details and editor"
+        }
+      ]
+    },
+    {
+      "id": "catalog",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Каталог",
+          "description": "Учебники, главы, кандзи, ключи и фильтры"
+        },
+        {
+          "language_tag": "en",
+          "title": "Catalog",
+          "description": "Textbooks, chapters, kanji, radicals and filters"
+        }
+      ]
+    },
+    {
+      "id": "settings",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Настройки",
+          "description": "Параметры приложения и проверки"
+        },
+        {
+          "language_tag": "en",
+          "title": "Settings",
+          "description": "Application and checker settings"
+        }
+      ]
+    },
+    {
+      "id": "theme",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тема приложения",
+          "description": "Общие цвета и роли для всего макета"
+        },
+        {
+          "language_tag": "en",
+          "title": "App theme",
+          "description": "Shared colors and roles for every screen"
+        }
+      ]
+    }
+  ]
+}
