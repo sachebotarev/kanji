@@ -73,15 +73,7 @@ fun RecipeBuilderRoute(catalog: CatalogRepository, personal: PersonalDictionaryR
             val route = entry.toRoute<RecipeEdit>()
             RecipeEditorRoute(route.id, catalog, personal, recipesRepository,
                 RecipeEditorActions(
-                    onSaved = { id ->
-                        if (route.id == null) {
-                            nav.navigate(RecipeDetail(id)) {
-                                popUpTo(RecipeLibrary) { inclusive = false }
-                            }
-                        } else {
-                            nav.popBackStack()
-                        }
-                    },
+                    onSaved = { nav.popBackStack() },
                     onBack = { nav.popBackStack() },
                     onWord = { nav.navigate(RecipeWord(it)) },
                     onManageTags = { nav.navigate(RecipeTags) },

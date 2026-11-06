@@ -12,7 +12,7 @@ from urllib.parse import unquote
 ROOT = Path(__file__).resolve().parents[2]
 MAP = ROOT / "doc/project-map.md"
 text = MAP.read_text()
-screen_pattern = r"(?:HOME|BOOKS|REFS|DICT|TRAIN|SHARED|SELECT|PRACTICE|SETTINGS|LEGACY)(?:\.(?:\d+|D\d+))*"
+screen_pattern = r"(?:HOME|BOOKS|REFS|DICT|RECIPE|SHARED|SELECT|PRACTICE|SETTINGS|LEGACY)(?:\.(?:\d+|D\d+))*"
 widget_pattern = screen_pattern + r"(?:\.W\d+)+"
 headings = re.findall(r"^#{3,6} (" + screen_pattern + r"|UI-[A-Z0-9-]+) —", text, re.M)
 retired_section = re.search(r"^## Выведенные ID\s*\n(.*?)(?=^## |\Z)", text, re.M | re.S)
@@ -54,7 +54,7 @@ extra_screens = {row["id"] for row in alias_rows if row["old_id"].startswith(("D
 if len({row["old_id"] for row in alias_rows}) != len(alias_rows):
     errors.append("Duplicate old IDs in correspondence table")
 for row in alias_rows:
-    if row["id"] not in all_screens:
+    if row["id"] not in all_screens and row["id"] not in retired_ids:
         errors.append(f"Alias target missing from map: {row['old_id']} -> {row['id']}")
 for entry in registry["screens"]:
     if {row["old_id"] for row in alias_rows if row["id"] == entry["id"]} != set(entry.get("legacy_ids", [])):

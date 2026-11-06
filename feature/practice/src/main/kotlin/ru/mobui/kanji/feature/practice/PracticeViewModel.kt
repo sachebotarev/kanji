@@ -31,6 +31,7 @@ import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TraceReferenceHint
 import ru.mobui.kanji.domain.practice.addStroke
 import ru.mobui.kanji.domain.practice.clear
+import ru.mobui.kanji.domain.practice.nextUnsatisfiedUserIndex
 import ru.mobui.kanji.domain.practice.recordHintUsed
 import ru.mobui.kanji.domain.practice.select
 import ru.mobui.kanji.domain.practice.setGestureActive
@@ -191,8 +192,19 @@ class PracticeViewModel(
                     mutableState.value = mutableState.value.copy(hint = null)
                 } else {
                     val cell = training.state.selected ?: return
-                    val reference = cell.reference ?: return
-                    val hint = hintAlgorithm.create(HintRequest(cell.sample, reference)) ?: return
+                    val hasReading = training.state.task.reading.isNotBlank()
+                    val reference = cell.reference
+                    val hint =
+                        reference?.let { hintAlgorithm.create(HintRequest(cell.sample, it)) }
+                            ?: if (hasReading) {
+                                HintPresentation(
+                                    ReferenceDrawing(emptyList()),
+                                    blocksInput = false,
+                                )
+                            } else {
+                                null
+                            }
+                    if (hint == null) return
                     training.recordHintUsed()
                     mutableState.value = mutableState.value.copy(hint = hint)
                 }
@@ -294,6 +306,9 @@ class PracticeViewModel(
                             unavailable = u
                             incomplete = i
                             notice = n
+                            if (report.verdict == CheckVerdict.Correct) {
+                                advanceToNextUserCell(request.occurrenceId)
+                            }
                             publish(notice)
                         }
                     }
@@ -309,6 +324,18 @@ class PracticeViewModel(
     private fun cancelCheck() {
         coordinator.cancel()
         mutableState.value = mutableState.value.copy(isChecking = false)
+    }
+
+    /**
+     * After every enabled checker accepts the current sign, move to the next unfinished user cell.
+     * Prefills are skipped; if none remain, selection stays so «Далее» can finish the word.
+     */
+    private fun advanceToNextUserCell(occurrenceId: String) {
+        val current = training.state.cells.indexOfFirst { it.task.occurrenceId == occurrenceId }
+        if (current < 0 || training.state.selectedIndex != current) return
+        val next = training.nextUnsatisfiedUserIndex(current) ?: return
+        training.select(next)
+        mutableState.value = mutableState.value.copy(hint = null)
     }
 
     private fun accountTime() {

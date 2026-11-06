@@ -115,6 +115,7 @@ fun PracticeScreen(
     activeStroke: () -> InkStroke? = { null },
     onOpenSettings: (() -> Unit)? = null,
     wordLabel: String? = null,
+    progressLabel: String? = null,
 ) {
     var debugOpen by rememberSaveable { mutableStateOf(false) }
     val practice = state.practice
@@ -124,7 +125,8 @@ fun PracticeScreen(
             mutableStateOf<CheckKind?>(null)
         }
     LaunchedEffect(state.gestureActive) { if (state.gestureActive) openCheck = null }
-    val context = PracticeScreenContext(state, onAction, onPadEvent, activeStroke, wordLabel)
+    val context =
+        PracticeScreenContext(state, onAction, onPadEvent, activeStroke, wordLabel, progressLabel)
     Scaffold(modifier = modifier, bottomBar = { PracticeBottomBar(context) }) { padding ->
         PracticeContentLayout(context, padding) { openCheck = it }
     }
@@ -144,22 +146,21 @@ internal fun PracticeStatus(
     checking: Boolean,
     strokeCount: Int,
     enabled: Boolean,
+    modifier: Modifier = Modifier,
     onOpen: (CheckKind) -> Unit,
 ) {
-    Column(Modifier.fillMaxWidth()) {
-        Row(
-            Modifier.fillMaxWidth().heightIn(min = 48.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            CheckerTestingStatuses(
-                report,
-                checking,
-                Modifier.weight(1f),
-                strokeCount = strokeCount,
-                enabled = enabled,
-                onOpen = onOpen,
-            )
-        }
+    Row(
+        modifier.heightIn(min = 40.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        CheckerTestingStatuses(
+            report,
+            checking,
+            Modifier.fillMaxWidth(),
+            strokeCount = strokeCount,
+            enabled = enabled,
+            onOpen = onOpen,
+        )
     }
 }
 
@@ -179,8 +180,9 @@ internal fun PracticeTools(
     }
     Row(
         Modifier.fillMaxWidth()
+            .heightIn(min = 42.dp)
             .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(16.dp))
-            .padding(horizontal = 4.dp, vertical = 4.dp),
+            .padding(horizontal = 5.dp, vertical = 5.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         WorkspaceTool(
@@ -227,16 +229,16 @@ private fun WorkspaceTool(
     val color = MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else .38f)
     Row(
         modifier
-            .heightIn(min = 48.dp)
+            .heightIn(min = 42.dp)
             .background(
                 if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                RoundedCornerShape(12.dp),
+                RoundedCornerShape(10.dp),
             )
-            .padding(horizontal = 4.dp),
-        horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally),
+            .padding(horizontal = 5.dp, vertical = 3.dp),
+        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(painterResource(icon), stringResource(label), Modifier.size(20.dp), tint = color)
+        Icon(painterResource(icon), stringResource(label), Modifier.size(23.dp), tint = color)
         Text(
             stringResource(caption),
             style = MaterialTheme.typography.labelSmall,
@@ -328,6 +330,7 @@ private fun PracticePreview() {
                     KanjiTask("first", KanjiId("sun"), EntryMode.User),
                     KanjiTask("second", KanjiId("book"), EntryMode.Prefilled),
                 ),
+                reading = "にほん",
             )
         PracticeScreen(PracticeUiState(HandwritingTraining(task).state), {}, {})
     }

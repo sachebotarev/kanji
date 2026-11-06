@@ -43,8 +43,8 @@ const {chromium}=require('playwright'),assert=require('node:assert/strict'),fs=r
   await child().locator('[data-action="go:catalog"]').click();await waitScreen(registry.screens.find(s=>s.key==='catalog'));
   assert.equal(await child().locator('.workbench').isVisible(),false);
   await child().locator('.n-back').click();await waitScreen(home);
-  await child().locator('[data-action=choose]').click();await waitScreen(registry.screens.find(s=>s.key==='trainings'));
-  await child().locator('[data-tr=new]').click();await waitScreen(registry.screens.find(s=>s.key==='training-editor:create'));
+  await child().locator('[data-action=choose]').click();await waitScreen(registry.screens.find(s=>s.key==='recipes'));
+  await child().locator('[data-tr=new]').click();await waitScreen(registry.screens.find(s=>s.key==='recipe-editor:create'));
   checks.push('Home/catalog/back and builder/editor flows synchronize the feature navigation without nested standalone viewers');
   await page.locator('#feature-nav [data-feature=theme]').click();await page.waitForFunction(()=>DesignViewer.feature==='theme');await child().waitForFunction(()=>window.ThemeStudio?.source);
   await child().locator('[data-theme-hex=primary]').fill('#6750A4');await page.waitForFunction(()=>window.ThemeStudio.keys.primary==='#6750A4');

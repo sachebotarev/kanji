@@ -268,7 +268,7 @@ private fun RecipeDetailBody(
     }
 }
 
-/** Section heading shared with TRAIN.01.02 — titleMedium / SemiBold / onSurface. */
+/** Section heading shared with RECIPE.01.02 — titleMedium / SemiBold / onSurface. */
 @Composable
 internal fun RecipeSectionTitle(text: String, modifier: Modifier = Modifier) {
     MaterialSectionTitle(text, modifier.semantics { heading() })

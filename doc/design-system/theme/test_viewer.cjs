@@ -57,8 +57,8 @@ const path=require('node:path');
     else await page.evaluate(key=>{
      if(key==='editor:create'){initDraft();go('editor')}
      else if(key==='editor:edit'){initDraft(-1);go('editor')}
-     else if(key==='training-editor:create')initTraining();
-     else if(key==='training-editor:edit')initTraining(trainingPlans[0].id);
+     else if(key==='recipe-editor:create')initRecipe();
+     else if(key==='recipe-editor:edit')initRecipe(recipes[0].id);
      else{if(key==='word')selectedId=-1;go(key)}
     },item.key);
     assert.equal(await page.locator('#view-badge').getAttribute('data-approval'),'unapproved',item.id);
@@ -77,9 +77,9 @@ const path=require('node:path');
   await web.locator('[data-parameter=match]').fill('80');await web.locator('[data-parameter=match]').blur();assert.equal(await web.evaluate(()=>parameterValues.match),80);
   checks.push('Settings/model error, retry, checker switch and numeric parameter interactions work in the prototype');
   // Representative narrow, enlarged and localized layouts in each renderer.
-  await web.evaluate(()=>go('trainings'));await web.locator('#width').selectOption('360');await web.locator('#large-text').check();await web.locator('#locale').selectOption('en');
+  await web.evaluate(()=>go('recipes'));await web.locator('#width').selectOption('360');await web.locator('#large-text').check();await web.locator('#locale').selectOption('en');
   await web.locator('#phone').screenshot({path:path.join(out,'builder-dark-en-large.png')});
-  assert(await web.evaluate(()=>{const p=document.querySelector('.training-list-scroll');return p.scrollWidth<=p.clientWidth+1}));
+  assert(await web.evaluate(()=>{const p=document.querySelector('.recipe-list-scroll');return p.scrollWidth<=p.clientWidth+1}));
   await cat.locator('#width').selectOption('360');await cat.locator('#text-scale').selectOption('1.6');await cat.locator('#locale').selectOption('de');
   await cat.evaluate(()=>quickNavigate('filter/jlpt'));await cat.locator('#phone').screenshot({path:path.join(out,'catalog-dark-fallback-large.png')});
   assert(await cat.evaluate(()=>{const p=document.querySelector('.n-content');return p.scrollWidth<=p.clientWidth+1}));

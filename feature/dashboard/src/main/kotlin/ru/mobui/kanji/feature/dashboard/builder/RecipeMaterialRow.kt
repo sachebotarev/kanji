@@ -158,7 +158,7 @@ internal fun RecipeMaterialRow(
         }
     }
     if (!interactive) {
-        // TRAIN.02: content only — parent panel supplies the quiet substrate.
+        // RECIPE.02: content only — parent panel supplies the quiet substrate.
         Row(
             Modifier
                 .fillMaxWidth()

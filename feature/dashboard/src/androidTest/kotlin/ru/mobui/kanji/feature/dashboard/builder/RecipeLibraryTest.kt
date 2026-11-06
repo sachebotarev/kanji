@@ -294,8 +294,8 @@ class RecipeLibraryTest {
             compose.onNodeWithTag("recipe-add").performScrollTo(); click("recipe-add")
             click("material-type-words"); click("material-words")
             click("word--1"); click("word-picker-apply"); click("material-apply"); click("recipe-save")
-            ready("recipe-detail"); compose.waitUntil { repo.recipes.value.size == index + 1 }
-            click("recipe-detail-back"); ready("library-create")
+            compose.waitUntil { repo.recipes.value.size == index + 1 }
+            ready("library-create")
         }
         assertEquals(2, repo.recipes.value.map { it.id }.distinct().size)
         assertEquals(2, repo.recipes.value.flatMap { it.materials }.map { it.id }.distinct().size)

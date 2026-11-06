@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -90,6 +89,7 @@ class MainActivity : ComponentActivity() {
                     KanjiTask("eeg-2", KanjiId("u691c"), EntryMode.User),
                     KanjiTask("eeg-3", KanjiId("u67fb"), EntryMode.Prefilled),
                 ),
+            reading = getString(R.string.demo_word_reading),
         )
     }
 
@@ -121,24 +121,27 @@ class MainActivity : ComponentActivity() {
         dependencies: KanjiApplication,
         settingsModel: RecognitionSettingsViewModel,
     ): DemoPracticeGraph {
-        val task = createTask()
         val source = BundledKanjiReferenceSource(assets, Dispatchers.IO)
         val checker = createChecker(dependencies, settingsModel, source)
-        val factory =
-            object : ViewModelProvider.Factory {
-                override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                    require(modelClass.isAssignableFrom(PracticeViewModel::class.java))
-                    @Suppress("UNCHECKED_CAST")
-                    return (PracticeViewModel(
-                        task,
-                        source,
-                        checker,
-                        hintAlgorithm = TraceReferenceHint(),
-                        showCheckDiagnostics = BuildConfig.DEBUG,
-                    ) as T)
+        return DemoPracticeGraph(
+            fallbackTask = createTask(),
+            source = source,
+            factory = { task ->
+                object : ViewModelProvider.Factory {
+                    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                        require(modelClass.isAssignableFrom(PracticeViewModel::class.java))
+                        @Suppress("UNCHECKED_CAST")
+                        return PracticeViewModel(
+                            task,
+                            source,
+                            checker,
+                            hintAlgorithm = TraceReferenceHint(),
+                            showCheckDiagnostics = BuildConfig.DEBUG,
+                        ) as T
+                    }
                 }
-            }
-        return DemoPracticeGraph(task, source, factory)
+            },
+        )
     }
 
     private fun createChecker(
@@ -175,15 +178,18 @@ class MainActivity : ComponentActivity() {
 @Composable
 internal fun PracticeSummary(
     result: PracticeResult,
-    onRestart: () -> Unit = {},
     onClose: () -> Unit,
+    progressLabel: String? = null,
 ) {
     Scaffold { safePadding ->
         Column(
             Modifier.fillMaxSize().padding(safePadding).padding(24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            Text(stringResource(R.string.demo_word), style = MaterialTheme.typography.headlineLarge)
+            if (progressLabel != null) {
+                Text(progressLabel, style = MaterialTheme.typography.titleMedium)
+            }
+            Text(result.russianWord, style = MaterialTheme.typography.headlineLarge)
             Text(
                 stringResource(
                     when (result.status) {
@@ -219,16 +225,8 @@ internal fun PracticeSummary(
                 stringResource(R.string.reference_attribution),
                 style = MaterialTheme.typography.bodySmall,
             )
-            Row(
-                Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                OutlinedButton(onClick = onRestart, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.settings_storage_retry))
-                }
-                Button(onClick = onClose, modifier = Modifier.weight(1f)) {
-                    Text(stringResource(R.string.close))
-                }
+            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
+                Text(stringResource(R.string.practice_session_done))
             }
         }
     }

@@ -262,8 +262,24 @@ private fun KanjiCell(state: KanjiCellState, activeStroke: () -> InkStroke?, onC
                     this.selected = state.selected
                 }
                 .testTag("kanji-cell-$index"),
+            contentAlignment = Alignment.Center,
         ) {
-            InkThumbnail(cell.padContent(), activeStroke, Modifier.fillMaxSize().padding(6.dp))
+            val content = cell.padContent()
+            val glyph = cell.task.kanjiId.unicodeGlyphOrNull()
+            if (
+                content is PadContent.Empty &&
+                    displayStatus == EntryStatus.Prefilled &&
+                    glyph != null
+            ) {
+                Text(
+                    glyph,
+                    style = MaterialTheme.typography.headlineMedium,
+                    fontWeight = FontWeight.Medium,
+                    maxLines = 1,
+                )
+            } else {
+                InkThumbnail(content, activeStroke, Modifier.fillMaxSize().padding(6.dp))
+            }
         }
         if (selected) {
             Box(
@@ -276,6 +292,14 @@ private fun KanjiCell(state: KanjiCellState, activeStroke: () -> InkStroke?, onC
     }
 
     }
+}
+
+/** Host keys like `u304a` decode to a visible glyph for prefilled kana cells. */
+internal fun KanjiId.unicodeGlyphOrNull(): String? {
+    val hex = value.removePrefix("u").removePrefix("U")
+    val code = hex.toIntOrNull(16) ?: return null
+    if (!Character.isValidCodePoint(code)) return null
+    return String(Character.toChars(code))
 }
 
 @Composable

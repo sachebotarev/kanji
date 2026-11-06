@@ -93,7 +93,7 @@ internal fun CheckerTestingStatuses(
                 }
             Column(
                 Modifier.weight(1f)
-                    .heightIn(min = 56.dp)
+                    .heightIn(min = 44.dp)
                     .clip(RoundedCornerShape(10.dp))
                     .clickable(enabled = enabled, role = Role.Button, onClickLabel = label) {
                         onOpen(kind)
@@ -110,9 +110,9 @@ internal fun CheckerTestingStatuses(
                             }
                         else disabled()
                     }
-                    .padding(horizontal = 4.dp, vertical = 6.dp),
+                    .padding(horizontal = 2.dp, vertical = 4.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(2.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
             ) {
                 Text(
                     label,
@@ -122,7 +122,7 @@ internal fun CheckerTestingStatuses(
                 Text(
                     detail ?: if (checking) "…" else "—",
                     color = valueColor,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                 )

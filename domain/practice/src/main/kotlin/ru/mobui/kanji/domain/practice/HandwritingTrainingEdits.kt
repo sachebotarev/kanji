@@ -19,6 +19,14 @@ fun HandwritingTraining.select(index: Int) {
     }
 }
 
+/** Next writable cell after [afterIndex] that still needs a correct answer, if any. */
+fun HandwritingTraining.nextUnsatisfiedUserIndex(afterIndex: Int): Int? =
+    state.cells.indices.firstOrNull { index ->
+        index > afterIndex &&
+            state.cells[index].task.mode == EntryMode.User &&
+            !state.cells[index].isSatisfied
+    }
+
 fun HandwritingTraining.setReference(id: KanjiId, drawing: ReferenceDrawing?) {
     state =
         state.copy(

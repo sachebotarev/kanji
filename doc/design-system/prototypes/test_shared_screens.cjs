@@ -23,12 +23,12 @@ try{
   }
  }
  await page.goto(base+'#dictionary/DICT.01');await page.waitForURL('**/#dictionary/DICT.01');await page.waitForFunction(()=>DesignViewer.selected?.id==='DICT.01');
- await page.goto(base+'#recipe-builder/TRAIN.01.02');await page.waitForFunction(()=>DesignViewer.selected?.id==='TRAIN.01.02');
+ await page.goto(base+'#recipe-builder/RECIPE.01.02');await page.waitForFunction(()=>DesignViewer.selected?.id==='RECIPE.01.02');
  await page.waitForFunction(()=>document.querySelector('#screen-frame')?.contentWindow?.document.querySelector('[data-material-type=dictionary]'));
  await frame().locator('[data-material-type=dictionary]').check();await frame().locator('[data-material-tags]').click();
  await page.waitForURL('**/#shared/SELECT.07');assert.equal(await frame().evaluate(()=>dictionaryTagSession.mode),'material');
  await frame().locator('[data-action="dictionary-tag-select:1"]').click();await frame().locator('[data-dictionary-tags-apply]').click();
- await page.waitForURL('**/#recipe-builder/TRAIN.01.02');assert.deepEqual(await frame().evaluate(()=>sourceDraft.tag_ids),[1]);
+ await page.waitForURL('**/#recipe-builder/RECIPE.01.02');assert.deepEqual(await frame().evaluate(()=>sourceDraft.tag_ids),[1]);
  await page.locator('#viewer-locale').selectOption('en');assert.equal(await page.locator('#feature-nav [href="#shared"]').innerText(),'Shared screens');
  assert.deepEqual(errors,[]);console.log('Screen hierarchy: 39 entries, canonical and legacy links, RU/EN, shared selectors, recipe context and return OK');
 }finally{await browser.close();}})().catch(e=>{console.error(e);process.exit(1)});

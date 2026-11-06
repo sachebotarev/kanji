@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "date": "2026-11-05",
+  "version": 3,
+  "date": "2026-11-06",
   "aliases": [
     {
       "old_id": "CAT-01",
@@ -124,32 +124,32 @@
     },
     {
       "old_id": "APP-07",
-      "id": "TRAIN",
+      "id": "RECIPE",
       "feature": "recipe-builder"
     },
     {
       "old_id": "APP-08",
-      "id": "TRAIN.01",
+      "id": "RECIPE.01",
       "feature": "recipe-builder"
     },
     {
       "old_id": "APP-09",
-      "id": "TRAIN.01.01",
+      "id": "RECIPE.01.01",
       "feature": "recipe-builder"
     },
     {
       "old_id": "APP-12",
-      "id": "TRAIN.01.02",
+      "id": "RECIPE.01.02",
       "feature": "recipe-builder"
     },
     {
       "old_id": "APP-13",
-      "id": "TRAIN.01.02.01",
+      "id": "RECIPE.01.02.01",
       "feature": "recipe-builder"
     },
     {
       "old_id": "APP-14",
-      "id": "TRAIN.01.03",
+      "id": "RECIPE.01.03",
       "feature": "recipe-builder"
     },
     {
@@ -209,12 +209,12 @@
     },
     {
       "old_id": "DLG-RECIPE-EXIT",
-      "id": "TRAIN.D01",
+      "id": "RECIPE.D01",
       "feature": "recipe-builder"
     },
     {
       "old_id": "DLG-RECIPE-DELETE",
-      "id": "TRAIN.D02",
+      "id": "RECIPE.D02",
       "feature": "recipe-builder"
     },
     {
@@ -281,6 +281,56 @@
       "old_id": "EXT-PRACTICE-RESULT",
       "id": "PRACTICE.01",
       "feature": "practice"
+    },
+    {
+      "old_id": "TRAIN",
+      "id": "RECIPE",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.01",
+      "id": "RECIPE.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.01.01",
+      "id": "RECIPE.01.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.01.02",
+      "id": "RECIPE.01.02",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.01.02.01",
+      "id": "RECIPE.01.02.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.01.03",
+      "id": "RECIPE.01.03",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.02",
+      "id": "RECIPE.02",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.02.01",
+      "id": "RECIPE.02.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.D01",
+      "id": "RECIPE.D01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "TRAIN.D02",
+      "id": "RECIPE.D02",
+      "feature": "recipe-builder"
     }
   ]
 }

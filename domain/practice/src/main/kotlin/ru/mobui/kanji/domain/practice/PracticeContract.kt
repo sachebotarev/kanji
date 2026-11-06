@@ -27,6 +27,8 @@ data class PracticeTask(
     val russianWord: String,
     val kanji: List<KanjiTask>,
     val timeLimitMs: Long? = null,
+    /** Japanese reading of the word (kana); empty when the host has none. */
+    val reading: String = "",
 ) {
     init {
         require(taskId.isNotBlank() && russianWord.isNotBlank())

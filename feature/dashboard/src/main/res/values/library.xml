@@ -21,8 +21,6 @@
     <string name="library_tasks">Заданий: %1$d</string>
     <string name="library_seconds">%1$d с на слово</string>
     <string name="library_no_timer">Без таймера</string>
-    <string name="library_more">Ещё материалы</string>
-    <string name="library_collapse">Свернуть состав</string>
     <string name="library_menu">Действия с рецептом «%1$s»</string>
     <string name="library_none">Рецепт не выбран</string>
     <string name="library_cancel">Отмена</string>

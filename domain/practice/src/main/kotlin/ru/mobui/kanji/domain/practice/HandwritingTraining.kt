@@ -15,8 +15,7 @@ data class PracticeCell(
     val referenceUnavailable: Boolean = false,
 ) {
     val isSatisfied: Boolean
-        get() =
-            status == EntryStatus.Correct || (status == EntryStatus.Prefilled && reference != null)
+        get() = status == EntryStatus.Correct || status == EntryStatus.Prefilled
 }
 
 data class PracticeState(

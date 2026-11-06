@@ -26,6 +26,7 @@ fun PracticeRoute(
     onSettingsChanged: (RecognitionSettings) -> Unit = {},
     onResetSettings: () -> Unit = {},
     wordLabel: String? = null,
+    progressLabel: String? = null,
     readabilityAvailable: Boolean = true,
 ) {
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
@@ -64,5 +65,6 @@ fun PracticeRoute(
             activeStroke = { preview.value?.stroke },
             onOpenSettings = if (settings != null) ({ settingsOpen = true }) else null,
             wordLabel = wordLabel,
+            progressLabel = progressLabel,
         )
 }

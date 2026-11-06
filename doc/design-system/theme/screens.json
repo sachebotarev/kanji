@@ -442,7 +442,7 @@
       "parent_id": "DICT"
     },
     {
-      "id": "TRAIN",
+      "id": "RECIPE",
       "module": "web",
       "key": "recipes",
       "route": "recipes",
@@ -461,56 +461,13 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-07"
+        "APP-07",
+        "TRAIN"
       ],
       "parent_id": null
     },
     {
-      "id": "TRAIN.02",
-      "module": "web",
-      "key": "recipe-detail",
-      "route": "recipe-detail",
-      "status": "unapproved",
-      "translations": [
-        {
-          "language_tag": "ru",
-          "title": "Рецепт",
-          "changes": "Просмотр: название, карточки материалов без тапа, лимиты, слова рецепта."
-        },
-        {
-          "language_tag": "en",
-          "title": "Recipe",
-          "changes": "Read-only: name, non-interactive material cards, limits, recipe word pool."
-        }
-      ],
-      "feature": "recipe-builder",
-      "legacy_ids": [],
-      "parent_id": "TRAIN"
-    },
-    {
-      "id": "TRAIN.02.01",
-      "module": "web",
-      "key": "recipe-material-view",
-      "route": "recipe-material-view",
-      "status": "retired",
-      "translations": [
-        {
-          "language_tag": "ru",
-          "title": "Материал",
-          "changes": "Выведен: условия на карточке TRAIN.02, слова через предпросмотр рецепта."
-        },
-        {
-          "language_tag": "en",
-          "title": "Material",
-          "changes": "Retired: conditions live on TRAIN.02 cards; words via recipe preview."
-        }
-      ],
-      "feature": "recipe-builder",
-      "legacy_ids": [],
-      "parent_id": "TRAIN.02"
-    },
-    {
-      "id": "TRAIN.01",
+      "id": "RECIPE.01",
       "module": "web",
       "key": "recipe-editor:create",
       "route": "recipe-editor",
@@ -529,12 +486,13 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-08"
+        "APP-08",
+        "TRAIN.01"
       ],
-      "parent_id": "TRAIN"
+      "parent_id": "RECIPE"
     },
     {
-      "id": "TRAIN.01.01",
+      "id": "RECIPE.01.01",
       "module": "web",
       "key": "recipe-editor:edit",
       "route": "recipe-editor",
@@ -553,12 +511,13 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-09"
+        "APP-09",
+        "TRAIN.01.01"
       ],
-      "parent_id": "TRAIN.01"
+      "parent_id": "RECIPE.01"
     },
     {
-      "id": "TRAIN.01.02",
+      "id": "RECIPE.01.02",
       "module": "web",
       "key": "recipe-source:create",
       "route": "recipe-source",
@@ -577,12 +536,13 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-12"
+        "APP-12",
+        "TRAIN.01.02"
       ],
-      "parent_id": "TRAIN.01"
+      "parent_id": "RECIPE.01"
     },
     {
-      "id": "TRAIN.01.02.01",
+      "id": "RECIPE.01.02.01",
       "module": "web",
       "key": "recipe-source:edit",
       "route": "recipe-source",
@@ -601,12 +561,13 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-13"
+        "APP-13",
+        "TRAIN.01.02.01"
       ],
-      "parent_id": "TRAIN.01.02"
+      "parent_id": "RECIPE.01.02"
     },
     {
-      "id": "TRAIN.01.03",
+      "id": "RECIPE.01.03",
       "module": "web",
       "key": "recipe-words",
       "route": "recipe-words",
@@ -625,9 +586,58 @@
       ],
       "feature": "recipe-builder",
       "legacy_ids": [
-        "APP-14"
+        "APP-14",
+        "TRAIN.01.03"
       ],
-      "parent_id": "TRAIN.01"
+      "parent_id": "RECIPE.01"
+    },
+    {
+      "id": "RECIPE.02",
+      "module": "web",
+      "key": "recipe-detail",
+      "route": "recipe-detail",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Рецепт",
+          "changes": "Просмотр: название, карточки материалов без тапа, лимиты, слова рецепта."
+        },
+        {
+          "language_tag": "en",
+          "title": "Recipe",
+          "changes": "Read-only: name, non-interactive material cards, limits, recipe word pool."
+        }
+      ],
+      "feature": "recipe-builder",
+      "legacy_ids": [
+        "TRAIN.02"
+      ],
+      "parent_id": "RECIPE"
+    },
+    {
+      "id": "RECIPE.02.01",
+      "module": "web",
+      "key": "recipe-material-view",
+      "route": "recipe-material-view",
+      "status": "retired",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Материал",
+          "changes": "Выведен: условия на карточке RECIPE.02, слова через предпросмотр рецепта."
+        },
+        {
+          "language_tag": "en",
+          "title": "Material",
+          "changes": "Retired: conditions live on RECIPE.02 cards; words via recipe preview."
+        }
+      ],
+      "feature": "recipe-builder",
+      "legacy_ids": [
+        "TRAIN.02.01"
+      ],
+      "parent_id": "RECIPE.02"
     },
     {
       "id": "SHARED.01",
@@ -750,8 +760,8 @@
       "module": "catalog",
       "feature": "shared",
       "legacy_ids": [
-        "CAT-10",
         "APP-15",
+        "CAT-10",
         "TRAIN.01.02.02"
       ],
       "alias_keys": [
@@ -780,8 +790,8 @@
       "module": "catalog",
       "feature": "shared",
       "legacy_ids": [
-        "CAT-11",
         "APP-16",
+        "CAT-11",
         "TRAIN.01.02.03"
       ],
       "alias_keys": [
@@ -1052,12 +1062,12 @@
         {
           "language_tag": "ru",
           "title": "Конструктор рецептов",
-          "description": "Рецепты, источники и параметры тренировки"
+          "description": "Рецепты, материалы и лимиты заданий"
         },
         {
           "language_tag": "en",
           "title": "Recipe builder",
-          "description": "Recipes, sources and training options"
+          "description": "Recipes, materials and task limits"
         }
       ]
     },

@@ -48,7 +48,7 @@ internal data class MaterialFilterRow(
     val invalid: Boolean = false,
 )
 
-/** Shared horizontal/vertical padding for TRAIN forms — app-wide Kanji token. */
+/** Shared horizontal/vertical padding for RECIPE forms — app-wide Kanji token. */
 internal val MaterialFormContentPadding = KanjiFormContentPadding
 
 /** Section heading: Материал / Учебник / Фильтры — theme onSurface. */

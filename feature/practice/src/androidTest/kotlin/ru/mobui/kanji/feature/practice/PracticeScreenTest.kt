@@ -26,6 +26,7 @@ import androidx.compose.ui.test.cancel
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.center
 import androidx.compose.ui.test.down
+import androidx.compose.ui.test.hasContentDescription
 import androidx.compose.ui.test.height
 import androidx.compose.ui.test.isDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -99,6 +100,7 @@ class PracticeScreenTest {
                 KanjiTask("second", KanjiId("u66f8"), EntryMode.User),
                 KanjiTask("third", KanjiId("u9928"), EntryMode.Prefilled),
             ),
+            reading = "としょかん",
         )
     private val references = KanjiReferenceSource {
         ReferenceDrawing(listOf(listOf(ReferencePoint(.2f, .2f), ReferencePoint(.8f, .8f))))
@@ -294,7 +296,9 @@ class PracticeScreenTest {
         compose.onNodeWithTag("open-debug").assertDoesNotExist()
         compose.onNodeWithTag("compensated-drawing").assertDoesNotExist()
         compose.onNodeWithText("Выберите клетку и пишите").assertDoesNotExist()
-        compose.onNodeWithTag("reading-hints-space").assertExists()
+        compose
+            .onNodeWithTag("word-reading")
+            .assert(hasContentDescription("Произношение скрыто. Откройте кнопкой подсказки"))
     }
 
     @Test
@@ -533,18 +537,13 @@ class PracticeScreenTest {
         compose.onNodeWithText("Далее").assertIsNotEnabled()
         drawStroke()
         compose.waitUntil(5_000) {
-            vm.uiState.value.practice.cells[0].status == EntryStatus.Correct
+            vm.uiState.value.practice.cells[0].status == EntryStatus.Correct &&
+                vm.uiState.value.practice.selectedIndex == 1
         }
-        compose.onNodeWithTag("practice-pad").bringIntoViewIfNeeded().performTouchInput {
-            down(center)
-        }
-        compose.onNodeWithText("Ввод").assertDoesNotExist()
-        compose.onNodeWithContentDescription("Знак 1, Не проверен").assertExists()
-        compose.onNodeWithTag("practice-pad").performTouchInput { cancel() }
         compose.onNodeWithContentDescription("Знак 1, Верно").assertExists()
+        compose.onNodeWithContentDescription("Знак 2, Не введён").assertIsSelected()
         compose.onNodeWithText("Далее").assertIsNotEnabled()
         compose.onNodeWithTag("next-kanji").assertDoesNotExist()
-        compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
         drawStroke()
         compose.waitUntil(5_000) {
             vm.uiState.value.practice.isComplete && !vm.uiState.value.isChecking
@@ -667,6 +666,9 @@ class PracticeScreenTest {
             )
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
         compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
+        compose
+            .onNodeWithTag("word-reading")
+            .assert(hasContentDescription("Произношение скрыто. Откройте кнопкой подсказки"))
         val hint = compose.onNodeWithTag("trace-hint")
         hint.bringIntoViewIfNeeded().assertIsOff().performClick().assertIsOn()
         compose.runOnIdle {
@@ -674,6 +676,7 @@ class PracticeScreenTest {
             assertTrue(vm.uiState.value.practice.selected!!.hintUsed)
             assertFalse(vm.uiState.value.practice.isComplete)
         }
+        compose.onNodeWithTag("word-reading").assert(hasContentDescription("としょかん"))
         compose
             .onNodeWithTag("practice-pad")
             .assertIsEnabled()
@@ -718,7 +721,7 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun multilineTimedPromptDoesNotMoveBottomAnchoredPad() {
+    fun longTimedPromptStaysSingleLineAboveTools() {
         val word = mutableStateOf("Библиотека")
         compose.setContent {
             MaterialTheme {
@@ -728,18 +731,21 @@ class PracticeScreenTest {
                 }
             }
         }
-        val original = compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot
+        fun padAboveTools() {
+            val pad = compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot
+            val tools = compose.onNodeWithTag("trace-hint").fetchSemanticsNode().boundsInRoot
+            assertTrue(pad.bottom <= tools.top + 1f)
+        }
+        padAboveTools()
         compose.runOnIdle { word.value = "Электроэнцефалографическое исследование" }
-        compose.onNodeWithText("Электроэнцефалографическое исследование").performSemanticsAction(
+        compose.onNodeWithTag("word-prompt").performSemanticsAction(
             SemanticsActions.GetTextLayoutResult,
         ) { action ->
             val results = mutableListOf<TextLayoutResult>()
             assertTrue(action(results))
-            assertTrue(results.first().lineCount >= 2)
+            assertEquals(1, results.first().lineCount)
         }
-        val moved = compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot
-        assertEquals(original.top, moved.top, .5f)
-        assertEquals(original.bottom, moved.bottom, .5f)
+        padAboveTools()
         compose.onNodeWithContentDescription("Осталось 05:00").assertIsDisplayed()
         compose.onNodeWithTag("trace-hint").assertIsDisplayed()
         compose.onNodeWithTag("open-debug").assertDoesNotExist()

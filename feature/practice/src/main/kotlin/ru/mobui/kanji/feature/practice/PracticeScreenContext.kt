@@ -50,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -60,6 +61,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -81,9 +83,6 @@ import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.intl.LocaleList
-import androidx.compose.ui.text.style.Hyphens
-import androidx.compose.ui.text.style.LineBreak
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -111,6 +110,7 @@ internal data class PracticeScreenContext(
     val onPadEvent: (PadEvent) -> Unit,
     val activeStroke: () -> InkStroke?,
     val wordLabel: String?,
+    val progressLabel: String? = null,
 ) {
     val practice get() = state.practice
     val selected get() = practice.selected
@@ -149,11 +149,19 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
                 Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    stringResource(R.string.practice_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.weight(1f).padding(start = 16.dp),
-                )
+                Column(Modifier.weight(1f).padding(start = 16.dp)) {
+                    Text(
+                        stringResource(R.string.practice_title),
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    progressLabel?.let { label ->
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
                 HeaderTaskTimer(
                     practice.elapsedMs,
                     practice.task.timeLimitMs,
@@ -164,7 +172,7 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
                 Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp),
             ) {
                 WordPrompt(wordLabel ?: practice.task.russianWord)
-                Spacer(Modifier.height(24.dp).testTag("reading-hints-space"))
+                WordReading(practice.task.reading, revealed = state.hint != null)
                 KanjiStrip(
                     KanjiStripState(
                         practice.cells,
@@ -176,42 +184,70 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
                 ) {
                     onAction(PracticeAction.Select(it))
                 }
+                // Keep the 72.dp cell underline clear of the status divider below.
+                Spacer(Modifier.height(8.dp))
             }
         }
     }
 }
 
 @Composable
-internal fun PracticeWriting(context: PracticeScreenContext, onOpenCheck: (CheckKind) -> Unit) {
+internal fun PracticeWriting(
+    context: PracticeScreenContext,
+    onOpenCheck: (CheckKind) -> Unit,
+    modifier: Modifier = Modifier,
+    /** When true, the pad fills leftover height; tools keep intrinsic height and never shrink. */
+    flexiblePad: Boolean = false,
+) {
     with(context) {
         val selected = context.selected
-        Column(Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp)) {
+        Column(
+            modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(8.dp))
             PracticeStatus(
                 state.currentCheckReport,
                 state.isChecking,
                 selected?.sample?.strokeCount ?: 0,
                 actionsEnabled,
+                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
             ) {
                 onOpenCheck(it)
             }
-            Spacer(Modifier.height(20.dp))
-            key(practice.task.taskId) {
-                KanjiWritingPad(
-                    state =
-                        context.padState(),
-                    onEvent = onPadEvent,
-                    modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
-                )
+            Spacer(Modifier.height(8.dp))
+            if (flexiblePad) {
+                // Square keyed to width; leftover height keeps tools/status from being starved.
+                Box(
+                    Modifier.weight(1f).fillMaxWidth(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    key(practice.task.taskId) {
+                        KanjiWritingPad(
+                            state = context.padState(),
+                            onEvent = onPadEvent,
+                            modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
+                        )
+                    }
+                }
+            } else {
+                key(practice.task.taskId) {
+                    KanjiWritingPad(
+                        state = context.padState(),
+                        onEvent = onPadEvent,
+                        modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
+                    )
+                }
             }
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(6.dp))
             PracticeTools(
                 hintActive = state.hint != null,
                 hintEnabled =
                     practice.result == null &&
                         !state.gestureActive &&
-                        selected?.reference != null,
+                        (selected?.reference != null ||
+                            practice.task.reading.isNotBlank()),
                 undoEnabled = actionsEnabled && state.canUndo,
                 clearEnabled =
                     actionsEnabled &&
@@ -231,26 +267,30 @@ internal fun PracticeContentLayout(
     onOpenCheck: (CheckKind) -> Unit,
 ) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
-        val drawingHeight = minOf(maxWidth, 488.dp) - 48.dp + 180.dp
-        if (maxHeight >= drawingHeight + 112.dp) {
-            Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                Column(
-                    Modifier.weight(1f).fillMaxWidth().verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    PracticeHeader(context)
-                }
-                PracticeWriting(context, onOpenCheck)
-            }
-        } else {
-            // Very short windows keep the full-size pad and all controls reachable by
-            // scrolling.
+        val padSide = minOf(maxWidth, 488.dp) - 48.dp
+        val needsScroll = maxHeight < padSide + 280.dp
+        if (needsScroll) {
             Column(
                 Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 PracticeHeader(context)
                 PracticeWriting(context, onOpenCheck)
+            }
+        } else {
+            // Header intrinsic; writing fills the rest. Pad uses weight so the tools row
+            // keeps full height and is never starved by the square pad.
+            Column(
+                Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                PracticeHeader(context)
+                PracticeWriting(
+                    context,
+                    onOpenCheck,
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    flexiblePad = true,
+                )
             }
         }
     }
@@ -328,20 +368,68 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
 
 @Composable
 private fun WordPrompt(word: String) {
+    val scroll = rememberScrollState()
+    Text(
+        word,
+        Modifier.fillMaxWidth()
+            .heightIn(min = 48.dp)
+            .horizontalScroll(scroll)
+            .padding(vertical = 4.dp)
+            .testTag("word-prompt"),
+        style = MaterialTheme.typography.headlineMedium,
+        fontWeight = FontWeight.SemiBold,
+        maxLines = 1,
+        softWrap = false,
+    )
+}
+
+@Composable
+private fun WordReading(reading: String, revealed: Boolean) {
+    val trimmed = reading.trim()
+    if (trimmed.isEmpty()) {
+        Spacer(Modifier.height(12.dp).testTag("reading-hints-space"))
+        return
+    }
+    val hiddenLabel = stringResource(R.string.reading_hidden)
+    val revealedLabel = stringResource(R.string.reading_revealed)
+    val supportsBlur = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
+    // Keep a stable reading-band height so blur/spoiler never collapses into a thin stub.
     Box(
-        Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(vertical = 4.dp),
+        Modifier.fillMaxWidth()
+            .padding(top = 8.dp, bottom = 12.dp)
+            .heightIn(min = 44.dp)
+            .testTag("word-reading")
+            .clearAndSetSemantics {
+                contentDescription = if (revealed) trimmed else hiddenLabel
+                stateDescription = if (revealed) revealedLabel else hiddenLabel
+            },
         contentAlignment = Alignment.CenterStart,
     ) {
         Text(
-            word,
-            style =
-                MaterialTheme.typography.headlineMedium.copy(
-                    lineBreak = LineBreak.Heading,
-                    hyphens = Hyphens.Auto,
-                    localeList = LocaleList("ru"),
+            trimmed,
+            Modifier.fillMaxWidth()
+                .then(
+                    when {
+                        revealed -> Modifier
+                        supportsBlur -> Modifier.blur(18.dp)
+                        else -> Modifier.graphicsLayer { alpha = 0f }
+                    },
                 ),
-            fontWeight = FontWeight.SemiBold,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.Medium,
         )
+        if (!revealed) {
+            Box(
+                Modifier.matchParentSize()
+                    .background(
+                        MaterialTheme.colorScheme.surfaceVariant.copy(
+                            alpha = if (supportsBlur) 0.35f else 1f,
+                        ),
+                        RoundedCornerShape(10.dp),
+                    ),
+            )
+        }
     }
 }
 

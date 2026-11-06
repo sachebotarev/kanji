@@ -12,7 +12,7 @@
 | Метка кандзи / JLPT | PrimaryContainer / OnPrimaryContainer |
 | Метка личного словаря | TertiaryContainer / OnTertiaryContainer |
 | Метка главы, записи, общего источника | SurfaceContainerHighest / OnSurface |
-| Количество и время (`TRAIN.W04.W05`) | Текст OnSurface; иконки OnSurfaceVariant — спокойные, но контрастные к SurfaceContainer |
+| Количество и время (`RECIPE.W04.W01.W04`) | Текст OnSurface; иконки OnSurfaceVariant — спокойные, но контрастные к SurfaceContainer |
 | Внутренняя линия | OutlineVariant для обычной и выбранной карточки |
 | Удаление, ошибка | Error и ErrorContainer с парными On-ролями |
 

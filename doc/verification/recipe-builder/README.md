@@ -1,14 +1,14 @@
-# Проверка конструктора тренировок
+# Проверка конструктора рецептов
 
-Действующий контракт: [спецификация](../../design-system/05-screens/recipe-builder.md), [передача в Android](../../implementation/approved-ui-handoff.md). Статусы дизайна определяет только [реестр](../../design-system/theme/screens.json).
+Действующий контракт: [спецификация](../../design-system/05-screens/recipe-builder.md), [передача в Android](../../implementation/approved-ui-handoff.md). Статусы дизайна определяет только [реестр](../../design-system/theme/screens.json). Канонические ID экранов — `RECIPE*` ([миграция](../screen-id-migration.md)).
 
 ## Проверки HTML
 
 При запущенном `python3 -m http.server 8873 --directory doc` из корня:
 
 ```sh
-node doc/design-system/prototypes/web/test_recipes.cjs http://127.0.0.1:8873/design-system/prototypes/web/ /tmp/kanji-training-check
-node doc/design-system/prototypes/web/test_recipe_tags.cjs http://127.0.0.1:8873/design-system/prototypes/web/ /tmp/kanji-training-tags-check
+node doc/design-system/prototypes/web/test_recipes.cjs http://127.0.0.1:8873/design-system/prototypes/web/ /tmp/kanji-recipe-check
+node doc/design-system/prototypes/web/test_recipe_tags.cjs http://127.0.0.1:8873/design-system/prototypes/web/ /tmp/kanji-recipe-tags-check
 node doc/design-system/prototypes/web/test_kanji_picker.cjs http://127.0.0.1:8873/design-system/prototypes/ /tmp/kanji-picker-check
 node doc/design-system/prototypes/web/test_multiselect_filters.cjs http://127.0.0.1:8873/design-system/prototypes/ /tmp/kanji-filter-check
 ```
@@ -19,4 +19,4 @@ node doc/design-system/prototypes/web/test_multiselect_filters.cjs http://127.0.
 
 `python3 doc/database/test_builder_schema.py`: 6 SQLite-тестов добавочного DDL поверх экспортированной Room v4. [Результат и ограничения](../database-approved-features.md). Сессии и статистика исключены.
 
-HTML не подтверждает TalkBack, нативную клавиатуру, Compose lifecycle или реальную миграцию. Android-конструктор и новое Room-хранилище пока не реализованы.
+HTML не подтверждает TalkBack, нативную клавиатуру, Compose lifecycle или реальную миграцию. Android-конструктор использует Room v6 и `RecipeBuilderRoute`; границы проверки — в [recipe-library-android.md](../recipe-library-android.md) и связанных отчётах.

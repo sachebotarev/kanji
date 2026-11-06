@@ -48,16 +48,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -234,7 +231,6 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                     }
                 }
                 items(rows, key = { it.id }) { recipe ->
-                    var expanded by rememberSaveable(recipe.id) { mutableStateOf(false) }
                     val title = recipeName(recipe, language)
                     val active = dragId == recipe.id
                     // Snap back on release — a spring/tween pop stacks with list settle and feels like a jerk.
@@ -330,7 +326,7 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
-                                    (if (expanded) chips else chips.take(2)).forEach { (label, type) ->
+                                    chips.take(1).forEach { (label, type) ->
                                         val colors = MaterialTheme.colorScheme
                                         val pair = when (type) {
                                             MaterialType.Book -> colors.secondaryContainer to colors.onSecondaryContainer
@@ -347,19 +343,14 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                             )
                                         }
                                     }
-                                    if (!expanded && chips.count() > 2) {
-                                        Box(Modifier.height(25.dp).wrapContentSize(Alignment.Center, unbounded = true)) {
-                                            TextButton({ expanded = true }, contentPadding = PaddingValues(horizontal = 4.dp)) {
-                                                Text(
-                                                    stringResource(R.string.material_more, chips.count() - 2),
-                                                    style = MaterialTheme.typography.labelMedium,
-                                                )
-                                            }
-                                        }
+                                    if (chips.count() > 1) {
+                                        Text(
+                                            stringResource(R.string.material_more, chips.count() - 1),
+                                            Modifier.padding(horizontal = 4.dp, vertical = 3.dp),
+                                            style = MaterialTheme.typography.labelMedium,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
                                     }
-                                }
-                                if (expanded && chips.count() > 2) TextButton({ expanded = false }) {
-                                    Text(stringResource(R.string.library_collapse))
                                 }
                                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                                 val tasks = recipe.taskCount?.let { pluralStringResource(R.plurals.library_task_count, it, it) }

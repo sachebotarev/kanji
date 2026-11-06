@@ -33,8 +33,10 @@
     <string name="debug_scale_y">Y scale correction: %1$+.1f%%</string>
     <string name="incomplete_short">Not finished yet</string>
     <string name="next_kanji">Next character</string>
-    <string name="hint_idle">Reference is off. Tap to show the tracing guide</string>
-    <string name="hint_active">Reference is on. Trace the guide; tap to hide it</string>
+    <string name="hint_idle">Hint is off. Tap to reveal the reading and tracing guide</string>
+    <string name="hint_active">Hint is on. Reading and guide are visible; tap to hide</string>
+    <string name="reading_hidden">Pronunciation is hidden. Reveal it with the hint button</string>
+    <string name="reading_revealed">Pronunciation is revealed</string>
     <string name="debug_title">Check diagnostics</string>
     <string name="debug_close">Close</string>
     <string name="debug_checking">Checking…</string>

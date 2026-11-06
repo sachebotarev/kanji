@@ -95,6 +95,35 @@ class HandwritingTrainingTest {
     }
 
     @Test
+    fun nextUnsatisfiedUserIndexSkipsPrefillsAndCorrectCells() {
+        val training = HandwritingTraining(task())
+        assertEquals(1, training.nextUnsatisfiedUserIndex(0))
+        assertNull(training.nextUnsatisfiedUserIndex(1))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        assertEquals(1, training.nextUnsatisfiedUserIndex(0))
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        assertNull(training.nextUnsatisfiedUserIndex(0))
+    }
+
+    @Test
+    fun prefilledCellIsSatisfiedWithoutReferenceDrawing() {
+        val training = HandwritingTraining(task())
+        assertTrue(training.state.cells.last().isSatisfied)
+        assertFalse(training.state.isComplete)
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        assertTrue(training.state.isComplete)
+    }
+
+    @Test
     fun hintPreservesAnswerAndCannotCompleteItButUsageSurvivesUndo() {
         val training = HandwritingTraining(task())
         training.setReference(KanjiId("same-kanji"), reference)

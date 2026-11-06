@@ -20,35 +20,22 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toString
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
-import kotlinx.coroutines.Dispatchers
-import ru.mobui.kanji.checker.shape.ShapeKanjiChecker
-import ru.mobui.kanji.checker.writing.StrokeWritingChecker
-import ru.mobui.kanji.core.designsystem.KanjiTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
-import ru.mobui.kanji.domain.practice.AnswerStatus
-import ru.mobui.kanji.domain.practice.CombinedKanjiChecker
-import ru.mobui.kanji.domain.practice.EntryMode
-import ru.mobui.kanji.domain.practice.EntryStatus
 import ru.mobui.kanji.domain.practice.KanjiId
-import ru.mobui.kanji.domain.practice.KanjiTask
-import ru.mobui.kanji.domain.practice.PracticeResult
 import ru.mobui.kanji.domain.practice.PracticeTask
-import ru.mobui.kanji.domain.practice.TraceReferenceHint
 import ru.mobui.kanji.feature.dashboard.DashboardDemo
 import ru.mobui.kanji.feature.dashboard.DashboardScreen
 import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
@@ -62,10 +49,40 @@ internal data class AppModels(
 )
 
 internal data class DemoPracticeGraph(
-    val task: PracticeTask,
+    val fallbackTask: PracticeTask,
     val source: BundledKanjiReferenceSource,
-    val factory: ViewModelProvider.Factory,
+    val factory: (PracticeTask) -> ViewModelProvider.Factory,
 )
+
+/**
+ * In-memory queue: one [PracticeTask] per recipe word, in catalogue order.
+ * Length follows recipe `taskCount`, or the full convertible pool when count is unset.
+ */
+internal data class RecipePracticeSession(
+    val tasks: List<PracticeTask>,
+    val index: Int = 0,
+) {
+    init {
+        require(tasks.isNotEmpty())
+        require(index in tasks.indices)
+    }
+
+    val task: PracticeTask
+        get() = tasks[index]
+
+    val hasNext: Boolean
+        get() = index < tasks.lastIndex
+
+    val ordinal: Int
+        get() = index + 1
+
+    val total: Int
+        get() = tasks.size
+
+    /** Next word in order, or null after the last task. */
+    fun advance(): RecipePracticeSession? =
+        if (hasNext) copy(index = index + 1) else null
+}
 
 internal class AppUiContext(
     val dependencies: KanjiApplication,
@@ -80,14 +97,8 @@ internal class AppUiContext(
     val dictionarySummary
         get() = models.dictionarySummary
 
-    val task
-        get() = graph.task
-
     val source
         get() = graph.source
-
-    val factory
-        get() = graph.factory
 
     val modelReady
         get() = modelStatus == JapaneseModelStatus.Ready
@@ -121,6 +132,7 @@ internal fun MainContent(
         return
     }
     var destination by rememberSaveable { mutableStateOf(AppDestination.Dashboard) }
+    var practiceSession by remember { mutableStateOf<RecipePracticeSession?>(null) }
     val savedSettings by settingsModel.settings.collectAsStateWithLifecycle()
     val modelReady = modelStatus == JapaneseModelStatus.Ready
     val settings =
@@ -133,13 +145,21 @@ internal fun MainContent(
         }
     }
     val context = AppUiContext(dependencies, models, graph, modelStatus, settings)
-    AppDestinationContent(destination, context) { destination = it }
+    AppDestinationContent(
+        destination = destination,
+        context = context,
+        practiceSession = practiceSession,
+        onPracticeSessionChange = { practiceSession = it },
+        navigate = { destination = it },
+    )
 }
 
 @Composable
 private fun AppDestinationContent(
     destination: AppDestination,
     context: AppUiContext,
+    practiceSession: RecipePracticeSession?,
+    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
     navigate: (AppDestination) -> Unit,
 ) {
     when (destination) {
@@ -149,8 +169,15 @@ private fun AppDestinationContent(
         AppDestination.References -> CatalogDestination(context, navigate, ru.mobui.kanji.feature.catalog.CatalogSection.References)
         AppDestination.Settings -> SettingsDestination(context, navigate)
         AppDestination.CheckerSettings -> CheckerSettingsDestination(context, navigate)
-        AppDestination.Dashboard -> DashboardDestination(context, navigate)
-        AppDestination.Practice -> PracticeDestination(context, navigate)
+        AppDestination.Dashboard -> DashboardDestination(context, navigate, onPracticeSessionChange)
+        AppDestination.Practice -> {
+            val session = practiceSession
+            if (session == null) {
+                LaunchedEffect(Unit) { navigate(AppDestination.Dashboard) }
+            } else {
+                PracticeDestination(context, session, onPracticeSessionChange, navigate)
+            }
+        }
     }
 }
 
@@ -223,15 +250,26 @@ private fun CheckerSettingsDestination(context: AppUiContext, navigate: (AppDest
 }
 
 @Composable
-private fun DashboardDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun DashboardDestination(
+    context: AppUiContext,
+    navigate: (AppDestination) -> Unit,
+    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
+) {
     with(context) {
         val personalCount by dictionarySummary.count.collectAsStateWithLifecycle()
+        val scope = rememberCoroutineScope()
         ru.mobui.kanji.feature.dashboard.builder.RecipeHomeSummary(dependencies.catalog, dependencies.dictionary, dependencies.recipesRepository) { recipe ->
         DashboardScreen(
             DashboardDemo.state.copy(
                 vocabulary = DashboardDemo.state.vocabulary.copy(personalTotal = personalCount),
             ),
-            onStartPractice = { navigate(AppDestination.Practice) },
+            onStartPractice = {
+                scope.launch {
+                    val tasks = loadPracticeTasks(dependencies) ?: listOf(graph.fallbackTask)
+                    onPracticeSessionChange(RecipePracticeSession(tasks))
+                    navigate(AppDestination.Practice)
+                }
+            },
             onOpenSettings = { navigate(AppDestination.Settings) },
             onOpenCatalog = { navigate(AppDestination.Catalog) },
             onOpenReferences = { navigate(AppDestination.References) },
@@ -242,6 +280,14 @@ private fun DashboardDestination(context: AppUiContext, navigate: (AppDestinatio
         )
         }
     }
+}
+
+private suspend fun loadPracticeTasks(dependencies: KanjiApplication): List<PracticeTask>? {
+    val recipes = dependencies.recipesRepository.observeRecipes().first()
+    val recipe = recipes.firstOrNull { it.isActive } ?: return null
+    val assignments = dependencies.recipesRepository.observeWordTags().first()
+    val snapshot = dependencies.catalog.load()
+    return recipePracticeTasks(snapshot, recipe, assignments).takeIf { it.isNotEmpty() }
 }
 
 @Composable
@@ -260,25 +306,43 @@ private fun RecipeBuilderDestination(context: AppUiContext, navigate: (AppDestin
 }
 
 @Composable
-private fun PracticeDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun PracticeDestination(
+    context: AppUiContext,
+    session: RecipePracticeSession,
+    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
+    navigate: (AppDestination) -> Unit,
+) {
     with(context) {
-        val practice: PracticeViewModel = viewModel(key = task.taskId, factory = factory)
-        val closeAndReset: () -> Unit = {
+        val task = session.task
+        val practice: PracticeViewModel =
+            viewModel(key = "${task.taskId}-${session.index}", factory = graph.factory(task))
+        val leave: () -> Unit = {
             practice.restart()
+            onPracticeSessionChange(null)
             navigate(AppDestination.Dashboard)
         }
-        BackHandler { closeAndReset() }
-        LaunchedEffect(modelStatus) { practice.onCheckerSettingsChanged() }
+        BackHandler { leave() }
+        LaunchedEffect(modelStatus, task.taskId, session.index) { practice.onCheckerSettingsChanged() }
         val state by practice.uiState.collectAsStateWithLifecycle()
         val result = state.practice.result
-        var resultReceived by rememberSaveable { mutableStateOf(false) }
+        var resultReceived by rememberSaveable(task.taskId, session.index) { mutableStateOf(false) }
         if (result == null || !resultReceived) {
             PracticeRoute(
                 practice,
-                onResult = { resultReceived = true },
-                onBack = { navigate(AppDestination.Dashboard) },
+                onResult = {
+                    val next = session.advance()
+                    if (next != null) {
+                        // Sequential pass: open the next recipe word without wrapping.
+                        onPracticeSessionChange(next)
+                    } else {
+                        resultReceived = true
+                    }
+                },
+                onBack = leave,
                 settings = settings,
-                wordLabel = stringResource(R.string.demo_word),
+                wordLabel = task.russianWord,
+                progressLabel =
+                    stringResource(R.string.practice_word_progress, session.ordinal, session.total),
                 readabilityAvailable = modelReady,
                 onSettingsChanged = {
                     settingsModel.update(it)
@@ -290,19 +354,11 @@ private fun PracticeDestination(context: AppUiContext, navigate: (AppDestination
                 },
             )
         } else {
-            // Demo destination. A training coordinator can consume the same typed
-            // result.
             PracticeSummary(
                 result,
-                onRestart = {
-                    practice.restart()
-                    resultReceived = false
-                },
-                onClose = {
-                    practice.restart()
-                    resultReceived = false
-                    navigate(AppDestination.Dashboard)
-                },
+                progressLabel =
+                    stringResource(R.string.practice_word_progress, session.ordinal, session.total),
+                onClose = leave,
             )
         }
     }
