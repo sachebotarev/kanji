@@ -1,5 +1,7 @@
 package ru.mobui.kanji.feature.catalog.presentation
 
+import ru.mobui.kanji.domain.catalog.JlptFilter
+
 import ru.mobui.kanji.feature.catalog.browse.BrowseActions
 import ru.mobui.kanji.feature.catalog.browse.BrowseNavigation
 import ru.mobui.kanji.feature.catalog.browse.BrowseRequest
@@ -60,7 +62,7 @@ internal fun CatalogBrowseEntry(
     val search by model.search.collectAsStateWithLifecycle()
     CatalogResultKind.entries.forEach { kind ->
         val result by
-            entry.savedStateHandle.getStateFlow<Int?>(kind.key, null).collectAsStateWithLifecycle()
+            entry.savedStateHandle.getStateFlow<Any?>(kind.key, null).collectAsStateWithLifecycle()
         LaunchedEffect(result) {
             result?.let {
                 model.applyFilter(kind.decode(it))
@@ -83,6 +85,7 @@ internal fun CatalogBrowseEntry(
             model::applyFilter,
             navigate,
         ),
+        homeSection = section,
     )
     }
 }
@@ -171,23 +174,32 @@ internal enum class CatalogResultKind(val key: String) {
     Strokes("resultStrokes"),
     Jlpt("resultJlpt");
 
-    fun decode(value: Int): FilterResult =
-        when (this) {
+    fun decode(value: Any): FilterResult {
+        if (value is IntArray) {
+            if (this == Kanji) return FilterResult.Kanji(value.toSet())
+            if (this == Chapter) return FilterResult.Chapter(value.toSet())
+            if (this == Strokes) return FilterResult.Strokes(value.toSet())
+            if (this == Radical) return FilterResult.Radical(value.toSet())
+            if (this == Jlpt) return FilterResult.Jlpt(value.map(::decodeJlpt).filter { it != JlptFilter.AnyLevel }.toSet())
+        }
+        require(value is Int) { "Invalid catalogue result payload" }
+        return when (this) {
             Chapter -> FilterResult.Chapter(value.takeIf { it != 0 })
             Kanji -> FilterResult.Kanji(value.takeIf { it != 0 })
             Radical -> FilterResult.Radical(value.takeIf { it != 0 })
             Strokes -> FilterResult.Strokes(value.takeIf { it != 0 })
             Jlpt -> FilterResult.Jlpt(decodeJlpt(value))
         }
+    }
 }
 
-internal fun FilterResult.encoded(): Pair<String, Int> =
+internal fun FilterResult.encoded(): Pair<String, Any> =
     when (this) {
-        is FilterResult.Chapter -> CatalogResultKind.Chapter.key to (value ?: 0)
-        is FilterResult.Kanji -> CatalogResultKind.Kanji.key to (value ?: 0)
-        is FilterResult.Radical -> CatalogResultKind.Radical.key to (value ?: 0)
-        is FilterResult.Strokes -> CatalogResultKind.Strokes.key to (value ?: 0)
-        is FilterResult.Jlpt -> CatalogResultKind.Jlpt.key to value.savedValue()
+        is FilterResult.Chapter -> CatalogResultKind.Chapter.key to values.sorted().toIntArray()
+        is FilterResult.Kanji -> CatalogResultKind.Kanji.key to values.sorted().toIntArray()
+        is FilterResult.Radical -> CatalogResultKind.Radical.key to values.sorted().toIntArray()
+        is FilterResult.Strokes -> CatalogResultKind.Strokes.key to values.sorted().toIntArray()
+        is FilterResult.Jlpt -> CatalogResultKind.Jlpt.key to values.map { it.savedValue() }.sorted().toIntArray()
     }
 
 internal data class CatalogEntryContext(
@@ -195,4 +207,5 @@ internal data class CatalogEntryContext(
     val language: String,
     val back: () -> Unit,
     val revision: Long = 0L,
+    val section: ru.mobui.kanji.feature.catalog.CatalogSection = ru.mobui.kanji.feature.catalog.CatalogSection.Combined,
 )

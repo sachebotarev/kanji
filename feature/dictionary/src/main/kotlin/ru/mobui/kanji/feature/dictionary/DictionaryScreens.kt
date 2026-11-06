@@ -3,6 +3,18 @@ package ru.mobui.kanji.feature.dictionary
 import ru.mobui.kanji.core.wordui.WordDetailsActions
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.rotate
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -57,16 +69,26 @@ internal fun DictionaryHeader(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    compact: Boolean = false,
     actions: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
-        modifier.fillMaxWidth().padding(start = 8.dp, end = 12.dp, top = 8.dp, bottom = 8.dp),
+        modifier.fillMaxWidth().heightIn(min = if (compact) 60.dp else 64.dp)
+            .padding(start = if (compact) 12.dp else 8.dp, end = 12.dp,
+            top = if (compact) 4.dp else 8.dp, bottom = if (compact) 4.dp else 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 0.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onBack, enabled = enabled, modifier = Modifier.testTag("dictionary-back")) {
+        IconButton(onBack, enabled = enabled, modifier = Modifier.size(48.dp).testTag("dictionary-back")) {
             Icon(painterResource(R.drawable.word_back), stringResource(R.string.dictionary_back))
         }
-        Text(title, Modifier.weight(1f), style = MaterialTheme.typography.headlineSmall)
+        Text(
+            title,
+            Modifier.weight(1f),
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = if (compact) FontWeight.Normal else FontWeight.Medium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
         actions()
     }
 }
@@ -91,24 +113,27 @@ internal fun DictionaryStatus(
 }
 
 @Composable
-internal fun DictionaryEmptyState(message: String, modifier: Modifier = Modifier) {
+internal fun DictionaryEmptyState(message: String, hint: String, modifier: Modifier = Modifier) {
     Column(
         modifier.fillMaxWidth().padding(horizontal = 32.dp).padding(bottom = 88.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
-            painter = painterResource(DesignR.drawable.mascot_sticker_magnify),
+            painter = painterResource(DesignR.drawable.mascot_sticker_peek_empty_box),
             contentDescription = null,
-            modifier = Modifier.size(168.dp).testTag("dictionary-empty-mascot"),
+            modifier = Modifier.size(112.dp).testTag("dictionary-empty-mascot"),
         )
-        Spacer(Modifier.height(20.dp))
+        Spacer(Modifier.height(12.dp))
         Text(
             text = message,
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
+        Spacer(Modifier.height(8.dp))
+        Text(hint, style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
     }
 }
 
@@ -118,59 +143,99 @@ internal fun DictionaryListScreen(
     visible: List<CatalogWord>,
     language: String,
     actions: DictionaryListActions,
+    onTags: () -> Unit = {},
+    onClearTags: () -> Unit = {},
+    onKanji: () -> Unit = {},
+    onClearKanji: () -> Unit = {},
 ) {
     with(actions) {
+    var searchOpen by rememberSaveable { mutableStateOf(state.query.isNotEmpty()) }
     Scaffold(
-        Modifier.testTag("dictionary-screen").safeDrawingPadding(),
+        Modifier.testTag("dictionary-screen").background(MaterialTheme.colorScheme.background).safeDrawingPadding(),
         floatingActionButton = {
             if (!state.loading && !state.error)
                 ExtendedFloatingActionButton(
                     onAdd,
                     Modifier.testTag("add-word"),
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                    shape = RoundedCornerShape(18.dp),
                 ) {
-                    Text("+  " + stringResource(R.string.dictionary_add))
+                    Icon(painterResource(R.drawable.word_add), null, Modifier.size(24.dp))
+                    Spacer(Modifier.size(10.dp))
+                    Text(
+                        stringResource(R.string.dictionary_add),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Medium,
+                    )
                 }
         },
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            DictionaryHeader(stringResource(R.string.dictionary_title), onBack)
+            DictionaryHeader(stringResource(R.string.dictionary_title), onBack, compact = true) {
+                IconButton({ searchOpen = !searchOpen; if (!searchOpen) onQuery("") },
+                    Modifier.size(48.dp).testTag("dictionary-search-toggle")) {
+                    Icon(painterResource(R.drawable.word_search),
+                        stringResource(if (searchOpen) R.string.dictionary_search_close else R.string.dictionary_search_toggle))
+                }
+            }
             if (state.loading || state.error) DictionaryStatus(state.loading, state.error, retry)
             else {
-                Text(
-                    pluralStringResource(
-                        R.plurals.dictionary_count,
-                        state.words.size,
-                        state.words.size,
-                    ),
-                    Modifier.padding(horizontal = 20.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                WordSearch(
+                if (searchOpen) WordSearch(
                     state.query,
                     stringResource(ru.mobui.kanji.core.wordui.R.string.word_search),
                     onQuery,
-                    Modifier.padding(horizontal = 20.dp, vertical = 8.dp)
+                    Modifier.padding(horizontal = 18.dp, vertical = 8.dp)
                         .testTag("dictionary-search"),
                 )
+                FlowRow(Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp)
+                    .testTag("dictionary-filters"), horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    val symbols = state.words.flatMap { state.snapshot?.literalKanji(it).orEmpty() }
+                        .distinctBy { it.id }.filter { it.id in state.kanjiIds }.map { it.symbol }
+                    val kanjiLabel = stringResource(ru.mobui.kanji.core.wordui.R.string.word_picker_kanji) +
+                        if (symbols.isEmpty()) "" else " · " + symbols.take(2).joinToString("、") +
+                            if (symbols.size > 2) " · " + stringResource(ru.mobui.kanji.core.wordui.R.string.tags_more, symbols.size - 2) else ""
+                    ru.mobui.kanji.core.wordui.SelectionFilterChip(kanjiLabel, onKanji, if (state.kanjiIds.isEmpty()) null else onClearKanji,
+                        stringResource(ru.mobui.kanji.core.wordui.R.string.selection_clear), Modifier.testTag("dictionary-kanji"))
+                    val chosen = state.tags.filter { it.id in state.tagIds }
+                    val label = stringResource(R.string.dictionary_tags) + if (chosen.isEmpty()) "" else " · " + chosen.take(2).joinToString { it.name(language)
+                        } +
+                        if (chosen.size > 2) " · " + stringResource(ru.mobui.kanji.core.wordui.R.string.tags_more, chosen.size - 2) else ""
+                    ru.mobui.kanji.core.wordui.SelectionFilterChip(label, onTags, if (chosen.isEmpty()) null else onClearTags,
+                        stringResource(R.string.dictionary_tags_clear), Modifier.testTag("dictionary-tags"))
+                }
                 if (visible.isNotEmpty()) {
+                    Box(Modifier.fillMaxWidth().heightIn(min = 48.dp).padding(horizontal = 18.dp)
+                        .testTag("dictionary-count").semantics { liveRegion = LiveRegionMode.Polite },
+                        contentAlignment = Alignment.CenterStart) {
+                        Text(pluralStringResource(R.plurals.dictionary_count, visible.size, visible.size),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     WordList(
                         visible,
                         language,
                         onWord,
                         Modifier.weight(1f),
-                        showOrigin = true,
-                        bottomPadding = 100,
+                        showOrigin = false,
+                        bottomPadding = 112,
+                        stacked = true,
+                        footer = { word ->
+                            val tags = state.tags.filter { it.id in state.wordTags[word.id].orEmpty() }
+                            if (tags.isNotEmpty()) ru.mobui.kanji.core.wordui.TagChips(tags, language,
+                                Modifier.padding(top = 8.dp), limit = 2, compact = true)
+                        },
                     )
                 } else {
                     DictionaryEmptyState(
                         message =
                             stringResource(
-                                if (state.query.isBlank()) R.string.dictionary_empty
+                                if (state.query.isBlank() && state.tagIds.isEmpty() && state.kanjiIds.isEmpty()) R.string.dictionary_empty_title
                                 else R.string.dictionary_no_results,
                             ),
+                        hint = stringResource(if (state.query.isBlank() && state.tagIds.isEmpty() && state.kanjiIds.isEmpty())
+                            R.string.dictionary_empty_hint else R.string.dictionary_retry_hint),
                         modifier = Modifier.fillMaxWidth().weight(1f),
                     )
                 }
@@ -192,19 +257,15 @@ internal fun DictionaryWordScreen(
     var menu by remember { mutableStateOf(false) }
     var confirmDelete by rememberSaveable { mutableStateOf(false) }
     val resources = androidx.compose.ui.platform.LocalResources.current
-    Column(Modifier.fillMaxSize().safeDrawingPadding()) {
+    Scaffold(Modifier.fillMaxSize().safeDrawingPadding(), floatingActionButton = {
+        if (word?.isUserCreated == true && !state.busy && !state.loading)
+            ExtendedFloatingActionButton(onEdit, Modifier.testTag("edit-word")) {
+                Text(stringResource(R.string.dictionary_edit_action))
+            }
+    }) { padding ->
+    Column(Modifier.fillMaxSize().padding(padding)) {
         DictionaryHeader(stringResource(R.string.dictionary_word), onBack, enabled = !state.busy) {
             if (word?.isUserCreated == true) {
-                IconButton(
-                    onEdit,
-                    enabled = !state.busy,
-                    modifier = Modifier.testTag("edit-word"),
-                ) {
-                    Icon(
-                        painterResource(R.drawable.word_edit),
-                        stringResource(R.string.dictionary_edit_action),
-                    )
-                }
                 Box {
                     IconButton(
                         { menu = true },
@@ -244,8 +305,11 @@ internal fun DictionaryWordScreen(
                             resources.getString(R.string.dictionary_chapter, chapter)
                         }
                     }
-                    .orEmpty(), WordDetailsActions(onKanji, onStudy), showOrigin = true)
+                    .orEmpty(), WordDetailsActions(onKanji, onStudy), showOrigin = false,
+                    footer = { ru.mobui.kanji.core.wordui.TagChips(state.tags.filter { it.id in state.wordTags[word.id].orEmpty() }, language) },
+                    bottomPadding = if (word.isUserCreated) 112.dp else 0.dp)
         }
+    }
     }
     if (confirmDelete && word?.isUserCreated == true)
         AlertDialog(
@@ -284,12 +348,35 @@ internal fun WordEditorScreen(
     actions: WordEditorActions,
     onBack: () -> Unit,
     retry: () -> Unit,
+    tags: List<ru.mobui.kanji.domain.catalog.DictionaryTag> = emptyList(),
+    language: String = "ru",
+    onTags: () -> Unit = {},
+    onTranslations: () -> Unit = {},
+    onCurrentTranslation: (String) -> Unit = {},
 ) {
-    Column(Modifier.fillMaxSize().safeDrawingPadding().testTag("word-editor")) {
+    Scaffold(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
+        .safeDrawingPadding().testTag("word-editor"), floatingActionButton = {
+        if (!state.loading && !state.loadError && state.original != null && !state.busy)
+            ExtendedFloatingActionButton(actions.save, Modifier.testTag("save-word"),
+                shape = RoundedCornerShape(18.dp),
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer) {
+                Icon(painterResource(if (creating) R.drawable.word_add else ru.mobui.kanji.core.wordui.R.drawable.selection_check),
+                    null, Modifier.size(24.dp))
+                Spacer(Modifier.size(10.dp))
+                Text(
+                    stringResource(if (creating) R.string.editor_add_to_dictionary else R.string.dictionary_save),
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium,
+                )
+            }
+    }) { padding ->
+    Column(Modifier.fillMaxSize().padding(padding)) {
         DictionaryHeader(
             stringResource(if (creating) R.string.dictionary_new else R.string.dictionary_edit),
             onBack,
             enabled = !state.busy,
+            compact = true,
         )
         if (state.loading || state.loadError)
             DictionaryStatus(state.loading, state.loadError, retry)
@@ -306,9 +393,80 @@ internal fun WordEditorScreen(
                 state.busy,
                 creating,
                 actions,
+                modifier = Modifier.clipToBounds(),
                 error = operationError(state.failure, state.storageError),
+                showSave = false,
+                translationContent = {
+                    val current = editorLanguage(language)
+                    val translation = state.draft.translations.firstOrNull { it.languageTag.equals(current, true) }
+                    ru.mobui.kanji.core.wordui.WordEditorTextField(
+                        translation?.text.orEmpty(), onCurrentTranslation,
+                        label = stringResource(ru.mobui.kanji.core.wordui.R.string.word_translation),
+                        inputModifier = Modifier.testTag("editor-current-translation"),
+                        enabled = !state.busy, minHeight = 94.dp,
+                        invalid = ru.mobui.kanji.domain.catalog.WordField.Translations in state.invalid,
+                        errorText = stringResource(ru.mobui.kanji.core.wordui.R.string.word_translations_error),
+                    )
+                    EditorNavigationRow(
+                        stringResource(R.string.dictionary_other_translations, state.draft.translations.count { !it.languageTag.equals(current, true) }),
+                        null, { if (!state.busy) onTranslations() }, Modifier.testTag("editor-other-translations"))
+                },
+                extraContent = {
+                    EditorTagsRow(
+                        tags = tags,
+                        language = language,
+                        enabled = !state.busy,
+                        onClick = onTags,
+                    )
+                },
             )
     }
+    }
+}
+
+@Composable
+private fun EditorNavigationRow(title: String, subtitle: String?, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    ru.mobui.kanji.core.wordui.WordNavigationRow(title, subtitle, onClick,
+        modifier.heightIn(min = 64.dp), compact = true,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp),
+        trailing = {
+            Icon(painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down), null,
+                Modifier.size(20.dp).rotate(-90f), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        })
+}
+
+@Composable
+private fun EditorTagsRow(
+    tags: List<ru.mobui.kanji.domain.catalog.DictionaryTag>,
+    language: String,
+    enabled: Boolean,
+    onClick: () -> Unit,
+) {
+    ru.mobui.kanji.core.wordui.WordNavigationRow(
+        title = stringResource(R.string.dictionary_tags),
+        subtitle = null,
+        onClick = { if (enabled) onClick() },
+        modifier = Modifier.heightIn(min = 64.dp).testTag("editor-tags"),
+        compact = true,
+        containerColor = MaterialTheme.colorScheme.background,
+        contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp),
+        trailing = {
+            Icon(
+                painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down),
+                null,
+                Modifier.size(20.dp).rotate(-90f),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        subtitleContent = {
+            ru.mobui.kanji.core.wordui.TagInlineNames(
+                tags = tags,
+                language = language,
+                empty = stringResource(R.string.editor_no_tags),
+            )
+        },
+    )
 }
 
 @Composable

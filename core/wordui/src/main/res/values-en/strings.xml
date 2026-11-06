@@ -20,8 +20,8 @@
     <string name="word_language_error">Enter a valid language tag</string>
     <string name="word_choose">Choose</string>
     <string name="word_cancel">Cancel</string>
-    <string name="word_written_hint">For example, 木漏れ日</string>
-    <string name="word_reading_hint">For example, こもれび</string>
+    <string name="word_written_hint">木漏れ日</string>
+    <string name="word_reading_hint">こもれび</string>
     <string name="word_translation_hint">Enter translation</string>
     <string name="word_required">Required</string>
     <string name="word_translations_error">Add a nonempty translation. Languages must be unique.</string>

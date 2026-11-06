@@ -80,39 +80,15 @@ internal fun KanjiGrid(
     header: (@Composable () -> Unit)? = null,
     selectionMode: Boolean = false,
 ) {
-    val gridState = rememberCatalogGridState()
-    LazyVerticalGrid(
-        columns =
-            GridCells.Adaptive(
-                with(androidx.compose.ui.platform.LocalDensity.current) {
-                    88.dp * fontScale.coerceAtLeast(1f)
-                },
-            ),
-        modifier = modifier.testTag("kanji-grid"),
-        state = gridState,
-        userScrollEnabled = gridState.canScrollForward || gridState.canScrollBackward,
-        contentPadding =
-            PaddingValues(
-                start = 20.dp,
-                end = 20.dp,
-                top = if (header == null) 12.dp else 0.dp,
-                bottom = 24.dp,
-            ),
-        horizontalArrangement = Arrangement.spacedBy(if (numbers.isEmpty()) 10.dp else 12.dp),
-        verticalArrangement = Arrangement.spacedBy(if (numbers.isEmpty()) 10.dp else 12.dp),
-    ) {
-        if (header != null) item(key = "header", span = { GridItemSpan(maxLineSpan) }) { header() }
-        items(entries, key = { it.id }) { kanji ->
-            KanjiTile(
-                kanji,
-                language,
-                { onClick(kanji.id) },
-                selected = kanji.id == selectedId,
-                number = if (selectionMode) null else numbers[kanji.id],
-                showStrokes = !selectionMode,
-            )
-        }
+    val tiles = entries.map { kanji ->
+        val meaning = kanji.meaning(language) ?: stringResource(R.string.catalog_missing)
+        ru.mobui.kanji.core.wordui.SymbolGridItem(kanji.id, kanji.symbol,
+            kanji.meanings.localized(language)?.firstOrNull() ?: meaning, kanji.symbol + ", " + meaning,
+            if (selectionMode) null else numbers[kanji.id],
+            if (selectionMode) null else androidx.compose.ui.res.pluralStringResource(R.plurals.catalog_strokes, kanji.strokes, kanji.strokes))
     }
+    ru.mobui.kanji.core.wordui.SymbolGrid(tiles, setOfNotNull(selectedId), onClick, modifier,
+        state = rememberCatalogGridState(), numbered = numbers.isNotEmpty(), header = header)
 }
 
 @Composable
@@ -198,84 +174,8 @@ private fun SymbolTile(
     fullCaption: Boolean = false,
     containerColor: androidx.compose.ui.graphics.Color = MaterialTheme.colorScheme.surfaceContainer,
 ) {
-    with(content) {
-    val density = androidx.compose.ui.platform.LocalDensity.current
-    Surface(
-        onClick,
-        modifier.semantics { this.selected = selected },
-        shape = MaterialTheme.shapes.medium,
-        color =
-            if (selected) MaterialTheme.colorScheme.primaryContainer
-            else containerColor,
-    ) {
-        Box {
-            Column(
-                Modifier.fillMaxWidth()
-                    .padding(
-                        start = 8.dp,
-                        end = 8.dp,
-                        top = if (ordinal == null) 18.dp else 24.dp,
-                        bottom = 10.dp,
-                    ),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-            ) {
-                Text(
-                    symbol,
-                    style = CatalogJapaneseStyle.copy(fontSize = 36.sp, lineHeight = 44.sp),
-                    color = CatalogJapaneseColor,
-                )
-                val captionHeight =
-                    with(density) { (kotlin.math.ceil(20.sp.toPx()) * 2).toFloat().toDp() }
-                Box(
-                    Modifier.fillMaxWidth()
-                        .then(
-                            if (fullCaption) Modifier.heightIn(min = captionHeight)
-                            else Modifier.height(captionHeight),
-                        ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        caption,
-                        style =
-                            MaterialTheme.typography.bodyMedium.copy(
-                                lineHeightStyle =
-                                    androidx.compose.ui.text.style.LineHeightStyle(
-                                        androidx.compose.ui.text.style.LineHeightStyle.Alignment
-                                            .Center,
-                                        androidx.compose.ui.text.style.LineHeightStyle.Trim.None,
-                                        androidx.compose.ui.text.style.LineHeightStyle.Mode.Tight,
-                                    ),
-                            ),
-                        textAlign = TextAlign.Center,
-                        maxLines = if (fullCaption) Int.MAX_VALUE else 2,
-                        overflow = TextOverflow.Ellipsis,
-                    )
-                }
-                if (strokes != null)
-                    Text(
-                        strokes,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-            }
-            if (ordinal != null)
-                Text(
-                    ordinal,
-                    Modifier.align(Alignment.TopEnd).padding(top = 7.dp, end = 10.dp),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            if (selected)
-                Text(
-                    "✓",
-                    Modifier.align(Alignment.TopStart).padding(8.dp).clearAndSetSemantics {},
-                    color = MaterialTheme.colorScheme.primary,
-                )
-        }
-    }
-
-    }
+    ru.mobui.kanji.core.wordui.SymbolTile(content.symbol, content.caption, selected, onClick, modifier,
+        content.ordinal, content.strokes, fullCaption, containerColor)
 }
 
 

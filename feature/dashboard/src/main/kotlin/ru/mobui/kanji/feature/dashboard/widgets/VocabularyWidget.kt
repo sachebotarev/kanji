@@ -29,6 +29,7 @@ fun VocabularyWidget(
     modifier: Modifier = Modifier,
     onOpenCatalog: () -> Unit = {},
     onOpenDictionary: () -> Unit = {},
+    onOpenReferences: () -> Unit = {},
 ) {
     Column(modifier, verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
@@ -60,7 +61,7 @@ fun VocabularyWidget(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    IllustratedIcon(DashboardIcon.Textbooks, Modifier.size(34.dp))
+                    IllustratedIcon(DashboardIcon.Textbooks, Modifier.size(48.dp))
                     Column {
                         Text(
                             stringResource(R.string.dashboard_textbooks),
@@ -71,6 +72,27 @@ fun VocabularyWidget(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                    }
+                }
+            }
+            Surface(
+                Modifier.fillMaxWidth().weight(1f),
+                shape = RoundedCornerShape(4.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                Row(
+                    Modifier.fillMaxWidth()
+                        .clickable(onClick = onOpenReferences)
+                        .testTag("open-references")
+                        .padding(horizontal = 16.dp, vertical = 18.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    IllustratedIcon(DashboardIcon.References, Modifier.size(48.dp))
+                    Column {
+                        Text(stringResource(R.string.dashboard_references), style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.dashboard_references_description),
+                            style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -93,7 +115,7 @@ fun VocabularyWidget(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    IllustratedIcon(DashboardIcon.Personal, Modifier.size(34.dp))
+                    IllustratedIcon(DashboardIcon.Personal, Modifier.size(48.dp))
                     Column {
                         Text(
                             stringResource(R.string.dashboard_personal),

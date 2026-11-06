@@ -11,6 +11,9 @@ internal interface ReferenceReadDao {
 
     @Query("SELECT * FROM kanji") suspend fun kanji(): List<KanjiRow>
 
+    @Query("SELECT COUNT(*) FROM kanji WHERE id IN (:ids)")
+    suspend fun countKanji(ids: List<Int>): Int
+
     @Query("SELECT * FROM kanji_translations")
     suspend fun kanjiTranslations(): List<KanjiTranslationsRow>
 

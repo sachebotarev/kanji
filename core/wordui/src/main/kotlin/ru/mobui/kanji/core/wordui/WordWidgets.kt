@@ -1,6 +1,10 @@
 package ru.mobui.kanji.core.wordui
 
+import ru.mobui.kanji.core.designsystem.inputShape
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.FlowRow
@@ -11,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -21,13 +26,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -101,34 +108,49 @@ fun WordNavigationRow(
     modifier: Modifier = Modifier,
     selected: Boolean = false,
     selectedLabel: String? = null,
+    containerColor: Color? = null,
+    compact: Boolean = false,
+    shape: Shape = RoundedCornerShape(24.dp),
+    contentPadding: PaddingValues = PaddingValues(horizontal = if (compact) 0.dp else 16.dp,
+        vertical = if (compact) 8.dp else 12.dp),
+    trailing: @Composable () -> Unit = {},
+    subtitleContent: (@Composable () -> Unit)? = null,
 ) {
     Surface(
         onClick,
-        modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color =
-            if (selected) MaterialTheme.colorScheme.primaryContainer
-            else MaterialTheme.colorScheme.surfaceContainer,
+        modifier.fillMaxWidth().semantics { this.selected = selected },
+        shape = shape,
+        color = containerColor ?: MaterialTheme.colorScheme.surfaceContainer,
+        border = if (selected) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
     ) {
         Row(
             Modifier.fillMaxWidth()
                 .semantics(mergeDescendants = true) { this.selected = selected }
-                .heightIn(min = 64.dp)
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .heightIn(min = if (compact) 48.dp else 64.dp)
+                .padding(contentPadding),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            if (selectedLabel != null) {
+                Box(Modifier.width(16.dp), contentAlignment = Alignment.Center) {
+                    if (selected) Text(selectedLabel, style = MaterialTheme.typography.labelSmall)
+                }
+            }
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(title, style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp))
-                if (subtitle != null)
-                    Text(
+                Text(
+                    title,
+                    style = if (compact) MaterialTheme.typography.labelLarge else MaterialTheme.typography.titleMedium,
+                )
+                when {
+                    subtitleContent != null -> subtitleContent()
+                    subtitle != null -> Text(
                         subtitle,
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
             }
-            if (selected && selectedLabel != null)
-                Text(selectedLabel, style = MaterialTheme.typography.labelSmall)
+            trailing()
         }
     }
 }
@@ -140,24 +162,42 @@ fun WordRow(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     showOrigin: Boolean = false,
+    chosen: Boolean? = null,
+    stacked: Boolean = false,
+    footer: @Composable () -> Unit = {},
 ) {
     Surface(
         onClick,
-        modifier.fillMaxWidth().testTag("word-${word.id}"),
+        modifier.fillMaxWidth().testTag("word-${word.id}").semantics {
+            if (chosen != null) selected = chosen
+        },
         color = MaterialTheme.colorScheme.surfaceContainer,
-        shape = RoundedCornerShape(24.dp),
+        shape = if (stacked) MaterialTheme.shapes.medium else RoundedCornerShape(24.dp),
+        border = if (chosen == true) BorderStroke(1.dp, MaterialTheme.colorScheme.primary) else null,
     ) {
         val origin =
             stringResource(if (word.isUserCreated) R.string.word_manual else R.string.word_catalog)
         Row(
-            Modifier.padding(12.dp).semantics(mergeDescendants = true) {
+            Modifier.padding(if (stacked) 16.dp else 12.dp).semantics(mergeDescendants = true) {
                 if (showOrigin) stateDescription = origin
             },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                FlowRow(
+            if (chosen != null) {
+                Box(Modifier.width(16.dp), contentAlignment = Alignment.Center) {
+                    if (chosen) {
+                        Text("✓", Modifier.clearAndSetSemantics {}, color = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(if (stacked) 8.dp else 3.dp)) {
+                if (stacked) Column(verticalArrangement = Arrangement.spacedBy(1.dp)) {
+                    Text(word.written, style = JapaneseSymbolStyle.copy(fontSize = 24.sp, lineHeight = 32.sp),
+                        color = MaterialTheme.colorScheme.primary)
+                    Text(word.reading, style = JapaneseSymbolStyle.copy(fontSize = 16.sp, lineHeight = 24.sp),
+                        color = MaterialTheme.colorScheme.onSurface)
+                } else FlowRow(
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                     verticalArrangement = Arrangement.spacedBy(2.dp),
                 ) {
@@ -180,7 +220,9 @@ fun WordRow(
                 Text(
                     word.translation(language) ?: stringResource(R.string.word_missing),
                     style = MaterialTheme.typography.bodyMedium,
+                    color = if (stacked) MaterialTheme.colorScheme.onSurfaceVariant else Color.Unspecified,
                 )
+                footer()
             }
             if (showOrigin)
                 Icon(
@@ -205,16 +247,18 @@ fun WordList(
     listState: LazyListState = rememberLazyListState(),
     showOrigin: Boolean = false,
     bottomPadding: Int = 20,
+    stacked: Boolean = false,
+    footer: @Composable (CatalogWord) -> Unit = {},
 ) {
     LazyColumn(
         modifier.testTag("word-list"),
         state = listState,
         contentPadding =
-            PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = bottomPadding.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+            PaddingValues(start = 18.dp, end = 18.dp, top = if (stacked) 16.dp else 12.dp, bottom = bottomPadding.dp),
+        verticalArrangement = Arrangement.spacedBy(if (stacked) 12.dp else 8.dp),
     ) {
         items(words, key = { it.id }) { word ->
-            WordRow(word, language, { onClick(word.id) }, showOrigin = showOrigin)
+            WordRow(word, language, { onClick(word.id) }, showOrigin = showOrigin, stacked = stacked, footer = { footer(word) })
         }
     }
 }
@@ -233,23 +277,19 @@ fun WordSearch(
         placeholder = { Text(label, style = MaterialTheme.typography.bodyMedium) },
         singleLine = true,
         leadingIcon = {
-            Text(
-                "⌕",
-                style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.clearAndSetSemantics {},
-            )
+            Icon(painterResource(R.drawable.selection_search), null, Modifier.size(24.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant)
         },
         trailingIcon = {
             if (query.isNotEmpty())
                 TextButton({ onQuery("") }) { Text(stringResource(R.string.word_clear)) }
         },
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.inputShape,
         colors =
-            OutlinedTextFieldDefaults.colors(
+            kanjiOutlinedTextFieldColors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
+                unfocusedBorderColor = Color.Transparent,
                 focusedBorderColor = MaterialTheme.colorScheme.primary,
             ),
     )
@@ -263,13 +303,14 @@ data class WordStudyItem(
 )
 
 @Composable
-fun WordDetailsContent(word: CatalogWord, language: String, kanji: List<CatalogKanji>, studyItems: List<WordStudyItem>, actions: WordDetailsActions, modifier: Modifier = Modifier, showOrigin: Boolean = false) {
+fun WordDetailsContent(word: CatalogWord, language: String, kanji: List<CatalogKanji>, studyItems: List<WordStudyItem>, actions: WordDetailsActions,
+    modifier: Modifier = Modifier, showOrigin: Boolean = false, footer: @Composable () -> Unit = {}, bottomPadding: androidx.compose.ui.unit.Dp = 0.dp) {
     with(actions) {
     Column(
         modifier
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 20.dp, vertical = 16.dp),
+            .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 16.dp + bottomPadding),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         if (showOrigin)
@@ -324,6 +365,7 @@ fun WordDetailsContent(word: CatalogWord, language: String, kanji: List<CatalogK
                 )
             }
         }
+        footer()
         if (word.parts.isNotEmpty())
             WordInfoPanel(title = stringResource(R.string.word_parts)) {
                 word.parts.forEach { Text(it.written + " · " + it.reading) }

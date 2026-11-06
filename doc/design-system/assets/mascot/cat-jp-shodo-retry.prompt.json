@@ -1,0 +1,8 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_jp_shodo_retry.png",
+  "title": "Сёдо: новая попытка",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_read_book.png",
+  "transparent_background": true,
+  "prompt": "Use case: illustration-story. Asset: one static transparent sticker for a kanji learning Android app, Japanese stationery aesthetic. Reference image is character identity and visual style guidance. Preserve the EXACT same round cream cat with dark oval eyes, short cheek marks, pink inner ears and paw pads, fluffy curved tail, green student cap with broad curved brim, red band and golden round button. Keep its thick rounded dark forest-green contours, cute proportions, simple flat matte colors. Japanese character is conveyed by the specified props, not a costume change. SCENE: The cat practices Japanese shodo calligraphy, leaning over a fresh cream practice sheet and carefully trying a brush stroke again after a small imperfect stroke. Holds one bamboo calligraphy brush in a forepaw and steadies the paper with the other. Calm determined smile. A few abstract strokes only, no readable characters. Whole cat and specified props visible in a compact centered square scene with generous transparent safe margins. Exactly two forepaws, two hindpaws, one tail. No background, scenery, extra props, text, lettering, flags, watermark, glow, white sticker border or cast ground shadow. Genuine transparent alpha background, all dark contours and facial features remain fully opaque."
+}

@@ -123,7 +123,9 @@ class CatalogNavigationTest {
 
     @Test
     fun referencesOpenAndBackReturnsToDashboard() {
-        openCatalog()
+        waitTag("open-references")
+        compose.onNodeWithTag("open-references").bringIntoViewIfNeeded().performClick()
+        waitTag("catalog-all-kanji")
         compose.onNodeWithTag("catalog-all-kanji").bringIntoViewIfNeeded().performClick()
         waitTag("kanji-grid")
         compose.onNodeWithTag("catalog-toggle-search").performClick()
@@ -137,7 +139,7 @@ class CatalogNavigationTest {
         compose.onNodeWithTag("catalog-search").performImeAction()
         compose.waitForIdle()
         androidx.test.espresso.Espresso.pressBack()
-        waitTag("source-1")
+        waitTag("catalog-all-kanji")
         androidx.test.espresso.Espresso.pressBack()
         waitTag("dashboard-screen")
     }

@@ -1,0 +1,114 @@
+[
+  {
+    "configuration": "ru-light-1.0",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "ru-light-1.5",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "ru-dark-1.0",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "ru-dark-1.5",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "en-light-1.0",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "en-light-1.5",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "en-dark-1.0",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  },
+  {
+    "configuration": "en-dark-1.5",
+    "apk_sha256": "94f6cd97cd0e3f313b2f4d4b7ec021779d59ed373f61216dc3b6b23b4b531815",
+    "screens": [
+      "create-tag-dialog",
+      "delete-tag-dialog",
+      "edit-tag-dialog",
+      "tag-management-empty",
+      "tag-management-nonempty",
+      "tags-empty",
+      "tags-nonempty",
+      "tags-selected"
+    ]
+  }
+]

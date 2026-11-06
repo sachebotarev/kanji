@@ -1,0 +1,40 @@
+<resources>
+    <string name="recipe_load_failed">Не удалось обновить данные. Черновик сохранён</string>
+    <string name="recipe_missing">Рецепт не найден</string>
+    <string name="recipe_retry">Повторить</string>
+    <string name="recipe_write_failed">Не удалось сохранить. Данные могли измениться. Черновик сохранён</string>
+    <string name="recipe_title">Рецепт</string>
+    <string name="recipe_name">Название</string>
+    <string name="recipe_name_hint">Например, Tobira · Главы 1–3</string>
+    <string name="recipe_name_clear">Очистить название</string>
+    <string name="recipe_name_error">Введите название от 1 до 120 символов</string>
+    <string name="recipe_name_and_more">и ещё %1$d</string>
+    <string name="recipe_materials">Учебный материал</string>
+    <string name="recipe_training_settings">Параметры тренировки</string>
+    <string name="recipe_pool_error">Добавьте материалы с подходящими словами</string>
+    <string name="recipe_pool_count">Доступно уникальных слов: %1$d</string>
+    <string name="recipe_task_count">Заданий за тренировку: %1$d</string>
+    <string name="recipe_save">Сохранить</string>
+    <string name="recipe_tasks">Заданий за тренировку</string>
+    <string name="recipe_word_count">По числу слов</string>
+    <string name="recipe_custom_count">Задать число</string>
+    <plurals name="recipe_tasks_from_pool">
+        <item quantity="one">Будет %d задание</item>
+        <item quantity="few">Будет %d задания</item>
+        <item quantity="many">Будет %d заданий</item>
+        <item quantity="other">Будет %d задания</item>
+    </plurals>
+    <string name="recipe_seconds">Секунд на слово</string>
+    <string name="recipe_no_timer">Без ограничения</string>
+    <string name="recipe_timer">Ограничить время</string>
+    <string name="recipe_timer_hint">На каждое слово</string>
+    <string name="recipe_number_error">Введите целое положительное число</string>
+    <string name="recipe_open_material">Изменить материал «%1$s»</string>
+    <string name="recipe_remove">Удалить материал</string>
+    <string name="recipe_undo">Отменить удаление</string>
+    <string name="recipe_less">Свернуть материалы</string>
+    <string name="recipe_leave">Сбросить изменения?</string>
+    <string name="recipe_stay">Отмена</string>
+    <string name="recipe_unsaved_message">Все внесённые правки будут потеряны.</string>
+    <string name="recipe_discard">Выйти</string>
+</resources>

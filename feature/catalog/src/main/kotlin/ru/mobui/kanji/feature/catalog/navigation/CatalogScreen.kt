@@ -88,7 +88,7 @@ internal fun CatalogScaffold(
             topBar = {
                 Column(Modifier.statusBarsPadding()) {
                     Row(
-                        Modifier.fillMaxWidth().padding(horizontal = 8.dp).heightIn(min = 64.dp),
+                        Modifier.fillMaxWidth().padding(horizontal = 8.dp).heightIn(min = if (home) 52.dp else 64.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         IconButton(onBack, Modifier.testTag("catalog-back")) {
@@ -101,14 +101,11 @@ internal fun CatalogScaffold(
                         Text(
                             title,
                             Modifier.weight(1f)
-                                .padding(horizontal = 8.dp, vertical = 10.dp)
+                                .padding(horizontal = if (home) 0.dp else 8.dp, vertical = if (home) 2.dp else 10.dp)
                                 .semantics { heading() },
-                            style =
-                                MaterialTheme.typography.headlineSmall.copy(
-                                    fontSize = if (home) 24.sp else 22.sp,
-                                    lineHeight = if (home) 32.sp else 28.sp,
-                                    fontWeight = FontWeight.Medium,
-                                ),
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = if (home) FontWeight.Normal else FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         if (search != null)
                             IconButton(
@@ -134,7 +131,7 @@ internal fun CatalogScaffold(
                     if (subtitle.isNotEmpty())
                         Text(
                             subtitle,
-                            Modifier.padding(start = 20.dp, end = 20.dp, bottom = 8.dp),
+                            Modifier.padding(start = 18.dp, end = 18.dp, bottom = 8.dp),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

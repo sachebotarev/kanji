@@ -39,13 +39,6 @@
 .n-tab[aria-selected=true]{color:var(--primary)!important}
 .n-tab:after{position:absolute;content:'';height:3px;bottom:0;left:17.5%;right:17.5%;border-radius:2px;background:transparent}
 .n-tab[aria-selected=true]:after{background:var(--primary)}
-.n-search{position:relative;display:flex;align-items:center;margin:8px 20px;background:var(--surface-high);border:1px solid transparent;border-radius:24px;min-height:56px}
-.n-search:focus-within{border-color:var(--primary);outline:1px solid var(--primary)}
-.n-search .n-search-icon{width:48px;min-width:48px;text-align:center;font-size:26px;color:var(--muted);pointer-events:none}
-.n-search input{width:100%;min-width:0;min-height:54px;border:0;outline:none!important;background:transparent;color:var(--ink);font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));padding:15px 12px 15px 0;font-family:inherit}
-.n-search input::placeholder{color:var(--muted);opacity:1}
-.n-search input::-webkit-search-cancel-button{display:none}
-.n-clear-query{padding:0 12px!important;flex-shrink:0;min-height:48px;color:var(--primary)!important;font-size:calc(14px * var(--scale))}
 .n-filters{padding:8px 20px;display:grid;gap:4px}
 .n-filters.words{padding:4px 16px}
 .n-filter-row{display:flex;gap:8px}
@@ -136,7 +129,10 @@
 .p-textbooks{min-width:0}
 .p-section-intro{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:28px;margin-bottom:16px;padding:0 4px}
 .p-section-intro h3{margin:0;font-size:calc(22px * var(--scale));line-height:calc(28px * var(--scale));font-weight:600;min-width:0;overflow-wrap:anywhere}
-.p-catalog-mascot{display:flex;justify-content:center;min-width:0}
+.p-catalog-intro{display:flex;align-items:center;justify-content:space-between;gap:24px;min-height:112px;padding:8px;box-sizing:border-box}
+.p-catalog-intro p{margin:0;font-size:calc(18px * var(--scale));line-height:1.4;font-weight:500;min-width:0;overflow-wrap:anywhere}
+.p-catalog-intro .p-reading-cat{width:96px;height:96px}
+.catalog-proposal:has(.p-catalog-intro){gap:24px}
 .p-reading-cat{width:156px;height:156px;object-fit:contain;flex-shrink:0}
 .p-source-list{display:grid;gap:12px}
 .catalog-proposal .p-source-card{padding:16px!important;gap:0;background:var(--surface-high)!important;border-radius:24px}

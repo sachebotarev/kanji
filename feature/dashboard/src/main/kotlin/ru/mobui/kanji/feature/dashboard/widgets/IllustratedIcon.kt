@@ -44,7 +44,15 @@ private val NightIllustrationPalette =
         ),
     )
 
-/** A single source bitmap and optical scale per icon, shared by both themes. */
+/** The approved HTML stationery filter: brightness(1.25) saturate(.7), preserving alpha. */
+private val NightStationeryPalette = ColorFilter.colorMatrix(
+    ColorMatrix().apply {
+        setToSaturation(.7f)
+        this *= ColorMatrix().apply { setToScale(1.25f, 1.25f, 1.25f, 1f) }
+    },
+)
+
+/** Source artwork and optical scale are shared by both themes. */
 @Composable
 internal fun IllustratedIcon(
     kind: DashboardIcon,
@@ -60,6 +68,7 @@ internal fun IllustratedIcon(
                 ColorFilter.tint(
                     if (kind == DashboardIcon.Start) colors.onPrimaryContainer else colors.primary,
                 )
+            kind.stationery -> if (dark) NightStationeryPalette else null
             dark -> NightIllustrationPalette
             else -> null
         }

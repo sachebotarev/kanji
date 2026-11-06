@@ -40,6 +40,9 @@ internal constructor(
         io: CoroutineDispatcher = Dispatchers.IO,
     ) : this(CatalogDatabase.open(context), context.applicationContext.assets, io)
 
+    val recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository =
+        RoomRecipesRepository(database, { load() }, io)
+
     private val mutex = Mutex()
     private var snapshot: CatalogSnapshot? = null
     private val mutableRevision = MutableStateFlow(0L)
@@ -98,6 +101,12 @@ internal constructor(
                         )
                             dao.clearParts(listOf(wordId))
                         if (id == null) dao.addPersonalLink(wordId)
+                        if (validated.tagIds != null || validated.pendingTags.isNotEmpty()) {
+                            val existing = validated.tagIds ?: database.recipesDao().allWordTags()
+                                .filter { it.wordId == wordId }.map { it.tagId }.toSet()
+                            val created = validated.pendingTags.map { saveTagInTransaction(database, null, it) }
+                            assignTagsInTransaction(database, wordId, existing + created)
+                        }
                         // Catalog details may have been opened via an unscoped kanji; avoid
                         // returning a stale snapshot.
                         wordId
@@ -147,9 +156,11 @@ internal suspend fun readSnapshot(dao: CatalogDao): CatalogSnapshot {
     val readings = dao.kanjiReadings().sortedBy { it.position }.groupBy { it.kanjiId }
     val names = dao.radicalsTranslations().groupBy { it.radicalId }
     val parts = dao.wordReadingParts().sortedBy { it.position }.groupBy { it.wordId }
+    // Keep the personal dictionary source and its links: recipe materials and recipe
+    // previews resolve Dictionary pools from this snapshot, not from observeWords alone.
     val sources =
         dao.sources()
-            .filter { it.sourceType != "personal" && it.isArchived == 0 }
+            .filter { it.isArchived == 0 }
             .map {
                 it.toCatalogSource(sourceTranslations[it.id].orEmpty())
             }

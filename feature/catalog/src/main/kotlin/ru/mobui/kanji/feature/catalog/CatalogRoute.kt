@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.domain.catalog.CatalogRepository
 
 @Serializable internal data object CatalogHome
@@ -59,13 +60,19 @@ internal data class KanjiChapterRoute(
     val radical: Int?,
     val strokes: Int?,
     val jlpt: Int,
+    val chapterIds: List<Int> = emptyList(),
+    val radicalIds: List<Int> = emptyList(),
+    val strokeIds: List<Int> = emptyList(),
+    val jlptIds: List<Int> = emptyList(),
 )
 
 @Serializable
-internal data class WordChapterRoute(val sourceId: Int, val chapter: Int?, val kanji: Int?)
+internal data class WordChapterRoute(val sourceId: Int, val chapter: Int?, val kanji: Int?, val kanjiIds: List<Int> = emptyList(),
+    val chapterIds: List<Int> = emptyList())
 
 @Serializable
-internal data class KanjiChoiceRoute(val sourceId: Int, val chapter: Int?, val selectedKanji: Int?)
+internal data class KanjiChoiceRoute(val sourceId: Int, val chapter: Int?, val selectedKanji: Int?, val kanjiIds: List<Int> = emptyList(),
+    val chapterIds: List<Int> = emptyList())
 
 @Serializable
 internal data class RadicalChoiceRoute(
@@ -74,6 +81,10 @@ internal data class RadicalChoiceRoute(
     val radical: Int?,
     val strokes: Int?,
     val jlpt: Int,
+    val chapterIds: List<Int> = emptyList(),
+    val radicalIds: List<Int> = emptyList(),
+    val strokeIds: List<Int> = emptyList(),
+    val jlptIds: List<Int> = emptyList(),
 )
 
 @Serializable
@@ -83,9 +94,13 @@ internal data class KanjiStrokesRoute(
     val radical: Int?,
     val strokes: Int?,
     val jlpt: Int,
+    val chapterIds: List<Int> = emptyList(),
+    val radicalIds: List<Int> = emptyList(),
+    val strokeIds: List<Int> = emptyList(),
+    val jlptIds: List<Int> = emptyList(),
 )
 
-@Serializable internal data class RadicalStrokesRoute(val strokes: Int?)
+@Serializable internal data class RadicalStrokesRoute(val strokes: Int?, val strokeIds: List<Int> = emptyList())
 
 @Serializable
 internal data class JlptChoiceRoute(
@@ -94,6 +109,10 @@ internal data class JlptChoiceRoute(
     val radical: Int?,
     val strokes: Int?,
     val jlpt: Int,
+    val chapterIds: List<Int> = emptyList(),
+    val radicalIds: List<Int> = emptyList(),
+    val strokeIds: List<Int> = emptyList(),
+    val jlptIds: List<Int> = emptyList(),
 )
 
 @Composable
@@ -104,11 +123,13 @@ fun CatalogRoute(
     initialSourceId: Int = 0,
     loadDrawing: suspend (Int) -> ru.mobui.kanji.domain.handwriting.ReferenceDrawing? = { null },
     revision: Long = 0L,
+    initialWordId: Int = 0,
+    section: CatalogSection = CatalogSection.Combined,
 ) {
     val nav = rememberNavController()
     val back: () -> Unit = { if (!nav.popBackStack()) onBack() }
     BackHandler(onBack = back)
-    val language = LocalConfiguration.current.locales[0].toLanguageTag()
+    val language = LocalConfiguration.current.preferredLanguageTag()
     val browse: (BrowseNavigation) -> Unit = { nav.openBrowse(it) }
     val detail: (DetailNavigation) -> Unit = { nav.openDetail(it) }
     val select: (FilterResult) -> Unit = { result ->
@@ -117,11 +138,12 @@ fun CatalogRoute(
         nav.popBackStack()
     }
     val start: Any =
-        remember(initialKanjiId, initialSourceId) {
-            if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
+        remember(initialKanjiId, initialSourceId, initialWordId) {
+            if (initialWordId != 0) WordRoute(initialWordId, initialSourceId.takeIf { it != 0 })
+            else if (initialKanjiId != 0) KanjiRoute(initialKanjiId, initialSourceId.takeIf { it != 0 })
             else if (initialSourceId != 0) SourceRoute(initialSourceId) else CatalogHome
         }
-    val context = CatalogGraphContext(repository, language, back, loadDrawing, browse, detail, select, revision)
+    val context = CatalogGraphContext(repository, language, back, loadDrawing, browse, detail, select, revision, section)
     CatalogTheme {
         NavHost(nav, startDestination = start) {
             catalogBrowseSources(context)
@@ -149,6 +171,8 @@ private fun NavHostController.openFilter(request: FilterRequest) {
                     request.sourceId,
                     request.filters.chapter,
                     request.filters.kanjiId,
+                    request.filters.kanjiIds.sorted(),
+                    request.filters.chapterIds.sorted(),
                 ),
             )
         is FilterRequest.Kanji ->
@@ -157,9 +181,11 @@ private fun NavHostController.openFilter(request: FilterRequest) {
                     request.sourceId,
                     request.filters.chapter,
                     request.filters.kanjiId,
+                    request.filters.kanjiIds.sorted(),
+                    request.filters.chapterIds.sorted(),
                 ),
             )
-        is FilterRequest.RadicalStrokes -> navigate(RadicalStrokesRoute(request.selected))
+        is FilterRequest.RadicalStrokes -> navigate(RadicalStrokesRoute(request.selected, request.selectedIds.sorted()))
     }
 }
 
@@ -168,35 +194,27 @@ private fun NavHostController.openKanjiFacetFilter(request: FilterRequest) {
         when (request) {
             is FilterRequest.ChaptersForKanji ->
                 KanjiChapterRoute(
-                    request.sourceId,
-                    request.filters.chapter,
-                    request.filters.radicalId,
-                    request.filters.strokes,
-                    request.filters.jlpt.savedValue(),
+                    request.sourceId, request.filters.chapter, request.filters.radicalId,
+                    request.filters.strokes, request.filters.jlpt.savedValue(), request.filters.chapterIds.sorted(),
+                    request.filters.radicalIds.sorted(), request.filters.strokeIds.sorted(), request.filters.jlptFilters.map { it.savedValue() }.sorted(),
                 )
             is FilterRequest.Radical ->
                 RadicalChoiceRoute(
-                    request.sourceId,
-                    request.filters.chapter,
-                    request.filters.radicalId,
-                    request.filters.strokes,
-                    request.filters.jlpt.savedValue(),
+                    request.sourceId, request.filters.chapter, request.filters.radicalId,
+                    request.filters.strokes, request.filters.jlpt.savedValue(), request.filters.chapterIds.sorted(),
+                    request.filters.radicalIds.sorted(), request.filters.strokeIds.sorted(), request.filters.jlptFilters.map { it.savedValue() }.sorted(),
                 )
             is FilterRequest.KanjiStrokes ->
                 KanjiStrokesRoute(
-                    request.sourceId,
-                    request.filters.chapter,
-                    request.filters.radicalId,
-                    request.filters.strokes,
-                    request.filters.jlpt.savedValue(),
+                    request.sourceId, request.filters.chapter, request.filters.radicalId,
+                    request.filters.strokes, request.filters.jlpt.savedValue(), request.filters.chapterIds.sorted(),
+                    request.filters.radicalIds.sorted(), request.filters.strokeIds.sorted(), request.filters.jlptFilters.map { it.savedValue() }.sorted(),
                 )
             is FilterRequest.Jlpt ->
                 JlptChoiceRoute(
-                    request.sourceId,
-                    request.filters.chapter,
-                    request.filters.radicalId,
-                    request.filters.strokes,
-                    request.filters.jlpt.savedValue(),
+                    request.sourceId, request.filters.chapter, request.filters.radicalId,
+                    request.filters.strokes, request.filters.jlpt.savedValue(), request.filters.chapterIds.sorted(),
+                    request.filters.radicalIds.sorted(), request.filters.strokeIds.sorted(), request.filters.jlptFilters.map { it.savedValue() }.sorted(),
                 )
             else -> return
         }

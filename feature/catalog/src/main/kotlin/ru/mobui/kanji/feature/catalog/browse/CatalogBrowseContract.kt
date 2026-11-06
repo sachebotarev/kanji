@@ -81,7 +81,8 @@ internal sealed interface BrowseContent {
         val radicalSymbol: String?,
     ) : BrowseContent
 
-    data class AllRadicals(val entries: List<CatalogRadical>, val total: Int, val strokes: Int?) :
+    data class AllRadicals(val entries: List<CatalogRadical>, val total: Int, val strokes: Int?,
+        val strokeIds: Set<Int> = setOfNotNull(strokes)) :
         BrowseContent
 
     data class RelatedWords(

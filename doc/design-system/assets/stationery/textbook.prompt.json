@@ -1,0 +1,12 @@
+{
+  "asset": "textbook.png",
+  "title": "Учебники",
+  "method": "built-in image_gen",
+  "transparent_background": true,
+  "prompt": "Use case: stylized-concept. Asset type: colored Japanese stationery sticker for an Android app, standalone PNG 1024x1024. PRIMARY SUBJECT: One thick CLOSED textbook. Sage-green matte hardcover with rounded corners, a thick clearly visible CREAM PAPER PAGE BLOCK with fine restrained page-edge lines, and a small terracotta cloth ribbon bookmark emerging naturally from the book. A small clean blank cream label on the front cover, NO text. The book is fully closed and physically coherent: two thin green covers surround a thick cream paper block, one normal spine, no extra flap. No spiral binding, no pencil. SHARED ART DIRECTION: soft sculpted volume, three-quarter view from slightly above, matte materials, rounded forms, clean dark forest-green contours of moderate consistent thickness. Restrained palette of sage green, cream paper, green-graphite darks and a small muted terracotta accent. Gentle illumination from TOP LEFT, soft shading restricted to the object itself. Polished illustrated 2.5D stationery, NOT photorealism, NOT a flat outline icon. Simple strong silhouette with broad shapes and minimal detail that remains immediately readable at 64 px. One centered object assembly only, fill about 78-82% of a SQUARE 1024x1024 canvas, even transparent margins, entire silhouette visible. Genuine transparent alpha background, all object shapes and dark contour ink fully opaque. NO text, letters, kanji, logos, numbers, watermarks, white sticker outline, exterior cast shadow, ground plane, scenery, glow, haze or additional decorations.",
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "postprocess": "sips: resample to requested 1024 × 1024, preserve alpha"
+}

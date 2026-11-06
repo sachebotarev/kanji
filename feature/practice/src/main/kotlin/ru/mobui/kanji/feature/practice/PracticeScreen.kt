@@ -102,7 +102,7 @@ import ru.mobui.kanji.domain.practice.EntryStatus
 import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.KanjiTask
 import ru.mobui.kanji.domain.practice.PracticeCell
-import ru.mobui.kanji.domain.practice.PracticeSession
+import ru.mobui.kanji.domain.practice.HandwritingTraining
 import ru.mobui.kanji.domain.practice.PracticeTask
 
 /** Pure screen: navigation, state ownership and providers live outside this composable. */
@@ -329,7 +329,7 @@ private fun PracticePreview() {
                     KanjiTask("second", KanjiId("book"), EntryMode.Prefilled),
                 ),
             )
-        PracticeScreen(PracticeUiState(PracticeSession(task).state), {}, {})
+        PracticeScreen(PracticeUiState(HandwritingTraining(task).state), {}, {})
     }
 }
 

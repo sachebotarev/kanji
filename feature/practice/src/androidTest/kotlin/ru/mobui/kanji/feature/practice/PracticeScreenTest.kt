@@ -76,7 +76,7 @@ import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.KanjiReferenceSource
 import ru.mobui.kanji.domain.practice.KanjiTask
 import ru.mobui.kanji.domain.practice.PracticeResult
-import ru.mobui.kanji.domain.practice.PracticeSession
+import ru.mobui.kanji.domain.practice.HandwritingTraining
 import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 import ru.mobui.kanji.domain.practice.RotationCompensation
@@ -108,7 +108,7 @@ class PracticeScreenTest {
     fun checkIndicatorsExposeIndependentResultsInsteadOfAggregateStatus() {
         val state =
             PracticeUiState(
-                PracticeSession(task).state,
+                HandwritingTraining(task).state,
                 currentCheckReport =
                     CheckReport(
                         CheckVerdict.Incorrect,
@@ -206,7 +206,7 @@ class PracticeScreenTest {
                     )
                 },
             )
-        val initial = PracticeSession(task).state
+        val initial = HandwritingTraining(task).state
         val practice =
             initial.copy(
                 cells =
@@ -264,7 +264,7 @@ class PracticeScreenTest {
 
     @Test
     fun incompleteWritingDoesNotClaimThatOrderAndDirectionPassed() {
-        val initial = PracticeSession(task).state
+        val initial = HandwritingTraining(task).state
         val reference =
             ReferenceDrawing(List(4) { listOf(ReferencePoint(.2f, .2f), ReferencePoint(.8f, .8f)) })
         val cell = initial.selected!!.copy(reference = reference)
@@ -285,7 +285,7 @@ class PracticeScreenTest {
 
     @Test
     fun headerShowsOnlyElapsedTimeWithoutLimitAndNoInstructionOrButtons() {
-        val initial = PracticeSession(task).state.copy(elapsedMs = 12_800)
+        val initial = HandwritingTraining(task).state.copy(elapsedMs = 12_800)
         compose.setContent {
             MaterialTheme { PracticeScreen(PracticeUiState(initial, debugEnabled = true), {}, {}) }
         }
@@ -299,7 +299,7 @@ class PracticeScreenTest {
 
     @Test
     fun countdownShowsTimeOnlyAndReachesZeroAtDeadline() {
-        val initial = PracticeSession(task.copy(timeLimitMs = 100_000)).state
+        val initial = HandwritingTraining(task.copy(timeLimitMs = 100_000)).state
         val elapsed = mutableStateOf(80_001L)
         compose.setContent {
             MaterialTheme {
@@ -724,7 +724,7 @@ class PracticeScreenTest {
             MaterialTheme {
                 Box(Modifier.requiredSize(392.dp, 844.dp)) {
                     val timed = task.copy(russianWord = word.value, timeLimitMs = 300_000)
-                    PracticeScreen(PracticeUiState(PracticeSession(timed).state), {}, {})
+                    PracticeScreen(PracticeUiState(HandwritingTraining(timed).state), {}, {})
                 }
             }
         }

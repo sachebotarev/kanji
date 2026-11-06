@@ -1,8 +1,8 @@
 # Каталог: дизайн-макет Material 3
 
-Все 17 экранов **согласованы пользователем 2026-11-03**. Макет использует реальные данные каталога и общую тему просмотрщика. Каталог реализован в Android; HTML и Compose различаются средой исполнения. [Контракт и границы проверки](../../../implementation/catalog-ui.md).
+Все 18 экранов каталожного происхождения **согласованы 2026-11-04**. Макет использует реальные данные и общую тему; общие селекторы выделены в свой раздел. [Целевой контракт Android](../../../implementation/approved-ui-handoff.md) отделён от существующей реализации.
 
-Статусы, названия и пояснения находятся в [общей конфигурации](../../theme/screens.json). `../../05-screens/catalog/review-status.json` — генерируемая совместимая копия. Тема и локальный цветовой черновик не меняют согласование. [Редактор темы](../shared/theme-preview.html), [инструкция по конфигурациям](../../theme/README.md).
+Статусы, названия и пояснения находятся в [общей конфигурации](../../theme/screens.json). Тема и локальный цветовой черновик не меняют согласование. [Редактор темы](../shared/theme-preview.html), [инструкция по конфигурациям](../../theme/README.md).
 
 ## Открыть
 
@@ -16,13 +16,11 @@
 - `screens.js`: текущие композиции и HTML-компоненты.
 - `styles.css`, `components.css`, `tokens.css`: компоновка и компоненты; цвета и роли общие в `../shared/material-theme.css` и `material-components.css`.
 - `assets/catalog.js`: экспорт каталога, подготовленных переводов и Android-ресурсов.
-- `../../review_catalog.py`: генерация реестра экранов в Markdown и обзорной страницы. Статус самовольно не меняет.
 
 Обновить данные и документацию:
 
 ```sh
 python3 doc/design-system/prototypes/textbooks/export_catalog.py
-python3 doc/design-system/review_catalog.py
 node doc/design-system/prototypes/textbooks/test_content.cjs
 ```
 
@@ -32,4 +30,4 @@ node doc/design-system/prototypes/textbooks/test_content.cjs
 
 Данные экспортируются из read-only seed и подготовленного `data/catalog/content`. Изменения не меняют БД приложения. Загрузка/ошибка переключаются вручную. HTML не воспроизводит системную клавиатуру, TalkBack, уничтожение процесса и физику Compose. Масштаб HTML не заменяет нативную проверку.
 
-Текущее устройство Android: [контракт интерфейса](../../../implementation/catalog-ui.md), [архитектура presentation](../../../decisions/catalog-presentation.md). Прежние снимки в `approved/` — исходная редакция для сравнения, не согласование текущего макета.
+Текущее устройство Android: [контракт интерфейса](../../../implementation/catalog-ui.md), [архитектура presentation](../../../decisions/catalog-presentation.md).

@@ -1,0 +1,30 @@
+<resources>
+    <string name="library_title">Рецепты</string>
+    <string name="library_create">Создать</string>
+    <string name="library_intro">Выберите или создайте</string>
+    <string name="library_count">Рецептов: %1$d из %2$d</string>
+    <string name="library_empty">Создайте свой первый рецепт</string>
+    <string name="library_empty_hint">Выберите материал и удобный темп.</string>
+    <string name="library_no_results">Рецепты не найдены</string>
+    <string name="library_no_results_hint">Попробуйте другое название, учебник или уровень JLPT.</string>
+    <string name="library_search">Поиск рецептов</string>
+    <string name="library_clear">Очистить</string>
+    <string name="library_above">Переместить выше</string>
+    <string name="library_below">Переместить ниже</string>
+    <string name="library_select">Выбрать рецепт «%1$s»</string>
+    <string name="library_open">Открыть рецепт «%1$s»</string>
+    <string name="library_edit">Изменить</string>
+    <string name="library_copy_name">%1$s (копия)</string>
+    <string name="dictionary_remove_recipe">Удалить</string>
+    <string name="library_delete_title">Удалить рецепт?</string>
+    <string name="library_kanji">Кандзи: %1$d</string>
+    <string name="library_tasks">Заданий: %1$d</string>
+    <string name="library_seconds">%1$d с на слово</string>
+    <string name="library_no_timer">Без таймера</string>
+    <string name="library_more">Ещё материалы</string>
+    <string name="library_collapse">Свернуть состав</string>
+    <string name="library_menu">Действия с рецептом «%1$s»</string>
+    <string name="library_none">Рецепт не выбран</string>
+    <string name="library_cancel">Отмена</string>
+    <string name="library_delete_message">Настройки рецепта будут удалены. Учебные материалы останутся.</string>
+</resources>

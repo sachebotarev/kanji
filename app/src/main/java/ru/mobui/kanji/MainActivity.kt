@@ -64,7 +64,9 @@ internal enum class AppDestination {
     Settings,
     CheckerSettings,
     Catalog,
+    References,
     Dictionary,
+    RecipeBuilder,
 }
 
 class MainActivity : ComponentActivity() {
@@ -105,18 +107,6 @@ class MainActivity : ComponentActivity() {
                     }
                 },
             )[RecognitionSettingsViewModel::class.java]
-        val trainingModel =
-            ViewModelProvider(
-                this,
-                viewModelFactory {
-                    initializer {
-                        DashboardTrainingViewModel(
-                            createSavedStateHandle(),
-                            getString(ru.mobui.kanji.feature.dashboard.R.string.dashboard_mix),
-                        )
-                    }
-                },
-            )[DashboardTrainingViewModel::class.java]
         val dictionarySummary =
             ViewModelProvider(
                 this,
@@ -124,7 +114,7 @@ class MainActivity : ComponentActivity() {
                     initializer { DictionarySummaryViewModel(dependencies.dictionary) }
                 },
             )[DictionarySummaryViewModel::class.java]
-        return AppModels(settingsModel, trainingModel, dictionarySummary)
+        return AppModels(settingsModel, dictionarySummary)
     }
 
     private fun createPracticeGraph(
@@ -139,14 +129,13 @@ class MainActivity : ComponentActivity() {
                 override fun <T : ViewModel> create(modelClass: Class<T>): T {
                     require(modelClass.isAssignableFrom(PracticeViewModel::class.java))
                     @Suppress("UNCHECKED_CAST")
-                    return PracticeViewModel(
+                    return (PracticeViewModel(
                         task,
                         source,
                         checker,
                         hintAlgorithm = TraceReferenceHint(),
                         showCheckDiagnostics = BuildConfig.DEBUG,
-                    )
-                        as T
+                    ) as T)
                 }
             }
         return DemoPracticeGraph(task, source, factory)

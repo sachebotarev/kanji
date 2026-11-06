@@ -51,6 +51,71 @@ class CatalogTest {
         )
 
     @Test
+    fun kanjiFacetsMatchOrWithinAndAcrossSearchScopeAndChapters() {
+        val data = CatalogSnapshot(2, CatalogContent(snapshot.sources, snapshot.words,
+            listOf(moon.copy(jlptLevel = JlptLevel.N5), one), snapshot.radicals, snapshot.placements, snapshot.links))
+        val both = CatalogSelection(sourceId = 1, radicalIds = setOf(1, 74), strokeIds = setOf(1, 4),
+            jlptFilters = setOf(JlptFilter.Exact(JlptLevel.N5), JlptFilter.Missing))
+        assertEquals(setOf(one.id, moon.id), data.kanji(both, "", "ru").map { it.id }.toSet())
+        assertEquals(listOf(moon.id), data.kanji(both, "ЛУНА", "ru").map { it.id })
+        assertEquals(listOf(one.id), data.kanji(both.copy(chapterIds = setOf(3)), "", "ru").map { it.id })
+        assertEquals(listOf(moon.id), data.kanji(both.copy(jlptFilters = setOf(JlptFilter.Exact(JlptLevel.N5))), "", "ru").map { it.id })
+        assertTrue(data.kanji(both.copy(sourceId = 2), "", "ru").isEmpty())
+        assertEquals(listOf(one.id), data.kanji(both.copy(strokeIds = setOf(1)), "", "ru").map { it.id })
+        assertEquals(listOf(january.id), data.words(both, "", "ru").map { it.id })
+    }
+
+    @Test
+    fun facetOptionsIgnoreOwnSetAndWordMatchesUseTheSameStudyLink() {
+        val contradictory = CatalogSelection(sourceId = 1, radicalIds = setOf(74), strokeIds = setOf(1))
+        assertTrue(snapshot.words(contradictory, "", "ru").isEmpty())
+        assertTrue(snapshot.wordGroups(contradictory, "", "ru").isEmpty())
+        assertEquals(mapOf(4 to 1), snapshot.strokeCounts(contradictory))
+        assertEquals(listOf(1), snapshot.availableRadicals(contradictory, "", "ru").map { it.id })
+        assertEquals(mapOf<JlptLevel?, Int>(null to 2), snapshot.jlptCounts(CatalogSelection(
+            jlptFilters = setOf(JlptFilter.Exact(JlptLevel.N1), JlptFilter.Exact(JlptLevel.N2)))))
+    }
+
+    @Test
+    fun radicalStrokeSetsAreOrMatchedAndIntersectSearch() {
+        assertEquals(setOf(1, 74), snapshot.radicals("", "ru", strokeIds = setOf(1, 4)).map { it.id }.toSet())
+        assertEquals(listOf(74), snapshot.radicals("луна", "ru", strokeIds = setOf(1, 4)).map { it.id })
+        assertTrue(snapshot.radicals("луна", "ru", strokeIds = setOf(1, 2)).isEmpty())
+        assertEquals(listOf(1), snapshot.radicals("", "ru", 1).map { it.id })
+        assertEquals(2, snapshot.radicals("", "ru", strokeIds = emptySet()).size)
+    }
+
+    @Test
+    fun chapterSetsAreOrMatchedAndIntersectKanjiOnTheSamePlacement() {
+        val selection = CatalogSelection(1, chapterIds = setOf(3, 4))
+        assertEquals(setOf(one.id, moon.id), snapshot.kanji(selection, "", "ru").map { it.id }.toSet())
+        assertEquals(listOf(january), snapshot.words(selection, "", "ru"))
+        assertEquals(listOf(3), snapshot.wordGroups(selection, "", "ru").map { it.chapter })
+        assertEquals(listOf(3, 4), snapshot.availableChapters(selection.copy(chapterIds = setOf(3))).map { it.number })
+        val incompatible = selection.copy(chapterIds = setOf(3), kanjiIds = setOf(moon.id))
+        assertTrue(snapshot.words(incompatible, "", "ru").isEmpty())
+        assertEquals(listOf(january), snapshot.words(incompatible.copy(chapterIds = setOf(3, 4)), "январь", "ru"))
+        assertTrue(snapshot.words(selection.copy(sourceId = 2), "", "ru").isEmpty())
+    }
+
+    @Test
+    fun multipleKanjiAreOrMatchedWithoutDuplicatingWords() {
+        val selection = CatalogSelection(1, kanjiIds = setOf(one.id, moon.id))
+        assertEquals(listOf(january), snapshot.words(selection, "", "ru"))
+        assertEquals(listOf(3, 4), snapshot.availableChapters(selection).map { it.number })
+        assertEquals(listOf(3), snapshot.wordGroups(selection, "", "ru").map { it.chapter })
+        assertEquals(listOf(4), snapshot.wordGroups(selection.copy(chapter = 4), "", "ru").map { it.chapter })
+    }
+
+    @Test
+    fun selectedKanjiIntersectChapterAndSearchOnTheSameStudyLink() {
+        val selection = CatalogSelection(1, chapter = 3, kanjiIds = setOf(moon.id))
+        assertTrue(snapshot.words(selection, "", "ru").isEmpty())
+        assertEquals(listOf(january), snapshot.words(selection.copy(kanjiIds = setOf(one.id, moon.id)), "январь", "ru"))
+        assertTrue(snapshot.words(selection.copy(chapter = null), "not present", "en").isEmpty())
+    }
+
+    @Test
     fun filterChoicesExcludeImpossibleCombinations() {
         assertEquals(
             listOf(74),

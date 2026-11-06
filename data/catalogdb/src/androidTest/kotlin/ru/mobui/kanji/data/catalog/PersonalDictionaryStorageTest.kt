@@ -54,7 +54,10 @@ class PersonalDictionaryStorageTest {
             assertEquals(0L, repository.revision.value)
             val id = repository.saveWord(null, draft)
             assertEquals(1L, repository.revision.value)
-            assertEquals("木漏れ日の例文です。", repository.load().wordById[id]?.written)
+            val loaded = repository.load()
+            assertEquals("木漏れ日の例文です。", loaded.wordById[id]?.written)
+            assertEquals("personal", loaded.sources.single { it.sourceType == "personal" }.sourceType)
+            assertTrue(loaded.links.any { it.wordId == id && it.sourceId < 0 })
             assertTrue(pending.await().single().isUserCreated)
             assertTrue(id < 0)
             assertEquals(

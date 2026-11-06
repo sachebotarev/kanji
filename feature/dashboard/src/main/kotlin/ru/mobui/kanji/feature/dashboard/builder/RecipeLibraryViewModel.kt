@@ -1,0 +1,97 @@
+package ru.mobui.kanji.feature.dashboard.builder
+
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.withContext
+import ru.mobui.kanji.domain.catalog.recipeWords
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import ru.mobui.kanji.domain.catalog.CatalogRepository
+import ru.mobui.kanji.domain.catalog.CatalogSnapshot
+import ru.mobui.kanji.domain.catalog.DictionaryTag
+import ru.mobui.kanji.domain.catalog.RecipesRepository
+import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
+import ru.mobui.kanji.domain.catalog.Recipe
+import ru.mobui.kanji.domain.catalog.WordTagAssignment
+
+internal data class RecipeLibraryState(
+    val recipes: List<Recipe> = emptyList(),
+    val snapshot: CatalogSnapshot? = null,
+    val tags: List<DictionaryTag> = emptyList(),
+    val assignments: List<WordTagAssignment> = emptyList(),
+    val counts: Map<String, Int> = emptyMap(),
+    val loading: Boolean = true,
+    val busy: Boolean = false,
+    val error: Boolean = false,
+)
+
+internal class RecipeLibraryViewModel(
+    private val saved: SavedStateHandle,
+    private val catalog: CatalogRepository,
+    private val personal: PersonalDictionaryRepository,
+    private val recipesRepository: RecipesRepository,
+    private val compute: CoroutineDispatcher = Dispatchers.Default,
+) : ViewModel() {
+    private val mutable = MutableStateFlow(RecipeLibraryState())
+    val state = mutable.asStateFlow()
+    private val search = MutableStateFlow(saved.get<String>("query").orEmpty())
+    val query = search.asStateFlow()
+    private var observation: Job? = null
+    init { retry() }
+    fun query(value: String) { search.value = value; saved["query"] = value }
+    fun retry() {
+        observation?.cancel()
+        mutable.update { it.copy(loading = it.snapshot == null, error = false) }
+        observation = viewModelScope.launch {
+            try {
+                combine(recipesRepository.observeRecipes(), recipesRepository.observeTags(), recipesRepository.observeWordTags(),
+                    personal.observeWords()) { recipes, tags, assignments, _ ->
+                    RecipeLibraryState(recipes = recipes, tags = tags, assignments = assignments)
+                }.collectLatest { loaded ->
+                    val snapshot = catalog.load()
+                    val counts = withContext(compute) {
+                        loaded.recipes.associate { recipe ->
+                            recipe.id to snapshot.recipeWords(recipe.materials, loaded.assignments).size
+                        }
+                    }
+                    currentCoroutineContext().ensureActive()
+                    mutable.update {
+                        loaded.copy(snapshot = snapshot, counts = counts, loading = false, busy = it.busy)
+                    }
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) {
+                currentCoroutineContext().ensureActive()
+                mutable.update { it.copy(loading = false, error = true) }
+            }
+        }
+    }
+    fun select(id: String) = operation { recipesRepository.activateRecipe(id) }
+    fun delete(id: String) = operation { recipesRepository.deleteRecipe(id) }
+    fun reorder(ids: List<String>) {
+        if (query.value.isNotBlank()) return
+        if (ids.toSet() != mutable.value.recipes.map { it.id }.toSet() || ids.distinct().size != ids.size) return
+        operation { recipesRepository.reorderRecipes(ids) }
+    }
+    private fun operation(block: suspend () -> Unit) {
+        if (mutable.value.busy || mutable.value.loading) return
+        mutable.update { it.copy(busy = true, error = false) }
+        viewModelScope.launch {
+            try { block() }
+            catch (cancelled: CancellationException) { throw cancelled }
+            catch (_: Exception) { mutable.update { it.copy(error = true) } }
+            finally { mutable.update { it.copy(busy = false) } }
+        }
+    }
+}

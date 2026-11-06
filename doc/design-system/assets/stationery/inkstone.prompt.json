@@ -1,0 +1,12 @@
+{
+  "asset": "inkstone.png",
+  "title": "Справочники",
+  "method": "built-in image_gen",
+  "transparent_background": true,
+  "prompt": "Use case: stylized-concept. Asset type: colored Japanese stationery sticker for an Android app, standalone PNG 1024x1024. PRIMARY SUBJECT: One Japanese inkstone with rounded rectangular corners, a substantial green-graphite rim and a dark recessed ink well. ONE wooden calligraphy brush lies diagonally across the rim: warm matte wood handle, small restrained terracotta accent at the ferrule, cream bristles. Brush rests naturally on the inkstone edge. No calligraphy, no splashes, no additional items. SHARED ART DIRECTION: soft sculpted volume, three-quarter view from slightly above, matte materials, rounded forms, clean dark forest-green contours of moderate consistent thickness. Restrained palette of sage green, cream paper, green-graphite darks and a small muted terracotta accent. Gentle illumination from TOP LEFT, soft shading restricted to the object itself. Polished illustrated 2.5D stationery, NOT photorealism, NOT a flat outline icon. Simple strong silhouette with broad shapes and minimal detail that remains immediately readable at 64 px. One centered object assembly only, fill about 78-82% of a SQUARE 1024x1024 canvas, even transparent margins, entire silhouette visible. Genuine transparent alpha background, all object shapes and dark contour ink fully opaque. NO text, letters, kanji, logos, numbers, watermarks, white sticker outline, exterior cast shadow, ground plane, scenery, glow, haze or additional decorations.",
+  "dimensions": [
+    1024,
+    1024
+  ],
+  "postprocess": "sips: resample to requested 1024 × 1024, preserve alpha"
+}

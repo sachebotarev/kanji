@@ -1,0 +1,5 @@
+<resources>
+    <plurals name="library_total"><item quantity="one">%d рецепт</item><item quantity="few">%d рецепта</item><item quantity="many">%d рецептов</item><item quantity="other">%d рецепта</item></plurals>
+    <plurals name="library_task_count"><item quantity="one">%d задание</item><item quantity="few">%d задания</item><item quantity="many">%d заданий</item><item quantity="other">%d задания</item></plurals>
+    <plurals name="library_all_words"><item quantity="one">Всего %d слово</item><item quantity="few">Все %d слова</item><item quantity="many">Все %d слов</item><item quantity="other">Все %d слова</item></plurals>
+</resources>

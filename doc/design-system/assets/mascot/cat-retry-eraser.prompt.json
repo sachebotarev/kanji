@@ -1,0 +1,8 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_retry_eraser.png",
+  "title": "Ошибка — пробуем снова",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_read_book.png",
+  "transparent_background": true,
+  "prompt": "Use case: illustration-story. Asset type: static mascot sticker for a multilingual kanji learning Android app. Reference is character identity and illustration style guidance. Create a new scene of the EXACT same round cream cat, dark oval eyes, short cheek marks, pink inner ears and paw pads, fluffy curved tail, green student cap with broad curved brim, red band and round golden button. Preserve the reference's cute proportions, thick rounded dark forest-green outlines and simple flat matte colors. SCENE: The cat gently erases a small mistaken ink stroke on a cream practice sheet with a chunky eraser held in one forepaw, the other forepaw steadies the sheet. A few simple practice strokes remain. Calm confident friendly smile, willing to try again. No readable text. Whole cat and props visible, compact centered square composition with generous transparent safe margins. Correct anatomy: exactly two forepaws, two hindpaws, one tail. No other characters, extra props, flags, scenery, glow, white sticker rim, ground shadow, watermark or lettering. Genuine transparent alpha background; dark contours and face features remain fully opaque, only empty background is transparent."
+}

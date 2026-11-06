@@ -54,8 +54,9 @@ internal data class CatalogGraphContext(
     val browse: (BrowseNavigation) -> Unit, val detail: (DetailNavigation) -> Unit,
     val select: (FilterResult) -> Unit,
     val revision: Long = 0L,
+    val section: ru.mobui.kanji.feature.catalog.CatalogSection = ru.mobui.kanji.feature.catalog.CatalogSection.Combined,
 ) {
-    val entryContext = CatalogEntryContext(repository, language, back, revision)
+    val entryContext = CatalogEntryContext(repository, language, back, revision, section)
 }
 
 internal fun NavGraphBuilder.catalogBrowseSources(context: CatalogGraphContext) {
@@ -150,6 +151,17 @@ internal fun NavGraphBuilder.catalogSymbolDetails(context: CatalogGraphContext) 
     }
 }
 
+private fun routeFilters(chapter: Int?, radical: Int?, strokes: Int?, jlpt: Int,
+    chapters: List<Int>, radicals: List<Int>, strokeIds: List<Int>, jlptIds: List<Int>): KanjiFilters {
+    val legacy = KanjiFilters(chapter, radical, strokes, decodeJlpt(jlpt))
+    return legacy.copy(
+        chapterIds = chapters.toSet().ifEmpty { legacy.chapterIds },
+        radicalIds = radicals.toSet().ifEmpty { legacy.radicalIds },
+        strokeIds = strokeIds.toSet().ifEmpty { legacy.strokeIds },
+        jlptFilters = jlptIds.map(::decodeJlpt).filter { it != ru.mobui.kanji.domain.catalog.JlptFilter.AnyLevel }.toSet().ifEmpty { legacy.jlptFilters },
+    )
+}
+
 internal fun NavGraphBuilder.catalogChapterFilters(context: CatalogGraphContext) {
     with(context) {
         composable<KanjiChapterRoute> { entry ->
@@ -158,12 +170,8 @@ internal fun NavGraphBuilder.catalogChapterFilters(context: CatalogGraphContext)
                 entry,
                 FilterRequest.ChaptersForKanji(
                     route.sourceId,
-                    KanjiFilters(
-                        route.chapter,
-                        route.radical,
-                        route.strokes,
-                        decodeJlpt(route.jlpt),
-                    ),
+                    routeFilters(route.chapter, route.radical, route.strokes, route.jlpt,
+                        route.chapterIds, route.radicalIds, route.strokeIds, route.jlptIds),
                 ),
                 entryContext,
                 select,
@@ -175,7 +183,8 @@ internal fun NavGraphBuilder.catalogChapterFilters(context: CatalogGraphContext)
                 entry,
                 FilterRequest.ChaptersForWords(
                     route.sourceId,
-                    WordFilters(route.chapter, route.kanji),
+                    WordFilters(route.chapter, route.kanji, route.kanjiIds.toSet().ifEmpty { setOfNotNull(route.kanji) },
+                        route.chapterIds.toSet().ifEmpty { setOfNotNull(route.chapter) }),
                 ),
                 entryContext,
                 select,
@@ -192,7 +201,8 @@ internal fun NavGraphBuilder.catalogSymbolFilters(context: CatalogGraphContext) 
                 entry,
                 FilterRequest.Kanji(
                     route.sourceId,
-                    WordFilters(route.chapter, route.selectedKanji),
+                    WordFilters(route.chapter, route.selectedKanji, route.kanjiIds.toSet().ifEmpty { setOfNotNull(route.selectedKanji) },
+                        route.chapterIds.toSet().ifEmpty { setOfNotNull(route.chapter) }),
                 ),
                 entryContext,
                 select,
@@ -204,12 +214,8 @@ internal fun NavGraphBuilder.catalogSymbolFilters(context: CatalogGraphContext) 
                 entry,
                 FilterRequest.Radical(
                     route.sourceId,
-                    KanjiFilters(
-                        route.chapter,
-                        route.radical,
-                        route.strokes,
-                        decodeJlpt(route.jlpt),
-                    ),
+                    routeFilters(route.chapter, route.radical, route.strokes, route.jlpt,
+                        route.chapterIds, route.radicalIds, route.strokeIds, route.jlptIds),
                 ),
                 entryContext,
                 select,
@@ -226,12 +232,8 @@ internal fun NavGraphBuilder.catalogStrokeFilters(context: CatalogGraphContext) 
                 entry,
                 FilterRequest.KanjiStrokes(
                     route.sourceId,
-                    KanjiFilters(
-                        route.chapter,
-                        route.radical,
-                        route.strokes,
-                        decodeJlpt(route.jlpt),
-                    ),
+                    routeFilters(route.chapter, route.radical, route.strokes, route.jlpt,
+                        route.chapterIds, route.radicalIds, route.strokeIds, route.jlptIds),
                 ),
                 entryContext,
                 select,
@@ -241,7 +243,7 @@ internal fun NavGraphBuilder.catalogStrokeFilters(context: CatalogGraphContext) 
             val route = entry.toRoute<RadicalStrokesRoute>()
             CatalogFilterEntry(
                 entry,
-                FilterRequest.RadicalStrokes(route.strokes),
+                FilterRequest.RadicalStrokes(route.strokes, route.strokeIds.toSet().ifEmpty { setOfNotNull(route.strokes) }),
                 entryContext,
                 select,
             )
@@ -257,12 +259,8 @@ internal fun NavGraphBuilder.catalogJlptFilters(context: CatalogGraphContext) {
                 entry,
                 FilterRequest.Jlpt(
                     route.sourceId,
-                    KanjiFilters(
-                        route.chapter,
-                        route.radical,
-                        route.strokes,
-                        decodeJlpt(route.jlpt),
-                    ),
+                    routeFilters(route.chapter, route.radical, route.strokes, route.jlpt,
+                        route.chapterIds, route.radicalIds, route.strokeIds, route.jlptIds),
                 ),
                 entryContext,
                 select,

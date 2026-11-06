@@ -1,0 +1,60 @@
+#phone .dictionary-content{gap:0;padding:0 0 112px}
+.dictionary-list-summary{padding:0 20px}
+#phone .dictionary-kanji-screen .recipe-content{padding:0 0 112px}
+.dictionary-kanji-screen .material-word-summary{padding:0 20px}
+#phone :is(.dictionary-tags-content,.dictionary-translations-content){padding:16px 20px 112px}
+.dictionary-tags-more{align-self:center;color:var(--muted);font-size:calc(12px * var(--scale));line-height:1.5;white-space:nowrap}
+#phone .dictionary-content .w-word-footer{grid-column:1/-1;width:100%;min-width:0;margin-top:8px}
+#phone .dictionary-list-tags{display:flex;flex-wrap:wrap;gap:6px;width:100%}
+#phone .dictionary-list-tags .plan-source-tag{display:inline-flex;align-items:center;width:auto;min-width:0;max-width:100%;font-size:calc(12px * var(--scale));line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.dictionary-list-summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;flex-wrap:wrap}
+.dictionary-tags-content{gap:16px}
+.dictionary-tag-menu-anchor{position:relative;display:flex;flex-shrink:0}
+#phone #dictionary-tag-menu .dropdown-item{display:flex;gap:12px;align-items:center;text-align:left;white-space:normal;overflow-wrap:anywhere}
+#dictionary-tag-menu .dropdown-item svg{flex-shrink:0}
+.dictionary-tag-management-row{display:flex;align-items:center;gap:8px;min-width:0}
+.dictionary-tag-management-row>.w-nav-row{flex:1;min-width:0}
+.dictionary-tag-management-row>.icon-button{flex:none}
+.dictionary-tag-chips{display:flex;flex-wrap:wrap;gap:8px}
+.dictionary-entry-tags{display:grid;gap:12px;margin:0}
+.dictionary-entry-tags h3{margin:0}
+.dictionary-word-menu-wrap{position:relative;display:inline-flex}
+#phone .dictionary-word-screen .recipe-content{display:block;padding:0 0 112px}
+#phone .dictionary-word-screen .dictionary-entry-tags h3{margin:0}
+#phone .dictionary-word-editor>.field{font-size:calc(14px * var(--scale));line-height:1.5;font-weight:500}
+#phone .dictionary-word-editor .material-filter-row strong{font-size:calc(14px * var(--scale));font-weight:500}
+.dictionary-word-editor .dictionary-editor-tags{margin:0}
+.dictionary-translation-list{display:grid;gap:8px}
+.dictionary-translations-content:has(.dictionary-translations-empty){display:flex;flex-direction:column}
+.dictionary-translation-list:has(.dictionary-translations-empty){flex:1;align-content:center;min-height:180px}
+.dictionary-translations-empty{width:100%;box-sizing:border-box}
+#phone .dictionary-translation-list .w-nav-row small{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:normal;overflow-wrap:anywhere}
+.dictionary-editor-tags{margin:16px 0}
+.dictionary-tags-content .w-choice-options{display:grid;gap:8px}
+#phone.native-phone[data-working-catalog-screen=true] .dictionary-tags-content .w-nav-row--select{padding:12px 16px 12px 32px!important;position:relative}
+.dictionary-tags-content .w-nav-row--select>.w-choice-check{left:8px;right:auto;top:8px;transform:none}
+.dictionary-tags-content>.text-button{align-self:flex-start;justify-self:start;margin:0;gap:8px}
+.dictionary-tags-content .w-nav-row strong{display:flex;align-items:center;gap:0}
+.dictionary-word-editor{padding:0;margin:0}
+.dictionary-word-editor #translations:empty{display:none}
+.dictionary-add-translation{justify-content:flex-start;text-align:start;gap:8px}
+.dictionary-additional-translation{margin-bottom:16px}
+.dictionary-additional-translation .translation-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dictionary-additional-translation .translation-top label{min-width:0}
+[data-tag-color=neutral]{--tag-color:#717875;--tag-color-dark:#a3aaa6}
+[data-tag-color=green]{--tag-color:#28744c;--tag-color-dark:#81c99f}
+[data-tag-color=blue]{--tag-color:#366db3;--tag-color-dark:#91b9ef}
+[data-tag-color=violet]{--tag-color:#8358ae;--tag-color-dark:#c5a2ec}
+[data-tag-color=pink]{--tag-color:#ad527c;--tag-color-dark:#eea0c3}
+[data-tag-color=orange]{--tag-color:#b65e32;--tag-color-dark:#f0ac83}
+[data-tag-color=gold]{--tag-color:#94721c;--tag-color-dark:#dfc16a}
+.dictionary-tag-dot,.dictionary-tag-swatch{display:inline-block;background:var(--tag-color);border-radius:50%;flex:none}
+#phone .dictionary-tag-dot{display:inline-block!important;width:10px!important;min-width:10px!important;max-width:10px!important;height:10px!important;min-height:10px!important;flex:0 0 10px!important;margin:0 8px 0 0!important;border-radius:50%;vertical-align:middle;padding:0!important;align-self:center}
+[data-theme=dark] :is(.dictionary-tag-dot,.dictionary-tag-swatch){background:var(--tag-color-dark)}
+.dictionary-tag-colors{border:0;padding:0;margin:20px 0 0;display:flex;flex-wrap:wrap;gap:0}
+.dictionary-tag-colors legend{padding:0;margin-bottom:8px}
+.dictionary-tag-color-option{position:relative;display:grid;place-items:center;width:48px;height:48px;cursor:pointer}
+.dictionary-tag-color-option input{position:absolute;opacity:0;width:1px;height:1px}
+.dictionary-tag-swatch{width:28px;height:28px;border:3px solid transparent;background-clip:padding-box}
+.dictionary-tag-color-option input:checked+.dictionary-tag-swatch{outline:2px solid var(--ink)}
+.dictionary-tag-color-option input:focus-visible+.dictionary-tag-swatch{outline:3px solid var(--primary);outline-offset:3px}

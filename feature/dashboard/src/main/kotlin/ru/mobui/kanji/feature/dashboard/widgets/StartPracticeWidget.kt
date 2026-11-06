@@ -27,7 +27,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.feature.dashboard.R
 
-/** Compact launch surface; decorative mascot is positioned by the training card. */
+/** Compact launch surface; decorative mascot is positioned by the recipe card. */
 @Composable
 fun StartPracticeWidget(
     onStartPractice: () -> Unit,

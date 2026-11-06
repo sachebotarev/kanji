@@ -1,0 +1,74 @@
+[
+  {
+    "configuration": "ru-light-1.0",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.0"
+  },
+  {
+    "configuration": "ru-light-1.5",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.5"
+  },
+  {
+    "configuration": "ru-dark-1.0",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.0"
+  },
+  {
+    "configuration": "ru-dark-1.5",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.5"
+  },
+  {
+    "configuration": "en-light-1.0",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.0"
+  },
+  {
+    "configuration": "en-light-1.5",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.5"
+  },
+  {
+    "configuration": "en-dark-1.0",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.0"
+  },
+  {
+    "configuration": "en-dark-1.5",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03"
+    ],
+    "cssScale": "1.5"
+  }
+]

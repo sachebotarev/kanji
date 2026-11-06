@@ -58,7 +58,6 @@ import ru.mobui.kanji.feature.settings.SettingsScreen
 
 internal data class AppModels(
     val settingsModel: RecognitionSettingsViewModel,
-    val trainingModel: DashboardTrainingViewModel,
     val dictionarySummary: DictionarySummaryViewModel,
 )
 
@@ -77,9 +76,6 @@ internal class AppUiContext(
 ) {
     val settingsModel
         get() = models.settingsModel
-
-    val trainingModel
-        get() = models.trainingModel
 
     val dictionarySummary
         get() = models.dictionarySummary
@@ -147,8 +143,10 @@ private fun AppDestinationContent(
     navigate: (AppDestination) -> Unit,
 ) {
     when (destination) {
+        AppDestination.RecipeBuilder -> RecipeBuilderDestination(context, navigate)
         AppDestination.Dictionary -> DictionaryDestination(context, navigate)
         AppDestination.Catalog -> CatalogDestination(context, navigate)
+        AppDestination.References -> CatalogDestination(context, navigate, ru.mobui.kanji.feature.catalog.CatalogSection.References)
         AppDestination.Settings -> SettingsDestination(context, navigate)
         AppDestination.CheckerSettings -> CheckerSettingsDestination(context, navigate)
         AppDestination.Dashboard -> DashboardDestination(context, navigate)
@@ -163,6 +161,7 @@ private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestinati
         ru.mobui.kanji.feature.dictionary.DictionaryRoute(
             dependencies.dictionary,
             dependencies.catalog,
+            dependencies.recipesRepository,
             onBack = { navigate(AppDestination.Dashboard) },
         ) { kanjiId, sourceId, back ->
             ru.mobui.kanji.feature.catalog.CatalogRoute(
@@ -178,12 +177,17 @@ private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestinati
 }
 
 @Composable
-private fun CatalogDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun CatalogDestination(
+    context: AppUiContext,
+    navigate: (AppDestination) -> Unit,
+    section: ru.mobui.kanji.feature.catalog.CatalogSection = ru.mobui.kanji.feature.catalog.CatalogSection.Textbooks,
+) {
     with(context) {
         val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         ru.mobui.kanji.feature.catalog.CatalogRoute(
             dependencies.catalog,
             onBack = { navigate(AppDestination.Dashboard) },
+            section = section,
             loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) },
             revision = revision,
         )
@@ -221,9 +225,8 @@ private fun CheckerSettingsDestination(context: AppUiContext, navigate: (AppDest
 @Composable
 private fun DashboardDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
     with(context) {
-        val trainings by trainingModel.trainings.collectAsStateWithLifecycle()
-        val selectedTraining by trainingModel.selected.collectAsStateWithLifecycle()
         val personalCount by dictionarySummary.count.collectAsStateWithLifecycle()
+        ru.mobui.kanji.feature.dashboard.builder.RecipeHomeSummary(dependencies.catalog, dependencies.dictionary, dependencies.recipesRepository) { recipe ->
         DashboardScreen(
             DashboardDemo.state.copy(
                 vocabulary = DashboardDemo.state.vocabulary.copy(personalTotal = personalCount),
@@ -231,12 +234,28 @@ private fun DashboardDestination(context: AppUiContext, navigate: (AppDestinatio
             onStartPractice = { navigate(AppDestination.Practice) },
             onOpenSettings = { navigate(AppDestination.Settings) },
             onOpenCatalog = { navigate(AppDestination.Catalog) },
+            onOpenReferences = { navigate(AppDestination.References) },
             onOpenDictionary = { navigate(AppDestination.Dictionary) },
-            trainings = trainings,
-            selectedTrainingId = selectedTraining,
-            onSelectTraining = trainingModel::select,
-            onSaveTraining = trainingModel::submit,
+            recipes = listOf(recipe),
+            selectedRecipeId = recipe.id,
+            onOpenRecipes = { navigate(AppDestination.RecipeBuilder) },
         )
+        }
+    }
+}
+
+@Composable
+private fun RecipeBuilderDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+    with(context) {
+        val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
+        ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderRoute(dependencies.catalog, dependencies.dictionary, dependencies.recipesRepository,
+            ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderActions(
+                onBack = { navigate(AppDestination.Dashboard) },
+                wordContent = { id, back ->
+                    ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, back, initialWordId = id,
+                        loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) }, revision = revision)
+                },
+                tagContent = { back -> ru.mobui.kanji.feature.dictionary.DictionaryTagManagementRoute(dependencies.recipesRepository, back) }))
     }
 }
 
@@ -271,7 +290,7 @@ private fun PracticeDestination(context: AppUiContext, navigate: (AppDestination
                 },
             )
         } else {
-            // Demo destination. A session coordinator can consume the same typed
+            // Demo destination. A training coordinator can consume the same typed
             // result.
             PracticeSummary(
                 result,

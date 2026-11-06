@@ -1,0 +1,43 @@
+{
+  "device": "Medium_Phone_API_37.0 / Android 17 / emulator-5554",
+  "library_and_accessibility_tests": {
+    "passed": 12,
+    "seconds": 62.37,
+    "classes": ["RecipeAccessibilityTest", "RecipeLibraryTest"],
+    "excluded_tests": []
+  },
+  "dashboard_full_suite": {
+    "passed": 62,
+    "seconds": 220.382
+  },
+  "native_drag_repeat": {
+    "passed": 2,
+    "seconds": 16.446,
+    "tests": [
+      "longPressDragCommitsAndCancellationDoesNotCommit",
+      "platformDragAutoScrollsBeyondInitialViewportAndCommitsOnce"
+    ]
+  },
+  "diagnosed_auto_scroll_test_failure": {
+    "second_touch_y_px": 2318,
+    "display_height_px": 2400,
+    "mandatory_system_gestures_bottom_px": 84,
+    "mandatory_zone_starts_at_y_px": 2316,
+    "system_cause": "swipe-up gesture monitor canceled Android drag session",
+    "test_fix": "performScrollTo on library-r0 before reading fresh bounds and starting the second gesture",
+    "product_drag_handler_changed": false,
+    "system_navigation_gestures_disabled": false
+  },
+  "build": {
+    "app_assemble_debug": "passed",
+    "dashboard_test_apk": "passed",
+    "dashboard_lint_debug": "passed"
+  },
+  "talkback": {
+    "bound": true,
+    "touch_exploration_enabled": true,
+    "spoken_feedback": true,
+    "manual_speech_and_focus_order_verified": false
+  },
+  "physical_device_touched": false
+}

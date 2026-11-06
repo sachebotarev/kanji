@@ -1,5 +1,8 @@
 package ru.mobui.kanji.core.wordui
 
+import ru.mobui.kanji.core.designsystem.inputShape
+import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +14,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -21,7 +23,6 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -55,14 +56,17 @@ fun WordEditorForm(
     actions: WordEditorActions,
     modifier: Modifier = Modifier,
     error: String? = null,
+    showSave: Boolean = true,
+    extraContent: @Composable () -> Unit = {},
+    translationContent: (@Composable () -> Unit)? = null,
 ) {
     Column(
-        modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(19.dp),
     ) {
         WordInputField(
             WordInputState(
-                stringResource(R.string.word_written),
+                stringResource(R.string.word_editor_written),
                 draft.written,
                 "word-input-written",
                 stringResource(R.string.word_written_hint),
@@ -73,7 +77,7 @@ fun WordEditorForm(
         )
         WordInputField(
             WordInputState(
-                stringResource(R.string.word_reading),
+                stringResource(R.string.word_editor_reading),
                 draft.reading,
                 "word-input-reading",
                 stringResource(R.string.word_reading_hint),
@@ -82,6 +86,7 @@ fun WordEditorForm(
             ),
             actions.reading,
         )
+        if (translationContent != null) translationContent() else {
         Text(
             stringResource(R.string.word_translations),
             style = MaterialTheme.typography.titleMedium,
@@ -138,13 +143,16 @@ fun WordEditorForm(
         ) {
             Text("+  " + stringResource(R.string.word_add_translation))
         }
+        }
+        extraContent()
         if (error != null)
             Text(
                 error,
                 Modifier.testTag("word-save-error"),
                 color = MaterialTheme.colorScheme.error,
             )
-        Button(
+        if (!showSave) androidx.compose.foundation.layout.Spacer(Modifier.size(112.dp))
+        if (showSave) Button(
             actions.save,
             Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("save-word"),
             enabled = !busy,
@@ -158,30 +166,9 @@ fun WordEditorForm(
 @Composable
 private fun WordInputField(field: WordInputState, onChange: (String) -> Unit) {
     with(field) {
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(label, style = MaterialTheme.typography.labelLarge)
-        OutlinedTextField(
-            value,
-            onChange,
-            Modifier.fillMaxWidth().testTag(tag).semanticsLabel(label),
-            enabled = enabled,
-            isError = invalid,
-            placeholder = { Text(hint) },
-            supportingText =
-                if (invalid) {
-                    { Text(stringResource(R.string.word_required)) }
-                } else null,
-            shape = RoundedCornerShape(20.dp),
-            colors =
-                OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                ),
-        )
-    }
-
+        WordEditorTextField(value, onChange, label, inputModifier = Modifier.testTag(tag),
+            placeholder = hint, enabled = enabled, invalid = invalid,
+            errorText = stringResource(R.string.word_required))
     }
 }
 
@@ -247,11 +234,13 @@ private fun LanguageSelector(
                         invalid = false
                     },
                     label = { Text(stringResource(R.string.word_language_tag)) },
+                    shape = MaterialTheme.inputShape,
                     isError = invalid,
                     supportingText =
                         if (invalid) {
                             { Text(stringResource(R.string.word_language_error)) }
                         } else null,
+                    colors = kanjiOutlinedTextFieldColors(),
                 )
             },
             confirmButton = {

@@ -1,0 +1,38 @@
+<resources>
+    <string name="recipe_load_failed">Could not refresh data. Your draft is preserved</string>
+    <string name="recipe_missing">Recipe not found</string>
+    <string name="recipe_retry">Retry</string>
+    <string name="recipe_write_failed">Could not save. Data may have changed. Your draft is preserved</string>
+    <string name="recipe_title">Recipe</string>
+    <string name="recipe_name">Name</string>
+    <string name="recipe_name_hint">For example, Tobira · Chapters 1–3</string>
+    <string name="recipe_name_clear">Clear name</string>
+    <string name="recipe_name_error">Enter a name of 1–120 characters</string>
+    <string name="recipe_name_and_more">and %1$d more</string>
+    <string name="recipe_materials">Study material</string>
+    <string name="recipe_training_settings">Training settings</string>
+    <string name="recipe_pool_error">Add materials containing matching words</string>
+    <string name="recipe_pool_count">Unique words available: %1$d</string>
+    <string name="recipe_task_count">Tasks per training: %1$d</string>
+    <string name="recipe_save">Save</string>
+    <string name="recipe_tasks">Tasks per training</string>
+    <string name="recipe_word_count">Match word count</string>
+    <string name="recipe_custom_count">Set a number</string>
+    <plurals name="recipe_tasks_from_pool">
+        <item quantity="one">Will be %d task</item>
+        <item quantity="other">Will be %d tasks</item>
+    </plurals>
+    <string name="recipe_seconds">Seconds per word</string>
+    <string name="recipe_no_timer">No limit</string>
+    <string name="recipe_timer">Limit time</string>
+    <string name="recipe_timer_hint">Applies to each word</string>
+    <string name="recipe_number_error">Enter a positive whole number</string>
+    <string name="recipe_open_material">Edit material “%1$s”</string>
+    <string name="recipe_remove">Remove material</string>
+    <string name="recipe_undo">Undo removal</string>
+    <string name="recipe_less">Show fewer materials</string>
+    <string name="recipe_leave">Discard changes?</string>
+    <string name="recipe_stay">Cancel</string>
+    <string name="recipe_unsaved_message">All edits will be lost.</string>
+    <string name="recipe_discard">Leave</string>
+</resources>

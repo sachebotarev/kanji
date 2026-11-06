@@ -1,0 +1,7 @@
+<resources>
+    <string name="dictionary_search_toggle">Search</string>
+    <string name="dictionary_search_close">Close search</string>
+    <string name="dictionary_empty_title">Your words will live here</string>
+    <string name="dictionary_empty_hint">Add the first one to start your collection.</string>
+    <string name="dictionary_retry_hint">Try another word or reading.</string>
+</resources>

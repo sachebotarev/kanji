@@ -20,11 +20,10 @@
     <string name="dictionary_delete_text">“%1$s” will be removed from your dictionary.</string>
     <string name="dictionary_delete">Delete</string>
     <string name="dictionary_cancel">Cancel</string>
-    <string name="dictionary_unsaved">Save changes?</string>
-    <string name="dictionary_unsaved_text">This word has unsaved changes.</string>
+    <string name="dictionary_unsaved">Discard changes?</string>
+    <string name="dictionary_unsaved_text">All edits will be lost.</string>
     <string name="dictionary_save">Save</string>
-    <string name="dictionary_discard">Discard</string>
-    <string name="dictionary_continue">Continue editing</string>
+    <string name="dictionary_leave">Leave</string>
     <string name="dictionary_more">Word actions</string>
     <string name="dictionary_chapter">Chapter %1$d</string>
     <plurals name="dictionary_count"><item quantity="one">%d word</item><item quantity="other">%d words</item></plurals>

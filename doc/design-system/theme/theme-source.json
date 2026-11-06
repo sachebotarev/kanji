@@ -19,6 +19,9 @@
     "extra-large": 28,
     "full": 9999
   },
+  "component_shape": {
+    "text_field": 16
+  },
   "elevation": {
     "level0": 0,
     "level1": 1,

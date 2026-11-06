@@ -161,7 +161,7 @@
 
 | ID | Тема | Файл |
 | --- | --- | --- |
-| P2-A | Лимит `history` в `PracticeSession` | `domain/practice/.../PracticeSession.kt` |
+| P2-A | Лимит `history` в `PracticeSession` | `domain/practice/.../HandwritingTraining.kt` |
 | P2-B | Кэш `Path` по stroke в `KanjiWritingPad` | `core/writingpad/.../KanjiWritingPad.kt` |
 | P2-C | Разделить `RecognitionSettings` | `domain/practice/.../RecognitionSettings.kt` |
 | P2-D | Упростить callback SQL в `CatalogDatabase` | `data/catalogdb/.../CatalogDatabase.kt` |

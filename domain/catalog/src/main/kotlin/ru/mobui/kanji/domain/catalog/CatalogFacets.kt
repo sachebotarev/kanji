@@ -6,8 +6,8 @@ fun CatalogSnapshot.availableRadicals(
     language: String,
 ): List<CatalogRadical> {
     val ids =
-        kanji(selection.copy(radicalId = null), "", language)
-            .filter { selection.kanjiId == null || it.id == selection.kanjiId }
+        kanji(selection.copy(radicalId = null, radicalIds = emptySet()), "", language)
+            .filter { selection.acceptsKanji(it.id) }
             .mapNotNull { it.radicalId }
             .toSet()
     return radicals(query, language).filter { it.id in ids }
@@ -16,8 +16,8 @@ fun CatalogSnapshot.availableRadicals(
 fun CatalogSnapshot.availableChapters(selection: CatalogSelection): List<CatalogChapter> {
     val source = selection.sourceId ?: return emptyList()
     val eligible =
-        kanji(selection.copy(chapter = null), "", "ru")
-            .filter { selection.kanjiId == null || it.id == selection.kanjiId }
+        kanji(selection.copy(chapter = null, chapterIds = emptySet()), "", "ru")
+            .filter { selection.acceptsKanji(it.id) }
             .map { it.id }
             .toSet()
     return chapters(source).mapNotNull { chapter ->
@@ -28,7 +28,7 @@ fun CatalogSnapshot.availableChapters(selection: CatalogSelection): List<Catalog
         else
             chapter.copy(
                 kanjiCount = rows.size,
-                wordCount = words(selection.copy(chapter = chapter.number), "", "ru").size,
+                wordCount = words(selection.copy(chapter = chapter.number, chapterIds = emptySet()), "", "ru").size,
                 preview =
                     rows
                         .sortedBy { it.number }
@@ -38,22 +38,22 @@ fun CatalogSnapshot.availableChapters(selection: CatalogSelection): List<Catalog
 }
 
 fun CatalogSnapshot.strokeCounts(selection: CatalogSelection): Map<Int, Int> =
-    kanji(selection.copy(strokes = null), "", "ru").groupingBy { it.strokes }.eachCount()
+    kanji(selection.copy(strokes = null, strokeIds = emptySet()), "", "ru").groupingBy { it.strokes }.eachCount()
 
 fun CatalogSnapshot.jlptCounts(selection: CatalogSelection): Map<JlptLevel?, Int> =
-    kanji(selection.copy(jlpt = JlptFilter.AnyLevel), "", "ru")
+    kanji(selection.copy(jlpt = JlptFilter.AnyLevel, jlptFilters = emptySet()), "", "ru")
         .groupingBy { it.jlptLevel }
         .eachCount()
 
 fun CatalogSnapshot.availableStrokes(selection: CatalogSelection): List<Int> =
-    kanji(selection.copy(strokes = null), "", "ru").map { it.strokes }.distinct().sorted()
+    kanji(selection.copy(strokes = null, strokeIds = emptySet()), "", "ru").map { it.strokes }.distinct().sorted()
 
 fun CatalogSnapshot.radicalStrokeCounts(): Map<Int, Int> =
     radicals.groupingBy { it.strokes }.eachCount()
 
 fun CatalogSnapshot.availableJlpt(selection: CatalogSelection): List<JlptFilter> {
     val levels =
-        kanji(selection.copy(jlpt = JlptFilter.AnyLevel), "", "ru").map { it.jlptLevel }.toSet()
+        kanji(selection.copy(jlpt = JlptFilter.AnyLevel, jlptFilters = emptySet()), "", "ru").map { it.jlptLevel }.toSet()
     return JlptLevel.entries.filter { it in levels }.map { JlptFilter.Exact(it) } +
         if (null in levels) listOf(JlptFilter.Missing) else emptyList()
 }

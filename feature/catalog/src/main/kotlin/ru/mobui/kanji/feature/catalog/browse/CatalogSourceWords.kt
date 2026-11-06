@@ -32,7 +32,8 @@ import androidx.compose.ui.zIndex
 import ru.mobui.kanji.domain.catalog.CatalogWordGroup
 
 @Composable
-internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String, presentation: SourceWordsPresentation, onWord: (Int) -> Unit, modifier: Modifier = Modifier, header: (@Composable () -> Unit)? = null) {
+internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String, presentation: SourceWordsPresentation, onWord: (Int) -> Unit,
+    modifier: Modifier = Modifier, header: (@Composable () -> Unit)? = null) {
     with(presentation) {
     val listState = rememberCatalogListState()
     LazyColumn(
@@ -64,8 +65,8 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
                                     R.string.catalog_group_volume,
                                     pluralStringResource(
                                         R.plurals.catalog_word_count,
-                                        group.words.size,
-                                        group.words.size,
+                                        group.words.count(),
+                                        group.words.count(),
                                     ),
                                 ),
                             )
@@ -77,14 +78,14 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
                         Modifier.fillMaxWidth()
                             .zIndex(1f)
                             .background(MaterialTheme.colorScheme.background)
-                            .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 12.dp)
+                            .padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 12.dp)
                             .semantics { heading() },
                         style = MaterialTheme.typography.titleMedium,
                     )
                 }
             }
             items(group.words, key = { it.id }) { word ->
-                Box(Modifier.padding(start = 20.dp, end = 20.dp, bottom = 12.dp)) {
+                Box(Modifier.padding(start = 18.dp, end = 18.dp, bottom = 12.dp)) {
                     WordRow(word, language, { onWord(word.id) })
                 }
             }
@@ -93,7 +94,7 @@ internal fun CatalogSourceWords(groups: List<CatalogWordGroup>, language: String
             item {
                 Row(
                     Modifier.fillMaxWidth()
-                        .padding(start = 20.dp, end = 20.dp, top = 20.dp, bottom = 28.dp),
+                        .padding(start = 18.dp, end = 18.dp, top = 20.dp, bottom = 28.dp),
                     verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {

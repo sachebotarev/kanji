@@ -1,9 +1,12 @@
 // Real catalog, rendering and review status contracts. No DOM bootstrap is executed here.
 const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict'),path=require('node:path');
 const read=name=>fs.readFileSync(path.join(__dirname,name),'utf8');
-const registry=JSON.parse(read('../../05-screens/catalog/review-status.json'));
+const sourceRegistry=JSON.parse(read('../../theme/screens.json'));
+const registry={...sourceRegistry,screens:sourceRegistry.screens.filter(s=>s.module==='catalog')};
 const control=selector=>selector==='#text-scale'?{value:'1'}:selector==='#width'?{value:'411.43'}:{clientWidth:411.43,value:''};
-const context=vm.createContext({window:{addEventListener(){}},document:{addEventListener(){},querySelector:control,querySelectorAll:()=>[]},console,Intl,URLSearchParams});
+const context=vm.createContext({structuredClone,sessionStorage:{getItem(){return null;}},window:{addEventListener(){}},document:{addEventListener(){},querySelector:control,querySelectorAll:()=>[]},console,Intl,URLSearchParams});
+vm.runInContext(read('../shared/personal-words.js'),context);vm.runInContext('const PersonalWords=window.PersonalWords',context);
+vm.runInContext(read('../shared/catalog-selection.js'),context);vm.runInContext('const CatalogSelection=window.CatalogSelection',context);
 vm.runInContext(read('assets/catalog.js'),context);
 vm.runInContext(read('app.js').split('// Browser initialization.')[0],context);
 vm.runInContext(read('screens.js'),context);
@@ -12,8 +15,8 @@ assert.equal(run('DATA.words.length'),2491);
 assert.equal(run('sourceTitle(1)'),'Tobira');assert.equal(run('sourceTitle(2)'),'Basic Kanji Book');
 assert.equal(run('DATA.kanji.filter(k=>k.classification.school_year).length'),1026);
 run('reviewRegistry='+JSON.stringify(registry));
-assert.equal(registry.screens.length,17);
-assert.ok(registry.screens.every(s=>['approved','unapproved'].includes(s.status)));
+assert.equal(registry.screens.length,18);
+assert.ok(registry.screens.every(s=>['approved','unapproved','retired'].includes(s.status)));
 for(const screen of registry.screens){assert.ok(screen.translations.find(t=>t.language_tag==='ru')?.changes);assert.ok(screen.translations.find(t=>t.language_tag==='en')?.changes);}
 run("current=createEntry(parseRoute('source/1?tab=1'));current.strokes=1");
 assert.equal(run('chaptersFor(1,sourceSelection()).length'),1);
@@ -45,4 +48,4 @@ run("current=createEntry(parseRoute('filter/radical'))");assert.match(run('worki
 run("current=createEntry(parseRoute('all-kanji'))");assert.equal(run('detailContext()'),'Общий справочник');
 assert.equal(run('reviewStatus().status'),registry.screens.find(s=>s.key==='all-kanji').status);
 assert.doesNotMatch(read('app.js'),/const approved=true|Android implementation is pending|Перенос оформления в Android ещё не выполнен/);
-console.log(`Prototype content: OK (17 screens, ${registry.screens.filter(s=>s.status==='unapproved').length} pending; real selectors, counts, terms and localization)`);
+console.log(`Prototype content: OK (${registry.screens.length} screens, ${registry.screens.filter(s=>s.status==='unapproved').length} pending; real selectors, counts, terms and localization)`);

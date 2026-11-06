@@ -1,0 +1,15 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_peek_empty_box.png",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_tiny_box.png",
+  "transparent_background": true,
+  "prompt": "Use case: illustration-story. Asset type: a new static mascot sticker for a kanji learning Android app, matching the provided reference sticker exactly in character identity and visual family. Reference image is style and character guidance, NOT the requested pose. Create the SAME round cream cat with large dark oval eyes, pink inner ears, short cheek marks, fluffy curved tail, green student cap with broad curved brim, red band and a round golden button. NEW SCENE: the cat is OUTSIDE an open empty tan cardboard box, leaning forward curiously and peering DOWN INTO the box; forepaws resting lightly on the rim, inquisitive friendly small smile, alert open eyes directed inside. Clearly show the empty inside of the box; the cat must NOT be sitting inside the box. No sadness, no tears, no worried eyebrows. Preserve thick rounded very dark forest-green outlines and simple flat matte colors, same cute proportions as reference. Single compact centered scene, square canvas, entire cat and box visible with safe transparent margins. No text, letters, question marks, symbols, extra objects, white sticker rim, glow, cast ground shadow, scenery or background. Genuine transparent alpha background; all dark outlines and facial features remain opaque, only empty background is transparent.",
+  "dimensions": [
+    1254,
+    1254
+  ],
+  "alpha_range": [
+    0,
+    255
+  ]
+}

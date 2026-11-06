@@ -1,0 +1,9 @@
+<resources>
+    <string name="tag_picker_delete">Удалить тег: %1$s</string>
+    <plurals name="tag_picker_word_count">
+        <item quantity="one">%d слово</item>
+        <item quantity="few">%d слова</item>
+        <item quantity="many">%d слов</item>
+        <item quantity="other">%d слова</item>
+    </plurals>
+</resources>

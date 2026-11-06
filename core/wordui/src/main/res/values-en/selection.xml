@@ -1,0 +1,20 @@
+<resources>
+    <string name="selection_apply">Apply</string>
+    <string name="selection_choose">Choose · %1$d</string>
+    <string name="selection_count">Selected: %1$d</string>
+    <string name="selection_all">← All</string>
+    <string name="selection_clear">Clear selection</string>
+    <string name="selection_search">Find kanji</string>
+    <string name="selection_empty">Nothing found</string>
+    <string name="selection_back">Back</string>
+    <string name="selection_strokes">Strokes</string>
+    <string name="selection_radical">Radical</string>
+    <string name="selection_jlpt">JLPT</string>
+    <string name="selection_no_jlpt">No JLPT data</string>
+    <string name="selection_close">Close</string>
+    <string name="selection_jlpt_help">What is JLPT?</string>
+    <string name="selection_jlpt_explanation">JLPT is the Japanese-Language Proficiency Test. N5 is the beginner level and N1 the most advanced. Levels are a study guide: no official exhaustive kanji list is published. “No JLPT data” means the catalogue has no level for that character, not a level N0.</string>
+    <string name="selection_all_strokes">All stroke counts</string>
+    <string name="selection_all_radicals">All radicals</string>
+    <string name="selection_open_search">Search</string>
+</resources>

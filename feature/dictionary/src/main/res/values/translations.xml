@@ -1,0 +1,10 @@
+<resources>
+    <string name="dictionary_other_translations">Другие переводы · %1$d</string>
+    <string name="dictionary_translations_title">Другие переводы</string>
+    <string name="dictionary_translation_add">Добавить перевод</string>
+    <string name="dictionary_translation_edit">Изменить перевод</string>
+    <string name="dictionary_translation_empty">Других переводов пока нет</string>
+    <string name="dictionary_translation_exhausted">Переводы на все доступные языки уже добавлены.</string>
+    <string name="dictionary_translation_russian">Русский</string>
+    <string name="dictionary_translation_english">Английский</string>
+</resources>

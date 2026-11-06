@@ -1,0 +1,6 @@
+<resources>
+    <string name="word_picker_title">Выбрать слова</string>
+    <string name="word_picker_search">Написание, чтение или перевод</string>
+    <string name="word_picker_all">Все</string>
+    <string name="word_picker_kanji">Кандзи</string>
+</resources>

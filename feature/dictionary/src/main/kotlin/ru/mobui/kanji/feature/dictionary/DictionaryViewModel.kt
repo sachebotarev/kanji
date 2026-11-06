@@ -48,6 +48,10 @@ internal data class DictionaryState(
     val operationError: DictionaryFailure? = null,
     val storageError: Boolean = false,
     val deletedId: Int? = null,
+    val tags: List<ru.mobui.kanji.domain.catalog.DictionaryTag> = emptyList(),
+    val wordTags: Map<Int, Set<Long>> = emptyMap(),
+    val tagIds: Set<Long> = emptySet(),
+    val kanjiIds: Set<Int> = emptySet(),
 )
 
 internal class DictionaryViewModel(
@@ -55,18 +59,23 @@ internal class DictionaryViewModel(
     private val repository: PersonalDictionaryRepository,
     private val catalog: CatalogRepository,
     private val language: String,
+    private val recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository,
     private val compute: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val mutable =
         MutableStateFlow(
-            DictionaryState(query = saved["query"] ?: "", deletedId = saved["deletedId"]),
+            DictionaryState(query = saved["query"] ?: "", deletedId = saved["deletedId"],
+                tagIds = saved.get<LongArray>("tag-filter")?.toSet().orEmpty(),
+                kanjiIds = saved.get<IntArray>("kanji-filter")?.toSet().orEmpty()),
         )
     val state = mutable.asStateFlow()
     val visible: StateFlow<List<CatalogWord>> =
         state
             .map { value ->
                 withContext(compute) {
-                    value.words.filter { it.matchesPersonalQuery(value.query, language) }
+                    value.words.filter { it.matchesPersonalQuery(value.query, language) &&
+                        (value.tagIds.isEmpty() || value.wordTags[it.id].orEmpty().any { id -> id in value.tagIds }) &&
+                        (value.kanjiIds.isEmpty() || value.snapshot?.literalKanji(it).orEmpty().any { kanji -> kanji.id in value.kanjiIds }) }
                 }
             }
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
@@ -87,8 +96,16 @@ internal class DictionaryViewModel(
             mutable.update { it.copy(loading = true, error = false) }
             try {
                 val snapshot = catalog.load()
-                repository.observeWords().collect { words ->
-                    mutable.update { it.copy(loading = false, words = words, snapshot = snapshot) }
+                kotlinx.coroutines.flow.combine(repository.observeWords(), recipesRepository.observeTags(), recipesRepository.observeWordTags()) { words, tags,
+                    assignments ->
+                    Triple(words, tags, assignments.associate { it.wordId to it.tagIds })
+                }.collect { (words, tags, assignments) ->
+                    val ids = mutable.value.tagIds.intersect(tags.map { it.id }.toSet())
+                    val kanji = mutable.value.kanjiIds.intersect(words.flatMap { snapshot.literalKanji(it) }.map { it.id }.toSet())
+                    saved["tag-filter"] = ids.toLongArray()
+                    saved["kanji-filter"] = kanji.toIntArray()
+                    mutable.update { it.copy(loading = false, words = words, snapshot = snapshot,
+                        tags = tags, wordTags = assignments, tagIds = ids, kanjiIds = kanji) }
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
@@ -96,6 +113,16 @@ internal class DictionaryViewModel(
                 mutable.update { it.copy(loading = false, error = true) }
             }
         }
+    }
+
+    fun tags(ids: Set<Long>) {
+        saved["tag-filter"] = ids.toLongArray()
+        mutable.update { it.copy(tagIds = ids) }
+    }
+
+    fun kanji(ids: Set<Int>) {
+        saved["kanji-filter"] = ids.toIntArray()
+        mutable.update { it.copy(kanjiIds = ids) }
     }
 
     fun clearOperation() {
@@ -142,6 +169,7 @@ internal class WordEditorViewModel(
     private val repository: PersonalDictionaryRepository,
     val id: Int?,
     private val language: String,
+    private val recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository,
 ) : ViewModel() {
     private val initial =
         WordDraft(
@@ -202,6 +230,7 @@ internal class WordEditorViewModel(
                                 word.written,
                                 word.reading,
                                 sorted.map { WordTranslationDraft(it.key, it.value) },
+                                tagIds = recipesRepository.observeWordTags().first().firstOrNull { it.wordId == id }?.tagIds.orEmpty(),
                             )
                         saved.persistWordDraft("original", draft)
                         saved.persistWordDraft("draft", draft)
@@ -226,6 +255,10 @@ internal class WordEditorViewModel(
         mutable.update {
             it.copy(draft = draft, invalid = emptySet(), failure = null, storageError = false)
         }
+    }
+
+    fun tags(ids: Set<Long>, pending: List<ru.mobui.kanji.domain.catalog.TagDraft>) = change {
+        it.copy(tagIds = ids, pendingTags = pending)
     }
 
     fun written(value: String) = change { it.copy(written = value) }
@@ -254,6 +287,12 @@ internal class WordEditorViewModel(
         it.copy(translations = it.translations.filterIndexed { i, _ -> i != index })
     }
 
+    fun putTranslation(languageTag: String, text: String) = change { draft ->
+        val index = draft.translations.indexOfFirst { it.languageTag.equals(languageTag, true) }
+        if (index < 0) draft.copy(translations = draft.translations + WordTranslationDraft(languageTag, text))
+        else draft.copy(translations = draft.translations.mapIndexed { i, item -> if (i == index) item.copy(text = text) else item })
+    }
+
     fun addTranslation() = change {
         val used = it.translations.map { item -> item.languageTag.lowercase() }
         it.copy(
@@ -275,7 +314,10 @@ internal class WordEditorViewModel(
         mutable.update { it.copy(busy = true, failure = null, storageError = false) }
         viewModelScope.launch {
             try {
-                val result = repository.saveWord(id, draft)
+                // Management may delete a tag while this private word draft remains open.
+                val validIds = recipesRepository.observeTags().first().map { it.id }.toSet()
+                val currentDraft = draft.copy(tagIds = draft.tagIds?.intersect(validIds))
+                val result = repository.saveWord(id, currentDraft)
                 saved["savedId"] = result
                 mutable.update { it.copy(busy = false, savedId = result) }
             } catch (cancelled: CancellationException) {

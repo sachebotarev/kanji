@@ -2,10 +2,16 @@ package ru.mobui.kanji.feature.dashboard.widgets
 
 import ru.mobui.kanji.feature.dashboard.R
 
-internal enum class DashboardIcon(val resource: Int, val opticalScale: Float = 1f) {
+internal enum class DashboardIcon(
+    val resource: Int,
+    val opticalScale: Float = 1f,
+    val stationery: Boolean = false,
+) {
     Settings(R.drawable.art_settings),
-    Textbooks(R.drawable.art_personal, STANDARD_ILLUSTRATION_SCALE),
-    Personal(R.drawable.art_textbooks_v4, STANDARD_ILLUSTRATION_SCALE),
+    Textbooks(R.drawable.art_home_textbook, stationery = true),
+    References(R.drawable.art_home_references, stationery = true),
+    Personal(R.drawable.art_home_dictionary, stationery = true),
+    WordSet(R.drawable.art_personal, stationery = true),
     History(R.drawable.art_history_v4, STANDARD_ILLUSTRATION_SCALE),
     Builder(R.drawable.art_builder, BUILDER_ILLUSTRATION_SCALE),
     Support(R.drawable.art_support, SUPPORT_ILLUSTRATION_SCALE),

@@ -1,0 +1,15 @@
+{
+  "host": "DictionaryListAppearanceTest",
+  "test_apk_sha256": "1b7b49a489b89f54e01969ce0c4fe101b06484e5a12c8b097f677754202b3305",
+  "records": "Two in-memory fixture records; no application database writes",
+  "screens": [
+    "dictionary-en-dark-1.0.png",
+    "dictionary-en-dark-1.5.png",
+    "dictionary-en-light-1.0.png",
+    "dictionary-en-light-1.5.png",
+    "dictionary-ru-dark-1.0.png",
+    "dictionary-ru-dark-1.5.png",
+    "dictionary-ru-light-1.0.png",
+    "dictionary-ru-light-1.5.png"
+  ]
+}

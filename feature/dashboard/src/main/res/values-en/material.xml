@@ -1,0 +1,53 @@
+<resources>
+    <string name="material_type_title">Material</string>
+    <string name="material_add_title">Add material</string>
+    <string name="material_edit_title">Edit material</string>
+    <string name="material_view_title">Material</string>
+    <string name="material_add">Add</string>
+    <string name="material_apply">Update</string>
+    <string name="material_back">Back</string>
+    <string name="material_words_type">Word set</string>
+    <string name="material_filters_title">Filters</string>
+    <string name="material_book_type_hint">Words from textbook chapters</string>
+    <string name="material_dictionary_type_hint">Your dictionary words by tags</string>
+    <string name="material_kanji_type_hint">Catalog words that contain selected kanji</string>
+    <string name="material_words_type_hint">Hand-picked entries</string>
+    <string name="material_select_context">%1$s · %2$s</string>
+    <string name="material_choose_words">Choose words</string>
+    <string name="material_words_preview">Material words</string>
+    <string name="material_words_required">Choose at least one word</string>
+    <string name="material_book_type">From a textbook</string>
+    <string name="material_book_title">Textbook</string>
+    <string name="material_choose_book">Choose a textbook</string>
+    <string name="material_empty_book_pool">No matching words. Change chapters or kanji</string>
+    <string name="material_chapters">Chapters</string>
+    <string name="material_chapters_and_more">and %1$d more</string>
+    <string name="material_all_chapters">All chapters</string>
+    <string name="material_chapter">Chapter %1$d</string>
+    <plurals name="material_kanji_count">
+        <item quantity="one">%1$d kanji</item>
+        <item quantity="other">%1$d kanji</item>
+    </plurals>
+    <plurals name="material_word_count">
+        <item quantity="one">%1$d word</item>
+        <item quantity="other">%1$d words</item>
+    </plurals>
+    <string name="material_kanji_type">By kanji</string>
+    <string name="material_kanji_title">Kanji</string>
+    <string name="material_all_kanji">All kanji</string>
+    <string name="material_more">%1$d more</string>
+    <string name="material_empty_pool">No matching words. Change your kanji selection</string>
+    <plurals name="material_words_selected">
+        <item quantity="one">%1$d word selected</item>
+        <item quantity="other">%1$d words selected</item>
+    </plurals>
+    <plurals name="material_view_words">
+        <item quantity="one">View %1$d word</item>
+        <item quantity="other">View %1$d words</item>
+    </plurals>
+    <string name="material_no_words">No words found</string>
+    <string name="material_no_words_hint">Try changing the filters.</string>
+    <string name="material_words_none_selected">No words selected yet</string>
+    <string name="material_dictionary_empty">My dictionary has no words yet</string>
+    <string name="material_dictionary_no_match">No matching words. Change tags or kanji</string>
+</resources>

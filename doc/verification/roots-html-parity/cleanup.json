@@ -1,0 +1,16 @@
+{
+  "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+  "phone_install": "adb install -r: Success; no clear-data or UI editing",
+  "database_fixture_writes": false,
+  "emulator_final_settings": {
+    "font_scale": "1.0",
+    "night": "no",
+    "app_locales": [],
+    "test_package_locales": []
+  },
+  "artifacts": {
+    "native_app_png": 24,
+    "populated_test_host_png": 8,
+    "html_png": 24
+  }
+}

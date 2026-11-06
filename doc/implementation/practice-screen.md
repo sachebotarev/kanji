@@ -1,6 +1,6 @@
 # Экран одного слова: контракт и реализация
 
-Статус: реализован экран одного задания; полноценный цикл сессии ещё не подключён. Дизайн: [SCR-KANJI-PRACTICE](../design-system/05-screens/practice/README.md). Требования: [архитектура](../architecture.md).
+Статус: реализован экран одного задания; полноценный цикл тренировки ещё не подключён. Дизайн: [SCR-KANJI-PRACTICE](../design-system/05-screens/practice/README.md). Требования: [архитектура](../architecture.md).
 
 Экран отвечает за одно задание, а не за группу слов. Внешний компонент выбирает следующее задание, хранит прогресс группы и принимает результат. Формат файла/базы заданий пока не определён: ниже описан Kotlin-контракт между компонентами.
 
@@ -109,7 +109,7 @@ fun interface KanjiReferenceSource {
   └────────────────→ :core:designsystem
 ```
 
-- `PracticeSession` реализует бизнес-правила, истории, время, завершение и защиту от устаревших проверок; это чистый Kotlin/JVM.
+- `HandwritingTraining` реализует бизнес-правила, истории, время, завершение и защиту от устаревших проверок; это чистый Kotlin/JVM.
 - `PracticeViewModel` получает задание, источник и анализатор через конструктор, управляет lifecycle и корутинами, отдаёт read-only StateFlow.
 - `PracticeRoute(viewModel, onResult, onBack)` не привязан к Navigation или Activity. Host владеет ViewModel и выбирает переход после результата.
 - `PracticeScreen` получает только состояние, события и callbacks. Внутри выделены UI-PROMPT, UI-STRIP/UI-CELL, UI-STATUS, UI-TOOLS и UI-ACTIONS.

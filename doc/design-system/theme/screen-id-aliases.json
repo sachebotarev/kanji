@@ -1,0 +1,286 @@
+{
+  "version": 2,
+  "date": "2026-11-05",
+  "aliases": [
+    {
+      "old_id": "CAT-01",
+      "id": "BOOKS",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-18",
+      "id": "REFS",
+      "feature": "references"
+    },
+    {
+      "old_id": "CAT-02",
+      "id": "BOOKS.01",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-03",
+      "id": "BOOKS.01.01",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-04",
+      "id": "BOOKS.01.02",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-05",
+      "id": "BOOKS.01.03",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-06",
+      "id": "BOOKS.01.03.01",
+      "feature": "catalog"
+    },
+    {
+      "old_id": "CAT-07",
+      "id": "SHARED.01",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-08",
+      "id": "SHARED.02",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-09",
+      "id": "SHARED.03",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-10",
+      "id": "SELECT.01",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-11",
+      "id": "SELECT.02",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-12",
+      "id": "SELECT.03",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-13",
+      "id": "REFS.01",
+      "feature": "references"
+    },
+    {
+      "old_id": "CAT-14",
+      "id": "REFS.02",
+      "feature": "references"
+    },
+    {
+      "old_id": "CAT-15",
+      "id": "SHARED.02.01",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-16",
+      "id": "SELECT.04",
+      "feature": "shared"
+    },
+    {
+      "old_id": "CAT-17",
+      "id": "SELECT.05",
+      "feature": "shared"
+    },
+    {
+      "old_id": "APP-01",
+      "id": "HOME",
+      "feature": "home"
+    },
+    {
+      "old_id": "APP-02",
+      "id": "PRACTICE",
+      "feature": "practice"
+    },
+    {
+      "old_id": "APP-03",
+      "id": "DICT",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-04",
+      "id": "DICT.01",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-05",
+      "id": "DICT.02",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-06",
+      "id": "DICT.02.01",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-07",
+      "id": "TRAIN",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-08",
+      "id": "TRAIN.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-09",
+      "id": "TRAIN.01.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-12",
+      "id": "TRAIN.01.02",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-13",
+      "id": "TRAIN.01.02.01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-14",
+      "id": "TRAIN.01.03",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "APP-15",
+      "id": "SELECT.01",
+      "feature": "shared"
+    },
+    {
+      "old_id": "APP-16",
+      "id": "SELECT.02",
+      "feature": "shared"
+    },
+    {
+      "old_id": "TRAIN.01.02.02",
+      "id": "SELECT.01",
+      "feature": "shared"
+    },
+    {
+      "old_id": "TRAIN.01.02.03",
+      "id": "SELECT.02",
+      "feature": "shared"
+    },
+    {
+      "old_id": "APP-17",
+      "id": "SELECT.06",
+      "feature": "shared"
+    },
+    {
+      "old_id": "APP-20",
+      "id": "SELECT.07",
+      "feature": "shared"
+    },
+    {
+      "old_id": "APP-22",
+      "id": "DICT.02.02",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-23",
+      "id": "DICT.03",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-21",
+      "id": "DICT.04",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "APP-10",
+      "id": "SETTINGS",
+      "feature": "settings"
+    },
+    {
+      "old_id": "APP-11",
+      "id": "SETTINGS.01",
+      "feature": "settings"
+    },
+    {
+      "old_id": "DLG-RECIPE-EXIT",
+      "id": "TRAIN.D01",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "DLG-RECIPE-DELETE",
+      "id": "TRAIN.D02",
+      "feature": "recipe-builder"
+    },
+    {
+      "old_id": "DLG-WORD-EXIT",
+      "id": "DICT.D01",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-WORD-DELETE",
+      "id": "DICT.D02",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-TAG-CREATE",
+      "id": "DICT.04.D01",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-TAG-EDIT",
+      "id": "DICT.04.D02",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-TAG-DELETE",
+      "id": "DICT.04.D03",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-TRANSLATION",
+      "id": "DICT.02.02.D01",
+      "feature": "dictionary"
+    },
+    {
+      "old_id": "DLG-CHECK",
+      "id": "PRACTICE.D01",
+      "feature": "practice"
+    },
+    {
+      "old_id": "DLG-DEBUG",
+      "id": "PRACTICE.D02",
+      "feature": "practice"
+    },
+    {
+      "old_id": "DLG-CHECK-HELP",
+      "id": "SETTINGS.01.D01",
+      "feature": "settings"
+    },
+    {
+      "old_id": "DLG-ACTIVITY",
+      "id": "HOME.D01",
+      "feature": "home"
+    },
+    {
+      "old_id": "DLG-WORD-STATS",
+      "id": "HOME.D02",
+      "feature": "home"
+    },
+    {
+      "old_id": "DLG-OLD-TRAINING",
+      "id": "LEGACY.01",
+      "feature": "legacy"
+    },
+    {
+      "old_id": "EXT-PRACTICE-RESULT",
+      "id": "PRACTICE.01",
+      "feature": "practice"
+    }
+  ]
+}

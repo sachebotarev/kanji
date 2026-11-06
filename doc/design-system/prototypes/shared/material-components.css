@@ -25,10 +25,11 @@
 .review-notice h2{font-size:var(--md-sys-typescale-title-medium-size);font-weight:500}
 #phone :is(.appbar h2,.n-appbar h2,.p-book-appbar h2){font-size:calc(var(--md-sys-typescale-title-large-size) * var(--scale));line-height:calc(var(--md-sys-typescale-title-large-line-height) * var(--scale));font-weight:400}
 #phone .home .appbar h2{font-size:calc(var(--md-sys-typescale-headline-small-size) * var(--scale));line-height:calc(var(--md-sys-typescale-headline-small-line-height) * var(--scale))}
-#phone :is(.stat-card,.training-card,.info-panel,.word-row,.source-row,.plan-card,.n-info-panel,.n-word-row,.n-kanji-tile,.n-radical-tile,.p-source-card,.p-reference-row,.p-book-chapter-card,.w-nav-row){border-radius:var(--md-sys-shape-corner-medium)}
+#phone :is(.stat-card,.recipe-card,.info-panel,.word-row,.source-row,.plan-card,.n-info-panel,.n-word-row,.n-kanji-tile,.n-radical-tile,.p-source-card,.p-reference-row,.p-book-chapter-card,.w-nav-row){border-radius:var(--md-sys-shape-corner-medium)}
 #phone .primary-button{background:var(--md-sys-color-primary)!important;color:var(--md-sys-color-on-primary)!important;border-radius:var(--md-sys-shape-corner-full)!important;font-weight:500}
 #phone .tonal-button{background:var(--md-sys-color-secondary-container)!important;color:var(--md-sys-color-on-secondary-container)!important;border-radius:var(--md-sys-shape-corner-full)!important;font-weight:500}
-#phone :is(.text-button,.n-text-button){color:var(--primary)}
+#phone :is(.text-button,.n-text-button){display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;box-sizing:border-box;padding:10px 12px;line-height:calc(20px * var(--scale));color:var(--primary)}
+#phone :is(.text-button,.n-text-button)>svg{display:block;flex:0 0 20px;width:20px;height:20px;align-self:center}
 #phone .launch{background:var(--md-sys-color-primary-container)!important;color:var(--md-sys-color-on-primary-container)!important;border-radius:var(--md-sys-shape-corner-large)}
 #phone :is(.stat-title .flame,.ring){color:var(--md-sys-color-tertiary)}
 #phone .ring:before{background:conic-gradient(var(--md-sys-color-primary) 0 70%,var(--md-sys-color-tertiary) 70% 90%,var(--md-sys-color-error) 90%)}
@@ -38,7 +39,7 @@
 #phone .field{font-weight:500;font-size:calc(var(--md-sys-typescale-body-small-size) * var(--scale))}
 #phone .word-reading{font-size:calc(var(--md-sys-typescale-body-large-size) * var(--scale));line-height:1.5}
 #phone :is(.form-error,.danger,.failure){color:var(--md-sys-color-error)!important}
-#phone .kanji-cell.selected{background:var(--md-sys-color-secondary-container)!important;color:var(--md-sys-color-on-secondary-container)!important;border-color:var(--md-sys-color-secondary)!important}
+#phone .kanji-cell.selected{background:var(--md-sys-color-primary-container)!important;color:var(--md-sys-color-on-primary-container)!important;border-color:var(--md-sys-color-primary)!important}
 #phone .kanji-cell.correct{background:var(--md-sys-color-primary-container)!important;color:var(--md-sys-color-on-primary-container)!important}
 #phone .kanji-cell.incorrect{background:var(--md-sys-color-error-container)!important;color:var(--md-sys-color-on-error-container)!important}
 #phone .tools{background:var(--md-sys-color-surface-container)}
@@ -50,18 +51,16 @@
 #phone .plan-card[data-kind=kanji]{--plan-surface:var(--md-sys-color-primary-container);--plan-badge:var(--md-sys-color-primary-fixed-dim);--plan-accent:var(--md-sys-color-on-primary-container)}
 #phone .plan-card[data-kind=personal]{--plan-surface:var(--md-sys-color-tertiary-container);--plan-badge:var(--md-sys-color-tertiary-fixed-dim);--plan-accent:var(--md-sys-color-on-tertiary-container)}
 #phone .plan-card[data-kind=mixed],#phone .plan-card[data-kind=words]{--plan-surface:var(--md-sys-color-surface-container-high);--plan-badge:var(--md-sys-color-surface-container-highest);--plan-accent:var(--md-sys-color-on-surface)}
-#phone .plan-card{color:var(--plan-accent);background:var(--plan-surface)}
-#phone .plan-material,#phone .plan-card .plan-kind{color:var(--plan-accent)}
+#phone .plan-card{color:var(--md-sys-color-on-surface);background:var(--md-sys-color-surface-container);border:0}
+#phone .plan-material,#phone .plan-card .plan-kind{color:var(--md-sys-color-on-surface-variant)}
 #phone .plan-art{color:var(--md-sys-color-on-primary-fixed);background:var(--plan-badge)}
 #phone .plan-card[data-kind=book] .plan-art{color:var(--md-sys-color-on-secondary-fixed)}
 #phone .plan-card[data-kind=personal] .plan-art{color:var(--md-sys-color-on-tertiary-fixed)}
-#phone .plan-menu-btn{color:inherit!important}
-#phone .plan-card-selected{--plan-accent:var(--md-sys-color-on-primary);background:var(--md-sys-color-primary);color:var(--md-sys-color-on-primary)}
+#phone .plan-card-selected{background:var(--md-sys-color-surface-container);color:var(--md-sys-color-on-surface)}
 #phone .plan-card-selected .plan-art{background:var(--md-sys-color-on-primary);color:var(--md-sys-color-primary)}
-#phone .plan-card-selected :is(.plan-material,.plan-kind,.plan-active-label){color:var(--md-sys-color-on-primary)}
-#phone .plan-card-selected:after{border-color:var(--md-sys-color-primary)}
-#phone .plan-time.is-timed{color:var(--md-sys-color-on-tertiary-container);background:var(--md-sys-color-tertiary-container)}
-#phone .training-create{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);border-radius:var(--md-sys-shape-corner-large);box-shadow:0 3px 8px color-mix(in srgb,var(--md-sys-color-shadow) 18%,transparent)}
+#phone .plan-card-selected :is(.plan-material,.plan-kind){color:var(--md-sys-color-on-surface-variant)}
+#phone .plan-time.is-timed{color:inherit;background:transparent}
+#phone .recipe-create{background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container);border-radius:var(--md-sys-shape-corner-large);box-shadow:0 3px 8px color-mix(in srgb,var(--md-sys-color-shadow) 18%,transparent)}
 #phone .plan-dropdown-menu{background:var(--md-sys-color-surface-container-high);color:var(--md-sys-color-on-surface);border:0;border-radius:var(--md-sys-shape-corner-extra-small)}
 /* Filters share a quiet, borderless capsule treatment across catalog screens. */
 #phone :is(.n-filter-button,.w-textbook-chip,.n-selector-all){background:color-mix(in srgb,var(--md-sys-color-tertiary-container) 40%,var(--md-sys-color-surface))!important;color:var(--md-sys-color-on-tertiary-container)!important;border:0!important;border-radius:var(--md-sys-shape-corner-full)!important;font-weight:400}
@@ -90,12 +89,43 @@
 .settings-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px;font-size:calc(16px * var(--scale))}
 .settings-toggle input{width:48px;height:28px;accent-color:var(--md-sys-color-primary);flex:none}
 .settings-parameter{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:calc(14px * var(--scale));min-height:64px;border-bottom:1px solid var(--md-sys-color-outline-variant)}
-.settings-value{display:flex;align-items:center;gap:6px;flex:none}.settings-value input{width:82px;padding:12px 8px;border:1px solid var(--md-sys-color-outline);background:var(--bg);color:var(--ink);border-radius:var(--md-sys-shape-corner-extra-small);font-size:calc(16px * var(--scale))}
+.settings-value{display:flex;align-items:center;gap:6px;flex:none}.settings-value input{width:82px;padding:12px 8px;border:1px solid var(--md-sys-color-outline);background:var(--bg);color:var(--ink);border-radius:8px;font-size:calc(16px * var(--scale))}
+#phone .settings-value input:focus-visible{border-color:var(--md-sys-color-primary);outline:2px solid var(--md-sys-color-primary);outline-offset:2px}
 .settings-note{font-size:calc(12px * var(--scale));line-height:1.5;color:var(--muted)}
 #phone.plan-theme,:root,#phone{font-family:var(--md-sys-typescale-font-family)}
 #phone .plan-card-selected[data-kind] .plan-art{background:var(--md-sys-color-on-primary);color:var(--md-sys-color-primary)}
-#phone .plan-card-selected[data-kind] .plan-metrics .svg-icon{color:var(--md-sys-color-on-primary)}
-#phone .plan-card-selected[data-kind] .plan-time.is-timed .svg-icon{color:var(--md-sys-color-on-tertiary-container)}
-#phone :is(.stat-card,.training-card,.info-panel,.word-row,.source-row,.plan-card,.n-info-panel,.n-word-row,.n-kanji-tile,.n-radical-tile,.p-source-card,.p-reference-row,.p-book-chapter-card,.w-nav-row){border-radius:var(--md-sys-shape-corner-medium)!important}
+#phone .plan-card-selected[data-kind] .plan-metrics .svg-icon{color:var(--md-sys-color-primary)}
+#phone .plan-card-selected[data-kind] .plan-time.is-timed .svg-icon{color:var(--md-sys-color-primary)}
+#phone :is(.stat-card,.recipe-card,.info-panel,.word-row,.source-row,.plan-card,.n-info-panel,.n-word-row,.n-kanji-tile,.n-radical-tile,.p-source-card,.p-reference-row,.p-book-chapter-card,.w-nav-row){border-radius:var(--md-sys-shape-corner-medium)!important}
 #phone .n-source-card{border-radius:var(--md-sys-shape-corner-medium)}
 #phone .section-heading h3{font-size:calc(var(--md-sys-typescale-title-medium-size) * var(--scale));line-height:calc(var(--md-sys-typescale-title-medium-line-height) * var(--scale));font-weight:500}
+
+
+/* Error states override the default field and focus colors. */
+#phone .field :is(input,select)[data-recipe-invalid]{border:2px solid var(--md-sys-color-error);outline-color:var(--md-sys-color-error)}
+#phone .field :is(input,select)[data-recipe-invalid]:focus-visible{outline:2px solid var(--md-sys-color-error);outline-offset:0}
+
+/* Shared catalog search field, also used by the training builder. */
+.n-search{position:relative;display:flex;align-items:center;margin:8px 20px;background:var(--surface-high);border:1px solid transparent;border-radius:24px;min-height:56px}
+.n-search:focus-within{border-color:var(--primary);outline:1px solid var(--primary)}
+.n-search .n-search-icon{width:48px;min-width:48px;text-align:center;font-size:26px;color:var(--muted);pointer-events:none}
+.n-search input{width:100%;min-width:0;min-height:54px;border:0;outline:none!important;background:transparent;color:var(--ink);font-size:calc(14px * var(--scale));line-height:calc(20px * var(--scale));padding:15px 12px 15px 0;font-family:inherit}
+.n-search input::placeholder,
+#phone .field :is(input,textarea)::placeholder,
+#phone input::placeholder,
+#phone textarea::placeholder{color:color-mix(in srgb,var(--md-sys-color-on-surface-variant) 48%,transparent);opacity:1}
+.n-search input::-webkit-search-cancel-button{display:none}
+.n-clear-query{padding:0 12px!important;flex-shrink:0;min-height:48px;color:var(--primary)!important;font-size:calc(14px * var(--scale))}
+
+#phone .plan-card-selected .plan-metrics{border-top-color:var(--md-sys-color-outline-variant)}
+
+/* Training source tags are bound to recipe fields, not title words. */
+#phone .plan-source-tag{display:inline-block;max-width:100%;padding:3px 8px;border-radius:6px;background:var(--md-sys-color-surface-container-highest);color:var(--md-sys-color-on-surface);font-weight:500;line-height:1.5;overflow-wrap:anywhere}
+#phone .plan-source-tag[data-tag-kind=source]{background:var(--md-sys-color-secondary-container);color:var(--md-sys-color-on-secondary-container)}
+#phone .plan-source-tag:is([data-tag-kind=jlpt],[data-tag-kind=kanji]){background:var(--md-sys-color-primary-container);color:var(--md-sys-color-on-primary-container)}
+#phone .plan-source-tag[data-tag-kind=personal]{background:var(--md-sys-color-tertiary-container);color:var(--md-sys-color-on-tertiary-container)}
+
+/* One semantic input token for every screen, dialog and state. No checkbox/radio/range styling. */
+:is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file],[type=hidden],[type=button],[type=submit],[type=reset],[type=image]),textarea,select),
+#phone :is(input:not([type=checkbox],[type=radio],[type=range],[type=color],[type=file],[type=hidden],[type=button],[type=submit],[type=reset],[type=image]),textarea,select),
+#phone :is(.n-search,.search){border-radius:var(--app-input-corner-radius)!important}

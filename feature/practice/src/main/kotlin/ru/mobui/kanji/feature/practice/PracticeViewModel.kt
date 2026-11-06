@@ -25,7 +25,7 @@ import ru.mobui.kanji.domain.practice.KanjiChecker
 import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.KanjiReferenceSource
 import ru.mobui.kanji.domain.practice.PracticeResult
-import ru.mobui.kanji.domain.practice.PracticeSession
+import ru.mobui.kanji.domain.practice.HandwritingTraining
 import ru.mobui.kanji.domain.practice.PracticeState
 import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TraceReferenceHint
@@ -82,9 +82,9 @@ class PracticeViewModel(
     private val hintAlgorithm: HintAlgorithm = TraceReferenceHint(),
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
-    private var session = PracticeSession(task)
+    private var training = HandwritingTraining(task)
     private val mutableState =
-        MutableStateFlow(PracticeUiState(session.state, debugEnabled = showCheckDiagnostics))
+        MutableStateFlow(PracticeUiState(training.state, debugEnabled = showCheckDiagnostics))
     val uiState = mutableState.asStateFlow()
     private val mutablePreview = MutableStateFlow<PadEvent.GesturePreview?>(null)
     val preview = mutablePreview.asStateFlow()
@@ -97,7 +97,7 @@ class PracticeViewModel(
     init {
         loadTaskReferences(task, references, viewModelScope) { id, drawing ->
             accountTime()
-            session.setReference(id, drawing)
+            training.setReference(id, drawing)
             publish()
         }
     }
@@ -112,7 +112,7 @@ class PracticeViewModel(
             screenActive = false
             cancelCheck()
             mutablePreview.value = null
-            session.setGestureActive(false)
+            training.setGestureActive(false)
         } else {
             screenActive = true
             accountTime()
@@ -137,13 +137,13 @@ class PracticeViewModel(
         lastTick = null
         resultDelivered = false
         coordinator.clear()
-        session = PracticeSession(task)
+        training = HandwritingTraining(task)
         mutableState.value =
-            PracticeUiState(session.state, debugEnabled = showCheckDiagnostics)
+            PracticeUiState(training.state, debugEnabled = showCheckDiagnostics)
         mutablePreview.value = null
         loadTaskReferences(task, references, viewModelScope) { id, drawing ->
             accountTime()
-            session.setReference(id, drawing)
+            training.setReference(id, drawing)
             publish()
         }
         if (screenActive) {
@@ -152,27 +152,27 @@ class PracticeViewModel(
     }
 
     fun onCheckerSettingsChanged() {
-        if (session.state.gestureActive || session.state.result != null) return
+        if (training.state.gestureActive || training.state.result != null) return
         cancelCheck()
         coordinator.clear()
-        session.invalidateChecks()
+        training.invalidateChecks()
         publish()
         scheduleCheck()
     }
 
     fun onAction(action: PracticeAction) {
         accountTime()
-        if (session.state.result != null) {
+        if (training.state.result != null) {
             publish()
             return
         }
         // UI actions must not commit or change cells under an unfinished gesture.
-        if (session.state.gestureActive) return
+        if (training.state.gestureActive) return
         when (action) {
             is PracticeAction.Select -> {
-                val previous = session.state.selectedIndex
-                session.select(action.index)
-                if (session.state.selectedIndex != previous)
+                val previous = training.state.selectedIndex
+                training.select(action.index)
+                if (training.state.selectedIndex != previous)
                     mutableState.value = mutableState.value.copy(hint = null)
             }
             PracticeAction.ToggleCompensatedDrawing -> {
@@ -190,23 +190,23 @@ class PracticeViewModel(
                 if (mutableState.value.hint != null) {
                     mutableState.value = mutableState.value.copy(hint = null)
                 } else {
-                    val cell = session.state.selected ?: return
+                    val cell = training.state.selected ?: return
                     val reference = cell.reference ?: return
                     val hint = hintAlgorithm.create(HintRequest(cell.sample, reference)) ?: return
-                    session.recordHintUsed()
+                    training.recordHintUsed()
                     mutableState.value = mutableState.value.copy(hint = hint)
                 }
             }
             PracticeAction.Undo -> {
                 cancelCheck()
-                session.undo()
+                training.undo()
             }
             PracticeAction.Clear -> {
                 cancelCheck()
-                session.clear()
+                training.clear()
             }
-            PracticeAction.Submit -> session.submit()
-            PracticeAction.Skip -> session.skip()
+            PracticeAction.Submit -> training.submit()
+            PracticeAction.Skip -> training.skip()
         }
         publish()
         scheduleCheck()
@@ -215,41 +215,41 @@ class PracticeViewModel(
     fun onPadEvent(event: PadEvent) {
         accountTime()
         if (mutableState.value.hint?.blocksInput == true) return
-        val cell = session.state.selected
+        val cell = training.state.selected
         when (event) {
             is PadEvent.GesturePreview -> {
                 if (cell?.task?.occurrenceId != event.baseVersion.cellId) return
                 if (
                     event.stroke != null &&
                         (cell.revision != event.baseVersion.revision ||
-                            session.state.result != null)
+                            training.state.result != null)
                 )
                     return
                 if (event.stroke == null && mutablePreview.value?.gestureId != event.gestureId)
                     return
-                val wasActive = session.state.gestureActive
+                val wasActive = training.state.gestureActive
                 if (event.stroke != null && !wasActive) cancelCheck()
                 mutablePreview.value = event.takeIf { it.stroke != null }
-                session.setGestureActive(event.stroke != null)
-                if (wasActive != session.state.gestureActive) publish()
+                training.setGestureActive(event.stroke != null)
+                if (wasActive != training.state.gestureActive) publish()
                 if (event.stroke == null) scheduleCheck()
             }
             is PadEvent.StrokeFinished -> {
                 cancelCheck()
-                session.addStroke(
+                training.addStroke(
                     event.baseVersion.cellId,
                     event.baseVersion.revision,
                     event.stroke,
                 )
                 publish()
-                if (!session.state.gestureActive) scheduleCheck()
+                if (!training.state.gestureActive) scheduleCheck()
             }
         }
     }
 
     /** Synchronous delivery once per ViewModel lifetime; caller can deduplicate by taskId. */
     fun deliverResult(onResult: (PracticeResult) -> Unit) {
-        val result = session.state.result ?: return
+        val result = training.state.result ?: return
         if (resultDelivered) return
         resultDelivered = true
         onResult(result)
@@ -260,13 +260,13 @@ class PracticeViewModel(
         cancelCheck()
         if (
             !screenActive ||
-                session.state.result != null ||
-                session.state.gestureActive ||
+                training.state.result != null ||
+                training.state.gestureActive ||
                 mutableState.value.hint?.blocksInput == true
         )
             return
         val requests =
-            session.checkRequests().filter {
+            training.checkRequests().filter {
                 coordinator.revisions[it.occurrenceId] != it.revision
             }
         if (requests.isEmpty()) return
@@ -285,7 +285,7 @@ class PracticeViewModel(
                         if (generation != coordinator.generation) return@launch
                         accountTime()
                         coordinator.applyResult(
-                            session,
+                            training,
                             request,
                             report,
                             unavailable,
@@ -315,40 +315,40 @@ class PracticeViewModel(
         val previous = lastTick ?: return
         val now = clock()
         lastTick = now
-        session.advanceTime((now - previous).coerceAtLeast(0))
-        if (session.state.result != null) {
+        training.advanceTime((now - previous).coerceAtLeast(0))
+        if (training.state.result != null) {
             mutablePreview.value = null
-            session.setGestureActive(false)
+            training.setGestureActive(false)
         }
     }
 
     private fun publish(notice: PracticeNotice? = mutableState.value.notice) {
         val currentReport =
-            session.state.selected?.let { cell ->
+            training.state.selected?.let { cell ->
                 coordinator.failures[cell.task.occurrenceId]
                     ?.takeIf {
                         it.first == cell.revision &&
-                            !session.state.gestureActive &&
-                            session.state.result == null
+                            !training.state.gestureActive &&
+                            training.state.result == null
                     }
                     ?.second
             }
         val debugReport = currentReport.takeIf { showCheckDiagnostics }
         mutableState.value =
             mutableState.value.copy(
-                practice = session.state,
+                practice = training.state,
                 currentCheckReport = currentReport,
-                canUndo = session.canUndo(),
-                gestureActive = session.state.gestureActive,
+                canUndo = training.canUndo(),
+                gestureActive = training.state.gestureActive,
                 notice = notice,
-                hint = mutableState.value.hint.takeIf { session.state.result == null },
+                hint = mutableState.value.hint.takeIf { training.state.result == null },
                 debugReport = debugReport,
                 showCompensatedDrawing =
                     mutableState.value.showCompensatedDrawing &&
                         debugReport?.compensatedDrawing != null &&
-                        session.state.selected?.task?.occurrenceId ==
+                        training.state.selected?.task?.occurrenceId ==
                             mutableState.value.practice.selected?.task?.occurrenceId &&
-                        session.state.selected?.revision ==
+                        training.state.selected?.revision ==
                             mutableState.value.practice.selected?.revision,
                 debugFailures = debugReport?.failures.orEmpty(),
                 debugCompensation = debugReport?.compensation?.takeIf { it.isApplied },
@@ -413,14 +413,14 @@ private class CheckCoordinator {
     }
 
     fun applyResult(
-        session: PracticeSession,
+        training: HandwritingTraining,
         request: CheckRequest,
         report: CheckReport,
         unavailable: Boolean,
         incomplete: Boolean,
     ): Triple<Boolean, Boolean, PracticeNotice?>? {
         val verdict = report.verdict
-        if (!session.applyCheck(request, verdict)) return null
+        if (!training.applyCheck(request, verdict)) return null
         failures[request.occurrenceId] =
             request.revision to
                 report.copy(

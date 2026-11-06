@@ -32,7 +32,7 @@ internal fun CatalogMaterialCount(
             MaterialKind.Radical -> R.plurals.catalog_radical_count
             MaterialKind.Chapter -> R.plurals.catalog_chapter_count
         }
-    val horizontal = if (inset) 20.dp else 0.dp
+    val horizontal = if (inset) 18.dp else 0.dp
     Row(
         modifier =
             modifier

@@ -1,0 +1,8 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_meme_other_font.png",
+  "title": "Знакомый знак другим почерком",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_read_book.png",
+  "transparent_background": true,
+  "prompt": "Create a CLEAN FLAT VECTOR-STYLE STICKER on TRUE TRANSPARENT BACKGROUND, square canvas. Use the attached reading-cat image ONLY as a reference for character design. New composition: TWO smaller versions of this SAME cream cat side by side, each holding a small cream flashcard. Both cats have the same green student cap, red band, gold button, dark green thick outlines, pink ears and feet. Left cat smiles confidently, card has three simple straight brush strokes. Right cat looks hilariously baffled, card has three flowing cursive brush strokes. These are decorative abstract marks, no real lettering. Entire two cats and cards visible, 10% transparent margin all around. Very simple FLAT colors, NO GRADIENTS. Important: BACKGROUND MUST BE COMPLETELY EMPTY TRANSPARENT ALPHA ZERO, including between and around the cats. NO glow, NO haze, NO vignette, NO colored background, NO soft shadow, NO lighting effects. All cat and card pixels and dark outlines are opaque. Crisp sticker cutout edges. No text, no panel borders, no white rim."
+}

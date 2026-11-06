@@ -2,6 +2,7 @@ package ru.mobui.kanji.feature.catalog
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToIndex
@@ -65,6 +66,7 @@ class CatalogScrollRestorationTest {
         compose.onNodeWithTag("kanji-grid").performScrollToIndex(30)
         compose.onNodeWithTag("kanji-19998").assertIsDisplayed()
         compose.onNodeWithTag("catalog-tab-2").performClick()
+        compose.waitUntil(5_000) { compose.onAllNodesWithTag("word-list").fetchSemanticsNodes().size == 1 }
         compose.onNodeWithTag("word-list").performScrollToIndex(30)
         compose.onNodeWithTag("word-31").assertIsDisplayed()
         compose.onNodeWithTag("catalog-tab-1").performClick()

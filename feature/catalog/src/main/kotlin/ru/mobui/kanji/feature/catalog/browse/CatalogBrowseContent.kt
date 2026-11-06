@@ -23,6 +23,10 @@ import ru.mobui.kanji.domain.catalog.CatalogRepository
 import ru.mobui.kanji.domain.catalog.CatalogSelection
 import ru.mobui.kanji.domain.catalog.CatalogSnapshot
 
+private fun radicalSymbols(snapshot: CatalogSnapshot, ids: Set<Int>): String? =
+    if (ids.isEmpty()) null else ids.sorted().take(2).mapNotNull { snapshot.radicalById[it]?.symbol }.joinToString("、") +
+        if (ids.size > 2) " +${ids.size - 2}" else ""
+
 internal fun browseContent(snapshot: CatalogSnapshot, input: BrowseInput, language: String): BrowseContent =
 when (input) {
     BrowseInput.Home ->
@@ -46,13 +50,14 @@ when (input) {
                 snapshot.kanji.count { it.radicalId != null },
             ),
             input.filters,
-            input.filters.radicalId?.let { snapshot.radicalById[it]?.symbol },
+            radicalSymbols(snapshot, input.filters.radicalIds),
         )
     is BrowseInput.RadicalIndex ->
         BrowseContent.AllRadicals(
-            snapshot.radicals(input.query, language, input.strokes),
+            snapshot.radicals(input.query, language, input.strokes, input.strokeIds),
             snapshot.radicals.size,
             input.strokes,
+            input.strokeIds,
         )
     is BrowseInput.Words -> {
         val target = input.request
@@ -102,9 +107,9 @@ private fun sourceKanjiRows(
             snapshot.numbers(target.sourceId),
         ),
         input.kanji,
-        input.kanji.radicalId?.let { snapshot.radicalById[it]?.symbol },
-        canChangeChapter = input.kanji.chapter == null ||
-            snapshot.availableChapters(input.kanji.selection(target.sourceId)).any { it.number != input.kanji.chapter },
+        radicalSymbols(snapshot, input.kanji.radicalIds),
+        canChangeChapter = input.kanji.chapterIds.isNotEmpty() ||
+            snapshot.availableChapters(input.kanji.selection(target.sourceId)).isNotEmpty(),
     )
 }
 
@@ -128,11 +133,13 @@ private fun sourceWordRows(
                 .size,
         ),
         input.words,
-        input.words.kanjiId?.let { snapshot.kanjiById[it]?.symbol },
+        input.words.kanjiIds.sorted().mapNotNull { snapshot.kanjiById[it]?.symbol }.takeIf { it.isNotEmpty() }?.let {
+            it.take(2).joinToString("、") + if (it.size > 2) " +${it.size - 2}" else ""
+        },
         input.query.isBlank() &&
-            input.words.kanjiId == null &&
-            input.words.chapter == target.chapter,
-        canChangeChapter = input.words.chapter == null ||
-            snapshot.availableChapters(selection).any { it.number != input.words.chapter },
+            input.words.kanjiIds.isEmpty() &&
+            input.words.chapterIds == setOfNotNull(target.chapter),
+        canChangeChapter = input.words.chapterIds.isNotEmpty() ||
+            snapshot.availableChapters(selection).isNotEmpty(),
     )
 }

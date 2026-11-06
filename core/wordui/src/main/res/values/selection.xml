@@ -1,0 +1,20 @@
+<resources>
+    <string name="selection_apply">Применить</string>
+    <string name="selection_choose">Выбрать · %1$d</string>
+    <string name="selection_count">Выбрано: %1$d</string>
+    <string name="selection_all">← Все</string>
+    <string name="selection_clear">Снять выбор</string>
+    <string name="selection_search">Найти кандзи</string>
+    <string name="selection_empty">Ничего не найдено</string>
+    <string name="selection_back">Назад</string>
+    <string name="selection_strokes">Черты</string>
+    <string name="selection_radical">Ключ</string>
+    <string name="selection_jlpt">JLPT</string>
+    <string name="selection_no_jlpt">Нет данных JLPT</string>
+    <string name="selection_close">Закрыть</string>
+    <string name="selection_jlpt_help">Что такое JLPT?</string>
+    <string name="selection_jlpt_explanation">JLPT — экзамен на знание японского языка. N5 — начальный уровень, N1 — самый сложный. Это учебный ориентир: официальный исчерпывающий список кандзи по уровням не публикуется. «Нет данных JLPT» означает отсутствие уровня в каталоге, а не уровень N0.</string>
+    <string name="selection_all_strokes">Все черты</string>
+    <string name="selection_all_radicals">Все ключи</string>
+    <string name="selection_open_search">Поиск</string>
+</resources>

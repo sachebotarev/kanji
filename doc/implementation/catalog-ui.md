@@ -1,11 +1,11 @@
 # Каталог: текущий интерфейс Android
 
-Каталог реализован на Compose с общей темой Material 3 и текущими компонентами всех 17 экранов. Все 17 экранов каталога согласованы пользователем 2026-11-03; HTML-макет остаётся визуальным ориентиром. Согласование дизайна не заменяет техническую проверку всех состояний. Статус каждой редакции задаёт [реестр согласования](../design-system/05-screens/catalog/review-status.json), а не успешная сборка и не наличие Android-реализации.
+Существующая Compose-реализация каталога с общей темой Material 3 относится к прежней структуре из 17 экранов. Целевая HTML-редакция согласована 2026-11-04 и включает раздельные учебники/справочники и изменённые общие селекторы; её полный перенос этим документом не подтверждается. Канонический [реестр](../design-system/theme/screens.json) и [контракт следующего этапа](approved-ui-handoff.md) отделяют дизайн от реализации. Согласование не заменяет техническую проверку.
 
 ## Материалы
 
 - [Макет и запуск](../design-system/prototypes/textbooks/README.md).
-- [Экранные контракты](../design-system/05-screens/catalog/README.md), [обзор](../design-system/05-screens/catalog/review/index.html).
+- [Экранные контракты](../design-system/05-screens/catalog/README.md).
 - [Токены](../design-system/03-foundations/README.md), [компоненты](../design-system/04-components/README.md), [UX](../design-system/02-ux/README.md).
 - [Архитектура](../architecture.md), [presentation каталога](../decisions/catalog-presentation.md), [локализация](localization.md).
 - [Хранение](catalog.md), [содержимое](../imports/main-content/README.md), [последние нативные проверки](../verification/catalog/refactor-2026-11-02/README.md).

@@ -14,7 +14,7 @@ const path=require('node:path');
   try{
     await page.goto(base);await page.waitForFunction(()=>window.catalogPrototype);await page.evaluate(()=>document.fonts.ready);
     const registry=await page.evaluate(()=>window.catalogPrototype.review);
-    assert.equal(registry.screens.length,17);const pending=registry.screens.filter(s=>s.status!=='approved').length;
+    assert.equal(registry.screens.length,18);const pending=registry.screens.filter(s=>s.status!=='approved').length;
     const visited=[];
     for(const screen of registry.screens){
       await page.locator(`[data-quick="${screen.route}"]`).click();
@@ -35,14 +35,15 @@ const path=require('node:path');
     await page.evaluate(()=>quickNavigate('source/1?tab=1'));
     await page.locator('[data-action="filter:strokes"]').click();
     await page.locator('[data-action="select-strokes:1"]').click();
-    await page.waitForFunction(()=>current.route.kind==='source'&&current.strokes===1);
+    await page.locator('[data-action="facet-apply"]').click();
+    await page.waitForFunction(()=>current.route.kind==='source'&&current.strokes.includes(1));
     await page.locator('[data-action="tab:2"]').click();
     await page.locator('[data-action="filter:chapter"]').click();
-    assert.equal(await page.locator('[data-action^="select-chapter:"]').count(),19); // All + 18 chapters.
+    assert.equal(await page.locator('[data-action^="select-chapter:"]').count(),18); // Clear selection is a separate control.
     assert.match(await page.locator('[data-action="select-chapter:3"] small').innerText(),/118 слов/);
-    await page.locator('.n-back').click();await page.waitForFunction(()=>current.route.kind==='source');
+    await page.locator('[data-action="back"]').click();await page.waitForFunction(()=>current.route.kind==='source');
     await page.locator('[data-action="tab:1"]').click();await page.locator('[data-action="filter:chapter"]').click();
-    assert.equal(await page.locator('[data-action^="select-chapter:"]').count(),2);
+    assert.equal(await page.locator('[data-action^="select-chapter:"]').count(),1);
     assert.doesNotMatch(await page.locator('[data-action="select-chapter:3"] small').innerText(),/слов/);
     await page.evaluate(()=>quickNavigate('words/19968/1'));
     assert.match(await page.locator('.w-kanji-summary').innerText(),/13 слов/);
@@ -71,7 +72,9 @@ const path=require('node:path');
     await page.selectOption('#locale','ru');await page.selectOption('#width','411.43');await page.selectOption('#text-scale','1');
     for(const state of ['loading','error']){
       await page.selectOption('#load-state',state);assert.equal(await page.locator('.p-catalog-state').count(),1);
-      assert.match(await page.locator('#view-status').innerText(),/Не согласовано/);
+      const key=await page.evaluate(()=>reviewScreenKey());
+      const approved=registry.screens.find(s=>s.key===key)?.status==='approved';
+      assert((await page.locator('#view-status').innerText()).startsWith(approved?'Согласовано':'Не согласовано'));
     }
     await page.selectOption('#load-state','ready');await page.selectOption('#review-filter','unapproved');
     assert.equal(await page.locator('.nav-link[data-quick]:visible').count(),pending);

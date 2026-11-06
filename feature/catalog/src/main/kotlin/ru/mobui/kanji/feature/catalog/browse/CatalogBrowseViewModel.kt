@@ -42,7 +42,7 @@ internal sealed interface BrowseInput {
 
     data class KanjiIndex(val filters: KanjiFilters, val query: String) : BrowseInput
 
-    data class RadicalIndex(val strokes: Int?, val query: String) : BrowseInput
+    data class RadicalIndex(val strokes: Int?, val query: String, val strokeIds: Set<Int> = setOfNotNull(strokes)) : BrowseInput
 
     data class Words(val request: BrowseRequest.RelatedWords, val query: String) : BrowseInput
 }
@@ -101,19 +101,29 @@ internal class CatalogBrowseViewModel(
         val forWords = source != null && currentTab.value == SourceTab.Words
         val prefix = if (source != null) "kanji" else "index"
         when (result) {
-            is FilterResult.Chapter ->
-                saved[chapterFilterKey(forWords, prefix)] =
-                    result.value ?: source?.chapter
-            is FilterResult.Kanji -> if (forWords) saved["words.kanji"] = result.value
-            is FilterResult.Radical -> if (!forWords) saved["$prefix.radical"] = result.value
-            is FilterResult.Strokes ->
-                if (!forWords)
-                    saved[
-                        if (request == BrowseRequest.AllRadicals) "radicals.strokes"
-                        else "$prefix.strokes"] = result.value
-            is FilterResult.Jlpt ->
-                if (request == BrowseRequest.AllKanji)
-                    saved["index.jlpt"] = result.value.savedValue()
+            is FilterResult.Chapter -> {
+                val key = chapterFilterKey(forWords, prefix)
+                val ids = source?.chapter?.let { setOf(it) } ?: result.values
+                saved["${key}Ids"] = ids.sorted().toIntArray()
+                saved[key] = ids.singleOrNull()
+            }
+            is FilterResult.Kanji -> if (forWords) {
+                saved["words.kanjiIds"] = result.values.sorted().toIntArray()
+                saved["words.kanji"] = result.values.singleOrNull()
+            }
+            is FilterResult.Radical -> if (!forWords) {
+                saved["$prefix.radicalIds"] = result.values.sorted().toIntArray()
+                saved["$prefix.radical"] = result.values.singleOrNull()
+            }
+            is FilterResult.Strokes -> if (!forWords) {
+                val key = if (request == BrowseRequest.AllRadicals) "radicals.strokes" else "$prefix.strokes"
+                saved[key] = result.value
+                saved[if (request == BrowseRequest.AllRadicals) "radicals.strokeIds" else "$prefix.strokeIds"] = result.values.sorted().toIntArray()
+            }
+            is FilterResult.Jlpt -> if (!forWords) {
+                saved["$prefix.jlptIds"] = result.values.map { it.savedValue() }.sorted().toIntArray()
+                saved["$prefix.jlpt"] = result.value.savedValue()
+            }
         }
     }
 
@@ -134,10 +144,9 @@ internal class CatalogBrowseViewModel(
                     BrowseInput.KanjiIndex(filters, search.query)
                 }
             BrowseRequest.AllRadicals ->
-                combine(saved.getStateFlow<Int?>("radicals.strokes", null), search) {
-                    strokes,
-                    search ->
-                    BrowseInput.RadicalIndex(strokes, search.query)
+                combine(saved.getStateFlow<Int?>("radicals.strokes", null),
+                    saved.getStateFlow<IntArray?>("radicals.strokeIds", null), search) { strokes, ids, search ->
+                    BrowseInput.RadicalIndex(strokes, search.query, ids?.toSet() ?: setOfNotNull(strokes))
                 }
             is BrowseRequest.RelatedWords -> search.map { BrowseInput.Words(target, it.query) }
         }

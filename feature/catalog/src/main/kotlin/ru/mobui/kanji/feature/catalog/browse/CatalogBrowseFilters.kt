@@ -54,7 +54,7 @@ internal fun BrowseTools(content: BrowseContent, actions: BrowseActions) {
                         content.request.chapter != null,
                         actions,
                     )
-                    CatalogMaterialCount(rows.rows.entries.size, rows.rows.total, MaterialKind.Word)
+                    CatalogMaterialCount(rows.rows.entries.count(), rows.rows.total, MaterialKind.Word)
                 }
             }
         is BrowseContent.AllKanji -> {
@@ -64,33 +64,33 @@ internal fun BrowseTools(content: BrowseContent, actions: BrowseActions) {
         is BrowseContent.AllRadicals -> {
             FlowRow(
                 Modifier.fillMaxWidth()
-                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
+                    .padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 4.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 CatalogFilterChip(
-                    content.strokes?.let { pluralStringResource(R.plurals.catalog_strokes, it, it) }
-                        ?: stringResource(R.string.catalog_all_strokes),
+                    strokeFilterLabel(content.strokeIds),
                     {
                         actions.navigate(
-                            BrowseNavigation.Filter(FilterRequest.RadicalStrokes(content.strokes)),
+                            BrowseNavigation.Filter(FilterRequest.RadicalStrokes(content.strokes, content.strokeIds)),
                         )
                     },
-                    if (content.strokes == null) null
+                    if (content.strokeIds.isEmpty()) null
                     else ({ actions.filter(FilterResult.Strokes(null)) }),
+                    Modifier.testTag("catalog-filter-strokes"),
                 )
             }
-            CatalogMaterialCount(content.entries.size, content.total, MaterialKind.Radical)
+            CatalogMaterialCount(content.entries.count(), content.total, MaterialKind.Radical)
         }
         is BrowseContent.RelatedWords ->
-            CatalogMaterialCount(content.rows.entries.size, content.rows.total, MaterialKind.Word)
+            CatalogMaterialCount(content.rows.entries.count(), content.rows.total, MaterialKind.Word)
     }
 }
 
 @Composable
 private fun KanjiCount(rows: KanjiRows, legend: Boolean) {
     CatalogMaterialCount(
-        rows.entries.size,
+        rows.entries.count(),
         rows.total,
         MaterialKind.Kanji,
         action =
@@ -101,54 +101,74 @@ private fun KanjiCount(rows: KanjiRows, legend: Boolean) {
 }
 
 @Composable
+private fun strokeFilterLabel(ids: Set<Int>): String {
+    if (ids.isEmpty()) return stringResource(R.string.catalog_all_strokes)
+    return ids.sorted().take(2).map { pluralStringResource(R.plurals.catalog_strokes, it, it) }.joinToString("、") +
+        if (ids.count() > 2) " +${ids.count() - 2}" else ""
+}
+
+@Composable
+private fun chapterFilterLabel(ids: Set<Int>): String {
+    if (ids.isEmpty()) return stringResource(R.string.catalog_all_chapters)
+    if (ids.count() == 1) return stringResource(R.string.catalog_chapter_filter, ids.single())
+    val numbers = ids.sorted().take(2).joinToString("、") + if (ids.count() > 2) " +${ids.count() - 2}" else ""
+    return stringResource(R.string.catalog_chapters_selected, numbers)
+}
+
+@Composable
 private fun KanjiFilterBar(filters: KanjiFilters, radical: String?, context: KanjiFilterContext, actions: BrowseActions) {
     with(context) {
     FlowRow(
-        Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
+        Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (sourceId != null && !fixed)
             CatalogFilterChip(
-                filters.chapter?.let { stringResource(R.string.catalog_chapter_filter, it) }
-                    ?: stringResource(R.string.catalog_all_chapters),
+                chapterFilterLabel(filters.chapterIds),
                 {
                     actions.navigate(
                         BrowseNavigation.Filter(FilterRequest.ChaptersForKanji(sourceId, filters)),
                     )
                 },
-                if (filters.chapter == null) null
+                if (filters.chapterIds.isEmpty()) null
                 else ({ actions.filter(FilterResult.Chapter(null)) }),
                 Modifier.testTag("catalog-filter-chapter"),
                 openEnabled = canChangeChapter,
             )
         CatalogFilterChip(
-            filters.strokes?.let { pluralStringResource(R.plurals.catalog_strokes, it, it) }
-                ?: stringResource(R.string.catalog_all_strokes),
+            strokeFilterLabel(filters.strokeIds),
             {
                 actions.navigate(
                     BrowseNavigation.Filter(FilterRequest.KanjiStrokes(sourceId, filters)),
                 )
             },
-            if (filters.strokes == null) null else ({ actions.filter(FilterResult.Strokes(null)) }),
+            if (filters.strokeIds.isEmpty()) null else ({ actions.filter(FilterResult.Strokes(null)) }),
+            Modifier.testTag("catalog-filter-strokes"),
         )
         CatalogFilterChip(
             radical?.let { stringResource(R.string.catalog_radical_filter, it) }
                 ?: stringResource(R.string.catalog_all_keys),
             { actions.navigate(BrowseNavigation.Filter(FilterRequest.Radical(sourceId, filters))) },
-            if (filters.radicalId == null) null
+            if (filters.radicalIds.isEmpty()) null
             else ({ actions.filter(FilterResult.Radical(null)) }),
             Modifier.testTag("catalog-filter-radical"),
         )
         if (jlpt)
             CatalogFilterChip(
-                if (filters.jlpt == JlptFilter.AnyLevel) stringResource(R.string.catalog_jlpt_chip)
-                else jlptLabel(filters.jlpt),
+                if (filters.jlptFilters.isEmpty()) stringResource(R.string.catalog_jlpt_chip)
+                else filters.jlptFilters.sortedByDescending { when (it) {
+                    JlptFilter.AnyLevel -> 0
+                    JlptFilter.Missing -> -1
+                    is JlptFilter.Exact -> it.level.number
+                } }.take(2).map { jlptLabel(it) }.joinToString("、") +
+                    if (filters.jlptFilters.size > 2) " +${filters.jlptFilters.size - 2}" else "",
                 {
                     actions.navigate(BrowseNavigation.Filter(FilterRequest.Jlpt(sourceId, filters)))
                 },
-                if (filters.jlpt == JlptFilter.AnyLevel) null
+                if (filters.jlptFilters.isEmpty()) null
                 else ({ actions.filter(FilterResult.Jlpt(JlptFilter.AnyLevel)) }),
+                Modifier.testTag("catalog-filter-jlpt"),
             )
     }
 
@@ -166,20 +186,19 @@ private fun WordFilterBar(
     val symbol = rows.kanjiSymbol
     val canChangeChapter = rows.canChangeChapter
     FlowRow(
-        Modifier.fillMaxWidth().padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 4.dp),
+        Modifier.fillMaxWidth().padding(start = 18.dp, end = 18.dp, top = 12.dp, bottom = 4.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         if (!fixed)
             CatalogFilterChip(
-                filters.chapter?.let { stringResource(R.string.catalog_chapter_filter, it) }
-                    ?: stringResource(R.string.catalog_all_chapters),
+                chapterFilterLabel(filters.chapterIds),
                 {
                     actions.navigate(
                         BrowseNavigation.Filter(FilterRequest.ChaptersForWords(sourceId, filters)),
                     )
                 },
-                if (filters.chapter == null) null
+                if (filters.chapterIds.isEmpty()) null
                 else ({ actions.filter(FilterResult.Chapter(null)) }),
                 Modifier.testTag("catalog-filter-chapter"),
                 openEnabled = canChangeChapter,
@@ -188,7 +207,7 @@ private fun WordFilterBar(
             symbol?.let { stringResource(R.string.catalog_kanji_filter, it) }
                 ?: stringResource(R.string.catalog_all_kanji_filter),
             { actions.navigate(BrowseNavigation.Filter(FilterRequest.Kanji(sourceId, filters))) },
-            if (filters.kanjiId == null) null else ({ actions.filter(FilterResult.Kanji(null)) }),
+            if (filters.kanjiIds.isEmpty()) null else ({ actions.filter(FilterResult.Kanji(null)) }),
             Modifier.testTag("catalog-filter-kanji"),
         )
     }

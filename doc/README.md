@@ -5,7 +5,10 @@
 ## С чего начать
 
 - [Архитектура проекта](architecture.md) — многомодульная структура (19 Gradle-модулей), Clean Architecture, стек библиотек и сборка графа зависимостей.
+- [Глоссарий](glossary.md) — рецепт/Recipe, тренировка/Training, материал и задание; единые имена во всех слоях.
 - [Обязательная многоязычность](implementation/localization.md) — приоритет русского языка, правила локализации таблиц БД и интерфейса.
+- [Карта экранов и виджетов](project-map.md) — иерархические ID фич, повторное использование и область влияния.
+- [Нумерация экранов и прежние ID](screen-id-migration.md) — совместимость обсуждений и ссылок; [проверки синхронизации](verification/screen-id-hierarchy.md).
 - [Дизайн-система](design-system/README.md) — визуальный язык, токены, компоненты и интерактивные прототипы экранов.
 - [Навыки разработки (Skills)](development-skills.md) — каталог и маршрутизация специализированных локальных навыков для агентов.
 
@@ -26,10 +29,10 @@
 ## Ключевые компоненты
 
 ### Экраны и сценарии
-- [Главная панель (Dashboard)](implementation/dashboard.md) — виджеты статистики, активности и управление тренировками.
+- [Главная панель (Dashboard)](implementation/dashboard.md) — виджеты статистики, активности и управление рецептами.
 - [Каталог учебников и кандзи](implementation/catalog.md) и [Интерфейс каталога](implementation/catalog-ui.md).
 - [Личный словарь](implementation/personal-dictionary.md) — пользовательские слова, выражения и предложения.
-- [Экран тренировки](implementation/practice-screen.md), [Холст ввода](implementation/ui-pad.md), [Подсказки](implementation/hints.md) и [Таймер](implementation/task-timer.md).
+- [Экран задания тренировки](implementation/practice-screen.md), [Холст ввода](implementation/ui-pad.md), [Подсказки](implementation/hints.md) и [Таймер](implementation/task-timer.md).
 
 ### Проверка рукописного ввода
 - [Консенсус трёх проверок](decisions/three-checkers.md) — согласованная работа формы, читаемости и словарных правил.

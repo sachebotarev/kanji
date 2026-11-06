@@ -1,0 +1,4 @@
+<resources>
+    <string name="word_editor_written">Написание</string>
+    <string name="word_editor_reading">Чтение</string>
+</resources>

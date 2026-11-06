@@ -28,10 +28,30 @@
    if(v.locale){selectValue('locale',v.locale);if(module==='web')locale=v.locale;else language=v.locale}
    if(message.navigate){
     if(module==='catalog')quickNavigate(message.route);
+    else if(message.route==='dictionary-translations'){if(!draft)initDraft(words.find(word=>word.personal)?.id);go('dictionary-translations')}
+    else if(message.route==='dictionary-kanji'){dictionaryKanjiDraft=[...dictionaryKanjiIds];materialKanjiQuery='';materialKanjiSearchOpen=false;materialKanjiSelectedOnly=false;materialKanjiPanel=null;materialKanjiFilters={jlpt:null,radical:null,strokes:null};go('dictionary-kanji')}
+    else if(message.route==='dictionary-tags'){dictionaryTagSession=null;dictionaryTagsMode=message.key==='dictionary-tags:manage'?'manage':'filter';dictionaryTagQuery='';dictionaryTagSearchOpen=false;go('dictionary-tags')}
     else if(message.key==='editor:create'){initDraft();go('editor')}
     else if(message.key==='editor:edit'){initDraft(-1);go('editor')}
-    else if(message.key==='training-editor:create')initTraining();
-    else if(message.key==='training-editor:edit')initTraining(trainingPlans[0].id);
+    else if(message.key==='recipe-editor:create')initRecipe();
+    else if(message.key==='recipe-editor:edit')initRecipe(recipes[0].id);
+    else if(message.route==='material-filter'){
+     initRecipe(recipes[0].id,null);resetMaterialPicker();sourceIndex=0;
+     sourceDraft=newMaterialDraft(message.key.includes('words')?'words':'book');
+     materialOpenFilter=message.key.includes('words')?'words':message.key.endsWith('chapters')?'chapters':'kanji';
+     if(materialOpenFilter==='chapters')materialChapterScope=materialChapterOptions(sourceDraft);
+     go('material-filter');
+    }
+    else if(message.route==='recipe-source'||message.route==='recipe-words'){
+     initRecipe(recipes[0].id,null);
+     if(message.route==='recipe-source'){
+      sourceIndex=message.key==='recipe-source:edit'?0:null;
+      sourceDraft=sourceIndex===null?newMaterialDraft():structuredClone(recipeDraft.sources[sourceIndex]);
+      resetMaterialPicker();
+      if(sourceIndex===null)sourceDraft.type='book';
+     }
+     go(message.route);
+    }
     else {if(message.route==='word')selectedId=-1;go(message.route)}
    }else if(module==='web')render();else render();
    if(v.state){const control=document.getElementById(v.state.id);if(control){control.value=v.state.value;control.dispatchEvent(new Event('change',{bubbles:true}))}}

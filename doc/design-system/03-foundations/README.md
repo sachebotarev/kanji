@@ -17,7 +17,7 @@
 
 ## Цветовые роли
 
-Группы Primary, Secondary, Tertiary и Error имеют основной цвет, `on*`, `*Container` и `on*Container`. Для первых трёх также определены fixed/fixed-dim пары. Поверхности: surface, dim, bright, пять container-уровней; текст: onSurface / onSurfaceVariant; границы: outline / outlineVariant; inverse-роли — для контрастного уведомления; shadow и scrim — для высоты и модальных слоёв.
+Группы Primary, Secondary, Tertiary и Error имеют основной цвет, `on*`, `*Container` и `on*Container`. Для первых трёх также определены fixed/fixed-dim пары. Поверхности: surface, dim, bright, пять container-уровней; текст: onSurface / onSurfaceVariant; границы: outline / outlineVariant; inverse-роли — для контрастного уведомления; shadow и scrim — для высоты и модальных слоёв. Подсказки в текстовых полях (`placeholder` / пустой `label`) используют `onSurfaceVariant` с прозрачностью 48%, чтобы не выглядеть как введённый текст; в Android — `MaterialTheme.inputPlaceholderColor` / `kanjiOutlinedTextFieldColors()`.
 
 Полная текущая схема находится в [material-theme.json](../prototypes/shared/material-theme.json) и на экране настройки. `material-theme.css` генерируется автоматически. Текст используется с парным `on*` цветом. Обычные карточки используют поверхности; смысловые акценты — роли трёх основных групп. Каталог и конструктор не объявляют собственных HEX-палитр. Цвет дополняется подписью, иконкой или признаком выбранности.
 

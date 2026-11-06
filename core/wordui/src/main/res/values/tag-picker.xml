@@ -1,0 +1,16 @@
+<resources>
+    <string name="tag_picker_title">Теги</string>
+    <string name="tag_picker_manage">Управление тегами</string>
+    <string name="tag_picker_create">Создать тег</string>
+    <string name="tag_picker_search">Найти тег</string>
+    <string name="tag_picker_apply">Применить</string>
+    <string name="tag_picker_choose">Выбрать (%1$d)</string>
+    <string name="tag_picker_selected">Выбрано: %1$d</string>
+    <string name="tag_picker_all">Все</string>
+    <string name="tag_picker_clear">Снять выбор</string>
+    <string name="tag_picker_none">Тегов пока нет</string>
+    <string name="tag_picker_no_results">Теги не найдены</string>
+    <string name="tag_picker_error">Не удалось сохранить тег. Проверьте название: оно не должно повторяться.</string>
+    <string name="tag_picker_retry">Повторить</string>
+    <string name="tag_picker_more">Ещё действия</string>
+</resources>

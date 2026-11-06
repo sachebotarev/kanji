@@ -1,6 +1,6 @@
-# Все кандзи — CAT-13
+# Все кандзи — REFS.01
 
-[Текущий макет](../../prototypes/index.html#catalog/CAT-13) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#references/REFS.01) · [Статус и изменения](../../theme/screens.json).
 
 Статус: согласовано. HTML-маршрут: `all-kanji`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 
@@ -14,4 +14,4 @@ JLPT — точное соответствие выбранному N5–N1 ил
 
 Поддерживаются Ready, Loading, Error, отсутствие материала и пустой поиск там, где есть поиск. Реальная загрузка/ошибка определяется ViewModel, не виджетом. Все подписи и plurals локализованы ru/en, fallback русский. Типизированные id и контекст не зависят от языка.
 
-Исходные снимки предыдущей редакции: [тёмная тема](approved/cat-13-dark.png), [светлая тема](approved/cat-13-light.png). Дополнительные состояния — [галерея](approved/index.html). Требования Android — [план переноса](../../../implementation/catalog-ui.md).
+Требования Android — [контракт реализации](../../../implementation/approved-ui-handoff.md).

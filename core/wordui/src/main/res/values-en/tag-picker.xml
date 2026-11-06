@@ -1,0 +1,16 @@
+<resources>
+    <string name="tag_picker_title">Tags</string>
+    <string name="tag_picker_manage">Manage tags</string>
+    <string name="tag_picker_create">Create tag</string>
+    <string name="tag_picker_search">Find a tag</string>
+    <string name="tag_picker_apply">Apply</string>
+    <string name="tag_picker_choose">Choose (%1$d)</string>
+    <string name="tag_picker_selected">Selected: %1$d</string>
+    <string name="tag_picker_all">All</string>
+    <string name="tag_picker_clear">Clear selection</string>
+    <string name="tag_picker_none">No tags yet</string>
+    <string name="tag_picker_no_results">No matching tags</string>
+    <string name="tag_picker_error">Could not save the tag. Check that its name is unique.</string>
+    <string name="tag_picker_retry">Retry</string>
+    <string name="tag_picker_more">More actions</string>
+</resources>

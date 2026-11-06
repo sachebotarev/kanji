@@ -1,0 +1,4 @@
+<resources>
+    <string name="editor_add_to_dictionary">Добавить в словарь</string>
+    <string name="editor_no_tags">Пока без тегов</string>
+</resources>

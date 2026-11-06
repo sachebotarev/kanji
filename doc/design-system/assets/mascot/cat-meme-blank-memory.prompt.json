@@ -1,0 +1,8 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_meme_blank_memory.png",
+  "title": "Слово вылетело из головы",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_read_book.png",
+  "transparent_background": true,
+  "prompt": "Use case: illustration-story. Asset: one meme-inspired transparent static mascot sticker for a multilingual kanji learning app. Reference image specifies exact character identity and visual style, not pose. Keep the SAME round cream cat with large dark oval eyes, short cheek marks, pink inner ears and paw pads, fluffy curved tail, green student cap with broad curved brim, red band and round gold button. Preserve thick rounded dark forest-green outlines, cute proportions and simple flat matte colors. SCENE: The cat holds up a completely BLANK cream flashcard with both forepaws and stares directly at the viewer with comically vacant wide oval eyes, tiny straight mouth, slightly tilted green cap. A small faint outlined empty thought bubble above its head reinforces sudden total forgetfulness. Cute deadpan reaction sticker, no sadness, no tears. Blank card and bubble must stay truly empty. Center the whole scene in a square canvas with generous transparent safe margins. Anatomically correct cat, two forepaws and two hindpaws per cat, one tail. No text, readable lettering, flags, watermarks, sticker rim, glow, ground shadow, scenery or extra props beyond the scene. Genuine transparent alpha background: empty spaces transparent, dark outlines and facial features fully opaque."
+}

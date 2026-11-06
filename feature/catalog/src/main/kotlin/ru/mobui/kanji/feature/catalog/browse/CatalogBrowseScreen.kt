@@ -52,11 +52,16 @@ internal fun CatalogBrowseScreen(
     search: SearchState,
     language: String,
     actions: BrowseActions,
+    homeSection: ru.mobui.kanji.feature.catalog.CatalogSection = ru.mobui.kanji.feature.catalog.CatalogSection.Combined,
 ) {
     val data = (state as? CatalogLoad.Ready)?.content
     val source = data as? BrowseContent.Source
     val tab = source?.tab ?: (request as? BrowseRequest.Source)?.initialTab
-    val title = browseTitle(request, data, language)
+    val title = if (request == BrowseRequest.Home) stringResource(when (homeSection) {
+        ru.mobui.kanji.feature.catalog.CatalogSection.Textbooks -> R.string.catalog_textbooks_title
+        ru.mobui.kanji.feature.catalog.CatalogSection.References -> R.string.catalog_references_title
+        ru.mobui.kanji.feature.catalog.CatalogSection.Combined -> R.string.catalog_title
+    }) else browseTitle(request, data, language)
     val subtitle = browseSubtitle(request, data, language)
     val label = browseSearchLabel(request, tab)
     val tools: (@Composable () -> Unit)? =
@@ -89,7 +94,7 @@ internal fun CatalogBrowseScreen(
         tools = tools,
     ) {
         CatalogLoaded(state, actions.retry) { content ->
-            CatalogBrowseBody(content, search, language, actions)
+            CatalogBrowseBody(content, search, language, actions, homeSection)
         }
     }
 }
@@ -233,7 +238,10 @@ private fun browseSearchLabel(request: BrowseRequest, tab: SourceTab?): Int {
 }
 
 @Composable
-private fun CatalogBrowseBody(content: BrowseContent, search: SearchState, language: String, actions: BrowseActions) {
+private fun CatalogBrowseBody(
+    content: BrowseContent, search: SearchState, language: String, actions: BrowseActions,
+    homeSection: ru.mobui.kanji.feature.catalog.CatalogSection,
+) {
     when (content) {
         is BrowseContent.Home ->
             CatalogHomeScreen(
@@ -241,6 +249,7 @@ private fun CatalogBrowseBody(content: BrowseContent, search: SearchState, langu
                 language,
                 actions.navigate,
                 Modifier.fillMaxSize(),
+                section = homeSection,
             )
         is BrowseContent.Source ->
             SourceBody(content, search.query, language, actions.navigate)

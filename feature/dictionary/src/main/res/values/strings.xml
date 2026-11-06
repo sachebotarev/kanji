@@ -20,11 +20,10 @@
     <string name="dictionary_delete_text">«%1$s» будет удалено из вашего словаря.</string>
     <string name="dictionary_delete">Удалить</string>
     <string name="dictionary_cancel">Отмена</string>
-    <string name="dictionary_unsaved">Сохранить изменения?</string>
-    <string name="dictionary_unsaved_text">В слове есть несохранённые изменения.</string>
+    <string name="dictionary_unsaved">Сбросить изменения?</string>
+    <string name="dictionary_unsaved_text">Все внесённые правки будут потеряны.</string>
     <string name="dictionary_save">Сохранить</string>
-    <string name="dictionary_discard">Не сохранять</string>
-    <string name="dictionary_continue">Продолжить редактирование</string>
+    <string name="dictionary_leave">Выйти</string>
     <string name="dictionary_more">Действия со словом</string>
     <string name="dictionary_chapter">Глава %1$d</string>
     <plurals name="dictionary_count"><item quantity="one">%d слово</item><item quantity="few">%d слова</item><item quantity="many">%d слов</item><item quantity="other">%d слова</item></plurals>

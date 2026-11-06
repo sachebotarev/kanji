@@ -98,7 +98,8 @@ private fun SettingsHeader(onBack: () -> Unit, onReset: () -> Unit) {
         Text(
             stringResource(R.string.checker_settings_title),
             Modifier.weight(1f),
-            style = MaterialTheme.typography.titleLarge,
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.onSurface,
         )
         TextButton(
             onReset,
@@ -264,7 +265,7 @@ private fun ParameterFields(
 private fun SettingsGroup(title: Int, content: @Composable () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
         HorizontalDivider()
-        Text(stringResource(title), style = MaterialTheme.typography.titleMedium)
+        ru.mobui.kanji.core.designsystem.KanjiSectionTitle(stringResource(title))
         content()
     }
 }

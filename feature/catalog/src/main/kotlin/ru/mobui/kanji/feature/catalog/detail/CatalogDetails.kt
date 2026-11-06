@@ -69,12 +69,9 @@ internal fun KanjiDetail(
                 )
                 Text(
                     kanji.meaning(language) ?: stringResource(R.string.catalog_missing),
-                    style =
-                        MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 22.sp,
-                            lineHeight = 28.sp,
-                        ),
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     pluralStringResource(R.plurals.catalog_strokes, kanji.strokes, kanji.strokes),
@@ -91,13 +88,14 @@ internal fun KanjiDetail(
                     CatalogReadings(stringResource(R.string.catalog_kun), kanji.kun)
             }
         }
-        if (
-            kanji.schoolStage != null ||
-                kanji.jlptLevel != null ||
-                kanji.joyo ||
-                kanji.kyoiku ||
-                kanji.jinmeiyo
-        )
+        val hasClassification = listOf(
+            kanji.schoolStage != null,
+            kanji.jlptLevel != null,
+            kanji.joyo,
+            kanji.kyoiku,
+            kanji.jinmeiyo,
+        ).any { it }
+        if (hasClassification)
             FlowRow(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -212,8 +210,8 @@ internal fun RadicalDetail(
                 Column {
                     RadicalIntro(radical, language, inset = false)
                     CatalogMaterialCount(
-                        state.rows.entries.size,
-                        state.rows.entries.size,
+                        state.rows.entries.count(),
+                        state.rows.entries.count(),
                         MaterialKind.Kanji,
                         inset = false,
                         action =
@@ -230,8 +228,8 @@ internal fun RadicalDetail(
 private fun RadicalIntro(radical: CatalogRadical, language: String, inset: Boolean) {
     Column(
         Modifier.padding(
-            start = if (inset) 20.dp else 0.dp,
-            end = if (inset) 20.dp else 0.dp,
+            start = if (inset) 18.dp else 0.dp,
+            end = if (inset) 18.dp else 0.dp,
             top = 12.dp,
         ),
         verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -249,12 +247,9 @@ private fun RadicalIntro(radical: CatalogRadical, language: String, inset: Boole
                 )
                 Text(
                     radicalDisplayName(radical, language),
-                    style =
-                        MaterialTheme.typography.titleLarge.copy(
-                            fontSize = 22.sp,
-                            lineHeight = 28.sp,
-                        ),
+                    style = MaterialTheme.typography.titleLarge,
                     textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     stringResource(
@@ -271,10 +266,9 @@ private fun RadicalIntro(radical: CatalogRadical, language: String, inset: Boole
                 )
             }
         }
-        Text(
+        ru.mobui.kanji.core.designsystem.KanjiSectionTitle(
             stringResource(R.string.catalog_related_kanji),
             Modifier.padding(horizontal = 4.dp),
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp),
         )
     }
 }

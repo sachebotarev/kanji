@@ -69,7 +69,24 @@ data class CatalogSelection(
     val kanjiId: Int? = null,
     val strokes: Int? = null,
     val jlpt: JlptFilter = JlptFilter.AnyLevel,
-)
+    val kanjiIds: Set<Int> = emptySet(),
+    val chapterIds: Set<Int> = emptySet(),
+    val radicalIds: Set<Int> = emptySet(),
+    val strokeIds: Set<Int> = emptySet(),
+    val jlptFilters: Set<JlptFilter> = emptySet(),
+) {
+    fun acceptsRadical(id: Int?): Boolean = if (radicalIds.isNotEmpty()) id in radicalIds else radicalId == null || id == radicalId
+    fun acceptsStrokes(number: Int?): Boolean = if (strokeIds.isNotEmpty()) number in strokeIds else strokes == null || number == strokes
+    fun acceptsJlpt(level: JlptLevel?): Boolean = (jlptFilters.ifEmpty { setOf(jlpt) }).any { filter ->
+        when (filter) {
+            JlptFilter.AnyLevel -> true
+            JlptFilter.Missing -> level == null
+            is JlptFilter.Exact -> level == filter.level
+        }
+    }
+    fun acceptsChapter(number: Int?): Boolean = if (chapterIds.isNotEmpty()) number in chapterIds else chapter == null || number == chapter
+    fun acceptsKanji(id: Int?): Boolean = if (kanjiIds.isNotEmpty()) id in kanjiIds else kanjiId == null || id == kanjiId
+}
 
 enum class SchoolStage {
     Elementary,
@@ -202,7 +219,7 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
                 placements
                     .filter {
                         it.sourceId == selection.sourceId &&
-                            (selection.chapter == null || it.chapter == selection.chapter)
+                            selection.acceptsChapter(it.chapter)
                     }
                     .associate { it.kanjiId to it.number }
             else null
@@ -210,15 +227,9 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
         return kanji
             .asSequence()
             .filter { scoped == null || it.id in scoped }
-            .filter { selection.radicalId == null || it.radicalId == selection.radicalId }
-            .filter { selection.strokes == null || it.strokes == selection.strokes }
-            .filter {
-                when (val filter = selection.jlpt) {
-                    JlptFilter.AnyLevel -> true
-                    JlptFilter.Missing -> it.jlptLevel == null
-                    is JlptFilter.Exact -> it.jlptLevel == filter.level
-                }
-            }
+            .filter { selection.acceptsRadical(it.radicalId) }
+            .filter { selection.acceptsStrokes(it.strokes) }
+            .filter { selection.acceptsJlpt(it.jlptLevel) }
             .filter { needle.isNotEmpty() || it.radicalId != null || scoped != null }
             .filter {
                 needle.isEmpty() ||
@@ -239,11 +250,11 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
     fun words(selection: CatalogSelection, query: String, language: String): List<CatalogWord> {
         val scoped = links.filter { link ->
             (selection.sourceId == null || link.sourceId == selection.sourceId) &&
-                (selection.kanjiId == null || link.kanjiId == selection.kanjiId) &&
-                (selection.chapter == null ||
-                    placementByKey[link.sourceId to link.kanjiId]?.chapter == selection.chapter) &&
-                (selection.radicalId == null ||
-                    kanjiById[link.kanjiId]?.radicalId == selection.radicalId)
+                selection.acceptsKanji(link.kanjiId) &&
+                selection.acceptsChapter(placementByKey[link.sourceId to link.kanjiId]?.chapter) &&
+                selection.acceptsRadical(kanjiById[link.kanjiId]?.radicalId) &&
+                selection.acceptsStrokes(kanjiById[link.kanjiId]?.strokes) &&
+                selection.acceptsJlpt(kanjiById[link.kanjiId]?.jlptLevel)
         }
         val first =
             scoped
@@ -273,16 +284,17 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
             links
                 .asSequence()
                 .filter { it.sourceId == sourceId }
-                .filter { selection.kanjiId == null || it.kanjiId == selection.kanjiId }
+                .filter { selection.acceptsKanji(it.kanjiId) }
                 .mapNotNull { link ->
                     placementByKey[link.sourceId to link.kanjiId]?.let { link.wordId to it }
                 }
                 .filter { (_, placement) ->
-                    selection.chapter == null || placement.chapter == selection.chapter
+                    selection.acceptsChapter(placement.chapter)
                 }
                 .filter { (_, placement) ->
-                    selection.radicalId == null ||
-                        kanjiById[placement.kanjiId]?.radicalId == selection.radicalId
+                    selection.acceptsRadical(kanjiById[placement.kanjiId]?.radicalId) &&
+                        selection.acceptsStrokes(kanjiById[placement.kanjiId]?.strokes) &&
+                        selection.acceptsJlpt(kanjiById[placement.kanjiId]?.jlptLevel)
                 }
                 .groupBy({ it.first }, { it.second })
                 .mapValues { (_, placements) -> placements.minBy { it.number } }
@@ -297,10 +309,10 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
     }
 
     /** Facets ignore their own selected value, while respecting every other active constraint. */
-    fun radicals(query: String, language: String, strokes: Int? = null): List<CatalogRadical> {
+    fun radicals(query: String, language: String, strokes: Int? = null, strokeIds: Set<Int> = emptySet()): List<CatalogRadical> {
         val needle = searchable(query.trim())
         return radicals
-            .filter { strokes == null || it.strokes == strokes }
+            .filter { if (strokeIds.isNotEmpty()) it.strokes in strokeIds else strokes == null || it.strokes == strokes }
             .filter { matches(needle, it.symbol, it.name(language), it.id.toString()) }
             .sortedWith(compareBy<CatalogRadical> { it.strokes }.thenBy { it.id })
     }

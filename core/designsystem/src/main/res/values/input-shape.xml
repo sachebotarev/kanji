@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated from doc/design-system/theme/theme-source.json. Do not hand edit. -->
+<resources>
+    <dimen name="kanji_input_corner_radius">16dp</dimen>
+</resources>

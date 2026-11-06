@@ -44,7 +44,7 @@ internal fun CatalogStatus(error: Boolean, onRetry: () -> Unit, modifier: Modifi
         Spacer(Modifier.height(24.dp))
         Text(
             stringResource(if (error) R.string.catalog_error else R.string.catalog_loading),
-            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp, lineHeight = 28.sp),
+            style = MaterialTheme.typography.titleLarge,
             color =
                 if (error) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurface,
         )

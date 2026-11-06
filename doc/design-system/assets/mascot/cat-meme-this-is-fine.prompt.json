@@ -1,0 +1,8 @@
+{
+  "asset": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_meme_this_is_fine.png",
+  "title": "Всё под контролем",
+  "method": "built-in image_gen",
+  "reference": "../../../../core/designsystem/src/main/res/drawable-nodpi/mascot_sticker_read_book.png",
+  "transparent_background": true,
+  "prompt": "Use case: illustration-story. Asset: one meme-inspired transparent static mascot sticker for a multilingual kanji learning app. Reference image specifies exact character identity and visual style, not pose. Keep the SAME round cream cat with large dark oval eyes, short cheek marks, pink inner ears and paw pads, fluffy curved tail, green student cap with broad curved brim, red band and round gold button. Preserve thick rounded dark forest-green outlines, cute proportions and simple flat matte colors. SCENE: A playful homage to the internet 'This Is Fine' meme: the cat calmly sits with a tiny teacup in one forepaw while three small piles of learning flashcards around it have stylized orange flames. Deadpan tiny smile, comically unfazed. Only cat, cup, three small card piles and graphic flames; no room, furniture or background. Friendly cartoon absurdity, cat unharmed. Center the whole scene in a square canvas with generous transparent safe margins. Anatomically correct cat, two forepaws and two hindpaws per cat, one tail. No text, readable lettering, flags, watermarks, sticker rim, glow, ground shadow, scenery or extra props beyond the scene. Genuine transparent alpha background: empty spaces transparent, dark outlines and facial features fully opaque."
+}

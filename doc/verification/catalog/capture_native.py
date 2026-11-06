@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-APPROVED = ROOT / 'doc/design-system/05-screens/catalog/approved/manifest.json'
+REGISTRY = ROOT / 'doc/design-system/theme/screens.json'
 
 
 def main():
@@ -94,7 +94,7 @@ def main():
         replaced = {(item['id'], item['theme']) for item in captures}
         captures = [item for item in previous if (item['id'], item['theme']) not in replaced] + captures
     manifest = {'apk_sha256': apk_hash,
-                'approved_manifest_sha256': hashlib.sha256(APPROVED.read_bytes()).hexdigest(),
+                'screen_registry_sha256': hashlib.sha256(REGISTRY.read_bytes()).hexdigest(),
                 'device': args.serial, 'captures': captures}
     (output.parent / 'manifest.json').write_text(json.dumps(manifest, ensure_ascii=False, indent=2) + '\n')
 

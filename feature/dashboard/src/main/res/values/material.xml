@@ -1,0 +1,61 @@
+<resources>
+    <string name="material_type_title">Материал</string>
+    <string name="material_add_title">Добавить материал</string>
+    <string name="material_edit_title">Изменить материал</string>
+    <string name="material_view_title">Материал</string>
+    <string name="material_add">Добавить</string>
+    <string name="material_apply">Обновить</string>
+    <string name="material_back">Назад</string>
+    <string name="material_words_type">Набор слов</string>
+    <string name="material_filters_title">Фильтры</string>
+    <string name="material_book_type_hint">Слова из глав учебных пособий</string>
+    <string name="material_dictionary_type_hint">Личные слова по тегам</string>
+    <string name="material_kanji_type_hint">Слова каталога с выбранными знаками</string>
+    <string name="material_words_type_hint">Ручной выбор произвольных записей</string>
+    <string name="material_select_context">%1$s · %2$s</string>
+    <string name="material_choose_words">Выбрать слова</string>
+    <string name="material_words_preview">Слова материала</string>
+    <string name="material_words_required">Выберите хотя бы одно слово</string>
+    <string name="material_book_type">Из учебника</string>
+    <string name="material_book_title">Учебник</string>
+    <string name="material_choose_book">Выберите учебник</string>
+    <string name="material_empty_book_pool">Нет подходящих слов. Измените главы или кандзи</string>
+    <string name="material_chapters">Главы</string>
+    <string name="material_chapters_and_more">и ещё %1$d</string>
+    <string name="material_all_chapters">Все главы</string>
+    <string name="material_chapter">Глава %1$d</string>
+    <plurals name="material_kanji_count">
+        <item quantity="one">%1$d кандзи</item>
+        <item quantity="few">%1$d кандзи</item>
+        <item quantity="many">%1$d кандзи</item>
+        <item quantity="other">%1$d кандзи</item>
+    </plurals>
+    <plurals name="material_word_count">
+        <item quantity="one">%1$d слово</item>
+        <item quantity="few">%1$d слова</item>
+        <item quantity="many">%1$d слов</item>
+        <item quantity="other">%1$d слова</item>
+    </plurals>
+    <string name="material_kanji_type">По кандзи</string>
+    <string name="material_kanji_title">Кандзи</string>
+    <string name="material_all_kanji">Все кандзи</string>
+    <string name="material_more">Ещё %1$d</string>
+    <string name="material_empty_pool">Нет подходящих слов. Измените выбор кандзи</string>
+    <plurals name="material_words_selected">
+        <item quantity="one">Выбрано %1$d слово</item>
+        <item quantity="few">Выбрано %1$d слова</item>
+        <item quantity="many">Выбрано %1$d слов</item>
+        <item quantity="other">Выбрано %1$d слова</item>
+    </plurals>
+    <plurals name="material_view_words">
+        <item quantity="one">Посмотреть %1$d слово</item>
+        <item quantity="few">Посмотреть %1$d слова</item>
+        <item quantity="many">Посмотреть %1$d слов</item>
+        <item quantity="other">Посмотреть %1$d слова</item>
+    </plurals>
+    <string name="material_no_words">Слов не нашлось</string>
+    <string name="material_no_words_hint">Попробуйте изменить фильтры.</string>
+    <string name="material_words_none_selected">Слова ещё не выбраны</string>
+    <string name="material_dictionary_empty">В «Моём словаре» пока нет слов</string>
+    <string name="material_dictionary_no_match">Нет подходящих слов. Измените теги или кандзи</string>
+</resources>

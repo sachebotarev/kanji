@@ -1,0 +1,7 @@
+<resources>
+    <string name="dictionary_search_toggle">Поиск</string>
+    <string name="dictionary_search_close">Закрыть поиск</string>
+    <string name="dictionary_empty_title">Здесь будут твои слова</string>
+    <string name="dictionary_empty_hint">Добавь первое — и словарь начнёт расти.</string>
+    <string name="dictionary_retry_hint">Попробуй другое слово или чтение.</string>
+</resources>

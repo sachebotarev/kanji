@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
+import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.core.wordui.WordEditorActions
 import ru.mobui.kanji.domain.catalog.CatalogRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
@@ -44,18 +45,19 @@ import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 fun DictionaryRoute(
     repository: PersonalDictionaryRepository,
     catalog: CatalogRepository,
+    recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository,
     onBack: () -> Unit,
     referenceContent: @Composable (kanjiId: Int, sourceId: Int, onBack: () -> Unit) -> Unit,
 ) {
     val nav = rememberNavController()
-    val language = LocalConfiguration.current.locales[0].toLanguageTag()
+    val language = LocalConfiguration.current.preferredLanguageTag()
     val model: DictionaryViewModel =
         viewModel(
             key = "personal-dictionary-$language",
             factory =
                 viewModelFactory {
                     initializer {
-                        DictionaryViewModel(createSavedStateHandle(), repository, catalog, language)
+                        DictionaryViewModel(createSavedStateHandle(), repository, catalog, language, recipesRepository)
                     }
                 },
         )
@@ -68,10 +70,17 @@ fun DictionaryRoute(
     Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         NavHost(nav, startDestination = PersonalList) {
             composable<PersonalList> {
-                DictionaryListScreen(state, visible, language, DictionaryListActions(::back, model::query, { id ->
+                var picking by rememberSaveable { mutableStateOf(false) }
+                var choosingKanji by rememberSaveable { mutableStateOf(false) }
+                if (choosingKanji) DictionaryKanjiPicker(state, language,
+                    { ids -> model.kanji(ids); choosingKanji = false }, { choosingKanji = false })
+                else if (picking) DictionaryTagsRoute(recipesRepository, "filter", state.tagIds, emptyList(), false, language,
+                    { ids, _ -> model.tags(ids); picking = false }, { picking = false })
+                else DictionaryListScreen(state, visible, language, DictionaryListActions(::back, model::query, { id ->
                         model.clearOperation()
                         nav.navigate(PersonalWord(id))
-                    }, { nav.navigate(PersonalEditor()) }, model::retry))
+                    }, { nav.navigate(PersonalEditor()) }, model::retry), onTags = { picking = true }, onClearTags = { model.tags(emptySet()) },
+                    onKanji = { choosingKanji = true }, onClearKanji = { model.kanji(emptySet()) })
             }
             composable<PersonalWord> { entry ->
                 val id = entry.toRoute<PersonalWord>().id
@@ -113,6 +122,7 @@ fun DictionaryRoute(
                                         repository,
                                         id,
                                         language,
+                                        recipesRepository,
                                     )
                                 }
                             },
@@ -128,10 +138,17 @@ fun DictionaryRoute(
                 LaunchedEffect(editState.savedId) {
                     editState.savedId?.let { savedId ->
                         nav.popBackStack()
-                        if (id == null) nav.navigate(PersonalWord(savedId))
+                        // New entries return to the list; editing returns to their details.
                     }
                 }
-                WordEditorScreen(
+                var translationsOpen by rememberSaveable { mutableStateOf(false) }
+                var picking by rememberSaveable { mutableStateOf(false) }
+                if (translationsOpen) DictionaryTranslationsScreen(editState.draft.translations, language,
+                    editor::putTranslation, editor::removeTranslation, { translationsOpen = false })
+                else if (picking) DictionaryTagsRoute(recipesRepository, "editor-${id ?: 0}", editState.draft.tagIds.orEmpty(), editState.draft.pendingTags,
+                    true, language,
+                    { ids, drafts -> editor.tags(ids, drafts); picking = false }, { picking = false })
+                else WordEditorScreen(
                     editState,
                     id == null,
                     WordEditorActions(
@@ -145,37 +162,38 @@ fun DictionaryRoute(
                     ),
                     ::editorBack,
                     editor::retry,
+                    tags = state.tags.filter { it.id in editState.draft.tagIds.orEmpty() } + editState.draft.pendingTags.mapIndexed { index, tag ->
+                        ru.mobui.kanji.domain.catalog.DictionaryTag(-index.toLong()-1, tag.color, tag.translations)
+                    },
+                    language = language,
+                    onTags = { picking = true },
+                    onTranslations = { translationsOpen = true },
+                    onCurrentTranslation = { editor.putTranslation(editorLanguage(language), it) },
                 )
                 if (leaving)
                     AlertDialog(
                         onDismissRequest = { leaving = false },
                         title = { Text(stringResource(R.string.dictionary_unsaved)) },
-                        text = {
-                            androidx.compose.foundation.layout.Column {
-                                Text(stringResource(R.string.dictionary_unsaved_text))
-                                TextButton({ leaving = false }) {
-                                    Text(stringResource(R.string.dictionary_continue))
-                                }
-                            }
-                        },
+                        text = { Text(stringResource(R.string.dictionary_unsaved_text)) },
                         confirmButton = {
-                            TextButton(
-                                {
-                                    leaving = false
-                                    editor.save()
-                                },
-                            ) {
-                                Text(stringResource(R.string.dictionary_save))
-                            }
-                        },
-                        dismissButton = {
                             TextButton(
                                 {
                                     leaving = false
                                     nav.popBackStack()
                                 },
                             ) {
-                                Text(stringResource(R.string.dictionary_discard))
+                                Text(
+                                    stringResource(R.string.dictionary_leave),
+                                    color = MaterialTheme.colorScheme.error,
+                                )
+                            }
+                        },
+                        dismissButton = {
+                            TextButton({ leaving = false }) {
+                                Text(
+                                    stringResource(R.string.dictionary_cancel),
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
                             }
                         },
                     )

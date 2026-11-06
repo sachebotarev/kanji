@@ -25,6 +25,8 @@ class KanjiApplication : Application() {
     }
 
     private val wordStorage by lazy { ru.mobui.kanji.data.catalog.RoomCatalogRepository(this) }
+    val recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository
+        get() = wordStorage.recipesRepository
     val catalog: ru.mobui.kanji.domain.catalog.CatalogRepository
         get() = wordStorage
 

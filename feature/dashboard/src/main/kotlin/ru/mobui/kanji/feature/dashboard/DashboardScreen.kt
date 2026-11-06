@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.feature.dashboard.widgets.ActivityDetailsDialog
 import ru.mobui.kanji.feature.dashboard.widgets.ActivityWidget
-import ru.mobui.kanji.feature.dashboard.widgets.CurrentTrainingWidget
+import ru.mobui.kanji.feature.dashboard.widgets.CurrentRecipeWidget
 import ru.mobui.kanji.feature.dashboard.widgets.DashboardIcon
 import ru.mobui.kanji.feature.dashboard.widgets.IllustratedIcon
 import ru.mobui.kanji.feature.dashboard.widgets.VocabularyWidget
@@ -40,63 +40,65 @@ fun DashboardScreen(
     onStartPractice: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    trainings: List<TrainingOverview>,
+    recipes: List<RecipeOverview>,
     onOpenCatalog: () -> Unit = {},
     onOpenDictionary: () -> Unit = {},
-    selectedTrainingId: String = "default",
-    onSelectTraining: (String) -> Unit = {},
-    onSaveTraining: (String?, String, Int, Int) -> Unit = { _, _, _, _ -> },
+    selectedRecipeId: String = "default",
+    onSelectRecipe: (String) -> Unit = {},
+    onSaveRecipe: (String?, String, Int, Int) -> Unit = { _, _, _, _ -> },
+    onOpenRecipes: (() -> Unit)? = null,
+    onOpenReferences: () -> Unit = {},
 ) {
-    val training =
-        trainings.firstOrNull { it.id == selectedTrainingId }
-            ?: trainings.firstOrNull()
-            ?: TrainingOverview(selectedTrainingId, stringResource(R.string.dashboard_mix))
-    var trainingDialog by rememberSaveable { mutableStateOf(TrainingDialogType.None) }
+    val recipe =
+        recipes.firstOrNull { it.id == selectedRecipeId }
+            ?: recipes.firstOrNull()
+            ?: RecipeOverview(selectedRecipeId, stringResource(R.string.dashboard_mix))
+    var recipeDialog by rememberSaveable { mutableStateOf(RecipeDialogType.None) }
     var editingId by rememberSaveable { mutableStateOf<String?>(null) }
-    when (trainingDialog) {
-        TrainingDialogType.None -> Unit
-        TrainingDialogType.Choose ->
-            TrainingPicker(
-                trainings,
-                selectedTrainingId,
-                TrainingPickerActions(
+    when (recipeDialog) {
+        RecipeDialogType.None -> Unit
+        RecipeDialogType.Choose ->
+            RecipePicker(
+                recipes,
+                selectedRecipeId,
+                RecipePickerActions(
                     onSelect = {
-                        onSelectTraining(it)
-                        trainingDialog = TrainingDialogType.None
+                        onSelectRecipe(it)
+                        recipeDialog = RecipeDialogType.None
                     },
                     onEdit = {
                         editingId = it
-                        trainingDialog = TrainingDialogType.Edit
+                        recipeDialog = RecipeDialogType.Edit
                     },
-                    onCreate = { trainingDialog = TrainingDialogType.Create },
-                    onDismiss = { trainingDialog = TrainingDialogType.None },
+                    onCreate = { recipeDialog = RecipeDialogType.Create },
+                    onDismiss = { recipeDialog = RecipeDialogType.None },
                 ),
             )
-        TrainingDialogType.Create,
-        TrainingDialogType.Edit ->
-            TrainingEditor(
-                if (trainingDialog == TrainingDialogType.Edit) {
-                    trainings.firstOrNull { it.id == editingId }
+        RecipeDialogType.Create,
+        RecipeDialogType.Edit ->
+            LegacyRecipeEditor(
+                if (recipeDialog == RecipeDialogType.Edit) {
+                    recipes.firstOrNull { it.id == editingId }
                 } else null,
                 onSubmit = { name, words, seconds ->
-                    onSaveTraining(
-                        if (trainingDialog == TrainingDialogType.Edit) editingId else null,
+                    onSaveRecipe(
+                        if (recipeDialog == RecipeDialogType.Edit) editingId else null,
                         name,
                         words,
                         seconds,
                     )
-                    trainingDialog =
-                        if (trainingDialog == TrainingDialogType.Edit) TrainingDialogType.Choose
-                        else TrainingDialogType.None
+                    recipeDialog =
+                        if (recipeDialog == RecipeDialogType.Edit) RecipeDialogType.Choose
+                        else RecipeDialogType.None
                 },
                 onDismiss = {
-                    trainingDialog =
-                        if (trainingDialog == TrainingDialogType.Edit) TrainingDialogType.Choose
-                        else TrainingDialogType.None
+                    recipeDialog =
+                        if (recipeDialog == RecipeDialogType.Edit) RecipeDialogType.Choose
+                        else RecipeDialogType.None
                 },
             )
-        TrainingDialogType.History ->
-            TrainingHistory(training, onDismiss = { trainingDialog = TrainingDialogType.None })
+        RecipeDialogType.History ->
+            TrainingHistory(recipe, onDismiss = { recipeDialog = RecipeDialogType.None })
     }
     var activityOpen by rememberSaveable { mutableStateOf(false) }
     if (activityOpen) ActivityDetailsDialog(state.activity, onDismiss = { activityOpen = false })
@@ -108,7 +110,7 @@ fun DashboardScreen(
             Modifier.fillMaxSize()
                 .padding(insets)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = 18.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
@@ -116,6 +118,7 @@ fun DashboardScreen(
                     stringResource(R.string.dashboard_home),
                     Modifier.weight(1f),
                     style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 IconButton(onOpenSettings, Modifier.testTag("open-app-settings")) {
                     IllustratedIcon(
@@ -133,11 +136,11 @@ fun DashboardScreen(
                 )
                 ActivityWidget(state.activity, { activityOpen = true }, Modifier.weight(1f))
             }
-            CurrentTrainingWidget(
-                training,
-                onSelect = { trainingDialog = TrainingDialogType.Choose },
+            CurrentRecipeWidget(
+                recipe,
+                onSelect = { if (onOpenRecipes != null) onOpenRecipes() else recipeDialog = RecipeDialogType.Choose },
                 onStart = onStartPractice,
-                onHistory = { trainingDialog = TrainingDialogType.History },
+                onHistory = { recipeDialog = RecipeDialogType.History },
                 modifier = Modifier.fillMaxWidth(),
             )
             VocabularyWidget(
@@ -145,6 +148,7 @@ fun DashboardScreen(
                 Modifier.fillMaxWidth(),
                 onOpenCatalog,
                 onOpenDictionary,
+                onOpenReferences,
             )
         }
     }
@@ -158,7 +162,7 @@ private fun DashboardLightPreview() {
             DashboardDemo.state,
             {},
             {},
-            trainings = listOf(TrainingOverview("default", stringResource(R.string.dashboard_mix))),
+            recipes = listOf(RecipeOverview("default", stringResource(R.string.dashboard_mix))),
         )
     }
 }
@@ -171,12 +175,12 @@ private fun DashboardDarkPreview() {
             DashboardDemo.state,
             {},
             {},
-            trainings = listOf(TrainingOverview("default", stringResource(R.string.dashboard_mix))),
+            recipes = listOf(RecipeOverview("default", stringResource(R.string.dashboard_mix))),
         )
     }
 }
 
-private enum class TrainingDialogType {
+private enum class RecipeDialogType {
     None,
     Choose,
     Create,

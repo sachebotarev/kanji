@@ -24,7 +24,8 @@ function localized(translations, fallback = null, all = false) {
   }
   return fallback;
 }
-const sourceTitle = id => { const source = sourceById.get(id); return source ? localized(source.translations, source.original_title) : ''; };
+const personalWords=PersonalWords.read();personalWords.forEach(w=>wordById.set(w.id,w));
+const sourceTitle = id => { if(id===-1)return uiLanguage()==='en'?'My dictionary':'Мой словарь';const source = sourceById.get(id); return source ? localized(source.translations, source.original_title) : ''; };
 const meaning = kanji => localized(kanji.translations, text('catalog_missing'), true);
 const radicalName = radical => localized(radical.translations, text('catalog_missing'));
 function wordContent(word) {
@@ -41,9 +42,9 @@ const matches = (query, values) => {const needle = normalize(query.trim()); retu
 
 // The selections below mirror CatalogSnapshot; words retain their exact identities and source links.
 function kanjiFor(selection = {}, query = '') {
-  const scoped = selection.sourceId ? new Map(DATA.placements.filter(p => p.source_id === selection.sourceId && (!selection.chapter || p.chapter_number === selection.chapter)).map(p => [p.kanji_id, p.kanji_number])) : null;
-  return DATA.kanji.filter(k => (query.trim() || k.radical_id || scoped) && (!scoped || scoped.has(k.id)) && (!selection.radical || k.radical_id === selection.radical) && (!selection.strokes || k.stroke_count === selection.strokes)
-    && (!selection.jlpt || (selection.jlpt===-1 ? !k.classification?.jlpt_level : k.classification?.jlpt_level===selection.jlpt))
+  const scoped = selection.sourceId ? new Map(DATA.placements.filter(p => p.source_id === selection.sourceId && CatalogSelection.filterMatches(selection.chapter,p.chapter_number)).map(p => [p.kanji_id, p.kanji_number])) : null;
+  return DATA.kanji.filter(k => (query.trim() || k.radical_id || scoped) && (!scoped || scoped.has(k.id)) && CatalogSelection.filterMatches(selection.radical,k.radical_id) && CatalogSelection.filterMatches(selection.strokes,k.stroke_count)
+    && CatalogSelection.filterMatches(selection.jlpt,k.classification?.jlpt_level||-1)
     && matches(query, [k.symbol, meaning(k), ...k.readings.map(r => r.text)]))
     .sort((a, b) => (query.trim() === a.symbol ? 0 : 1) - (query.trim() === b.symbol ? 0 : 1)
       || (scoped?.get(a.id) ?? a.id) - (scoped?.get(b.id) ?? b.id));
@@ -53,16 +54,18 @@ function wordsFor(selection = {}, query = '') {
   for (const link of DATA.links) {
     const placement = placementByKey.get(link.source_id + ':' + link.kanji_id);
     if ((selection.sourceId && link.source_id !== selection.sourceId)
-      || (selection.kanji && link.kanji_id !== selection.kanji)
-      || (selection.chapter && placement?.chapter_number !== selection.chapter)
-      || (selection.radical && kanjiById.get(link.kanji_id)?.radical_id !== selection.radical)) continue;
+      || (selection.kanjiIds?.length ? !selection.kanjiIds.includes(link.kanji_id) : selection.kanji && link.kanji_id !== selection.kanji)
+      || !CatalogSelection.filterMatches(selection.chapter,placement?.chapter_number)
+      || !CatalogSelection.filterMatches(selection.radical,kanjiById.get(link.kanji_id)?.radical_id)) continue;
     first.set(link.word_id, Math.min(first.get(link.word_id) ?? Infinity, placement?.kanji_number ?? Number.MAX_SAFE_INTEGER));
   }
-  return DATA.words.filter(w => first.has(w.id) && matches(query, [w.written, w.reading, translation(w)]))
-    .sort((a, b) => first.get(a.id) - first.get(b.id) || a.id - b.id);
+  const catalog=selection.sourceId===-1?[]:DATA.words.filter(w=>first.has(w.id)).sort((a,b)=>first.get(a.id)-first.get(b.id)||a.id-b.id);
+  const personal=selection.sourceId&&selection.sourceId!==-1?[]:personalWords.filter(w=>{const ids=selection.kanjiIds?.length?selection.kanjiIds:CatalogSelection.filterValues(selection.kanji);return !ids.length||ids.some(id=>w.written.includes(kanjiById.get(id)?.symbol||'\u0000'));});
+  const merged=new Map();for(const w of [...catalog,...personal]){const key=w.written.normalize('NFKC')+'\u0000'+w.reading.normalize('NFKC');if(!merged.has(key))merged.set(key,w);}
+  return [...merged.values()].filter(w=>matches(query,[w.written,w.reading,translation(w)]));
 }
 function chaptersFor(sourceId, selection = null) {
-  const eligible = selection ? new Set(kanjiFor({...selection, chapter: 0, radical: selection.radical || 0}).filter(k => !selection.kanji || k.id === selection.kanji).map(k => k.id)) : null;
+  const eligible = selection ? new Set(kanjiFor({...selection, chapter: 0, radical: selection.radical || 0}).filter(k => CatalogSelection.filterMatches(selection.kanjiIds?.length?selection.kanjiIds:selection.kanji,k.id)).map(k => k.id)) : null;
   const numbers = [...new Set(DATA.placements.filter(p => p.source_id === sourceId).map(p => p.chapter_number))].sort((a,b) => a-b);
   return numbers.map(number => {
     const placements = DATA.placements.filter(p => p.source_id === sourceId && p.chapter_number === number && (!eligible || eligible.has(p.kanji_id)));
@@ -72,8 +75,8 @@ function chaptersFor(sourceId, selection = null) {
   }).filter(chapter => chapter.kanjiCount > 0);
 }
 function radicalsFor(selection = null, query = '', ownStrokes = 0) {
-  const ids = selection ? new Set(kanjiFor({...selection, radical: 0}, '').filter(k => !selection.kanji || k.id === selection.kanji).map(k => k.radical_id)) : null;
-  return DATA.radicals.filter(r => (!ids || ids.has(r.id)) && (!ownStrokes || r.stroke_count === ownStrokes) && matches(query, [r.symbol, radicalName(r), r.id]))
+  const ids = selection ? new Set(kanjiFor({...selection, radical: 0}, '').filter(k => CatalogSelection.filterMatches(selection.kanjiIds?.length?selection.kanjiIds:selection.kanji,k.id)).map(k => k.radical_id)) : null;
+  return DATA.radicals.filter(r => (!ids || ids.has(r.id)) && CatalogSelection.filterMatches(ownStrokes,r.stroke_count) && matches(query, [r.symbol, radicalName(r), r.id]))
     .sort((a,b) => a.stroke_count-b.stroke_count || a.id-b.id);
 }
 
@@ -93,7 +96,7 @@ function parseRoute(value) {
   if (kind === 'chapter') return {kind:'source', sourceId:Number(a) || 2, fixedChapter:Number(b) || 1, tab:tab || 1};
   if (['word','kanji','radical','words'].includes(kind)) return {kind, id:Number(a), sourceId:Number(b) || 0};
   if (kind === 'filter') return a==='jlpt'?{kind:'filter',filter:a,sourceId:0,selection:{sourceId:0}}:{kind:'filter', filter:a || 'chapter', sourceId:2, selection:{sourceId:2}};
-  return {kind:['all-kanji','all-radicals'].includes(kind) ? kind : 'catalog', sourceId:0};
+  return {kind:['references','all-kanji','all-radicals'].includes(kind) ? kind : 'catalog', sourceId:0};
 }
 function routeHash(route) {
   if (route.kind === 'source') return (route.fixedChapter ? `chapter/${route.sourceId}/${route.fixedChapter}` : `source/${route.sourceId}`) + (route.tab ? '?tab='+route.tab : '');
@@ -125,7 +128,9 @@ function quickNavigate(hash) {
 function back() {
   rememberScroll();
   if(current.parent) { history.back(); }
-  else if(current.route.kind !== 'catalog') {quickNavigate('catalog');}
+  else if(current.route.sourceId===-1){if(parent!==window)parent.postMessage({type:'kanji-viewer-navigate',module:'web',route:'dictionary'},location.origin);else location.href='../web/#dictionary';}
+  else if(['all-kanji','all-radicals'].includes(current.route.kind)){quickNavigate('references');}
+  else if(!['catalog','references'].includes(current.route.kind)){quickNavigate('catalog');}
   else {if(parent!==window)parent.postMessage({type:'kanji-viewer-navigate',module:'web',route:'home'},location.origin);else location.href='../web/#home';}
 }
 window.addEventListener('popstate', event => {
@@ -136,6 +141,8 @@ window.addEventListener('popstate', event => {
 });
 
 function pageTitle(route = current.route) {
+  if(route.kind==='catalog')return uiLanguage()==='en'?'Textbooks':'Учебники';
+  if(route.kind==='references')return uiLanguage()==='en'?'References':'Справочники';
   const keys={catalog:'catalog_title',words:'catalog_related_words','all-kanji':'catalog_kanji','all-radicals':'catalog_all_radicals'};
   if(route.kind==='source')return route.fixedChapter?text('catalog_chapter',route.fixedChapter):sourceTitle(route.sourceId);
   if(route.kind==='word')return DATA.words.find(word=>word.id===route.id)?.written||text('catalog_word');
@@ -146,6 +153,7 @@ function pageTitle(route = current.route) {
   return text(keys[route.kind]||'catalog_title');
 }
 function detailContext(route=current.route){
+  if(route.sourceId===-1)return sourceTitle(-1);
   if(['all-kanji','all-radicals'].includes(route.kind))return text('catalog_global_reference');
   const kind={word:text('catalog_word'),kanji:text('catalog_kanji'),radical:text('catalog_radical')}[route.kind]||'';
   const book=(['word','kanji','radical','words'].includes(route.kind)||(route.kind==='source'&&route.fixedChapter))&&route.sourceId?sourceTitle(route.sourceId):'';
@@ -158,7 +166,7 @@ function appbar() {
 function search(label) {
   return `<label class="n-search"><span class="n-search-icon" aria-hidden="true">⌕</span><input id="catalog-query" type="search" value="${html(current.query)}" placeholder="${html(text(label))}" aria-label="${html(text(label))}" autocomplete="off"><button class="n-clear-query" data-action="clear-query" ${current.query?'':'hidden'}>${html(text('word_clear'))}</button></label>`;
 }
-function sourceSelection() {return {sourceId:current.route.sourceId||0, chapter:current.chapter, radical:current.radical, kanji:current.selectedKanji, strokes:current.strokes||0,...(catalogLayout==='wip'&&current.route.kind==='all-kanji'?{jlpt:current.jlpt||0}:{})};}
+function sourceSelection() {return {sourceId:current.route.sourceId||0, chapter:current.chapter, radical:current.radical, kanji:current.selectedKanji,kanjiIds:current.selectedKanjiIds||[], strokes:current.strokes||0,jlpt:current.jlpt||0};}
 const catalogCopy = {
   ru: {chapter:{one:'глава',few:'главы',many:'глав',other:'главы'},word:{one:'слово',few:'слова',many:'слов',other:'слова'},radical:{one:'ключ',few:'ключа',many:'ключей',other:'ключа'},kanji:'кандзи',open:'Открыть учебник'},
   en: {chapter:{one:'chapter',other:'chapters'},word:{one:'word',other:'words'},radical:{one:'radical',other:'radicals'},kanji:'kanji',open:'Open textbook'}
@@ -174,6 +182,10 @@ function textbookIcon(sourceId) {
   if(artwork)return `<img class="p-textbook-art" src="../../assets/textbook-icons/${artwork}" alt="" width="64" height="64">`;
   return `<svg class="p-textbook-icon" viewBox="0 0 48 52" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path class="p-book-cover" d="M10 12c0-4 3-6 7-6h23v33H17c-4 0-7 2-7 6V12Z"/><path class="p-book-pages" d="M17 39h23v7H17c-4 0-7-1-7-4s3-5 7-5"/><path d="M15 11v22M19 42h17"/><path class="p-book-ribbon" d="M29 6h6v15l-3-3-3 3V6Z"/><path d="M21 27h9M21 31h6"/></svg>`;
 }
+const catalogIntroTranslations=Object.freeze({
+ textbooks:[{language_tag:'ru',text:'Шаг за шагом — к новым знаниям'},{language_tag:'en',text:'Step by step towards new knowledge'}],
+ references:[{language_tag:'ru',text:'Каждый знак — маленькое открытие'},{language_tag:'en',text:'Every character is a little discovery'}]
+});
 const referenceDescriptions = Object.freeze({
   kanji:[{language_tag:'ru',text:'Чтения, значения и слова'},{language_tag:'en',text:'Readings, meanings and words'}],
   radicals:[{language_tag:'ru',text:'Части кандзи и их значения'},{language_tag:'en',text:'Kanji components and their meanings'}]
@@ -248,12 +260,12 @@ function render({keepFocus=false}={}) {
   phone.hidden=false;
   phone.dataset.designedTextbook=String(isDesignedTextbook());
   phone.dataset.workingCatalogScreen=String(showsWorkingModule());
-  phone.dataset.catalogVariant=current.route.kind==='catalog'?catalogLayout:'baseline';
+  phone.dataset.catalogVariant=['catalog','references'].includes(current.route.kind)?catalogLayout:'baseline';
   phone.dataset.screenVariant=catalogLayout;
   phone.dataset.screenKey=reviewKey;
   const output=loadState==='ready'?workingView():{extra:'',content:workingCatalogStatusView(loadState)};
   const chrome=showsWorkingModule()?workingModuleAppbar():isWorkingTextbook()?workingBookAppbar():appbar();
-  $('#app').innerHTML=`<div class="n-page"><div class="n-chrome"><div class="n-chrome-inner">${chrome}${output.extra}</div></div><div class="n-content" id="catalog-content">${output.content}</div></div>`;
+  $('#app').innerHTML=current.route.kind==='filter'?output.content:`<div class="n-page"><div class="n-chrome"><div class="n-chrome-inner">${chrome}${output.extra}</div></div><div class="n-content" id="catalog-content">${output.content}</div></div>`;
   document.documentElement.lang=uiLanguage();$('#app').lang=uiLanguage();$('#screen-title').textContent=pageTitle();
   const status=reviewStatus(),approved=status.status==='approved',en=uiLanguage()==='en';
   $('#view-status').textContent=reviewLabel(approved)+(loadState==='ready'?'':en?' · '+loadState:' · '+(loadState==='loading'?'ЗАГРУЗКА':'ОШИБКА'));
@@ -278,6 +290,7 @@ function render({keepFocus=false}={}) {
 }
 function configureChrome(hidden=0) {
   const chrome=$('.n-chrome'),inner=$('.n-chrome-inner'),content=$('.n-content');
+  if(!chrome||!inner||!content){bindFilterReveal(content);return;}
   const max=inner.getBoundingClientRect().height;
   const pinned=showsWorkingModule()||isDesignedTextbook()||(current.route.kind==='catalog'&&loadState!=='ready');
   current.hidden=!pinned&&$('#collapse-header').checked?Math.min(hidden,max):0;
@@ -310,26 +323,7 @@ function lockFittedContent(content=document.querySelector('.n-content')){
   bar.classList.remove('is-concealed');
   content.style.setProperty('--w-filter-stick',bar.offsetHeight+'px');
 }
-function bindFilterReveal(content){
-  const bar=content.querySelector('.w-textbook-filterbar');
-  if(!bar)return;
-  const max=bar.offsetHeight;
-  let last=content.scrollTop,offset=Math.min(max,Math.max(0,last));
-  const paint=value=>{
-    offset=Math.max(0,Math.min(max,value));
-    bar.style.transform=offset?`translateY(${-offset}px)`:'';
-    bar.classList.toggle('is-concealed',offset>=max-0.5);
-    content.style.setProperty('--w-filter-stick',(max-offset)+'px');
-  };
-  paint(contentFits(content)?0:offset);
-  content.addEventListener('scroll',()=>{
-    if(contentFits(content)){paint(0);return;}
-    const top=content.scrollTop,delta=top-last;
-    last=top;
-    if(top<=0){paint(0);return;}
-    paint(offset+delta);
-  },{passive:true});
-}
+function bindFilterReveal(content){CatalogSelection.bindFilterReveal(content);}
 function restoreFilter(type,id) {
   const parent=current.parent;
   if(!parent){navigate({kind:'source',sourceId:current.route.sourceId||2});return;}
@@ -351,7 +345,17 @@ document.addEventListener('click',event=>{
   if(!button)return;
   const [name,raw='']=button.dataset.action.split(':'),id=Number(raw);
   const sourceId=current.route.sourceId||0;
-  if(name==='back')back();
+  if(name==='facet-apply'){if(current.parent){current.parent[current.route.filter]=[...current.facetIds];current.parent.scrolls[current.parent.tab]=0;history.back();}else back();}
+  else if(name==='facet-view'){current.facetSelectedOnly=!current.facetSelectedOnly;render();}
+  else if(name==='facet-clear'){current.facetIds=[];render();}
+  else if(name==='facet-search'){current.facetSearchOpen=!current.facetSearchOpen;if(!current.facetSearchOpen)current.query='';render();$('#catalog-query')?.focus();}
+  else if(name.startsWith('select-')&&current.route.kind==='filter'&&current.route.filter!=='kanji'){current.facetIds=id?CatalogSelection.toggleFilter(current.facetIds,id):[];const scroll=$('.kanji-picker-content')?.scrollTop||0;render();$('.kanji-picker-content').scrollTop=scroll;document.querySelector(`[data-action="${name}:${id}"]`)?.focus({preventScroll:true});}
+  else if(name==='picker-search'){current.pickerSearchOpen=!current.pickerSearchOpen;if(!current.pickerSearchOpen)current.query='';render();$('#catalog-query')?.focus();}
+  else if(name==='picker-view'){current.pickerSelectedOnly=!current.pickerSelectedOnly;render();}
+  else if(name==='picker-clear'){current.pickerIds=[];render();}
+  else if(name==='picker-apply'){if(current.parent){current.parent.selectedKanjiIds=[...current.pickerIds];current.parent.selectedKanji=current.pickerIds[0]||0;current.parent.scrolls[current.parent.tab]=0;history.back();}else back();}
+  else if(name==='select-kanji'&&current.route.kind==='filter'&&current.route.filter==='kanji'){const ids=current.pickerIds||[];current.pickerIds=ids.includes(id)?ids.filter(n=>n!==id):[...ids,id];const scroll=$('.kanji-picker-content')?.scrollTop||0;render();$('.kanji-picker-content').scrollTop=scroll;document.querySelector(`[data-action="select-kanji:${id}"]`)?.focus({preventScroll:true});}
+  else if(name==='back')back();
   else if(name==='toggle-module-search'){
     const open=workingSearchOpen();
     current.searchOpenTabs??={};current.searchOpenTabs[current.tab]=!open;
@@ -372,6 +376,7 @@ document.addEventListener('click',event=>{
   else if(name==='kanji'||name==='radical')navigate({kind:name,id,sourceId});
   else if(name==='study-kanji'){const [kanji,source]=raw.split('/').map(Number);navigate({kind:'kanji',id:kanji,sourceId:source});}
   else if(name==='related')navigate({kind:'words',id,sourceId});
+  else if(name==='references')navigate({kind:'references',sourceId:0});
   else if(name==='all-kanji'||name==='all-radicals')navigate({kind:name,sourceId:0});
   else if(name==='tab'){
     rememberScroll();current.queries[current.tab]=current.query;
@@ -380,22 +385,22 @@ document.addEventListener('click',event=>{
     current.route.tab=id;current.hidden=0;history.replaceState({catalogEntry:current.key},'', '#'+routeHash(current.route));render();
   }
   else if(name==='filter'){
-    const selection=sourceSelection();
+    const selection=current.route.kind==='filter'?{...current.route.selection,strokes:current.strokes,radical:current.radical,jlpt:current.jlpt}:sourceSelection();
     // Word filters ignore the radical, kanji selection ignores itself, other facets retain it.
     const forWords=current.route.kind==='source'&&current.tab===2;
     if(forWords){selection.radical=0;selection.strokes=0;delete selection.jlpt;}
-    if(raw==='kanji')selection.kanji=0;
+    if(raw==='kanji'){selection.kanji=0;selection.kanjiIds=[];}
     if(current.route.kind==='all-radicals')selection.radicalIndex=true;
     navigate({kind:'filter',filter:raw,sourceId,selection,forWords,selected:raw==='chapter'?current.chapter:raw==='kanji'?current.selectedKanji:raw==='strokes'?current.strokes:raw==='jlpt'?current.jlpt:current.radical});
   }
   else if(name.startsWith('select-'))restoreFilter(name.slice(7),id);
   else if(name==='clear-query'){current.query='';current.scrolls[current.tab]=0;render();$('#catalog-query')?.focus();}
   else if(name==='clear-chapter'){current.chapter=current.route.fixedChapter||0;current.scrolls[current.tab]=0;render();}
-  else if(name==='clear-kanji'){current.selectedKanji=0;current.scrolls[current.tab]=0;render();}
+  else if(name==='clear-kanji'){current.selectedKanji=0;current.selectedKanjiIds=[];current.scrolls[current.tab]=0;render();}
   else if(name==='clear-radical'){current.radical=0;current.scrolls[current.tab]=0;render();}
   else if(name==='clear-jlpt'){current.jlpt=0;current.scrolls[current.tab]=0;render();}
   else if(name==='clear-strokes'){current.strokes=0;current.scrolls[current.tab]=0;render();}
-  else if(name==='reset-words'){current.chapter=current.route.fixedChapter||0;current.selectedKanji=0;current.scrolls[current.tab]=0;render();}
+  else if(name==='reset-words'){current.chapter=current.route.fixedChapter||0;current.selectedKanji=0;current.selectedKanjiIds=[];current.scrolls[current.tab]=0;render();}
   else if(name==='retry'){setLoadState((current.route.kind==='catalog')||isDesignedTextbook()||showsWorkingModule()?'loading':'ready',{focus:true});}
 });
 document.addEventListener('keydown',event=>{

@@ -96,6 +96,7 @@ flowchart TD
     featCat --> domCat
     featCat --> domHw
     featCat --> coreWord[":core:wordui"]
+    featDash --> coreWord
     featCat --> coreDs
 
     featDict --> domCat

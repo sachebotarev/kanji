@@ -1,0 +1,23 @@
+<resources>
+    <string name="dictionary_tags">Tags</string>
+    <string name="dictionary_tags_manage">Manage tags</string>
+    <string name="dictionary_tags_create">Create tag</string>
+    <string name="dictionary_tags_rename">Edit tag</string>
+    <string name="dictionary_tags_search">Find a tag</string>
+    <string name="dictionary_tags_apply">Apply</string>
+    <string name="dictionary_tags_choose">Choose (%1$d)</string>
+    <string name="dictionary_tags_selected">Selected: %1$d</string>
+    <string name="dictionary_tags_clear">Clear selection</string>
+    <string name="dictionary_tags_name">Name</string>
+    <string name="dictionary_tags_error">Could not save the tag. Check that the name is not already used.</string>
+    <string name="dictionary_tags_delete_title">Delete tag?</string>
+    <string name="dictionary_tags_delete_text">Words will remain in your dictionary. The tag will be removed from words and training materials.</string>
+    <string name="dictionary_tags_none">No tags yet</string>
+    <string name="dictionary_tags_no_results">No matching tags</string>
+    <string name="dictionary_tags_all">All</string>
+    <string-array name="dictionary_tag_colors">
+        <item>Grey</item><item>Green</item><item>Blue</item><item>Purple</item>
+        <item>Pink</item><item>Orange</item><item>Yellow</item>
+    </string-array>
+    <string name="dictionary_tags_color">Tag color</string>
+</resources>

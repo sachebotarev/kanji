@@ -49,17 +49,17 @@ fun SettingsScreen(
                 }
                 Text(
                     stringResource(R.string.settings_title),
-                    style = MaterialTheme.typography.titleLarge,
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            CheckerSettingsEntry(onOpenChecker, Modifier.fillMaxWidth().padding(20.dp))
+            CheckerSettingsEntry(onOpenChecker, Modifier.fillMaxWidth().padding(18.dp))
             Column(
-                Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 18.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
+                ru.mobui.kanji.core.designsystem.KanjiSectionTitle(
                     stringResource(R.string.settings_japanese_model),
-                    style = MaterialTheme.typography.titleMedium,
                 )
                 Button(
                     onClick = onDownloadModel,
@@ -87,7 +87,7 @@ internal fun CheckerSettingsEntry(onClick: () -> Unit, modifier: Modifier = Modi
         onClick,
         modifier.testTag("open-app-checker-settings"),
         shape = RoundedCornerShape(16.dp),
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
     ) {
         Row(
@@ -104,6 +104,7 @@ internal fun CheckerSettingsEntry(onClick: () -> Unit, modifier: Modifier = Modi
                 Text(
                     stringResource(R.string.settings_checker),
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     stringResource(R.string.settings_checker_detail),
@@ -111,7 +112,7 @@ internal fun CheckerSettingsEntry(onClick: () -> Unit, modifier: Modifier = Modi
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            Text("›", style = MaterialTheme.typography.titleLarge)
+            Text("›", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

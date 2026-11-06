@@ -20,8 +20,8 @@
     <string name="word_language_error">Введите корректный языковой тег</string>
     <string name="word_choose">Выбрать</string>
     <string name="word_cancel">Отмена</string>
-    <string name="word_written_hint">Например, 木漏れ日</string>
-    <string name="word_reading_hint">Например, こもれび</string>
+    <string name="word_written_hint">木漏れ日</string>
+    <string name="word_reading_hint">こもれび</string>
     <string name="word_translation_hint">Введите перевод</string>
     <string name="word_required">Заполните поле</string>
     <string name="word_translations_error">Добавьте непустой перевод. Языки не должны повторяться.</string>

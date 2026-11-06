@@ -24,6 +24,7 @@ class BundledKanjiReferenceSource(
     private val availableFiles by lazy { assets.list("kanjivg").orEmpty().toSet() }
     private val cache = ConcurrentHashMap<KanjiId, ReferenceDrawing>()
 
+    @Suppress("LongMethod", "CyclomaticComplexMethod") // Single SVG parse path kept together.
     override suspend fun load(id: KanjiId): ReferenceDrawing? {
         cache[id]?.let { return it }
         return withContext(ioDispatcher) {

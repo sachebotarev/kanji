@@ -1,0 +1,23 @@
+<resources>
+    <string name="dictionary_tags">Теги</string>
+    <string name="dictionary_tags_manage">Управление тегами</string>
+    <string name="dictionary_tags_create">Создать тег</string>
+    <string name="dictionary_tags_rename">Изменить тег</string>
+    <string name="dictionary_tags_search">Найти тег</string>
+    <string name="dictionary_tags_apply">Применить</string>
+    <string name="dictionary_tags_choose">Выбрать (%1$d)</string>
+    <string name="dictionary_tags_selected">Выбрано: %1$d</string>
+    <string name="dictionary_tags_clear">Снять выбор</string>
+    <string name="dictionary_tags_name">Название</string>
+    <string name="dictionary_tags_error">Не удалось сохранить тег. Проверьте название: оно не должно повторяться.</string>
+    <string name="dictionary_tags_delete_title">Удалить тег?</string>
+    <string name="dictionary_tags_delete_text">Слова останутся в словаре. Тег будет снят со слов и материалов тренировок.</string>
+    <string name="dictionary_tags_none">Тегов пока нет</string>
+    <string name="dictionary_tags_no_results">Теги не найдены</string>
+    <string name="dictionary_tags_all">Все</string>
+    <string-array name="dictionary_tag_colors">
+        <item>Серый</item><item>Зелёный</item><item>Синий</item><item>Фиолетовый</item>
+        <item>Розовый</item><item>Оранжевый</item><item>Жёлтый</item>
+    </string-array>
+    <string name="dictionary_tags_color">Цвет тега</string>
+</resources>

@@ -1,0 +1,57 @@
+package ru.mobui.kanji
+
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextContains
+import androidx.compose.ui.test.hasTestTag
+import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
+import androidx.compose.ui.test.performTextInput
+import androidx.compose.ui.test.performTextReplacement
+import org.junit.Rule
+import org.junit.Test
+import ru.mobui.kanji.core.designsystem.KanjiTheme
+import ru.mobui.kanji.feature.dashboard.DashboardDemo
+import ru.mobui.kanji.feature.dashboard.DashboardScreen
+import ru.mobui.kanji.feature.dashboard.RecipeOverview
+
+class RecipePickerScaleTest {
+    @get:Rule val compose = createComposeRule()
+
+    @Test
+    fun selectsLastOfHundredAndSearchKeepsCreationAvailable() {
+        val recipes = (1..100).map { RecipeOverview(it.toString(), "Recipe $it") }
+        val selected = mutableStateOf("1")
+        compose.setContent {
+            KanjiTheme {
+                DashboardScreen(
+                    DashboardDemo.state,
+                    {},
+                    {},
+                    recipes = recipes,
+                    selectedRecipeId = selected.value,
+                    onSelectRecipe = { selected.value = it },
+                )
+            }
+        }
+        compose.onNodeWithTag("select-recipe").performScrollTo().performClick()
+        compose
+            .onNodeWithTag("recipe-list")
+            .performScrollToNode(hasTestTag("choose-recipe-100"))
+        compose.onNodeWithTag("create-recipe").assertIsDisplayed()
+        compose.onNodeWithTag("choose-recipe-100").performClick()
+        compose.onNodeWithTag("current-recipe-name").assertTextContains("Recipe 100")
+        compose.onNodeWithTag("select-recipe").performScrollTo().performClick()
+        compose.onNodeWithTag("recipe-search").performTextInput("recipe 100")
+        compose.onNodeWithTag("choose-recipe-100").assertIsSelected()
+        compose.onNodeWithTag("choose-recipe-1").assertDoesNotExist()
+        compose.onNodeWithTag("recipe-search").performTextReplacement("absent")
+        compose.onNodeWithTag("recipe-search-empty").assertIsDisplayed()
+        compose.onNodeWithTag("create-recipe").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("recipe-editor").assertIsDisplayed()
+    }
+}

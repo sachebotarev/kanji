@@ -1,0 +1,30 @@
+<resources>
+    <string name="library_title">Recipes</string>
+    <string name="library_create">Create</string>
+    <string name="library_intro">Choose or create</string>
+    <string name="library_count">Recipes: %1$d of %2$d</string>
+    <string name="library_empty">Create your first recipe</string>
+    <string name="library_empty_hint">Choose study material and a comfortable pace.</string>
+    <string name="library_no_results">No recipes found</string>
+    <string name="library_no_results_hint">Try another name, textbook or JLPT level.</string>
+    <string name="library_search">Search recipes</string>
+    <string name="library_clear">Clear</string>
+    <string name="library_above">Move up</string>
+    <string name="library_below">Move down</string>
+    <string name="library_select">Select recipe “%1$s”</string>
+    <string name="library_open">Open recipe “%1$s”</string>
+    <string name="library_edit">Edit</string>
+    <string name="library_copy_name">%1$s (copy)</string>
+    <string name="dictionary_remove_recipe">Delete</string>
+    <string name="library_delete_title">Delete recipe?</string>
+    <string name="library_kanji">Kanji: %1$d</string>
+    <string name="library_tasks">Tasks: %1$d</string>
+    <string name="library_seconds">%1$d s per word</string>
+    <string name="library_no_timer">No timer</string>
+    <string name="library_more">More materials</string>
+    <string name="library_collapse">Collapse materials</string>
+    <string name="library_menu">Actions for recipe “%1$s”</string>
+    <string name="library_none">No recipe selected</string>
+    <string name="library_cancel">Cancel</string>
+    <string name="library_delete_message">The plan settings will be deleted. Study materials will remain.</string>
+</resources>

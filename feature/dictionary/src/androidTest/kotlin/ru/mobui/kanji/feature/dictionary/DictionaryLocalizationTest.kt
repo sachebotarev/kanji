@@ -62,7 +62,7 @@ class DictionaryLocalizationTest {
     @Test
     fun unsupportedLanguageFallsBackToRussianAndManualActionsAreAvailable() {
         open("de", mapOf("ru" to "кошка"), manual = true)
-        compose.onNodeWithText("Создано вручную").assertIsDisplayed()
+        compose.onNodeWithText("Создано вручную").assertDoesNotExist()
         compose.onNodeWithTag("edit-word").assertIsDisplayed()
         compose.onNodeWithTag("word-actions").performClick()
         compose.onNodeWithTag("delete-word").assertIsDisplayed()

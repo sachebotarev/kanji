@@ -1,0 +1,5 @@
+<resources>
+    <plurals name="library_total"><item quantity="one">%d recipe</item><item quantity="other">%d recipes</item></plurals>
+    <plurals name="library_task_count"><item quantity="one">%d task</item><item quantity="other">%d tasks</item></plurals>
+    <plurals name="library_all_words"><item quantity="one">%d word in total</item><item quantity="other">All %d words</item></plurals>
+</resources>

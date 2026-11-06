@@ -41,21 +41,36 @@ internal fun SavedStateHandle.kanjiFilters(
     prefix: String,
     defaults: KanjiFilters = KanjiFilters(),
 ): Flow<KanjiFilters> =
-    combine(
+    combine(combine(
         getStateFlow<Int?>("$prefix.chapter", defaults.chapter),
         getStateFlow<Int?>("$prefix.radical", defaults.radicalId),
         getStateFlow<Int?>("$prefix.strokes", defaults.strokes),
         getStateFlow("$prefix.jlpt", defaults.jlpt.savedValue()),
-    ) { chapter, radical, strokes, jlpt ->
-        KanjiFilters(chapter, radical, strokes, decodeJlpt(jlpt))
+        getStateFlow<IntArray?>("$prefix.chapterIds", null),
+    ) { chapter, radical, strokes, jlpt, ids ->
+        KanjiFilters(chapter, radical, strokes, decodeJlpt(jlpt),
+            ids?.toSet() ?: if (contains("$prefix.chapter")) setOfNotNull(chapter) else defaults.chapterIds)
+    },
+        getStateFlow<IntArray?>("$prefix.radicalIds", null),
+        getStateFlow<IntArray?>("$prefix.strokeIds", null),
+        getStateFlow<IntArray?>("$prefix.jlptIds", null),
+    ) { base, radicals, strokes, jlpt ->
+        base.copy(
+            radicalIds = radicals?.toSet() ?: if (contains("$prefix.radical")) base.radicalIds else defaults.radicalIds,
+            strokeIds = strokes?.toSet() ?: if (contains("$prefix.strokes")) base.strokeIds else defaults.strokeIds,
+            jlptFilters = jlpt?.map(::decodeJlpt)?.filter { it != JlptFilter.AnyLevel }?.toSet()
+                ?: if (contains("$prefix.jlpt")) base.jlptFilters else defaults.jlptFilters,
+        )
     }
 
 internal fun SavedStateHandle.wordFilters(defaultChapter: Int?): Flow<WordFilters> =
     combine(
         getStateFlow<Int?>("words.chapter", defaultChapter),
         getStateFlow<Int?>("words.kanji", null),
-    ) { chapter, kanji ->
-        WordFilters(chapter, kanji)
+        getStateFlow<IntArray?>("words.kanjiIds", null),
+        getStateFlow<IntArray?>("words.chapterIds", null),
+    ) { chapter, kanji, ids, chapters ->
+        WordFilters(chapter, kanji, ids?.toSet() ?: setOfNotNull(kanji), chapters?.toSet() ?: setOfNotNull(chapter))
     }
 
 /** Integer encoding is confined to SavedStateHandle/navigation boundaries. */

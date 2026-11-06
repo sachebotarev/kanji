@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="selection_chapters">Chapters</string>
+    <string name="selection_chapter_search">Chapter number</string>
+</resources>

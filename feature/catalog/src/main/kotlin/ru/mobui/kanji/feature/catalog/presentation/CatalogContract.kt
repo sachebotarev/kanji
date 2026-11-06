@@ -11,13 +11,26 @@ internal data class KanjiFilters(
     val radicalId: Int? = null,
     val strokes: Int? = null,
     val jlpt: JlptFilter = JlptFilter.AnyLevel,
+    val chapterIds: Set<Int> = setOfNotNull(chapter),
+    val radicalIds: Set<Int> = setOfNotNull(radicalId),
+    val strokeIds: Set<Int> = setOfNotNull(strokes),
+    val jlptFilters: Set<JlptFilter> = if (jlpt == JlptFilter.AnyLevel) emptySet() else setOf(jlpt),
 ) {
     fun selection(sourceId: Int?) =
-        CatalogSelection(sourceId, chapter, radicalId, strokes = strokes, jlpt = jlpt)
+        CatalogSelection(sourceId, chapterIds.singleOrNull(), radicalIds.singleOrNull(),
+            strokes = strokeIds.singleOrNull(), jlpt = jlptFilters.singleOrNull() ?: JlptFilter.AnyLevel,
+            chapterIds = if (chapterIds.size > 1) chapterIds else emptySet(),
+            radicalIds = if (radicalIds.size > 1) radicalIds else emptySet(),
+            strokeIds = if (strokeIds.size > 1) strokeIds else emptySet(),
+            jlptFilters = if (jlptFilters.size > 1) jlptFilters else emptySet())
 }
 
-internal data class WordFilters(val chapter: Int? = null, val kanjiId: Int? = null) {
-    fun selection(sourceId: Int) = CatalogSelection(sourceId, chapter, kanjiId = kanjiId)
+internal data class WordFilters(val chapter: Int? = null, val kanjiId: Int? = null,
+    val kanjiIds: Set<Int> = setOfNotNull(kanjiId),
+    val chapterIds: Set<Int> = setOfNotNull(chapter)) {
+    fun selection(sourceId: Int) = CatalogSelection(sourceId, chapterIds.singleOrNull(), kanjiId = kanjiIds.singleOrNull(),
+        kanjiIds = if (kanjiIds.size > 1) kanjiIds else emptySet(),
+        chapterIds = if (chapterIds.size > 1) chapterIds else emptySet())
 }
 
 internal sealed interface CatalogLoad<out T> {

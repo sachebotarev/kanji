@@ -22,19 +22,8 @@ internal fun CatalogTheme(
     KanjiTheme(darkTheme = darkTheme, content = content)
 }
 
-internal val CatalogJapaneseFont = FontFamily(Font(R.font.catalog_japanese))
-internal val CatalogJapaneseStyle =
-    TextStyle(
-        fontFamily = CatalogJapaneseFont,
-        localeList = LocaleList("ja-JP"),
-        platformStyle = androidx.compose.ui.text.PlatformTextStyle(includeFontPadding = false),
-        lineHeightStyle =
-            androidx.compose.ui.text.style.LineHeightStyle(
-                alignment = androidx.compose.ui.text.style.LineHeightStyle.Alignment.Center,
-                trim = androidx.compose.ui.text.style.LineHeightStyle.Trim.Both,
-                mode = androidx.compose.ui.text.style.LineHeightStyle.Mode.Tight,
-            ),
-    )
+internal val CatalogJapaneseFont = ru.mobui.kanji.core.wordui.JapaneseSymbolFont
+internal val CatalogJapaneseStyle = ru.mobui.kanji.core.wordui.JapaneseSymbolStyle
 
 internal val CatalogJapaneseColor: Color
     @Composable

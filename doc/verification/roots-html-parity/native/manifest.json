@@ -1,0 +1,74 @@
+[
+  {
+    "configuration": "ru-light-1.0",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "ru-light-1.5",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "ru-dark-1.0",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "ru-dark-1.5",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "en-light-1.0",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "en-light-1.5",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "en-dark-1.0",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  },
+  {
+    "configuration": "en-dark-1.5",
+    "apk_sha256": "f422d8d9695bc0671c0ac60031cdfe2b312c9589fd5d07228ad00682cd2627ce",
+    "screens": [
+      "CAT-01",
+      "CAT-18",
+      "APP-03-empty"
+    ]
+  }
+]

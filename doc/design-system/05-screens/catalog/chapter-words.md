@@ -1,6 +1,6 @@
-# Глава · слова — CAT-06
+# Глава · слова — BOOKS.01.03.01
 
-[Текущий макет](../../prototypes/index.html#catalog/CAT-06) · [Статус и изменения](review-status.json).
+[Текущий макет](../../prototypes/index.html#catalog/BOOKS.01.03.01) · [Статус и изменения](../../theme/screens.json).
 
 Статус: согласовано. HTML-маршрут: `chapter/2/1?tab=2`. Общие правила не дублируются: [токены](../../03-foundations/README.md), [поиск/состояние/возврат](../../02-ux/README.md), [Контракты виджетов](../../04-components/README.md).
 
@@ -14,4 +14,4 @@
 
 Поддерживаются Ready, Loading, Error, отсутствие материала и пустой поиск там, где есть поиск. Реальная загрузка/ошибка определяется ViewModel, не виджетом. Все подписи и plurals локализованы ru/en, fallback русский. Типизированные id и контекст не зависят от языка.
 
-Исходные снимки предыдущей редакции: [тёмная тема](approved/cat-06-dark.png), [светлая тема](approved/cat-06-light.png). Дополнительные состояния — [галерея](approved/index.html). Требования Android — [план переноса](../../../implementation/catalog-ui.md).
+Требования Android — [контракт реализации](../../../implementation/approved-ui-handoff.md).

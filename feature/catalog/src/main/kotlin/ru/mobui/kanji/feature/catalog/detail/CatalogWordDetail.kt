@@ -39,7 +39,7 @@ internal fun WordDetail(state: DetailContent.Word, language: String, onKanji: (I
     DetailColumn {
         Column {
             Column(
-                Modifier.fillMaxWidth().padding(20.dp),
+                Modifier.fillMaxWidth().padding(18.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {

@@ -9,6 +9,9 @@ data class WordDraft(
     val written: String,
     val reading: String,
     val translations: List<WordTranslationDraft>,
+    /** Null preserves existing assignments for clients that do not edit tags. */
+    val tagIds: Set<Long>? = null,
+    val pendingTags: List<TagDraft> = emptyList(),
 )
 
 enum class WordField {
@@ -56,6 +59,8 @@ private fun canonicalLanguageTag(tag: String): String? =
 
 fun WordDraft.normalized(): WordDraft {
     if (invalidFields().isNotEmpty()) throw DictionaryException(DictionaryFailure.Invalid)
+    require(tagIds.orEmpty().all { it > 0 })
+    pendingTags.forEach { it.validated() }
     return copy(
         written = written.trim(),
         reading = reading.trim(),

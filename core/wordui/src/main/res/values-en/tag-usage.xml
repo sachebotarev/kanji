@@ -1,0 +1,7 @@
+<resources>
+    <string name="tag_picker_delete">Delete tag: %1$s</string>
+    <plurals name="tag_picker_word_count">
+        <item quantity="one">%d word</item>
+        <item quantity="other">%d words</item>
+    </plurals>
+</resources>

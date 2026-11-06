@@ -1,0 +1,16 @@
+{
+  "autoStart": ["kotlin"],
+  "servers": {
+    "kotlin": {
+      "command": "/opt/homebrew/Cellar/kotlin-lsp/263.7084.0/libexec/bin/intellij-server",
+      "args": ["--stdio", "--system-path", "/tmp/kanji-lsp-index", "--log-level", "WARNING"],
+      "env": {},
+      "initializationOptions": {
+        "indexDir": "/tmp/kanji-lsp-index",
+        "buildTools": {
+          "file:///Users/chebotarev/orca/workspaces/kanji/training/": "gradle"
+        }
+      }
+    }
+  }
+}

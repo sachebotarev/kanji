@@ -1,5 +1,7 @@
 package ru.mobui.kanji.feature.catalog.components
 
+import ru.mobui.kanji.core.designsystem.inputShape
+
 import ru.mobui.kanji.feature.catalog.R
 import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseColor
 import ru.mobui.kanji.feature.catalog.theme.CatalogJapaneseStyle
@@ -30,7 +32,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -80,7 +82,7 @@ internal fun CatalogPanel(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainerLow,
     ) {
-        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(spacing)) {
+        Column(Modifier.padding(18.dp), verticalArrangement = Arrangement.spacedBy(spacing)) {
             if (title != null)
                 Text(
                     title,
@@ -99,10 +101,9 @@ internal fun CatalogSection(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-        Text(
+        ru.mobui.kanji.core.designsystem.KanjiSectionTitle(
             title,
             Modifier.padding(horizontal = 4.dp).semantics { heading() },
-            style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 24.sp),
         )
         content()
     }
@@ -115,8 +116,8 @@ internal fun CatalogHint(text: String, modifier: Modifier = Modifier, inset: Boo
         modifier
             .fillMaxWidth()
             .padding(
-                start = if (inset) 20.dp else 0.dp,
-                end = if (inset) 20.dp else 0.dp,
+                start = if (inset) 18.dp else 0.dp,
+                end = if (inset) 18.dp else 0.dp,
                 top = 8.dp,
             ),
         style = MaterialTheme.typography.bodyMedium,
@@ -155,9 +156,7 @@ internal fun CatalogRow(
         } else Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Text(
                 title,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = if (compact) 16.sp else 18.sp, lineHeight = 24.sp,
-                ),
+                style = if (compact) MaterialTheme.typography.bodyLarge else MaterialTheme.typography.titleMedium,
             )
             if (subtitle != null)
                 Text(
@@ -170,10 +169,10 @@ internal fun CatalogRow(
             Text(
                 if (selected) "✓" else "›",
                 Modifier.clearAndSetSemantics {},
+                style = MaterialTheme.typography.titleLarge,
                 color =
                     if (selected) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.onSurfaceVariant,
-                fontSize = 22.sp,
             )
     }
     if (card)
@@ -220,8 +219,8 @@ internal fun SourceCard(
         summary,
         if (source.sourceType == "textbook")
             when (source.coverKey) {
-                "sage" -> R.drawable.catalog_tobira
-                "blue" -> R.drawable.catalog_basic
+                "sage" -> ru.mobui.kanji.core.designsystem.R.drawable.catalog_tobira
+                "blue" -> ru.mobui.kanji.core.designsystem.R.drawable.catalog_basic
                 else -> R.drawable.catalog_book
             }
         else R.drawable.catalog_book,
@@ -262,7 +261,7 @@ internal fun CatalogIllustratedCard(
         Row(
             Modifier.heightIn(min = 80.dp).padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
                 CatalogArtwork(illustration, Modifier.size(48.dp))
@@ -273,20 +272,13 @@ internal fun CatalogIllustratedCard(
             ) {
                 Text(
                     title,
-                    style =
-                        MaterialTheme.typography.titleMedium.copy(
-                            fontSize = 18.sp,
-                            lineHeight = 24.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
-                        ),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurface,
                 )
                 Text(
                     subtitle,
-                    style =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            fontSize = 14.sp,
-                            lineHeight = 20.sp,
-                        ),
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
@@ -333,7 +325,7 @@ internal fun CatalogSearch(
         query,
         onQuery,
         modifier
-            .then(if (inset) Modifier.padding(horizontal = 20.dp, vertical = 8.dp) else Modifier)
+            .then(if (inset) Modifier.padding(horizontal = 18.dp, vertical = 8.dp) else Modifier)
             .fillMaxWidth()
             .testTag("catalog-search")
             .focusRequester(focus),
@@ -359,9 +351,9 @@ internal fun CatalogSearch(
                 focusManager.clearFocus()
                 keyboard?.hide()
             }),
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.inputShape,
         colors =
-            OutlinedTextFieldDefaults.colors(
+            kanjiOutlinedTextFieldColors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                 unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
@@ -378,66 +370,8 @@ internal fun CatalogFilterChip(
     modifier: Modifier = Modifier,
     openEnabled: Boolean = true,
 ) {
-    val active = onClear != null
-    val containerColor =
-        if (active) MaterialTheme.colorScheme.tertiaryContainer
-        else androidx.compose.ui.graphics.lerp(
-            MaterialTheme.colorScheme.surface,
-            MaterialTheme.colorScheme.tertiaryContainer,
-            IDLE_FILTER_STRENGTH,
-        )
-    val contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-
-    Surface(
-        modifier = modifier.semantics { selected = active },
-        shape = RoundedCornerShape(24.dp),
-        color = containerColor,
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.heightIn(min = 40.dp),
-        ) {
-            TextButton(
-                onClick = onOpen,
-                enabled = openEnabled,
-                contentPadding =
-                    PaddingValues(
-                        start = 14.dp,
-                        end = if (active) 4.dp else 12.dp,
-                        top = 8.dp,
-                        bottom = 8.dp,
-                    ),
-                colors = ButtonDefaults.textButtonColors(contentColor = contentColor),
-            ) {
-                Text(
-                    text = label,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = contentColor,
-                )
-                if (!active) {
-                    Icon(
-                        painter = painterResource(R.drawable.catalog_chevron_down),
-                        contentDescription = null,
-                        modifier = Modifier.padding(start = 6.dp).size(16.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            if (onClear != null) {
-                IconButton(
-                    onClick = onClear,
-                    modifier = Modifier.size(48.dp),
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.catalog_close),
-                        contentDescription = stringResource(R.string.catalog_clear_filter, label),
-                        modifier = Modifier.size(16.dp),
-                        tint = contentColor,
-                    )
-                }
-            }
-        }
-    }
+    ru.mobui.kanji.core.wordui.SelectionFilterChip(label, onOpen, onClear,
+        stringResource(R.string.catalog_clear_filter, label), modifier, openEnabled)
 }
 
 @Composable
@@ -445,7 +379,7 @@ internal fun CatalogClearFilterButton(label: String, onClear: () -> Unit, inset:
     FilledTonalButton(
         onClick = onClear,
         modifier =
-            Modifier.padding(start = if (inset) 20.dp else 0.dp)
+            Modifier.padding(start = if (inset) 18.dp else 0.dp)
                 .heightIn(min = 40.dp),
         shape = RoundedCornerShape(24.dp),
         colors =

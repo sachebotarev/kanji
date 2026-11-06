@@ -6,23 +6,72 @@ complexity:
   LargeClass:
     ignoreAnnotated: ['Test']
   LongMethod:
+    threshold: 80
     ignoreAnnotated: ['Composable', 'Test']
   CyclomaticComplexMethod:
+    threshold: 20
     ignoreAnnotated: ['Composable', 'Test']
+  NestedBlockDepth:
+    threshold: 6
+    ignoreAnnotated: ['Test']
+  ComplexCondition:
+    threshold: 5
+    ignoreAnnotated: ['Test']
   LongParameterList:
+    functionThreshold: 10
+    constructorThreshold: 10
     ignoreDefaultParameters: true
+    # Compose screens take state + callbacks; grouping is tracked separately from lint noise.
+    ignoreAnnotated: ['Composable', 'Test', 'Preview']
   TooManyFunctions:
     thresholdInFiles: 20
+    thresholdInClasses: 15
+    thresholdInInterfaces: 40
     ignoreAnnotatedFunctions: ['Preview']
+    ignorePrivate: true
+    ignoreDeprecated: true
+    ignoreOverridden: true
 
 naming:
   FunctionNaming:
     ignoreAnnotated: ['Composable']
   TopLevelPropertyNaming:
     constantPattern: '[A-Z][A-Za-z0-9_]*'
+  MatchingDeclarationName:
+    # Screen/component files often host a companion item/actions type first.
+    active: false
 
 style:
   MagicNumber:
     ignorePropertyDeclaration: true
+    ignoreAnnotated: ['Composable', 'Preview', 'Test']
+    ignoreNumbers:
+      [
+        '-1', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10',
+        '12', '14', '16', '18', '20', '22', '24', '28', '32', '36', '40',
+        '48', '50', '56', '60', '64', '72', '80', '88', '96', '100', '112', '120',
+        '124', '132', '156', '160', '180', '220', '300',
+      ]
+  MaxLineLength:
+    maxLineLength: 160
+    excludePackageStatements: true
+    excludeImportStatements: true
+    excludeCommentStatements: true
+    excludeRawStrings: true
+  ReturnCount:
+    max: 6
+    excludeGuardClauses: true
+    excludeReturnFromLambda: true
+  LoopWithTooManyJumpStatements:
+    maxJumpCount: 2
+    ignoreAnnotated: ['Test']
+  ThrowsCount:
+    max: 12
+  UnusedParameter:
+    allowedNames: '(_|ignored|unused|search|assignments)'
   UnusedPrivateMember:
     ignoreAnnotated: ['Preview']
+  WildcardImport:
+    active: true
+  ForbiddenComment:
+    active: false

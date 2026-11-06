@@ -88,18 +88,15 @@ internal fun ChapterList(
                         Text(
                             stringResource(R.string.catalog_chapter, chapter.number),
                             Modifier.weight(1f),
-                            style =
-                                MaterialTheme.typography.titleMedium.copy(
-                                    fontSize = 18.sp,
-                                    lineHeight = 24.sp,
-                                ),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
                         )
                         if (chapter.number == selected)
                             Text(
                                 "✓",
                                 Modifier.clearAndSetSemantics {},
+                                style = MaterialTheme.typography.titleLarge,
                                 color = MaterialTheme.colorScheme.primary,
-                                fontSize = 22.sp,
                             )
                     }
                     Text(
@@ -194,7 +191,7 @@ internal fun DetailColumn(content: @Composable ColumnScope.() -> Unit) {
     Column(
         Modifier.fillMaxSize()
             .verticalScroll(scroll, enabled = scroll.maxValue > 0)
-            .padding(horizontal = 20.dp, vertical = 12.dp),
+            .padding(horizontal = 18.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         content = content,
     )
