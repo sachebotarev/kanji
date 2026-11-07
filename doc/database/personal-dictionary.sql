@@ -1,6 +1,6 @@
 -- Reference DDL for the feature tables implemented by Room v5 entities/DAO.
 -- SQL contract test applies this over exported v4, before recipes.sql.
--- Not a migration: the unreleased Android database is replaced. No sessions/statistics.
+-- Not a migration: the unreleased Android database is replaced. No training execution/statistics.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE dictionary_tags (

@@ -5,6 +5,21 @@
     <string name="dashboard_activity">Активность</string>
     <plurals name="dashboard_streak"><item quantity="one">%1$d день подряд</item><item quantity="few">%1$d дня подряд</item><item quantity="many">%1$d дней подряд</item><item quantity="other">%1$d дня подряд</item></plurals>
     <string name="dashboard_start">Начать тренировку</string>
+    <string name="recipe_book">Рецепты тренировок</string>
+    <string name="recipe_book_description">Создай и настрой рецепты</string>
+    <string name="recipe_book_open">Открыть рецепты тренировок</string>
+    <string name="training_pick_create_first">Создать первый рецепт</string>
+    <string name="training_unfinished">Незавершённая тренировка</string>
+    <string name="training_unfinished_choice">Продолжить или начать новую?</string>
+    <string name="training_continue">Продолжить</string>
+    <string name="training_start_new">Начать новую</string>
+    <string name="training_pick_title">Выбор рецепта</string>
+    <string name="training_pick_hint">Нажми рецепт, чтобы начать тренировку</string>
+    <string name="training_pick_empty">Пока нет рецептов</string>
+    <string name="training_pick_empty_hint">Создай рецепт — и можно начинать тренировку.</string>
+    <string name="training_pick_no_tasks_title">Нельзя начать тренировку</string>
+    <string name="training_pick_no_tasks_body">В этом рецепте нет слов с кандзи для письма. Добавь материалы или выбери другой рецепт.</string>
+    <string name="training_word_progress">Слово %1$d из %2$d</string>
     <string name="dashboard_mix">Умный микс</string>
     <string name="dashboard_dictionaries">Словари / 単語</string>
     <string name="dashboard_textbooks">Учебники</string>

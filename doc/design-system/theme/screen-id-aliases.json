@@ -263,6 +263,11 @@
       "feature": "settings"
     },
     {
+      "old_id": "DLG-CLEAR-TRAINING-HISTORY",
+      "id": "SETTINGS.D01",
+      "feature": "settings"
+    },
+    {
       "old_id": "DLG-ACTIVITY",
       "id": "HOME.D01",
       "feature": "home"
@@ -278,7 +283,7 @@
       "feature": "legacy"
     },
     {
-      "old_id": "EXT-PRACTICE-RESULT",
+      "old_id": "APP-02.01",
       "id": "PRACTICE.01",
       "feature": "practice"
     },

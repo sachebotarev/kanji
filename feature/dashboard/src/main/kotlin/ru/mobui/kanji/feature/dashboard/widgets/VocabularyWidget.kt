@@ -61,7 +61,7 @@ fun VocabularyWidget(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    IllustratedIcon(DashboardIcon.Textbooks, Modifier.size(48.dp))
+                    IllustratedIcon(DashboardIcon.Textbooks, Modifier.size(56.dp))
                     Column {
                         Text(
                             stringResource(R.string.dashboard_textbooks),
@@ -88,7 +88,7 @@ fun VocabularyWidget(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    IllustratedIcon(DashboardIcon.References, Modifier.size(48.dp))
+                    IllustratedIcon(DashboardIcon.References, Modifier.size(56.dp))
                     Column {
                         Text(stringResource(R.string.dashboard_references), style = MaterialTheme.typography.titleMedium)
                         Text(stringResource(R.string.dashboard_references_description),
@@ -115,7 +115,7 @@ fun VocabularyWidget(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    IllustratedIcon(DashboardIcon.Personal, Modifier.size(48.dp))
+                    IllustratedIcon(DashboardIcon.Personal, Modifier.size(56.dp))
                     Column {
                         Text(
                             stringResource(R.string.dashboard_personal),

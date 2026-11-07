@@ -7,4 +7,10 @@
     <string name="settings_model_loaded">Downloaded</string>
     <string name="settings_model_loading">Downloading…</string>
     <string name="settings_model_missing">Not downloaded · Download</string>
+    <string name="settings_clear_history">Clear training history</string>
+    <string name="settings_clear_history_detail">Delete all saved trainings</string>
+    <string name="settings_clear_history_title">Clear history?</string>
+    <string name="settings_clear_history_message">All saved trainings will be permanently deleted.</string>
+    <string name="settings_clear_history_confirm">Clear</string>
+    <string name="settings_cancel">Cancel</string>
 </resources>

@@ -1,7 +1,7 @@
--- Reference DDL for Recipe Builder tables implemented by Room v6 entities/DAO.
+-- Reference DDL for Recipe Builder tables implemented by Room CatalogDatabase entities/DAO.
 -- SQL contract test applies this after personal-dictionary.sql over exported v4.
 -- Not a migration: the unreleased Android database is replaced.
--- Training execution, results and statistics are deliberately out of scope.
+-- Training execution lives in trainings.sql / Room v7 CatalogDatabase.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE recipes (

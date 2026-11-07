@@ -1,0 +1,9 @@
+{
+  "asset": "training-recipes.png",
+  "title": "Рецепты тренировок",
+  "method": "built-in image_gen",
+  "transparent_background": true,
+  "prompt": "Japanese stationery sticker for a kanji study app, same art style as notebook.png/textbook.png: soft sculpted volume, three-quarter view from slightly above, matte materials, rounded forms, clean dark forest-green outline, warm ivory paper, sage green, one muted terracotta accent, light from top-left, soft self-shadow only. Friendly illustrated object, not photo, not flat icon. Clear silhouette at 64px. One centered object ~80% of square canvas. Transparent background. No text, letters, kanji, logos, watermarks, sticker border, drop shadow.\n\nPRIMARY SUBJECT: a small neat STACK of practice / training recipe CARDS (flash-card deck), obviously NOT a book and NOT a spiral notebook. Three to four overlapping sage-green matte cards with cream faces, slightly fanned, rounded corners, one terracotta corner clip or tab. Suggests configurable training recipes.",
+  "dimensions": [1024, 1024],
+  "postprocess": "Key black/near-black background to alpha; PNG 1024×1024 RGBA; 64 px preview in doc/verification/stationery/"
+}

@@ -5,28 +5,28 @@
   <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" href="data:,">
   <title>Кандзи дэс нэ — мастерская экранов</title>
-  <link rel="stylesheet" href="styles.css?v=20261104-design-review">
+  <link rel="stylesheet" href="styles.css?v=20261107-settings-art">
   <script src="assets/catalog-data.js" defer></script>
   <script src="../shared/screen-review.js" defer></script>
   <script src="../textbooks/assets/catalog.js" defer></script>
   <script src="../shared/personal-words.js" defer></script>
-  <script src="app.js?v=20261104-stationery" defer></script>
+  <script src="app.js?v=20261107-settings-art" defer></script>
   <script src="settings.js?v=20261104-unification" defer></script>
   <script src="../shared/catalog-selection.js?v=20261104-multi-filters" defer></script>
   <script src="material-picker.js?v=20261104-shared-tags" defer></script>
   <script src="word-picker.js?v=20261104-unification" defer></script>
   <script src="dictionary-tags.js?v=20261104-shared-tags" defer></script>
-  <script src="recipes.js?v=20261104-shared-tags" defer></script>
+  <script src="recipes.js?v=20261107-home-split-2" defer></script>
   <link rel="stylesheet" href="../textbooks/styles.css?v=20261104-multi-filters">
   <link rel="stylesheet" href="../textbooks/components.css?v=20261104-shared-screens">
   <link rel="stylesheet" href="../textbooks/tokens.css">
-  <link rel="stylesheet" href="recipes.css?v=20261104-unification">
+  <link rel="stylesheet" href="recipes.css?v=20261107-home-split-2">
   <link rel="stylesheet" href="dictionary-tags.css?v=20261104-shared-tags">
   <link rel="stylesheet" href="../shared/screen-review.css">
   <link rel="stylesheet" href="../shared/material-theme.css">
   <link rel="stylesheet" href="../shared/material-components.css?v=20261104-design-review">
   <script type="module" src="../shared/theme-controls.js"></script>
-<link rel="stylesheet" href="../shared/viewer-embed.css"><script src="../shared/viewer-bridge.js" defer></script>
+<link rel="stylesheet" href="../shared/viewer-embed.css"><script src="../shared/viewer-bridge.js?v=20261107-home-state" defer></script>
 </head>
 <body>
   <aside class="workbench">
@@ -41,6 +41,8 @@
       <label>Язык интерфейса<select id="locale"><option value="ru">Русский</option><option value="en">English</option></select></label>
       <label id="model-state-label">Модель в настройках<select id="model-state"><option value="ready">Готова</option><option value="missing">Не загружена</option><option value="loading">Загрузка</option><option value="error">Ошибка</option></select></label>
       <label id="practice-state-label">Состояние тренировки<select id="practice-state"><option value="empty">Пусто</option><option value="editing">В процессе</option><option value="incorrect">Нужно исправить</option><option value="correct">Все знаки верны</option><option value="assisted">Все знаки верны, с подсказкой</option><option value="unavailable">Проверка недоступна</option></select></label>
+      <label id="practice-complete-grade-label" hidden>Оценка итога<select id="practice-complete-grade"><option value="excellent">Отлично (≥85%)</option><option value="steady">Хорошо (55–84%)</option><option value="keep_going">Ещё потренируемся (&lt;55%)</option></select></label>
+      <label id="home-state-label" hidden>Состояние<select id="home-state"><option value="idle">Без незавершённой</option><option value="unfinished">Есть незавершённая</option></select></label>
       <label id="dictionary-state-label">Состояние словаря<select id="dictionary-state"><option value="ready">Есть записи</option><option value="empty">Пустой</option><option value="loading">Загрузка</option><option value="error">Ошибка</option></select></label>
     </div>
     <a class="evidence-link" href="../../01-audit/captures/2026-11-01/index.html" target="_blank">Скриншоты Android ↗</a>

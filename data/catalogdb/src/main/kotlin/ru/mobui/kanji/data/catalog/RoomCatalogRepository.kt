@@ -43,6 +43,9 @@ internal constructor(
     val recipesRepository: ru.mobui.kanji.domain.catalog.RecipesRepository =
         RoomRecipesRepository(database, { load() }, io)
 
+    val trainingsRepository: ru.mobui.kanji.domain.practice.TrainingsRepository =
+        RoomTrainingsRepository(database, { load() }, io)
+
     private val mutex = Mutex()
     private var snapshot: CatalogSnapshot? = null
     private val mutableRevision = MutableStateFlow(0L)

@@ -3,14 +3,12 @@ package ru.mobui.kanji
 import android.graphics.Bitmap
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
-import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
 import androidx.test.espresso.Espresso
@@ -55,7 +53,7 @@ class PersonalDictionaryNavigationTest {
         }
         try {
             waitTag("open-dictionary")
-            compose.onNodeWithTag("open-dictionary").performScrollTo().performClick()
+            compose.onNodeWithTag("open-dictionary").bringIntoViewIfNeeded().performClick()
             waitTag("add-word")
             screenshot("empty")
             compose.onNodeWithTag("add-word").performClick()
@@ -64,47 +62,54 @@ class PersonalDictionaryNavigationTest {
             compose.onNodeWithTag("word-input-written").performTextInput(written)
             compose.onNodeWithTag("word-input-reading").performTextInput("こもれび")
             compose
-                .onNodeWithTag("word-input-translation-0")
-                .performScrollTo()
+                .onNodeWithTag("editor-current-translation")
+                .bringIntoViewIfNeeded()
                 .performTextInput("солнечный свет сквозь листву")
             Espresso.closeSoftKeyboard()
-            compose.onNodeWithTag("add-translation").performScrollTo().performClick()
-            compose
-                .onNodeWithTag("word-input-translation-1")
-                .performScrollTo()
-                .performTextInput("sunlight through leaves")
-            Espresso.closeSoftKeyboard()
-            compose.activityRule.scenario.recreate()
-            waitTag("word-input-written")
-            compose.onNodeWithTag("word-input-written").assertTextContains(written)
+            compose.onNodeWithTag("editor-other-translations").bringIntoViewIfNeeded().performClick()
+            waitTag("dictionary-translations")
+            compose.onNodeWithTag("translation-add").performClick()
+            compose.onNodeWithTag("translation-text").performTextInput("sunlight through leaves")
+            compose.onNodeWithTag("translation-confirm").performClick()
+            waitTag("translation-en")
             compose.onNodeWithTag("dictionary-back").performClick()
-            compose.onNodeWithText("Сбросить изменения?").assertIsDisplayed()
-            compose.onNodeWithText("Отмена").performClick()
-            compose.onNodeWithTag("save-word").performScrollTo().performClick()
+            waitTag("word-editor")
+            compose.onNodeWithTag("save-word").bringIntoViewIfNeeded().performClick()
+            // New words pop to the list, not the detail card.
+            waitTag("add-word")
+            compose.waitUntil(10_000) {
+                compose.onAllNodesWithText(written).fetchSemanticsNodes().isNotEmpty()
+            }
+            screenshot("word")
+            compose.activityRule.scenario.recreate()
+            waitTag("add-word")
+            compose.onNodeWithText(written).assertIsDisplayed()
+            compose.onNodeWithText(written).performClick()
             waitTag("word-written")
             compose.onNodeWithTag("word-written").assertTextContains(written)
-            screenshot("word")
-            compose.onNodeWithText("木", useUnmergedTree = true).performScrollTo().performClick()
+            compose.onNodeWithText("木", useUnmergedTree = true).bringIntoViewIfNeeded().performClick()
             waitTag("kanji-symbol")
             Espresso.pressBack()
             waitTag("word-written")
             compose.onNodeWithTag("edit-word").performClick()
             waitTag("word-input-written")
             compose
-                .onNodeWithTag("word-input-translation-0")
-                .performScrollTo()
+                .onNodeWithTag("editor-current-translation")
+                .bringIntoViewIfNeeded()
                 .performTextReplacement("свет солнца сквозь листву")
             Espresso.closeSoftKeyboard()
-            compose
-                .onNodeWithTag("word-input-translation-1")
-                .performScrollTo()
-                .assertTextContains("sunlight through leaves")
-            compose.onNodeWithTag("word-input-written").performScrollTo()
+            compose.onNodeWithTag("editor-other-translations").bringIntoViewIfNeeded().performClick()
+            waitTag("translation-en")
+            compose.onNodeWithTag("translation-en").assertIsDisplayed()
+            compose.onNodeWithTag("dictionary-back").performClick()
+            waitTag("word-editor")
             screenshot("edit")
-            compose.onNodeWithTag("save-word").performScrollTo().performClick()
+            compose.onNodeWithTag("save-word").bringIntoViewIfNeeded().performClick()
             waitTag("word-written")
             compose.onNodeWithText("свет солнца сквозь листву").assertIsDisplayed()
             compose.onNodeWithTag("dictionary-back").performClick()
+            waitTag("add-word")
+            compose.onNodeWithTag("dictionary-search-toggle").performClick()
             waitTag("dictionary-search")
             compose.onNodeWithTag("dictionary-search").performTextInput("コモレビ")
             compose.waitUntil(10_000) {
@@ -118,9 +123,13 @@ class PersonalDictionaryNavigationTest {
             compose.onNodeWithTag("delete-word").performClick()
             screenshot("delete")
             compose.onNodeWithTag("confirm-delete-word").performClick()
-            waitTag("dictionary-search")
+            waitTag("add-word")
             compose.waitUntil(10_000) {
                 compose.onAllNodesWithText(written).fetchSemanticsNodes().isEmpty()
+            }
+            // Search field may stay open after delete; reopen if the toggle closed it.
+            if (compose.onAllNodesWithTag("dictionary-search").fetchSemanticsNodes().isEmpty()) {
+                compose.onNodeWithTag("dictionary-search-toggle").performClick()
             }
             compose.onNodeWithTag("dictionary-search").assertTextContains("コモレビ")
             compose.onNodeWithTag("dictionary-back").performClick()

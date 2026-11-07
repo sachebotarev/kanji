@@ -157,4 +157,19 @@
     <string name="help_collapse">Скрыть справку: %1$s</string>
     <string name="help_expanded">Справка раскрыта</string>
     <string name="help_collapsed">Справка свёрнута</string>
+
+    <string name="training_complete_title">Тренировка завершена</string>
+    <string name="training_grade_excellent">Отлично</string>
+    <string name="training_grade_steady">Хорошо</string>
+    <string name="training_grade_keep_going">Ещё потренируемся</string>
+    <string name="training_grade_excellent_hint">Почти всё получилось самостоятельно.</string>
+    <string name="training_grade_steady_hint">Есть прогресс — можно закрепить сложные слова.</string>
+    <string name="training_grade_keep_going_hint">Нормально ошибаться. Повторим ещё раз?</string>
+    <string name="training_stat_correct">Верно</string>
+    <string name="training_stat_assisted">С подсказкой</string>
+    <string name="training_stat_skipped">Пропуск</string>
+    <string name="training_stat_timed_out">По времени</string>
+    <string name="training_stat_time">Время</string>
+    <string name="training_complete_home">На главную</string>
+
 </resources>

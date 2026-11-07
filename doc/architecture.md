@@ -55,7 +55,7 @@
 :core:wordui                  Переиспользуемые карточки слов, списки и форма редактора
 
 --- Data (Хранилище и адаптеры) ---
-:data:catalogdb               Room: база данных учебного каталога и личного словаря
+:data:catalogdb               Room: каталог, личный словарь, рецепты и хранение тренировок
 :data:settings                Preferences DataStore: хранение параметров проверки
 :data:kanjivg                 Загрузчик эталонных изображений кандзи из ассетов KanjiVG
 
@@ -140,8 +140,10 @@ flowchart TD
 - Каталог предоставляет иммутабельный снимок данных (`CatalogSnapshot`), который кэшируется в репозитории приложения. Все фильтры, фасеты и поиск вычисляются в памяти на фоновом диспетчере.
 - Личный словарь использует реактивный `Flow<List<CatalogWord>>` из Room и транзакционные операции создания, редактирования и архивации слов.
 - База данных (`learning.db`) автоматически устанавливается из `seed/catalog.json` с проверкой SHA-256 и версионированием. Подробнее: [каталог](implementation/catalog.md) и [личный словарь](implementation/personal-dictionary.md).
+- Масштабирование снимка (paging / SQL-страницы) отложено до явных триггеров: [навигация и масштаб каталога](decisions/navigation-and-catalog-scale.md).
 
 ### 4.3. Навигация и состояние
-- На верхнем уровне в `MainActivity` экранные направления переключаются через состояние `AppDestination`.
-- Внутри фичей (каталог, словарь) используется AndroidX Navigation Compose с типобезопасными маршрутами (`@Serializable`).
-- Состояния экранов переживают смену конфигурации и уничтожение процесса через `SavedStateHandle`.
+- Верхний уровень в `:app` — корневой type-safe `NavHost` (`AppDestinations.kt`) со стеком `navigate` / `popBackStack`.
+- Внутри фичей (каталог, словарь, конструктор рецептов) — nested `NavHost`; PRACTICE → checker settings — соседний маршрут корневого стека (`Practice` / `PracticeChecker`), не второй хост и не boolean-overlay.
+- Состояния экранов переживают смену конфигурации и уничтожение процесса через `SavedStateHandle`; `ActiveTraining` остаётся in-memory с resume из Room на PRACTICE.
+- Deep links хабов: custom scheme `kanji://mobui/...` ([AppDeepLinks](../app/src/main/java/ru/mobui/kanji/AppDeepLinks.kt)); paging каталога и App Links отложены: [навигация и масштаб каталога](decisions/navigation-and-catalog-scale.md).

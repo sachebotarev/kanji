@@ -11,11 +11,15 @@ const tone=(p,n)=>hexFromArgb(palettes[p].tone(n)).toUpperCase();
 const schemes={};
 for(const dark of [false,true]){
  const roles={};
+ const primaryContainerTone=dark
+  ?(source.primary_container_tones?.dark ?? 30)
+  :(source.primary_container_tones?.light ?? 90);
  for(const p of ['primary','secondary','tertiary','error']){
   // Brand key colors are also the exact light-theme foreground roles; pair contrast is validated.
   roles[p]=dark?tone(p,80):source.key_colors[p];
   roles['on-'+p]=tone(p,dark?20:100);
-  roles[p+'-container']=tone(p,dark?30:90);
+  // Soften only primary-container toward surfaces so HOME CTA is less of a color island.
+  roles[p+'-container']=tone(p,p==='primary'?primaryContainerTone:(dark?30:90));
   roles['on-'+p+'-container']=tone(p,dark?90:10);
   if(p!=='error'){
    roles[p+'-fixed']=tone(p,90);roles[p+'-fixed-dim']=tone(p,80);

@@ -19,14 +19,16 @@ for module in ('app', 'core', 'domain', 'data', 'feature'):
         found = re.findall(r'\b(?:' + '|'.join(OLD_TYPES) + r')\b', path.read_text())
         if found:
             errors.append(f'{path.relative_to(ROOT)}: {found}')
-schema = json.loads((ROOT / 'data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/6.json').read_text())['database']
-assert schema['version'] == 6
+schema = json.loads((ROOT / 'data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/7.json').read_text())['database']
+assert schema['version'] == 7
 entities = {entity['tableName']: entity for entity in schema['entities']}
 required = {'recipes', 'recipes_translations', 'recipe_materials'} | {
     f'recipe_materials_{suffix}' for suffix in ('chapters', 'kanji', 'words', 'tags')
+} | {
+    'trainings', 'trainings_recipe_translations', 'training_tasks',
+    'training_task_translations', 'training_task_symbols',
 }
 assert required <= entities.keys()
-assert not any(name == 'trainings' or name.startswith('training_') for name in entities)
 for suffix in ('chapters', 'kanji', 'words', 'tags'):
     entity = entities[f'recipe_materials_{suffix}']
     assert any(fk['table'] == 'recipe_materials' and fk['columns'] == ['material_id'] for fk in entity['foreignKeys'])
@@ -42,4 +44,4 @@ for locale in ('values', 'values-en'):
     assert not any('session' in key for key in strings if key)
 if errors:
     raise SystemExit('\n'.join(errors))
-print(f'OK: Recipe domain, Room v6/{len(entities)} tables, material FKs, RU/EN recipe/training terms')
+print(f'OK: Recipe domain, Room v7/{len(entities)} tables, material FKs, trainings, RU/EN recipe/training terms')

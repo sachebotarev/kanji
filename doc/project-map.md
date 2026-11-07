@@ -28,23 +28,32 @@
 
 ### HOME — Главная
 
-Маршрут макета: `#home/HOME`. Android: действующий экран/режим; одобрение HTML не означает полную визуальную идентичность.
+Маршрут макета: `#home/HOME`. Статус: **согласовано 2026-11-07**. Android: запуск и рецепты тренировок разделены; `HOME.01` / `HOME.D03` подключены.
 
-- **`HOME.W01` — Панель заголовка.** Существующая иконка настроек НЕ заменяется шестерёнкой макета.
+- **`HOME.W01` — Панель заголовка.** Стикер настроек `art_settings` (шестерёнка с ушками), как в HTML.
   - **`HOME.W01.W01` — Название главной.** 
-  - **`HOME.W01.W02` — Настройки.** Открывает SETTINGS; исключение макета зафиксировано.
+  - **`HOME.W01.W02` — Настройки.** Открывает SETTINGS (сам SETTINGS не согласован).
 - **`HOME.W02` — Статистика слов.** Текущий демонстрационный виджет; не полноценная статистика обучения. Общий: `UI-DASH-CARD`.
 - **`HOME.W03` — Активность.** Календарь активности; демонстрационные данные. Общий: `UI-DASH-CARD`.
-- **`HOME.W04` — Выбранный рецепт.** Реальный сохранённый выбор. Общий: `UI-CURRENT-RECIPE`.
-  - **`HOME.W04.W01` — Название.** 
-  - **`HOME.W04.W02` — Параметры.** 
-  - **`HOME.W04.W03` — Выбрать.** Открывает RECIPE.
-  - **`HOME.W04.W04` — Начать.** Существующий тренировочный прототип, не реализация исполнения рецептов.
-  - **`HOME.W04.W05` — История.** Старое демонстрационное окно; не хранилище тренировок.
+- **`HOME.W06` — Запуск / продолжение тренировки.** Выбранный макет: диалог при незавершённой. Общий: `UI-START-TRAINING`.
+  - **`HOME.W06.W01` — Призыв.** Без `in_progress`: «Ня! Начнём?» / «Начать тренировку» → HOME.01. С незавершённой: та же кнопка → HOME.D03.
+  - **`HOME.W06.W02` — Маскот.** Декоративный; скрыт при крупном тексте.
+  - **`HOME.W06.W03` — Предупреждение.** Контрастная строка под призывом: «Незавершённая тренировка» / «Unfinished training». Детали — в HOME.D03.
+  - **`HOME.D03` — Выбор при незавершённой.** Заголовок — вопрос выбора; в теле рецепт и прогресс; primary «Продолжить» → PRACTICE; secondary «Начать новую» → HOME.01. Без «Отмена».
+- **`HOME.W07` — Рецепты тренировок.** Отдельный вход в список RECIPE; не запускает тренировку. Общий: `UI-HOME-ENTRY`.
 - **`HOME.W05` — Учебные материалы.** VocabularyWidget.
   - **`HOME.W05.W01` — Учебники.** Книжная иллюстрация; BOOKS. Общий: `UI-HOME-ART`.
   - **`HOME.W05.W02` — Справочники.** Тушечница; REFS. Общий: `UI-HOME-ART`.
   - **`HOME.W05.W03` — Мой словарь.** Блокнот; DICT. Общий: `UI-HOME-ART`.
+
+#### HOME.01 — Выбор рецепта
+
+Маршрут макета: `#home/HOME.01` (`training-pick`). Открывается из: `HOME.W06`. Android: `TrainingPickScreen` / корневой route `TrainingPick`. Статус: **согласовано 2026-11-07**.
+
+- **`HOME.01.W01` — Панель заголовка.** Название «Выбери рецепт» и возврат на HOME.
+- **`HOME.01.W02` — Поиск.** Как в RECIPE.W02. Общий: `UI-SEARCH`.
+- **`HOME.01.W03` — Список рецептов.** Тап по карточке выбирает рецепт и открывает PRACTICE. Если у рецепта нет слов с записываемыми кандзи — диалог без запуска. Без радиокнопки и без перестановки.
+- **`HOME.01.W04` — Пустой список.** Как обычный empty-state: маскот по центру, заголовок и пояснение, CTA «Создать первый рецепт» → RECIPE.01. «Назад» → HOME.
 
 #### HOME.D01 — Подробности активности
 
@@ -59,6 +68,14 @@
 
 - **`HOME.D02.W01` — Значения и пояснения.** Демонстрационные данные.
 - **`HOME.D02.W02` — Закрыть.** 
+
+#### HOME.D03 — Выбор при незавершённой тренировке
+
+Открывается из: `HOME.W06` при `in_progress`. Макет HTML — черновик. Заголовок: «Продолжить или начать новую?» / «Continue or start new?».
+
+- **`HOME.D03.W01` — Контекст.** Название рецепта и прогресс.
+- **`HOME.D03.W02` — Продолжить.** Primary; открывает PRACTICE (resume).
+- **`HOME.D03.W03` — Начать новую.** Secondary (не danger); прерывает `in_progress`, открывает HOME.01. 
 
 ## Учебники · BOOKS
 
@@ -463,9 +480,8 @@
   - **`RECIPE.W02.W01` — Переключатель поиска.** Открывает/закрывает поле.
   - **`RECIPE.W02.W02` — Поле запроса.** Ввод и очистка текста.
 - **`RECIPE.W03` — Вводный блок.** Текст, количество рецептов и кот.
-- **`RECIPE.W04` — Список рецептов.** Карточка адресуется по recipe_id.
-  - **`RECIPE.W04.W01` — Карточка рецепта.** Тап по телу открывает RECIPE.02; не выбирает рецепт. Долгое нажатие — системное перетаскивание.
-    - **`RECIPE.W04.W01.W01` — Радиокнопка выбора.** Единственный обычный клик выбора выбранного рецепта.
+- **`RECIPE.W04` — Список рецептов.** Карточка адресуется по recipe_id. Макет HTML 2026-11-07: без радиокнопки выбранного рецепта.
+  - **`RECIPE.W04.W01` — Карточка рецепта.** Тап по телу открывает RECIPE.02. Долгое нажатие — системное перетаскивание.
     - **`RECIPE.W04.W01.W02` — Название.**
     - **`RECIPE.W04.W01.W03` — Материалы и фильтры.** Одна метка источника и текст «Ещё N» без раскрытия; высота карточек единообразна.
     - **`RECIPE.W04.W01.W04` — Количество и время.** Две колонки; при крупном шрифте переносятся. Иконки OnSurfaceVariant.
@@ -876,15 +892,17 @@
 - **`PRACTICE.W04` — Поле письма.** Ввод текущего знака и наложения. Общий: `UI-WRITING-PAD`.
 - **`PRACTICE.W05` — Инструменты.** Отмена штриха, очистка, образец и вспомогательные режимы.
 - **`PRACTICE.W06` — Проверка и обратная связь.** Вердикт, подсказки и подробности PRACTICE.D01.
-- **`PRACTICE.W07` — Следующее / завершение.** Существующий прототип; не новые сессии рецептов.
+- **`PRACTICE.W07` — Следующее / завершение.** Существующий прототип; не исполнение рецептов.
 - **`PRACTICE.W08` — Диагностика.** PRACTICE.D02.
 
-#### PRACTICE.01 — Сводка старого тренировочного прототипа
+#### PRACTICE.01 — Итог тренировки
 
-Открывается из: `PRACTICE`.
+Открывается из: `PRACTICE` после завершения всех заданий. Макет: `#practice/PRACTICE.01`. Алгоритм оценки: [training-grade.md](implementation/training-grade.md).
 
-- **`PRACTICE.01.W01` — Итоговые значения.** PracticeSummary; не статистика исполнения рецептов.
-- **`PRACTICE.01.W02` — Возврат.** 
+- **`PRACTICE.01.W01` — Маскот.** Три варианта по оценке: отлично / хорошо / ещё потренируемся.
+- **`PRACTICE.01.W02` — Оценка.** Текстовый уровень и процент.
+- **`PRACTICE.01.W03` — Краткая статистика.** Верно, с подсказкой, пропуск, по времени, суммарное время; название рецепта.
+- **`PRACTICE.01.W04` — На главную.** Закрывает итог без interrupt уже завершённой тренировки. 
 
 #### PRACTICE.D01 — Детали проверки
 
@@ -913,6 +931,15 @@
   - **`SETTINGS.W01.W02` — Заголовок.** Локализованное название.
 - **`SETTINGS.W02` — Параметры проверки.** Открывает SETTINGS.01.
 - **`SETTINGS.W03` — Состояние хранения настроек.** Ошибка, повторная запись при наличии.
+- **`SETTINGS.W04` — Очистить историю тренировок.** Открывает SETTINGS.D01; после подтверждения удаляет все строки тренировок через `TrainingsRepository.clearHistory` на IO.
+
+#### SETTINGS.D01 — Подтверждение очистки истории
+
+Открывается из: `SETTINGS` (`SETTINGS.W04`).
+
+- **`SETTINGS.D01.W01` — Пояснение.** Необратимое удаление всех сохранённых тренировок.
+- **`SETTINGS.D01.W02` — Отмена.** Закрывает диалог без изменений.
+- **`SETTINGS.D01.W03` — Очистить.** Подтверждает удаление.
 
 #### SETTINGS.01 — Параметры проверки
 
@@ -1123,11 +1150,17 @@
 
 Экземпляры: `PRACTICE.W04`.
 
-### UI-CURRENT-RECIPE — Выбранный рецепт на главной
+### UI-START-TRAINING — Призыв начать тренировку на главной
 
-Источник: [`CurrentRecipeWidget; данные RecipeHomeSummary`](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/widgets/CurrentRecipeWidget.kt).
+Источник: HTML-макет (`launch-block`); Android ещё на `CurrentRecipeWidget`.
 
-Экземпляры: `HOME.W04`.
+Экземпляры: `HOME.W06`.
+
+### UI-HOME-ENTRY — Отдельный вход главной (книга рецептов)
+
+Источник: HTML-макет (`home-entry`); Android не перенесён.
+
+Экземпляры: `HOME.W07`.
 
 ### UI-DASH-CARD — Оболочка карточки главной; данные и действия задают дочерние виджеты
 
@@ -1139,7 +1172,7 @@
 
 Источник: [`IllustratedIcon / DashboardIcon`](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/widgets/IllustratedIcon.kt).
 
-Экземпляры: `HOME.W05.W01`, `HOME.W05.W02`, `HOME.W05.W03`.
+Экземпляры: `HOME.W05.W01`, `HOME.W05.W02`, `HOME.W05.W03`, `HOME.W07`.
 
 ### UI-STATUS — Контракт состояний, НЕ один общий компонент: CatalogStatus, DictionaryStatus и локальные состояния
 
@@ -1154,13 +1187,21 @@
 - Словарь: [DictionaryScreens.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryScreens.kt), [DictionaryRoute.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryRoute.kt), [DictionaryTranslationsScreen.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryTranslationsScreen.kt), [DictionaryTagsRoute.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryTagsRoute.kt). DICT.02 / DICT.02.01 используют один WordEditorScreen; SELECT.07 / DICT.04 — один TagPickerScreen в разных режимах. Управление тегами открывается также из материалов конструктора через app.
 - Конструктор: [RecipeBuilderRoute.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeBuilderRoute.kt), [RecipeLibraryScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeLibraryScreen.kt), [RecipeDetailScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeDetailScreen.kt), [RecipeEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeEditorScreen.kt), [MaterialEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/MaterialEditorScreen.kt). RECIPE.02 — RecipeDetailScreen (без отдельного просмотра материала); RECIPE.01 / RECIPE.01.01 — один RecipeEditorScreen; RECIPE.01.02 / RECIPE.01.02.01 — один MaterialEditorScreen и четыре формы. Предпросмотр слов материала также использует общий WordList/WordDetailsContent через app; смена источника не создаёт новый тип виджета.
 - Общие выборы: [core/wordui](../core/wordui/src/main/kotlin/ru/mobui/kanji/core/wordui). SELECT.01 — ChapterPickerScreen (в том числе из материала конструктора); SELECT.02 / DICT.03 — SymbolPickerScreen; вложенные фасеты используют SymbolFacetScreen; SELECT.06 — WordPickerScreen (он тоже открывает вложенный SymbolPickerScreen). Изменение сетки/плитки/шапки действует и во вложенных выборах.
-- Практика: [PracticeScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreen.kt), [PracticeScreenContext.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreenContext.kt), [CheckerSettingsScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/CheckerSettingsScreen.kt). Поле письма используется и в предпросмотре настроек проверки.
+- Практика: [PracticeScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreen.kt), [PracticeScreenContext.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreenContext.kt), [CheckerSettingsScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/CheckerSettingsScreen.kt), [TrainingCompleteScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/TrainingCompleteScreen.kt) (PRACTICE.01). Поле письма используется и в предпросмотре настроек проверки.
 - Настройки: [SettingsScreen.kt](../feature/settings/src/main/kotlin/ru/mobui/kanji/feature/settings/SettingsScreen.kt). Глобальная тема [KanjiTheme.kt](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/KanjiTheme.kt) влияет на все экраны; локальная правка цвета не должна подменять изменение всей темы.
 
 ## Выведенные ID
 
 Прежние APP/CAT/DLG/EXT и `TRAIN*` ID заменены по согласованной [таблице](screen-id-migration.md) и зарезервированы как алиасы; их нельзя присваивать новым экранам.
 
+- **`HOME.W04` — Выбранный рецепт.** Убран с главной: запуск тренировки и книга рецептов разделены (`HOME.W06`, `HOME.W07`); выбор рецепта — на `HOME.01`.
+  - **`HOME.W04.W01` — Название.**
+  - **`HOME.W04.W02` — Параметры.**
+  - **`HOME.W04.W03` — Выбрать.**
+  - **`HOME.W04.W04` — Начать.**
+  - **`HOME.W04.W05` — История.**
+- **`UI-CURRENT-RECIPE` — Выбранный рецепт на главной.** Заменён разделением `UI-START-TRAINING` / `UI-HOME-ENTRY`.
+- **`RECIPE.W04.W01.W01` — Радиокнопка выбора.** Убрана из макета: постоянный выбранный рецепт больше не нужен; выбор при запуске на `HOME.01`.
 - **`RECIPE.02.01` — Просмотр материала.** Убран: условия уже на карточке RECIPE.02.W03, слова — через RECIPE.02.W04. Алиас: `TRAIN.02.01`.
 - **`DICT.D01.W04` — Сохранить.** Убрано из подтверждения выхода: сохранение только через FAB редактора.
 - **`DICT.01.W08` — Меню записи.** Перенесено в `DICT.01.W01.W03`.

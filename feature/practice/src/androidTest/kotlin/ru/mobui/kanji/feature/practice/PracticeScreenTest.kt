@@ -318,7 +318,7 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun changingDisplayedWordPreservesInkAndSession() {
+    fun changingDisplayedWordPreservesInkAndTraining() {
         val word = mutableStateOf("Electroencephalography")
         val vm = PracticeViewModel(task, references, KanjiChecker { CheckVerdict.Incorrect })
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}, wordLabel = word.value) } }
@@ -638,6 +638,11 @@ class PracticeScreenTest {
             moveTo(Offset(center.x + 20, center.y))
             up()
         }
+        // Correct auto-advances selection; return to the checked cell to inspect compensation.
+        compose.waitUntil(5_000) {
+            vm.uiState.value.practice.cells[0].status == EntryStatus.Correct
+        }
+        compose.onNodeWithTag("kanji-cell-0").bringIntoViewIfNeeded().performClick()
         compose.waitUntil(5_000) { vm.uiState.value.debugCompensation != null }
         compose.onNodeWithTag("check-indicator-Shape").performClick()
         compose.onNodeWithTag("open-debug").bringIntoViewIfNeeded().performClick()
@@ -661,7 +666,8 @@ class PracticeScreenTest {
             PracticeViewModel(
                 task,
                 references,
-                KanjiChecker { CheckVerdict.Correct },
+                // Incorrect avoids auto-advance so hint stays on the same cell for undo/clear.
+                KanjiChecker { CheckVerdict.Incorrect },
                 hintAlgorithm = TraceReferenceHint(),
             )
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
@@ -687,7 +693,7 @@ class PracticeScreenTest {
                 up()
             }
         compose.waitUntil(5_000) {
-            vm.uiState.value.practice.selected!!.status == EntryStatus.Correct
+            vm.uiState.value.practice.selected!!.status == EntryStatus.Incorrect
         }
         compose.runOnIdle {
             assertEquals(1, vm.uiState.value.practice.selected!!.sample.strokeCount)

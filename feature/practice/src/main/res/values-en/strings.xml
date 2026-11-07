@@ -157,4 +157,19 @@
     <string name="help_collapse">Hide help: %1$s</string>
     <string name="help_expanded">Help expanded</string>
     <string name="help_collapsed">Help collapsed</string>
+
+    <string name="training_complete_title">Training complete</string>
+    <string name="training_grade_excellent">Excellent</string>
+    <string name="training_grade_steady">Well done</string>
+    <string name="training_grade_keep_going">Keep practising</string>
+    <string name="training_grade_excellent_hint">Most words were done on your own.</string>
+    <string name="training_grade_steady_hint">Solid progress — revisit the harder words.</string>
+    <string name="training_grade_keep_going_hint">Mistakes are fine. Shall we try again?</string>
+    <string name="training_stat_correct">Correct</string>
+    <string name="training_stat_assisted">With a hint</string>
+    <string name="training_stat_skipped">Skipped</string>
+    <string name="training_stat_timed_out">Timed out</string>
+    <string name="training_stat_time">Time</string>
+    <string name="training_complete_home">Back home</string>
+
 </resources>

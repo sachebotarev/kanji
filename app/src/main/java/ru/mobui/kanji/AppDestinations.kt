@@ -1,23 +1,14 @@
 package ru.mobui.kanji
 
-import android.os.Bundle
+import android.content.Intent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.activity.compose.LocalActivity
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,22 +17,58 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
+import androidx.core.util.Consumer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navDeepLink
+import androidx.navigation.toRoute
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.serialization.Serializable
+import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
 import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.PracticeTask
+import ru.mobui.kanji.domain.practice.TrainingStatus
+import ru.mobui.kanji.domain.practice.summarize
+import ru.mobui.kanji.feature.catalog.CatalogSection
 import ru.mobui.kanji.feature.dashboard.DashboardDemo
 import ru.mobui.kanji.feature.dashboard.DashboardScreen
 import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
 import ru.mobui.kanji.feature.practice.PracticeRoute
 import ru.mobui.kanji.feature.practice.PracticeViewModel
+import ru.mobui.kanji.feature.practice.TrainingCompleteScreen
 import ru.mobui.kanji.feature.settings.SettingsScreen
+
+@Serializable private data object Dashboard
+
+@Serializable private data object TrainingPick
+
+@Serializable private data object Practice
+
+@Serializable private data object Settings
+
+@Serializable private data object CheckerSettings
+
+@Serializable private data object Catalog
+
+@Serializable private data object References
+
+@Serializable private data object Dictionary
+
+@Serializable private data class RecipeBuilder(val openCreate: Boolean = false)
+
+@Serializable private data object PracticeChecker
 
 internal data class AppModels(
     val settingsModel: RecognitionSettingsViewModel,
@@ -49,40 +76,9 @@ internal data class AppModels(
 )
 
 internal data class DemoPracticeGraph(
-    val fallbackTask: PracticeTask,
     val source: BundledKanjiReferenceSource,
     val factory: (PracticeTask) -> ViewModelProvider.Factory,
 )
-
-/**
- * In-memory queue: one [PracticeTask] per recipe word, in catalogue order.
- * Length follows recipe `taskCount`, or the full convertible pool when count is unset.
- */
-internal data class RecipePracticeSession(
-    val tasks: List<PracticeTask>,
-    val index: Int = 0,
-) {
-    init {
-        require(tasks.isNotEmpty())
-        require(index in tasks.indices)
-    }
-
-    val task: PracticeTask
-        get() = tasks[index]
-
-    val hasNext: Boolean
-        get() = index < tasks.lastIndex
-
-    val ordinal: Int
-        get() = index + 1
-
-    val total: Int
-        get() = tasks.size
-
-    /** Next word in order, or null after the last task. */
-    fun advance(): RecipePracticeSession? =
-        if (hasNext) copy(index = index + 1) else null
-}
 
 internal class AppUiContext(
     val dependencies: KanjiApplication,
@@ -131,8 +127,17 @@ internal fun MainContent(
         SettingsStorageStatus(storageError, settingsModel::retryStorage)
         return
     }
-    var destination by rememberSaveable { mutableStateOf(AppDestination.Dashboard) }
-    var practiceSession by remember { mutableStateOf<RecipePracticeSession?>(null) }
+    val nav = rememberNavController()
+    var activeTraining by remember { mutableStateOf<ActiveTraining?>(null) }
+    // Exit transition still composes Practice after pop; block resume of in_progress there.
+    var suppressPracticeResume by remember { mutableStateOf(false) }
+    var practicePreview by remember {
+        mutableStateOf<ru.mobui.kanji.feature.practice.PracticeUiState?>(null)
+    }
+    val trainingPersistence =
+        remember(dependencies) {
+            TrainingPersistence(dependencies.trainingsRepository, dependencies.persistenceScope)
+        }
     val savedSettings by settingsModel.settings.collectAsStateWithLifecycle()
     val modelReady = modelStatus == JapaneseModelStatus.Ready
     val settings =
@@ -144,52 +149,150 @@ internal fun MainContent(
             settingsModel.update(savedSettings.copy(readabilityEnabled = false))
         }
     }
+    LaunchedEffect(activeTraining) {
+        if (activeTraining == null) practicePreview = null
+    }
     val context = AppUiContext(dependencies, models, graph, modelStatus, settings)
-    AppDestinationContent(
-        destination = destination,
-        context = context,
-        practiceSession = practiceSession,
-        onPracticeSessionChange = { practiceSession = it },
-        navigate = { destination = it },
-    )
+    HandleAppDeepLinks(nav)
+    NavHost(nav, startDestination = Dashboard) {
+        composable<Dashboard>(
+            deepLinks = listOf(navDeepLink<Dashboard>(basePath = AppDeepLinks.HOME)),
+        ) {
+            DashboardDestination(
+                context,
+                nav,
+                onActiveTrainingChange = {
+                    suppressPracticeResume = false
+                    activeTraining = it
+                },
+            )
+        }
+        composable<TrainingPick>(
+            deepLinks = listOf(navDeepLink<TrainingPick>(basePath = AppDeepLinks.TRAINING_PICK)),
+        ) {
+            TrainingPickDestination(
+                context,
+                nav,
+                onActiveTrainingChange = {
+                    suppressPracticeResume = false
+                    activeTraining = it
+                },
+                trainingPersistence = trainingPersistence,
+            )
+        }
+        composable<Practice> {
+            val training = activeTraining
+            if (training == null) {
+                // Route may survive recreate while in-memory ActiveTraining does not —
+                // restore the sole in_progress run so practice survives rotation.
+                LaunchedEffect(suppressPracticeResume) {
+                    // Exit transition still composes this destination after leave();
+                    // do not resume the in_progress row we intentionally kept for HOME.
+                    if (suppressPracticeResume) return@LaunchedEffect
+                    val resumed =
+                        runCatching { context.dependencies.trainingsRepository.getInProgress() }
+                            .getOrNull()
+                            ?.let(::resumeActiveTraining)
+                    if (resumed != null) activeTraining = resumed
+                    else nav.popOrDashboard()
+                }
+            } else {
+                PracticePadDestination(
+                    context,
+                    nav,
+                    training,
+                    onActiveTrainingChange = { activeTraining = it },
+                    onPreview = { practicePreview = it },
+                    trainingPersistence = trainingPersistence,
+                    onLeave = {
+                        suppressPracticeResume = true
+                        activeTraining = null
+                        nav.popOrDashboard()
+                    },
+                )
+            }
+        }
+        composable<PracticeChecker> {
+            if (activeTraining == null) {
+                LaunchedEffect(Unit) { nav.popBackStack() }
+            } else {
+                PracticeCheckerDestination(context, nav, practicePreview)
+            }
+        }
+        composable<Settings>(
+            deepLinks = listOf(navDeepLink<Settings>(basePath = AppDeepLinks.SETTINGS)),
+        ) {
+            SettingsDestination(context, nav)
+        }
+        composable<CheckerSettings>(
+            deepLinks =
+                listOf(navDeepLink<CheckerSettings>(basePath = AppDeepLinks.CHECKER_SETTINGS)),
+        ) {
+            CheckerSettingsDestination(context, nav)
+        }
+        composable<Catalog>(
+            deepLinks = listOf(navDeepLink<Catalog>(basePath = AppDeepLinks.CATALOG)),
+        ) {
+            CatalogDestination(context, onBack = { nav.popOrDashboard() }, CatalogSection.Textbooks)
+        }
+        composable<References>(
+            deepLinks = listOf(navDeepLink<References>(basePath = AppDeepLinks.REFERENCES)),
+        ) {
+            CatalogDestination(context, onBack = { nav.popOrDashboard() }, CatalogSection.References)
+        }
+        composable<Dictionary>(
+            deepLinks = listOf(navDeepLink<Dictionary>(basePath = AppDeepLinks.DICTIONARY)),
+        ) {
+            DictionaryDestination(context, onBack = { nav.popOrDashboard() })
+        }
+        composable<RecipeBuilder>(
+            deepLinks = listOf(navDeepLink<RecipeBuilder>(basePath = AppDeepLinks.RECIPES)),
+        ) { entry ->
+            RecipeBuilderDestination(
+                context,
+                openCreate = entry.toRoute<RecipeBuilder>().openCreate,
+                onBack = { nav.popOrDashboard() },
+            )
+        }
+    }
 }
 
+/** Cold-start and warm VIEW intents for [AppDeepLinks]; skips re-entry after rotation. */
 @Composable
-private fun AppDestinationContent(
-    destination: AppDestination,
-    context: AppUiContext,
-    practiceSession: RecipePracticeSession?,
-    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
-    navigate: (AppDestination) -> Unit,
-) {
-    when (destination) {
-        AppDestination.RecipeBuilder -> RecipeBuilderDestination(context, navigate)
-        AppDestination.Dictionary -> DictionaryDestination(context, navigate)
-        AppDestination.Catalog -> CatalogDestination(context, navigate)
-        AppDestination.References -> CatalogDestination(context, navigate, ru.mobui.kanji.feature.catalog.CatalogSection.References)
-        AppDestination.Settings -> SettingsDestination(context, navigate)
-        AppDestination.CheckerSettings -> CheckerSettingsDestination(context, navigate)
-        AppDestination.Dashboard -> DashboardDestination(context, navigate, onPracticeSessionChange)
-        AppDestination.Practice -> {
-            val session = practiceSession
-            if (session == null) {
-                LaunchedEffect(Unit) { navigate(AppDestination.Dashboard) }
-            } else {
-                PracticeDestination(context, session, onPracticeSessionChange, navigate)
-            }
+private fun HandleAppDeepLinks(nav: NavHostController) {
+    val activity = LocalActivity.current as? ComponentActivity ?: return
+    var coldStartHandled by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(nav, activity) {
+        if (!coldStartHandled) {
+            coldStartHandled = true
+            nav.handleDeepLink(activity.intent)
+        }
+    }
+    DisposableEffect(nav, activity) {
+        val listener = Consumer<Intent> { intent -> nav.handleDeepLink(intent) }
+        activity.addOnNewIntentListener(listener)
+        onDispose { activity.removeOnNewIntentListener(listener) }
+    }
+}
+
+private fun NavHostController.popOrDashboard() {
+    if (!popBackStack()) {
+        navigate(Dashboard) {
+            popUpTo(Dashboard) { inclusive = true }
+            launchSingleTop = true
         }
     }
 }
 
 @Composable
-private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun DictionaryDestination(context: AppUiContext, onBack: () -> Unit) {
     with(context) {
         val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         ru.mobui.kanji.feature.dictionary.DictionaryRoute(
             dependencies.dictionary,
             dependencies.catalog,
             dependencies.recipesRepository,
-            onBack = { navigate(AppDestination.Dashboard) },
+            onBack = onBack,
         ) { kanjiId, sourceId, back ->
             ru.mobui.kanji.feature.catalog.CatalogRoute(
                 dependencies.catalog,
@@ -206,14 +309,14 @@ private fun DictionaryDestination(context: AppUiContext, navigate: (AppDestinati
 @Composable
 private fun CatalogDestination(
     context: AppUiContext,
-    navigate: (AppDestination) -> Unit,
-    section: ru.mobui.kanji.feature.catalog.CatalogSection = ru.mobui.kanji.feature.catalog.CatalogSection.Textbooks,
+    onBack: () -> Unit,
+    section: CatalogSection,
 ) {
     with(context) {
         val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         ru.mobui.kanji.feature.catalog.CatalogRoute(
             dependencies.catalog,
-            onBack = { navigate(AppDestination.Dashboard) },
+            onBack = onBack,
             section = section,
             loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) },
             revision = revision,
@@ -222,27 +325,30 @@ private fun CatalogDestination(
 }
 
 @Composable
-private fun SettingsDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun SettingsDestination(context: AppUiContext, nav: NavHostController) {
     with(context) {
-        BackHandler { navigate(AppDestination.Dashboard) }
         SettingsScreen(
-            onBack = { navigate(AppDestination.Dashboard) },
-            onOpenChecker = { navigate(AppDestination.CheckerSettings) },
+            onBack = { nav.popOrDashboard() },
+            onOpenChecker = { nav.navigate(CheckerSettings) },
             modelLoaded = modelStatus == JapaneseModelStatus.Ready,
             modelLoading = modelStatus == JapaneseModelStatus.Loading,
             onDownloadModel = dependencies.japaneseModel::load,
+            onClearTrainingHistory = {
+                dependencies.persistenceScope.launch(Dispatchers.IO) {
+                    runCatching { dependencies.trainingsRepository.clearHistory() }
+                }
+            },
         )
     }
 }
 
 @Composable
-private fun CheckerSettingsDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
+private fun CheckerSettingsDestination(context: AppUiContext, nav: NavHostController) {
     with(context) {
-        BackHandler { navigate(AppDestination.Settings) }
         CheckerSettingsScreen(
             settings,
             settingsModel::update,
-            onBack = { navigate(AppDestination.Settings) },
+            onBack = { nav.popOrDashboard() },
             onReset = settingsModel::reset,
             readabilityAvailable = modelReady,
         )
@@ -252,97 +358,274 @@ private fun CheckerSettingsDestination(context: AppUiContext, navigate: (AppDest
 @Composable
 private fun DashboardDestination(
     context: AppUiContext,
-    navigate: (AppDestination) -> Unit,
-    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
+    nav: NavHostController,
+    onActiveTrainingChange: (ActiveTraining?) -> Unit,
 ) {
     with(context) {
         val personalCount by dictionarySummary.count.collectAsStateWithLifecycle()
+        val unfinished by
+            dependencies.trainingsRepository.observeInProgress().collectAsStateWithLifecycle(null)
         val scope = rememberCoroutineScope()
-        ru.mobui.kanji.feature.dashboard.builder.RecipeHomeSummary(dependencies.catalog, dependencies.dictionary, dependencies.recipesRepository) { recipe ->
+        val language = LocalConfiguration.current.preferredLanguageTag()
+        val unfinishedSummary =
+            unfinished?.let { training ->
+                val done =
+                    training.tasks.count {
+                        it.status != ru.mobui.kanji.domain.practice.TrainingTaskStatus.Pending &&
+                            it.status !=
+                                ru.mobui.kanji.domain.practice.TrainingTaskStatus.InProgress
+                    }
+                val current = (done + 1).coerceAtMost(training.tasks.size)
+                ru.mobui.kanji.feature.dashboard.UnfinishedTrainingSummary(
+                    recipeName =
+                        training.recipeNames
+                            .firstOrNull { it.languageTag.equals(language, ignoreCase = true) }
+                            ?.name
+                            ?: training.recipeNames
+                                .firstOrNull { it.languageTag.equals("ru", ignoreCase = true) }
+                                ?.name
+                            ?: training.recipeNames.firstOrNull()?.name
+                            ?: stringResource(ru.mobui.kanji.feature.dashboard.R.string.dashboard_mix),
+                    progressLabel =
+                        stringResource(
+                            ru.mobui.kanji.feature.dashboard.R.string.training_word_progress,
+                            current,
+                            training.tasks.size,
+                        ),
+                )
+            }
         DashboardScreen(
             DashboardDemo.state.copy(
                 vocabulary = DashboardDemo.state.vocabulary.copy(personalTotal = personalCount),
             ),
-            onStartPractice = {
+            onStartTraining = { nav.navigate(TrainingPick) },
+            onOpenSettings = { nav.navigate(Settings) },
+            unfinished = unfinishedSummary,
+            onContinueTraining = {
                 scope.launch {
-                    val tasks = loadPracticeTasks(dependencies) ?: listOf(graph.fallbackTask)
-                    onPracticeSessionChange(RecipePracticeSession(tasks))
-                    navigate(AppDestination.Practice)
+                    val training =
+                        dependencies.trainingsRepository.getInProgress() ?: return@launch
+                    val active = resumeActiveTraining(training) ?: return@launch
+                    withContext(Dispatchers.Main.immediate) {
+                        onActiveTrainingChange(active)
+                        nav.navigate(Practice) {
+                            popUpTo(Dashboard) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    }
                 }
             },
-            onOpenSettings = { navigate(AppDestination.Settings) },
-            onOpenCatalog = { navigate(AppDestination.Catalog) },
-            onOpenReferences = { navigate(AppDestination.References) },
-            onOpenDictionary = { navigate(AppDestination.Dictionary) },
-            recipes = listOf(recipe),
-            selectedRecipeId = recipe.id,
-            onOpenRecipes = { navigate(AppDestination.RecipeBuilder) },
+            onStartNewTraining = {
+                scope.launch {
+                    interruptInProgress(dependencies)
+                    withContext(Dispatchers.Main.immediate) { nav.navigate(TrainingPick) }
+                }
+            },
+            onOpenRecipeBook = { nav.navigate(RecipeBuilder()) },
+            onOpenCatalog = { nav.navigate(Catalog) },
+            onOpenReferences = { nav.navigate(References) },
+            onOpenDictionary = { nav.navigate(Dictionary) },
         )
-        }
-    }
-}
-
-private suspend fun loadPracticeTasks(dependencies: KanjiApplication): List<PracticeTask>? {
-    val recipes = dependencies.recipesRepository.observeRecipes().first()
-    val recipe = recipes.firstOrNull { it.isActive } ?: return null
-    val assignments = dependencies.recipesRepository.observeWordTags().first()
-    val snapshot = dependencies.catalog.load()
-    return recipePracticeTasks(snapshot, recipe, assignments).takeIf { it.isNotEmpty() }
-}
-
-@Composable
-private fun RecipeBuilderDestination(context: AppUiContext, navigate: (AppDestination) -> Unit) {
-    with(context) {
-        val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
-        ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderRoute(dependencies.catalog, dependencies.dictionary, dependencies.recipesRepository,
-            ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderActions(
-                onBack = { navigate(AppDestination.Dashboard) },
-                wordContent = { id, back ->
-                    ru.mobui.kanji.feature.catalog.CatalogRoute(dependencies.catalog, back, initialWordId = id,
-                        loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) }, revision = revision)
-                },
-                tagContent = { back -> ru.mobui.kanji.feature.dictionary.DictionaryTagManagementRoute(dependencies.recipesRepository, back) }))
     }
 }
 
 @Composable
-private fun PracticeDestination(
+private fun TrainingPickDestination(
     context: AppUiContext,
-    session: RecipePracticeSession,
-    onPracticeSessionChange: (RecipePracticeSession?) -> Unit,
-    navigate: (AppDestination) -> Unit,
+    nav: NavHostController,
+    onActiveTrainingChange: (ActiveTraining?) -> Unit,
+    trainingPersistence: TrainingPersistence,
 ) {
     with(context) {
-        val task = session.task
-        val practice: PracticeViewModel =
-            viewModel(key = "${task.taskId}-${session.index}", factory = graph.factory(task))
-        val leave: () -> Unit = {
-            practice.restart()
-            onPracticeSessionChange(null)
-            navigate(AppDestination.Dashboard)
+        val recipes by
+            dependencies.recipesRepository.observeRecipes().collectAsStateWithLifecycle(emptyList())
+        var query by rememberSaveable { mutableStateOf("") }
+        var emptyLaunch by rememberSaveable { mutableStateOf(false) }
+        val scope = rememberCoroutineScope()
+        val language = LocalConfiguration.current.preferredLanguageTag()
+        if (emptyLaunch) {
+            AlertDialog(
+                onDismissRequest = { emptyLaunch = false },
+                modifier = Modifier.testTag("training-pick-no-tasks"),
+                title = {
+                    Text(
+                        stringResource(
+                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title,
+                        ),
+                    )
+                },
+                text = {
+                    Text(
+                        stringResource(
+                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body,
+                        ),
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { emptyLaunch = false }) {
+                        Text(stringResource(R.string.close))
+                    }
+                },
+            )
         }
-        BackHandler { leave() }
-        LaunchedEffect(modelStatus, task.taskId, session.index) { practice.onCheckerSettingsChanged() }
+        ru.mobui.kanji.feature.dashboard.TrainingPickScreen(
+            recipes = recipes,
+            loading = false,
+            query = query,
+            language = language,
+            onBack = { nav.popOrDashboard() },
+            onQuery = { query = it },
+            onPick = { recipeId ->
+                scope.launch {
+                    val launch = loadTrainingLaunch(dependencies, recipeId)
+                    if (launch == null) {
+                        withContext(Dispatchers.Main.immediate) { emptyLaunch = true }
+                        return@launch
+                    }
+                    trainingPersistence.start(launch.active.training)
+                    withContext(Dispatchers.Main.immediate) {
+                        onActiveTrainingChange(launch.active)
+                        nav.navigate(Practice) {
+                            popUpTo(TrainingPick) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    }
+                }
+            },
+            onCreateFirstRecipe = { nav.navigate(RecipeBuilder(openCreate = true)) },
+        )
+    }
+}
+
+private suspend fun interruptInProgress(dependencies: KanjiApplication) {
+    val training = dependencies.trainingsRepository.getInProgress() ?: return
+    val now = System.currentTimeMillis()
+    dependencies.trainingsRepository.saveTraining(
+        training.copy(
+            status = TrainingStatus.Interrupted,
+            endedAt = now,
+        ),
+    )
+}
+
+private suspend fun loadTrainingLaunch(
+    dependencies: KanjiApplication,
+    recipeId: String? = null,
+): TrainingLaunch? {
+    val recipes = dependencies.recipesRepository.observeRecipes().first()
+    val recipe =
+        recipeId?.let { id -> recipes.firstOrNull { it.id == id } }
+            ?: recipes.firstOrNull { it.isActive }
+            ?: return null
+    val assignments = dependencies.recipesRepository.observeWordTags().first()
+    val snapshot = dependencies.catalog.load()
+    return launchTrainingFromRecipe(snapshot, recipe, assignments)
+}
+
+@Composable
+private fun RecipeBuilderDestination(
+    context: AppUiContext,
+    openCreate: Boolean,
+    onBack: () -> Unit,
+) {
+    with(context) {
+        val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
+        ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderRoute(
+            dependencies.catalog,
+            dependencies.dictionary,
+            dependencies.recipesRepository,
+            ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderActions(
+                onBack = onBack,
+                wordContent = { id, back ->
+                    ru.mobui.kanji.feature.catalog.CatalogRoute(
+                        dependencies.catalog,
+                        back,
+                        initialWordId = id,
+                        loadDrawing = { source.load(KanjiId("u${it.toString(APP_UNICODE_HEX_RADIX)}")) },
+                        revision = revision,
+                    )
+                },
+                tagContent = { back ->
+                    ru.mobui.kanji.feature.dictionary.DictionaryTagManagementRoute(
+                        dependencies.recipesRepository,
+                        back,
+                    )
+                },
+            ),
+            openCreate = openCreate,
+        )
+    }
+}
+
+@Composable
+private fun PracticePadDestination(
+    context: AppUiContext,
+    nav: NavHostController,
+    active: ActiveTraining,
+    onActiveTrainingChange: (ActiveTraining?) -> Unit,
+    onPreview: (ru.mobui.kanji.feature.practice.PracticeUiState) -> Unit,
+    trainingPersistence: TrainingPersistence,
+    onLeave: () -> Unit,
+) {
+    with(context) {
+        val task = active.task
+        val scope = rememberCoroutineScope()
+        val practice: PracticeViewModel =
+            viewModel(key = "${task.taskId}-${active.index}", factory = graph.factory(task))
+        var leaving by remember(task.taskId, active.index) { mutableStateOf(false) }
+        val leave: () -> Unit = {
+            if (!leaving) {
+                leaving = true
+                if (active.training.status == TrainingStatus.InProgress) {
+                    scope.launch {
+                        runCatching { trainingPersistence.save(active.training) }
+                    }
+                }
+                onLeave()
+            }
+        }
+        LaunchedEffect(settings, modelStatus, task.taskId, active.index) {
+            practice.onCheckerSettingsChanged()
+        }
         val state by practice.uiState.collectAsStateWithLifecycle()
+        LaunchedEffect(state) { onPreview(state) }
         val result = state.practice.result
-        var resultReceived by rememberSaveable(task.taskId, session.index) { mutableStateOf(false) }
+        var resultReceived by rememberSaveable(task.taskId, active.index) { mutableStateOf(false) }
+        var advancing by remember(task.taskId, active.index) { mutableStateOf(false) }
         if (result == null || !resultReceived) {
             PracticeRoute(
                 practice,
-                onResult = {
-                    val next = session.advance()
-                    if (next != null) {
-                        // Sequential pass: open the next recipe word without wrapping.
-                        onPracticeSessionChange(next)
-                    } else {
-                        resultReceived = true
+                onResult = { practiceResult ->
+                    if (!advancing && !leaving) {
+                        advancing = true
+                        scope.launch {
+                            val updated =
+                                active.withTaskResult(
+                                    practiceResult,
+                                    System.currentTimeMillis(),
+                                )
+                            // Await boundary write so resume after kill matches the demo screen.
+                            runCatching { trainingPersistence.save(updated.training) }
+                            val next = updated.advance()
+                            if (next != null) {
+                                onActiveTrainingChange(next)
+                            } else {
+                                onActiveTrainingChange(updated)
+                                resultReceived = true
+                                advancing = false
+                            }
+                        }
                     }
                 },
                 onBack = leave,
                 settings = settings,
                 wordLabel = task.russianWord,
                 progressLabel =
-                    stringResource(R.string.practice_word_progress, session.ordinal, session.total),
+                    stringResource(
+                        R.string.practice_word_progress,
+                        active.ordinal,
+                        active.total,
+                    ),
                 readabilityAvailable = modelReady,
                 onSettingsChanged = {
                     settingsModel.update(it)
@@ -352,15 +635,32 @@ private fun PracticeDestination(
                     settingsModel.reset()
                     practice.onCheckerSettingsChanged()
                 },
+                onOpenCheckerSettings = { nav.navigate(PracticeChecker) },
             )
         } else {
-            PracticeSummary(
-                result,
-                progressLabel =
-                    stringResource(R.string.practice_word_progress, session.ordinal, session.total),
-                onClose = leave,
+            BackHandler(enabled = !leaving) { leave() }
+            TrainingCompleteScreen(
+                summary = active.training.summarize(),
+                onDone = leave,
             )
         }
     }
 }
 
+@Composable
+private fun PracticeCheckerDestination(
+    context: AppUiContext,
+    nav: NavHostController,
+    preview: ru.mobui.kanji.feature.practice.PracticeUiState?,
+) {
+    with(context) {
+        CheckerSettingsScreen(
+            settings,
+            onChange = { settingsModel.update(it) },
+            onBack = { nav.popBackStack() },
+            onReset = { settingsModel.reset() },
+            preview = preview,
+            readabilityAvailable = modelReady,
+        )
+    }
+}

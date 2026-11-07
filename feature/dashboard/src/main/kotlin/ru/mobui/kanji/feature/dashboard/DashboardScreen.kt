@@ -27,9 +27,11 @@ import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.feature.dashboard.widgets.ActivityDetailsDialog
 import ru.mobui.kanji.feature.dashboard.widgets.ActivityWidget
-import ru.mobui.kanji.feature.dashboard.widgets.CurrentRecipeWidget
 import ru.mobui.kanji.feature.dashboard.widgets.DashboardIcon
 import ru.mobui.kanji.feature.dashboard.widgets.IllustratedIcon
+import ru.mobui.kanji.feature.dashboard.widgets.LaunchTrainingWidget
+import ru.mobui.kanji.feature.dashboard.widgets.RecipeBookEntry
+import ru.mobui.kanji.feature.dashboard.widgets.UnfinishedTrainingDialog
 import ru.mobui.kanji.feature.dashboard.widgets.VocabularyWidget
 import ru.mobui.kanji.feature.dashboard.widgets.WordStatisticsDialog
 import ru.mobui.kanji.feature.dashboard.widgets.WordStatisticsWidget
@@ -37,68 +39,31 @@ import ru.mobui.kanji.feature.dashboard.widgets.WordStatisticsWidget
 @Composable
 fun DashboardScreen(
     state: DashboardState,
-    onStartPractice: () -> Unit,
+    onStartTraining: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier,
-    recipes: List<RecipeOverview>,
+    unfinished: UnfinishedTrainingSummary? = null,
+    onContinueTraining: () -> Unit = {},
+    onStartNewTraining: () -> Unit = {},
+    onOpenRecipeBook: () -> Unit = {},
     onOpenCatalog: () -> Unit = {},
     onOpenDictionary: () -> Unit = {},
-    selectedRecipeId: String = "default",
-    onSelectRecipe: (String) -> Unit = {},
-    onSaveRecipe: (String?, String, Int, Int) -> Unit = { _, _, _, _ -> },
-    onOpenRecipes: (() -> Unit)? = null,
     onOpenReferences: () -> Unit = {},
 ) {
-    val recipe =
-        recipes.firstOrNull { it.id == selectedRecipeId }
-            ?: recipes.firstOrNull()
-            ?: RecipeOverview(selectedRecipeId, stringResource(R.string.dashboard_mix))
-    var recipeDialog by rememberSaveable { mutableStateOf(RecipeDialogType.None) }
-    var editingId by rememberSaveable { mutableStateOf<String?>(null) }
-    when (recipeDialog) {
-        RecipeDialogType.None -> Unit
-        RecipeDialogType.Choose ->
-            RecipePicker(
-                recipes,
-                selectedRecipeId,
-                RecipePickerActions(
-                    onSelect = {
-                        onSelectRecipe(it)
-                        recipeDialog = RecipeDialogType.None
-                    },
-                    onEdit = {
-                        editingId = it
-                        recipeDialog = RecipeDialogType.Edit
-                    },
-                    onCreate = { recipeDialog = RecipeDialogType.Create },
-                    onDismiss = { recipeDialog = RecipeDialogType.None },
-                ),
-            )
-        RecipeDialogType.Create,
-        RecipeDialogType.Edit ->
-            LegacyRecipeEditor(
-                if (recipeDialog == RecipeDialogType.Edit) {
-                    recipes.firstOrNull { it.id == editingId }
-                } else null,
-                onSubmit = { name, words, seconds ->
-                    onSaveRecipe(
-                        if (recipeDialog == RecipeDialogType.Edit) editingId else null,
-                        name,
-                        words,
-                        seconds,
-                    )
-                    recipeDialog =
-                        if (recipeDialog == RecipeDialogType.Edit) RecipeDialogType.Choose
-                        else RecipeDialogType.None
-                },
-                onDismiss = {
-                    recipeDialog =
-                        if (recipeDialog == RecipeDialogType.Edit) RecipeDialogType.Choose
-                        else RecipeDialogType.None
-                },
-            )
-        RecipeDialogType.History ->
-            TrainingHistory(recipe, onDismiss = { recipeDialog = RecipeDialogType.None })
+    var unfinishedOpen by rememberSaveable { mutableStateOf(false) }
+    if (unfinishedOpen && unfinished != null) {
+        UnfinishedTrainingDialog(
+            unfinished,
+            onContinue = {
+                unfinishedOpen = false
+                onContinueTraining()
+            },
+            onStartNew = {
+                unfinishedOpen = false
+                onStartNewTraining()
+            },
+            onDismiss = { unfinishedOpen = false },
+        )
     }
     var activityOpen by rememberSaveable { mutableStateOf(false) }
     if (activityOpen) ActivityDetailsDialog(state.activity, onDismiss = { activityOpen = false })
@@ -136,13 +101,14 @@ fun DashboardScreen(
                 )
                 ActivityWidget(state.activity, { activityOpen = true }, Modifier.weight(1f))
             }
-            CurrentRecipeWidget(
-                recipe,
-                onSelect = { if (onOpenRecipes != null) onOpenRecipes() else recipeDialog = RecipeDialogType.Choose },
-                onStart = onStartPractice,
-                onHistory = { recipeDialog = RecipeDialogType.History },
+            LaunchTrainingWidget(
+                unfinished = unfinished != null,
+                onClick = {
+                    if (unfinished != null) unfinishedOpen = true else onStartTraining()
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
+            RecipeBookEntry(onOpenRecipeBook, Modifier.fillMaxWidth())
             VocabularyWidget(
                 state.vocabulary,
                 Modifier.fillMaxWidth(),
@@ -158,12 +124,7 @@ fun DashboardScreen(
 @Composable
 private fun DashboardLightPreview() {
     KanjiTheme(false) {
-        DashboardScreen(
-            DashboardDemo.state,
-            {},
-            {},
-            recipes = listOf(RecipeOverview("default", stringResource(R.string.dashboard_mix))),
-        )
+        DashboardScreen(DashboardDemo.state, {}, {})
     }
 }
 
@@ -171,19 +132,19 @@ private fun DashboardLightPreview() {
 @Composable
 private fun DashboardDarkPreview() {
     KanjiTheme(true) {
+        DashboardScreen(DashboardDemo.state, {}, {})
+    }
+}
+
+@Preview(showBackground = true, locale = "ru")
+@Composable
+private fun DashboardUnfinishedPreview() {
+    KanjiTheme(false) {
         DashboardScreen(
             DashboardDemo.state,
             {},
             {},
-            recipes = listOf(RecipeOverview("default", stringResource(R.string.dashboard_mix))),
+            unfinished = UnfinishedTrainingSummary("Умный микс", "Слово 4 из 20"),
         )
     }
-}
-
-private enum class RecipeDialogType {
-    None,
-    Choose,
-    Create,
-    Edit,
-    History,
 }

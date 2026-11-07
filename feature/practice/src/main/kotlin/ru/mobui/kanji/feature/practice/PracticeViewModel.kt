@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
 import ru.mobui.kanji.core.writingpad.PadEvent
 import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.practice.CheckCompensation
@@ -91,6 +92,8 @@ class PracticeViewModel(
     val preview = mutablePreview.asStateFlow()
     private var ticker: Job? = null
     private var lastTick: Long? = null
+    /** Last pad pulse while a gesture is active; used to clear a stuck gesture for MVP demos. */
+    private var lastGesturePulse: Long? = null
     private var screenActive = false
     private var resultDelivered = false
     private val coordinator = CheckCoordinator()
@@ -113,6 +116,7 @@ class PracticeViewModel(
             screenActive = false
             cancelCheck()
             mutablePreview.value = null
+            lastGesturePulse = null
             training.setGestureActive(false)
         } else {
             screenActive = true
@@ -123,6 +127,7 @@ class PracticeViewModel(
                     while (isActive) {
                         delay(TIMER_TICK_MILLIS)
                         accountTime()
+                        clearStaleGesture()
                         publish()
                     }
                 }
@@ -136,6 +141,7 @@ class PracticeViewModel(
         ticker?.cancel()
         ticker = null
         lastTick = null
+        lastGesturePulse = null
         resultDelivered = false
         coordinator.clear()
         training = HandwritingTraining(task)
@@ -242,12 +248,14 @@ class PracticeViewModel(
                 val wasActive = training.state.gestureActive
                 if (event.stroke != null && !wasActive) cancelCheck()
                 mutablePreview.value = event.takeIf { it.stroke != null }
+                if (event.stroke != null) lastGesturePulse = clock() else lastGesturePulse = null
                 training.setGestureActive(event.stroke != null)
                 if (wasActive != training.state.gestureActive) publish()
                 if (event.stroke == null) scheduleCheck()
             }
             is PadEvent.StrokeFinished -> {
                 cancelCheck()
+                lastGesturePulse = null
                 training.addStroke(
                     event.baseVersion.cellId,
                     event.baseVersion.revision,
@@ -345,8 +353,20 @@ class PracticeViewModel(
         training.advanceTime((now - previous).coerceAtLeast(0))
         if (training.state.result != null) {
             mutablePreview.value = null
+            lastGesturePulse = null
             training.setGestureActive(false)
         }
+    }
+
+    /** Clears a gesture that stopped receiving pad events (pointer cancel without finally). */
+    private fun clearStaleGesture() {
+        if (!training.state.gestureActive || training.state.result != null) return
+        val pulse = lastGesturePulse ?: return
+        if (clock() - pulse < GESTURE_STALE_MILLIS) return
+        lastGesturePulse = null
+        mutablePreview.value = null
+        training.setGestureActive(false)
+        scheduleCheck()
     }
 
     private fun publish(notice: PracticeNotice? = mutableState.value.notice) {
@@ -385,18 +405,24 @@ class PracticeViewModel(
 
 private const val TIMER_TICK_MILLIS = 250L
 private const val CHECK_DEBOUNCE_MILLIS = 350L
+/** Whole-provider budget so «Далее» cannot stay disabled for an MVP demo. */
+private const val CHECK_TIMEOUT_MILLIS = 8_000L
+/** No pad pulses while gestureActive — treat as stuck input. */
+private const val GESTURE_STALE_MILLIS = 5_000L
 
 private suspend fun executeCheck(
     checker: KanjiChecker,
     request: CheckRequest,
 ): CheckReport =
-    try {
-        checker.checkWithDetails(request)
-    } catch (cancelled: CancellationException) {
-        throw cancelled
-    } catch (_: Exception) {
-        CheckReport(CheckVerdict.Unavailable)
-    }
+    withTimeoutOrNull(CHECK_TIMEOUT_MILLIS) {
+        try {
+            checker.checkWithDetails(request)
+        } catch (cancelled: CancellationException) {
+            throw cancelled
+        } catch (_: Exception) {
+            CheckReport(CheckVerdict.Unavailable)
+        }
+    } ?: CheckReport(CheckVerdict.Unavailable)
 
 private fun loadTaskReferences(
     task: PracticeTask,

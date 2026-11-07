@@ -46,13 +46,30 @@ import androidx.compose.material3.Text
  * Not derived from Material roles — mockup keeps these HEX values across themes.
  */
 fun TagColor.swatch(dark: Boolean): Color = when (this) {
-    TagColor.Neutral -> if (dark) Color(0xFFA3AAA6) else Color(0xFF717875)
-    TagColor.Green -> if (dark) Color(0xFF81C99F) else Color(0xFF28744C)
-    TagColor.Blue -> if (dark) Color(0xFF91B9EF) else Color(0xFF366DB3)
-    TagColor.Violet -> if (dark) Color(0xFFC5A2EC) else Color(0xFF8358AE)
-    TagColor.Pink -> if (dark) Color(0xFFEEA0C3) else Color(0xFFAD527C)
-    TagColor.Orange -> if (dark) Color(0xFFF0AC83) else Color(0xFFB65E32)
-    TagColor.Gold -> if (dark) Color(0xFFDFC16A) else Color(0xFF94721C)
+    TagColor.Neutral -> if (dark) TagSwatchColors.NeutralDark else TagSwatchColors.NeutralLight
+    TagColor.Green -> if (dark) TagSwatchColors.GreenDark else TagSwatchColors.GreenLight
+    TagColor.Blue -> if (dark) TagSwatchColors.BlueDark else TagSwatchColors.BlueLight
+    TagColor.Violet -> if (dark) TagSwatchColors.VioletDark else TagSwatchColors.VioletLight
+    TagColor.Pink -> if (dark) TagSwatchColors.PinkDark else TagSwatchColors.PinkLight
+    TagColor.Orange -> if (dark) TagSwatchColors.OrangeDark else TagSwatchColors.OrangeLight
+    TagColor.Gold -> if (dark) TagSwatchColors.GoldDark else TagSwatchColors.GoldLight
+}
+
+private object TagSwatchColors {
+    val NeutralDark = Color(0xFFA3AAA6)
+    val NeutralLight = Color(0xFF717875)
+    val GreenDark = Color(0xFF81C99F)
+    val GreenLight = Color(0xFF28744C)
+    val BlueDark = Color(0xFF91B9EF)
+    val BlueLight = Color(0xFF366DB3)
+    val VioletDark = Color(0xFFC5A2EC)
+    val VioletLight = Color(0xFF8358AE)
+    val PinkDark = Color(0xFFEEA0C3)
+    val PinkLight = Color(0xFFAD527C)
+    val OrangeDark = Color(0xFFF0AC83)
+    val OrangeLight = Color(0xFFB65E32)
+    val GoldDark = Color(0xFFDFC16A)
+    val GoldLight = Color(0xFF94721C)
 }
 
 @Composable

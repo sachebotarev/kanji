@@ -4,7 +4,22 @@
     <string name="dashboard_checked">Learning footprints</string>
     <string name="dashboard_activity">Activity</string>
     <plurals name="dashboard_streak"><item quantity="one">%1$d day streak</item><item quantity="other">%1$d day streak</item></plurals>
-    <string name="dashboard_start">Start practice</string>
+    <string name="dashboard_start">Start training</string>
+    <string name="recipe_book">Training recipes</string>
+    <string name="recipe_book_description">Create and edit recipes</string>
+    <string name="recipe_book_open">Open training recipes</string>
+    <string name="training_pick_create_first">Create first recipe</string>
+    <string name="training_unfinished">Unfinished training</string>
+    <string name="training_unfinished_choice">Continue or start new?</string>
+    <string name="training_continue">Continue</string>
+    <string name="training_start_new">Start new</string>
+    <string name="training_pick_title">Choose recipe</string>
+    <string name="training_pick_hint">Tap a recipe to start training</string>
+    <string name="training_pick_empty">No recipes yet</string>
+    <string name="training_pick_empty_hint">Create a recipe — then you can start training.</string>
+    <string name="training_pick_no_tasks_title">Can\'t start training</string>
+    <string name="training_pick_no_tasks_body">This recipe has no words with writable kanji. Add materials or pick another recipe.</string>
+    <string name="training_word_progress">Word %1$d of %2$d</string>
     <string name="dashboard_mix">Smart mix</string>
     <string name="dashboard_dictionaries">Vocabulary / 単語</string>
     <string name="dashboard_textbooks">Textbooks</string>

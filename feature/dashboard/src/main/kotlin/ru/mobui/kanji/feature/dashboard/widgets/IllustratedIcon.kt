@@ -44,12 +44,12 @@ private val NightIllustrationPalette =
         ),
     )
 
-/** The approved HTML stationery filter: brightness(1.25) saturate(.7), preserving alpha. */
+/**
+ * Dark-theme lift for stationery stickers that already match mascot palette.
+ * Brightness only — do not desaturate, or accent red `#EC4E4E` diverges from the cat.
+ */
 private val NightStationeryPalette = ColorFilter.colorMatrix(
-    ColorMatrix().apply {
-        setToSaturation(.7f)
-        this *= ColorMatrix().apply { setToScale(1.25f, 1.25f, 1.25f, 1f) }
-    },
+    ColorMatrix().apply { setToScale(1.12f, 1.12f, 1.12f, 1f) },
 )
 
 /** Source artwork and optical scale are shared by both themes. */

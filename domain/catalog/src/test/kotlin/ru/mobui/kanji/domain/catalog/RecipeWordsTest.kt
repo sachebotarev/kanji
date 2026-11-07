@@ -1,8 +1,10 @@
 package ru.mobui.kanji.domain.catalog
 
+import kotlin.random.Random
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 
 class RecipeWordsTest {
     private val sun = '日'.code
@@ -38,5 +40,24 @@ class RecipeWordsTest {
         assertEquals(listOf(1, -2, -3), snapshot.recipeWords(materials, emptyList()).map { it.id })
         assertEquals(setOf(1, -2), ids(materials[0].copy(kanjiIds = setOf(moon))))
         assertTrue(ids(materials[1].copy(wordIds = emptySet())).isEmpty())
+    }
+
+    @Test fun shuffledCyclesTakesPrefixWithoutRepeatsWhenCountFits() {
+        val pool = listOf("a", "b", "c", "d")
+        val picked = shuffledCycles(pool, 2, Random(1))
+        assertEquals(2, picked.size)
+        assertEquals(picked.toSet().size, picked.size)
+        assertTrue(pool.containsAll(picked))
+    }
+
+    @Test fun shuffledCyclesAvoidsBoundaryRepeatAcrossCycles() {
+        val pool = listOf("a", "b", "c")
+        repeat(40) { seed ->
+            val picked = shuffledCycles(pool, 9, Random(seed))
+            assertEquals(9, picked.size)
+            for (i in 3 until picked.size step 3) {
+                assertFalse(picked[i] == picked[i - 1])
+            }
+        }
     }
 }

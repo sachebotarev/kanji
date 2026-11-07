@@ -8,7 +8,7 @@
  function stateControl(){
   if(module==='catalog')return document.getElementById('load-state');
   if(module!=='web')return null;
-  return document.getElementById(screen==='practice'?'practice-state':screen==='dictionary'?'dictionary-state':screen==='settings'?'model-state':'');
+  return document.getElementById(screen==='practice'?'practice-state':screen==='practice-complete'?'practice-complete-grade':screen==='dictionary'?'dictionary-state':screen==='settings'?'model-state':screen==='home'?'home-state':'');
  }
  function changed(){
   if(applying)return;

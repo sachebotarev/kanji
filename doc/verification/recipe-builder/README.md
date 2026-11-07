@@ -13,10 +13,10 @@ node doc/design-system/prototypes/web/test_kanji_picker.cjs http://127.0.0.1:887
 node doc/design-system/prototypes/web/test_multiselect_filters.cjs http://127.0.0.1:8873/design-system/prototypes/ /tmp/kanji-filter-check
 ```
 
-Требуются Node.js, Playwright и Chrome. Снимки и машинные отчёты прогонов направляются в `/tmp`, не подменяют текущую спецификацию. Базовый сценарий проверяет группы: CRUD рецептов, радио-выбор, открытие просмотра с карточки, правку/удаление с экрана детали, длинные строки, ошибки полей, наборы материалов, локализацию, узкие экраны и масштабирование. Overflow-меню на карточке списка отсутствует. Дополнительные тесты проверяют общий выбор, Apply/Back, OR/AND и независимость фильтра словаря от черновика материала. [Общие теги](shared-tags.md), [матрица фильтров](../catalog-multiselect-filters.md), [унификация](../design-unification.md).
+Требуются Node.js, Playwright и Chrome. Снимки и машинные отчёты прогонов направляются в `/tmp`, не подменяют текущую спецификацию. Базовый сценарий проверяет группы: CRUD рецептов, открытие просмотра с карточки (без постоянного радиовыбора), правку/удаление с экрана детали, длинные строки, ошибки полей, наборы материалов, локализацию, узкие экраны и масштабирование. Overflow-меню на карточке списка отсутствует. Дополнительные тесты проверяют общий выбор, Apply/Back, OR/AND и независимость фильтра словаря от черновика материала. [Общие теги](shared-tags.md), [матрица фильтров](../catalog-multiselect-filters.md), [унификация](../design-unification.md).
 
 ## Проверка схемы
 
-`python3 doc/database/test_builder_schema.py`: 6 SQLite-тестов добавочного DDL поверх экспортированной Room v4. [Результат и ограничения](../database-approved-features.md). Сессии и статистика исключены.
+`python3 doc/database/test_builder_schema.py`: 6 SQLite-тестов добавочного DDL поверх экспортированной Room v4. [Результат и ограничения](../database-approved-features.md). Тренировки и статистика исключены.
 
 HTML не подтверждает TalkBack, нативную клавиатуру, Compose lifecycle или реальную миграцию. Android-конструктор использует Room v6 и `RecipeBuilderRoute`; границы проверки — в [recipe-library-android.md](../recipe-library-android.md) и связанных отчётах.

@@ -1,39 +1,13 @@
 package ru.mobui.kanji
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toString
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.createSavedStateHandle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import kotlinx.coroutines.Dispatchers
@@ -41,32 +15,10 @@ import ru.mobui.kanji.checker.shape.ShapeKanjiChecker
 import ru.mobui.kanji.checker.writing.StrokeWritingChecker
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
-import ru.mobui.kanji.domain.practice.AnswerStatus
 import ru.mobui.kanji.domain.practice.CombinedKanjiChecker
-import ru.mobui.kanji.domain.practice.EntryMode
-import ru.mobui.kanji.domain.practice.EntryStatus
-import ru.mobui.kanji.domain.practice.KanjiId
-import ru.mobui.kanji.domain.practice.KanjiTask
-import ru.mobui.kanji.domain.practice.PracticeResult
 import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TraceReferenceHint
-import ru.mobui.kanji.feature.dashboard.DashboardDemo
-import ru.mobui.kanji.feature.dashboard.DashboardScreen
-import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
-import ru.mobui.kanji.feature.practice.PracticeRoute
 import ru.mobui.kanji.feature.practice.PracticeViewModel
-import ru.mobui.kanji.feature.settings.SettingsScreen
-
-internal enum class AppDestination {
-    Dashboard,
-    Practice,
-    Settings,
-    CheckerSettings,
-    Catalog,
-    References,
-    Dictionary,
-    RecipeBuilder,
-}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -78,19 +30,10 @@ class MainActivity : ComponentActivity() {
         setContent { KanjiTheme { MainContent(dependencies, models, graph) } }
     }
 
-    private fun createTask(): PracticeTask {
-        return PracticeTask(
-            taskId = "demo-eeg-timed",
-            russianWord = getString(R.string.demo_word),
-            kanji =
-                listOf(
-                    KanjiTask("eeg-0", KanjiId("u8133"), EntryMode.User),
-                    KanjiTask("eeg-1", KanjiId("u6ce2"), EntryMode.User),
-                    KanjiTask("eeg-2", KanjiId("u691c"), EntryMode.User),
-                    KanjiTask("eeg-3", KanjiId("u67fb"), EntryMode.Prefilled),
-                ),
-            reading = getString(R.string.demo_word_reading),
-        )
+    public override fun onNewIntent(intent: Intent) {
+        // setIntent before listeners so handleDeepLink sees the VIEW URI.
+        setIntent(intent)
+        super.onNewIntent(intent)
     }
 
     private fun createModels(dependencies: KanjiApplication): AppModels {
@@ -124,7 +67,6 @@ class MainActivity : ComponentActivity() {
         val source = BundledKanjiReferenceSource(assets, Dispatchers.IO)
         val checker = createChecker(dependencies, settingsModel, source)
         return DemoPracticeGraph(
-            fallbackTask = createTask(),
             source = source,
             factory = { task ->
                 object : ViewModelProvider.Factory {
@@ -150,17 +92,23 @@ class MainActivity : ComponentActivity() {
         source: BundledKanjiReferenceSource,
     ): CombinedKanjiChecker {
         val readability = dependencies.readability
+        val shape =
+            ShapeKanjiChecker(
+                source,
+                Dispatchers.Default,
+                diagnosticsEnabled = BuildConfig.DEBUG,
+                configProvider = {
+                    settingsModel.settings.value.copy(
+                        checkStrokeOrder = false,
+                        checkStrokeDirection = false,
+                    )
+                },
+            )
+        val writing = StrokeWritingChecker(source, Dispatchers.Default)
         return CombinedKanjiChecker(
             readability,
-            shape = { config ->
-                ShapeKanjiChecker(
-                    source,
-                    Dispatchers.Default,
-                    config = config.copy(checkStrokeOrder = false, checkStrokeDirection = false),
-                    diagnosticsEnabled = BuildConfig.DEBUG,
-                )
-            },
-            writing = StrokeWritingChecker(source, Dispatchers.Default),
+            shape = { shape },
+            writing = writing,
             settings = {
                 settingsModel.settings.value.let {
                     it.copy(
@@ -175,62 +123,4 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-@Composable
-internal fun PracticeSummary(
-    result: PracticeResult,
-    onClose: () -> Unit,
-    progressLabel: String? = null,
-) {
-    Scaffold { safePadding ->
-        Column(
-            Modifier.fillMaxSize().padding(safePadding).padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            if (progressLabel != null) {
-                Text(progressLabel, style = MaterialTheme.typography.titleMedium)
-            }
-            Text(result.russianWord, style = MaterialTheme.typography.headlineLarge)
-            Text(
-                stringResource(
-                    when (result.status) {
-                        AnswerStatus.Correct -> R.string.result_correct
-                        AnswerStatus.Assisted -> R.string.result_assisted
-                        AnswerStatus.Skipped -> R.string.result_skipped
-                        AnswerStatus.TimedOut -> R.string.result_timed_out
-                    },
-                ),
-                style = MaterialTheme.typography.titleLarge,
-            )
-            result.kanji.forEachIndexed { index, cell ->
-                Text(
-                    stringResource(
-                        R.string.result_cell,
-                        index + 1,
-                        stringResource(
-                            when (cell.status) {
-                                EntryStatus.Empty -> R.string.entry_empty
-                                EntryStatus.Editing -> R.string.entry_editing
-                                EntryStatus.Correct -> R.string.result_correct
-                                EntryStatus.Incorrect -> R.string.entry_incorrect
-                                EntryStatus.Prefilled -> R.string.entry_prefilled
-                            },
-                        ),
-                        cell.elapsedMs / MILLIS_PER_SECOND,
-                    ),
-                )
-            }
-            Text(stringResource(R.string.result_time, result.elapsedMs / MILLIS_PER_SECOND))
-            Spacer(Modifier.weight(1f))
-            Text(
-                stringResource(R.string.reference_attribution),
-                style = MaterialTheme.typography.bodySmall,
-            )
-            Button(onClick = onClose, modifier = Modifier.fillMaxWidth()) {
-                Text(stringResource(R.string.practice_session_done))
-            }
-        }
-    }
-}
-
 internal const val APP_UNICODE_HEX_RADIX = 16
-private const val MILLIS_PER_SECOND = 1000

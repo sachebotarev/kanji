@@ -58,7 +58,7 @@ fun Recipe.name(languageTag: String): String = names.firstOrNull {
 /** Thrown when a recipe cannot be persisted due to material or revision rules. */
 class RecipeValidationException(message: String) : IllegalArgumentException(message)
 
-/** Training execution/statistics deliberately do not belong to this contract. */
+/** Recipe configuration only. Training execution lives in TrainingsRepository (`:domain:practice`). */
 interface RecipesRepository {
     fun observeTags(): Flow<List<DictionaryTag>>
     fun observeWordTags(): Flow<List<WordTagAssignment>>

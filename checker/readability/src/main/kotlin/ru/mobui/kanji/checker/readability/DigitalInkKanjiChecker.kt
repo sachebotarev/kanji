@@ -26,16 +26,17 @@ class DigitalInkKanjiChecker : KanjiChecker, Closeable {
     @Volatile private var modelDownloaded = false
     @Volatile private var recognizer: DigitalInkRecognizer? = null
 
-    private fun japaneseModel(): DigitalInkRecognitionModel =
+    private val japaneseModel: DigitalInkRecognitionModel by lazy {
         DigitalInkRecognitionModel.builder(
                 requireNotNull(DigitalInkRecognitionModelIdentifier.fromLanguageTag("ja")),
             )
             .build()
+    }
 
     suspend fun isModelDownloaded(): Boolean {
         if (modelDownloaded) return true
         val downloaded =
-            RemoteModelManager.getInstance().isModelDownloaded(japaneseModel()).awaitResult()
+            RemoteModelManager.getInstance().isModelDownloaded(japaneseModel).awaitResult()
         if (downloaded) modelDownloaded = true
         return downloaded
     }
@@ -43,16 +44,16 @@ class DigitalInkKanjiChecker : KanjiChecker, Closeable {
     suspend fun downloadModel(): Boolean =
         withTimeoutOrNull(MODEL_DOWNLOAD_TIMEOUT_MILLIS) {
             RemoteModelManager.getInstance()
-                .download(japaneseModel(), DownloadConditions.Builder().build())
+                .download(japaneseModel, DownloadConditions.Builder().build())
                 .awaitResult()
             modelDownloaded = true
             true
         } ?: false
 
-    private fun getRecognizer(model: DigitalInkRecognitionModel): DigitalInkRecognizer =
+    private fun getRecognizer(): DigitalInkRecognizer =
         recognizer ?: synchronized(this) {
             recognizer ?: DigitalInkRecognition.getClient(
-                DigitalInkRecognizerOptions.builder(model).build(),
+                DigitalInkRecognizerOptions.builder(japaneseModel).build(),
             ).also { recognizer = it }
         }
 
@@ -73,10 +74,6 @@ class DigitalInkKanjiChecker : KanjiChecker, Closeable {
             } ?: return CheckReport(CheckVerdict.Unavailable)
         val expected = String(Character.toChars(codePoint))
         return withTimeoutOrNull(RECOGNITION_TIMEOUT_MILLIS) {
-            val identifier =
-                DigitalInkRecognitionModelIdentifier.fromLanguageTag("ja")
-                    ?: return@withTimeoutOrNull CheckReport(CheckVerdict.Unavailable)
-            val model = DigitalInkRecognitionModel.builder(identifier).build()
             if (!isModelDownloaded()) {
                 return@withTimeoutOrNull CheckReport(CheckVerdict.Unavailable)
             }
@@ -92,9 +89,8 @@ class DigitalInkKanjiChecker : KanjiChecker, Closeable {
                 }
                 ink.addStroke(builder.build())
             }
-            val client = getRecognizer(model)
             val result =
-                client
+                getRecognizer()
                     .recognize(
                         ink.build(),
                         RecognitionContext.builder()

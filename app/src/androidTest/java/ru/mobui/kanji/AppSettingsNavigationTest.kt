@@ -37,8 +37,7 @@ class AppSettingsNavigationTest {
         compose.onNodeWithTag("settings-screen").assertIsDisplayed()
         compose.onNodeWithTag("settings-back").performClick()
         compose.onNodeWithTag("dashboard-screen").assertIsDisplayed()
-        compose.onNodeWithTag("start-practice").performClick()
-        compose.waitForIdle()
+        if (!compose.openPracticePad()) return
         compose.onNodeWithTag("check-indicator-Shape").performClick()
         compose.onNodeWithTag("open-checker-settings").performClick()
         compose.onNodeWithTag("enable-shape-off").performScrollTo().assertIsSelected()

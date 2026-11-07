@@ -161,7 +161,7 @@
 
 | ID | Тема | Файл |
 | --- | --- | --- |
-| P2-A | Лимит `history` в `PracticeSession` | `domain/practice/.../HandwritingTraining.kt` |
+| P2-A | Лимит `history` в `HandwritingTraining` | `domain/practice/.../HandwritingTraining.kt` |
 | P2-B | Кэш `Path` по stroke в `KanjiWritingPad` | `core/writingpad/.../KanjiWritingPad.kt` |
 | P2-C | Разделить `RecognitionSettings` | `domain/practice/.../RecognitionSettings.kt` |
 | P2-D | Упростить callback SQL в `CatalogDatabase` | `data/catalogdb/.../CatalogDatabase.kt` |
@@ -268,7 +268,7 @@ node doc/design-system/prototypes/textbooks/test_browser.cjs
 | P1-B | `CatalogMaterialCards.kt`, `CatalogBrowseScreen.kt` |
 | P1-C | `DigitalInkKanjiChecker.kt` |
 | P1-F | `MainActivity.kt`, новые `app-*.kt` в `:app` |
-| P2-A | `PracticeSession.kt` |
+| P2-A | `HandwritingTraining.kt` |
 
 ---
 

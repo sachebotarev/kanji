@@ -33,13 +33,19 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             RecipeMaterialKanjiRow::class,
             RecipeMaterialWordsRow::class,
             RecipeMaterialTagsRow::class,
+            TrainingsRow::class,
+            TrainingsRecipeTranslationsRow::class,
+            TrainingTasksRow::class,
+            TrainingTaskTranslationsRow::class,
+            TrainingTaskSymbolsRow::class,
         ],
-    version = 6,
+    version = 7,
     exportSchema = true,
 )
 internal abstract class CatalogDatabase : RoomDatabase() {
     abstract fun catalogDao(): CatalogDao
     abstract fun recipesDao(): RecipesDao
+    abstract fun trainingsDao(): TrainingsDao
 
     companion object {
         private fun installOriginChecks(db: SupportSQLiteDatabase) {
@@ -53,30 +59,35 @@ internal abstract class CatalogDatabase : RoomDatabase() {
             )
         }
 
+        /** Triggers/indexes are static schema; install once at create (incl. destructive recreate). */
+        private fun installStaticChecks(context: Context, db: SupportSQLiteDatabase) {
+            installOriginChecks(db)
+            installRecipeChecks(db)
+            installTrainingChecks(db)
+            context.assets.open("catalog-checks.sql").bufferedReader().useLines { lines ->
+                lines.filter { it.isNotBlank() }.forEach {
+                    db.execSQL(it.replace("CREATE TRIGGER ", "CREATE TRIGGER IF NOT EXISTS "))
+                }
+            }
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_with_kanji " +
+                    "ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL",
+            )
+            db.execSQL(
+                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_without_kanji " +
+                    "ON source_words(source_id,word_id) WHERE kanji_id IS NULL",
+            )
+        }
+
         fun open(context: Context, name: String = "kanji.db"): CatalogDatabase =
             Room.databaseBuilder(context.applicationContext, CatalogDatabase::class.java, name)
                 // Pre-release database replacement, explicitly authorized; no migrations.
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
-                        override fun onOpen(db: SupportSQLiteDatabase) {
-                            installOriginChecks(db)
-                            installRecipeChecks(db)
-                            context.assets.open("catalog-checks.sql").bufferedReader().useLines { lines ->
-                                lines.filter { it.isNotBlank() }.forEach {
-                                    db.execSQL(it.replace("CREATE TRIGGER ", "CREATE TRIGGER IF NOT EXISTS "))
-                                }
-                            }
-                            db.execSQL(
-                                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_with_kanji " +
-                                    "ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL",
-                            )
-                            db.execSQL(
-                                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_without_kanji " +
-                                    "ON source_words(source_id,word_id) WHERE kanji_id IS NULL",
-                            )
+                        override fun onCreate(db: SupportSQLiteDatabase) {
+                            installStaticChecks(context, db)
                         }
-
                     },
                 )
                 .build()

@@ -15,20 +15,16 @@ import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
-import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
-import androidx.compose.ui.test.fetchSemanticsNode
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.waitUntil
+import androidx.compose.ui.test.performSemanticsAction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -97,11 +93,10 @@ class RecipeLibraryTest {
     private fun click(tag: String) = compose.onNodeWithTag(tag).performSemanticsAction(SemanticsActions.OnClick)
     private fun ready(tag: String) = compose.waitUntil(5_000) { compose.onAllNodesWithTag(tag).fetchSemanticsNodes().isNotEmpty() }
     private fun actions(
-        select: (String) -> Unit = {},
         reorder: (List<String>) -> Unit = {},
         open: (String) -> Unit = {},
         query: (String) -> Unit = {},
-    ) = RecipeLibraryActions({}, {}, open, select, reorder, query, {})
+    ) = RecipeLibraryActions({}, {}, open, reorder, query, {})
 
     @Test fun selectionReorderSearchGuardAndActiveDeletionUsePersistentChoice() {
         val repo = Learning(); val saved = SavedStateHandle(); val model = model(repo, saved)
@@ -162,23 +157,25 @@ class RecipeLibraryTest {
         assertNull(model.state.value.initial); assertEquals(0, repo.writes)
     }
 
-    @Test fun onlyRadioSelectsAndBodyOpensViewerWithoutSelecting() {
-        var selected = ""; var opened = ""
+    @Test fun bodyOpensViewerWithoutOverflowMenu() {
+        var opened = ""
         compose.setContent { KanjiTheme { RecipeLibraryScreen(RecipeLibraryState(listOf(first, second), snapshot, loading = false), "", "ru",
-            actions(select = { selected = it }, open = { opened = it })) } }
-        compose.onNodeWithTag("library-open-a").performClick()
-        assertEquals("", selected); assertEquals("a", opened)
-        click("library-select-b"); assertEquals("b", selected)
+            actions(open = { opened = it })) } }
+        click("library-a")
+        assertEquals("a", opened)
+        compose.onNodeWithTag("library-select-a").assertDoesNotExist()
         compose.onNodeWithTag("library-menu-a").assertDoesNotExist()
     }
     @Test fun emptyLibraryUsesHeaderMascotWithoutIntroAndSearchMissKeepsIntro() {
+        var recipes by mutableStateOf(emptyList<Recipe>())
+        var query by mutableStateOf("")
         compose.setContent {
             KanjiTheme {
                 RecipeLibraryScreen(
-                    RecipeLibraryState(emptyList(), snapshot, loading = false),
-                    "",
+                    RecipeLibraryState(recipes, snapshot, loading = false),
+                    query,
                     "ru",
-                    actions(),
+                    actions(query = { query = it }),
                 )
             }
         }
@@ -186,28 +183,22 @@ class RecipeLibraryTest {
         compose.onNodeWithTag("library-empty-mascot").assertExists()
         compose.onNodeWithText("Выберите или создайте").assertDoesNotExist()
 
-        var query by mutableStateOf("неттакого")
-        compose.setContent {
-            KanjiTheme {
-                RecipeLibraryScreen(
-                    RecipeLibraryState(listOf(first, second), snapshot, loading = false),
-                    query,
-                    "ru",
-                    actions(query = { query = it }),
-                )
-            }
+        compose.runOnIdle {
+            recipes = listOf(first, second)
+            query = "неттакого"
         }
         compose.onNodeWithText("Выберите или создайте").assertExists()
         compose.onNodeWithTag("library-search-empty").assertExists()
         compose.onNodeWithTag("library-empty").assertDoesNotExist()
     }
-    @Test fun normalizedSearchRetainsSelectionAndDisablesAccessibleReorder() {
+    @Test fun normalizedSearchDisablesAccessibleReorderUntilCleared() {
         var query by mutableStateOf(""); var moved = emptyList<String>()
         val restore = StateRestorationTester(compose)
         restore.setContent { KanjiTheme { RecipeLibraryScreen(RecipeLibraryState(listOf(first, second), snapshot, loading = false), query, "ru",
             actions(reorder = { moved = it }, query = { query = it })) } }
         click("library-search-toggle"); compose.onNodeWithTag("library-search").performTextReplacement("ＭＯＯＮ")
-        compose.onNodeWithTag("library-b").assertDoesNotExist(); compose.onNodeWithTag("library-select-a").assertIsSelected()
+        compose.onNodeWithTag("library-b").assertDoesNotExist()
+        compose.onNodeWithTag("library-a").assertExists()
         assertTrue(compose.onNodeWithTag("library-a").fetchSemanticsNode().config[SemanticsActions.CustomActions].isEmpty())
         restore.emulateSavedInstanceStateRestore(); compose.onNodeWithTag("library-search").assertTextContains("ＭＯＯＮ")
         assertTrue(moved.isEmpty()); compose.onNodeWithTag("library-search").performTextReplacement("")
@@ -228,7 +219,7 @@ class RecipeLibraryTest {
         platformRecipeDrag(compose, restoredStart, restoredEnd)
         compose.runOnIdle { assertEquals(listOf("b", "a"), moved) }
     }
-    @Test fun platformDragDoesNotStartFromRadioOrDuringSearch() {
+    @Test fun platformDragDoesNotStartDuringSearch() {
         var query by mutableStateOf("")
         var commits = 0
         compose.setContent { KanjiTheme {
@@ -236,9 +227,6 @@ class RecipeLibraryTest {
                 actions(reorder = { commits++ }, query = { query = it }))
         } }
         val end = compose.onNodeWithTag("library-b").fetchSemanticsNode().boundsInWindow.center
-        val start = compose.onNodeWithTag("library-select-a").fetchSemanticsNode().boundsInWindow.center
-        platformRecipeDrag(compose, start, end)
-        compose.runOnIdle { assertEquals(0, commits) }
         click("library-search-toggle")
         compose.onNodeWithTag("library-search").performTextReplacement("Moon")
         compose.onNodeWithTag("library-b").assertDoesNotExist()
@@ -254,10 +242,9 @@ class RecipeLibraryTest {
         ) }
         var recipes by mutableStateOf(originals)
         var commits = 0
-        var selections = 0
         compose.setContent { KanjiTheme {
             RecipeLibraryScreen(RecipeLibraryState(recipes, snapshot, loading = false), "", "ru",
-                actions(select = { selections++ }, reorder = { ids ->
+                actions(reorder = { ids ->
                     commits++
                     recipes = ids.map { id -> originals.single { it.id == id } }
                 }))
@@ -272,7 +259,6 @@ class RecipeLibraryTest {
             assertTrue(recipes.indexOfFirst { it.id == "r0" } > 3)
             assertEquals(originals.map { it.id }.toSet(), recipes.map { it.id }.toSet())
             assertEquals("r0", recipes.single { it.isActive }.id)
-            assertEquals(0, selections)
         }
         // The first drop can leave this row clipped in Android's mandatory navigation-gesture
         // region. Bring it fully into view before starting another real touchscreen gesture.
@@ -289,7 +275,11 @@ class RecipeLibraryTest {
         compose.setContent { KanjiTheme { RecipeBuilderRoute(catalog, personal, repo, RecipeBuilderActions({}, { _, _ -> }, { _ -> })) } }
         repeat(2) { index ->
             ready("library-create"); click("library-create"); ready("recipe-name")
-            compose.onNodeWithTag("recipe-name").assertTextEquals("")
+            assertEquals(
+                "",
+                compose.onNodeWithTag("recipe-name").fetchSemanticsNode()
+                    .config[SemanticsProperties.EditableText].text,
+            )
             compose.onNodeWithTag("recipe-name").performTextReplacement("Новая $index")
             compose.onNodeWithTag("recipe-add").performScrollTo(); click("recipe-add")
             click("material-type-words"); click("material-words")
@@ -317,7 +307,7 @@ class RecipeLibraryTest {
             { _, back -> androidx.compose.material3.TextButton(back,
                 androidx.compose.ui.Modifier.testTag("fake-word-back")) { androidx.compose.material3.Text("Back") } },
             { _ -> })) } }
-        ready("library-a"); click("library-open-a"); ready("recipe-detail"); click("recipe-detail-edit"); ready("recipe-name")
+        ready("library-a"); click("library-a"); ready("recipe-detail"); click("recipe-detail-edit"); ready("recipe-name")
         compose.onNodeWithTag("recipe-name").performTextReplacement("Изменено")
         compose.onNodeWithTag("recipe-preview").performScrollTo(); click("recipe-preview")
         compose.onNodeWithTag("word--1").performClick(); ready("fake-word-back"); click("fake-word-back")
@@ -327,6 +317,11 @@ class RecipeLibraryTest {
         click("recipe-save"); ready("recipe-detail")
         assertEquals("Изменено", recipeName(repo.recipes.value.single { it.id == "a" }, "ru"))
         click("recipe-detail-back"); ready("library-a")
-        click("library-create"); ready("recipe-name"); compose.onNodeWithTag("recipe-name").assertTextEquals("")
+        click("library-create"); ready("recipe-name")
+        assertEquals(
+            "",
+            compose.onNodeWithTag("recipe-name").fetchSemanticsNode()
+                .config[SemanticsProperties.EditableText].text,
+        )
     }
 }

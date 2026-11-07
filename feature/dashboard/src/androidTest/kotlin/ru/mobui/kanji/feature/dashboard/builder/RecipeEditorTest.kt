@@ -7,8 +7,6 @@ import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.click
@@ -17,6 +15,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performScrollToIndex
 import androidx.compose.ui.test.performTextReplacement
+import androidx.compose.ui.test.performSemanticsAction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -31,6 +30,7 @@ import ru.mobui.kanji.domain.catalog.MaterialType
 import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.RecipeMaterial
 import ru.mobui.kanji.domain.catalog.RecipeName
+import ru.mobui.kanji.domain.catalog.recipeWords
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 

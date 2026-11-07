@@ -8,18 +8,12 @@ import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.selection.selectableGroup
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.CustomAccessibilityAction
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -45,7 +40,6 @@ import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.name
 import ru.mobui.kanji.feature.dashboard.R
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
@@ -62,7 +56,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -118,7 +111,7 @@ private fun recipeSearchText(
 
 internal data class RecipeLibraryActions(
     val back: () -> Unit, val create: () -> Unit, val open: (String) -> Unit,
-    val select: (String) -> Unit, val reorder: (List<String>) -> Unit,
+    val reorder: (List<String>) -> Unit,
     val query: (String) -> Unit, val retry: () -> Unit,
 )
 
@@ -199,7 +192,7 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
             if (state.loading) CircularProgressIndicator(Modifier.padding(24.dp))
             LazyColumn(state = scroll, contentPadding = MaterialFormContentPadding,
                 verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.weight(1f).testTag("recipe-library")
-                    .selectableGroup().onGloballyPositioned { reorder.bounds = it.boundsInRoot() }
+                    .onGloballyPositioned { reorder.bounds = it.boundsInRoot() }
                     .dragAndDropTarget(reorder::accepts, reorder.target)) {
                 if (!state.loading && state.recipes.isNotEmpty()) {
                     item(key = "intro") {
@@ -246,6 +239,7 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                     )
                     val above = stringResource(R.string.library_above)
                     val below = stringResource(R.string.library_below)
+                    val open = stringResource(R.string.library_open, title)
                     val index = ordered.indexOfFirst { it.id == recipe.id }
                     Surface(
                         Modifier
@@ -258,7 +252,15 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                 scaleY = scale
                                 this.alpha = alpha
                             }
+                            .recipeLibraryBody(
+                                reorder, recipe.id, canDrag, state.busy, platformView,
+                            ) { actions.open(recipe.id) }
                             .semantics(mergeDescendants = true) {
+                                contentDescription = open
+                                onClick(label = open) {
+                                    if (!state.busy) actions.open(recipe.id)
+                                    true
+                                }
                                 customActions = if (!canDrag) emptyList() else buildList {
                                     if (index > 0) add(CustomAccessibilityAction(above) { move(recipe.id, index - 1); true })
                                     if (index < ordered.lastIndex) {
@@ -270,35 +272,10 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                         color = MaterialTheme.colorScheme.surfaceContainer,
                         shadowElevation = if (active) 8.dp else 0.dp,
                     ) {
-                        Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically) {
-                            val choose = stringResource(R.string.library_select, title)
-                            val open = stringResource(R.string.library_open, title)
-                            Box(
-                                Modifier
-                                    .size(48.dp)
-                                    .clip(CircleShape)
-                                    .testTag("library-select-${recipe.id}")
-                                    .selectable(
-                                        recipe.isActive,
-                                        enabled = !state.busy,
-                                        role = Role.RadioButton,
-                                        onClick = { actions.select(recipe.id) },
-                                    )
-                                    .semantics { contentDescription = choose },
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                RadioButton(recipe.isActive, null, enabled = !state.busy, modifier = Modifier.scale(1.4f))
-                            }
-                            Column(
-                                Modifier
-                                    .weight(1f)
-                                    .recipeLibraryBody(
-                                        reorder, recipe.id, canDrag, state.busy, platformView,
-                                    ) { actions.open(recipe.id) }
-                                    .testTag("library-open-${recipe.id}")
-                                    .semantics { contentDescription = open },
-                                verticalArrangement = Arrangement.spacedBy(10.dp),
-                            ) {
+                        Column(
+                            Modifier.padding(12.dp).fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
                                 Row(
                                     Modifier.fillMaxWidth(),
                                     verticalAlignment = Alignment.CenterVertically,
@@ -367,7 +344,6 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                     LibraryMetric(time, if (recipe.secondsPerWord == null) R.drawable.library_no_timer else R.drawable.library_timer,
                                         Modifier.weight(1f))
                                 }
-                            }
                         }
                     }
                 }

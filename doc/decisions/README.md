@@ -5,6 +5,7 @@
 - [Объединение трёх проверок](three-checkers.md) — консенсусная модель проверки ввода (форма, читаемость, словарные правила).
 - [Принципы проверки рукописного ввода](handwriting-verification.md) — правила распознавания, допуски и ограничения.
 - [Архитектура presentation-слоя каталога](catalog-presentation.md) — разделение состояний, изоляция ViewModel и типизированная навигация.
+- [Масштаб навигации и каталога](navigation-and-catalog-scale.md) — корневой NavHost и custom-scheme deep links приняты; paging `CatalogSnapshot` и App Links отложены.
 - [Согласование интерфейса](ui-design-review.md) — принципы приёмки и ревизии экранных форм.
 - [Использование экспериментальных API](experimental-api.md) — реестр согласованных opt-in аннотаций в проекте.
 - [Статический анализ Kotlin](detekt.md) — detekt, правила Compose, baseline и команды проверки.

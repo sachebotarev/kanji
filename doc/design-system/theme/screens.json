@@ -1,24 +1,28 @@
 {
-  "revision": "feature-hierarchy-2026-11-05",
+  "revision": "approval-2026-11-07",
   "approval": {
-    "date": "2026-11-04",
+    "date": "2026-11-07",
     "features": [
+      "home",
       "references",
       "catalog",
       "dictionary",
       "recipe-builder",
-      "shared",
-      "home"
+      "practice",
+      "shared"
+    ],
+    "excluded_features": [
+      "settings"
     ],
     "spec": "../../implementation/approved-ui-handoff.md",
     "translations": [
       {
         "language_tag": "ru",
-        "text": "Согласовано пользователем 2026-11-04. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
+        "text": "Согласовано пользователем 2026-11-07 для всех экранов реестра, кроме SETTINGS и SETTINGS.01. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
       },
       {
         "language_tag": "en",
-        "text": "Approved by the user on 2026-11-04. Ready for implementation against the specification; design approval does not imply Android completion."
+        "text": "Approved by the user on 2026-11-07 for all registry screens except SETTINGS and SETTINGS.01. Ready for implementation against the specification; design approval does not imply Android completion."
       }
     ]
   },
@@ -34,12 +38,12 @@
         {
           "language_tag": "ru",
           "title": "Главная",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "changes": "Согласовано 2026-11-07: запуск и рецепты тренировок разделены; незавершённая — статус на кнопке и диалог; stationery и настройки — стикеры в палитре маскота."
         },
         {
           "language_tag": "en",
           "title": "Home",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "changes": "Approved 2026-11-07: launch and training recipes are separate; unfinished shows status on the button and a dialog; stationery and settings use mascot-palette stickers."
         }
       ],
       "feature": "home",
@@ -47,6 +51,28 @@
         "APP-01"
       ],
       "parent_id": null
+    },
+    {
+      "id": "HOME.01",
+      "module": "web",
+      "key": "training-pick",
+      "route": "training-pick",
+      "status": "approved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Выбор рецепта",
+          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт»."
+        },
+        {
+          "language_tag": "en",
+          "title": "Choose recipe",
+          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”."
+        }
+      ],
+      "feature": "home",
+      "legacy_ids": [],
+      "parent_id": "HOME"
     },
     {
       "id": "BOOKS",
@@ -596,17 +622,17 @@
       "module": "web",
       "key": "recipe-detail",
       "route": "recipe-detail",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",
           "title": "Рецепт",
-          "changes": "Просмотр: название, карточки материалов без тапа, лимиты, слова рецепта."
+          "changes": "Согласовано 2026-11-07: просмотр рецепта без радиовыбора; редактирование через меню."
         },
         {
           "language_tag": "en",
           "title": "Recipe",
-          "changes": "Read-only: name, non-interactive material cards, limits, recipe word pool."
+          "changes": "Approved 2026-11-07: read-only recipe view without radio selection; edit via menu."
         }
       ],
       "feature": "recipe-builder",
@@ -927,17 +953,17 @@
       "module": "web",
       "key": "practice",
       "route": "practice",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",
           "title": "Тренировка",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "changes": "Согласовано 2026-11-07 (макет). Исполнение тренировок по рецепту — отдельный этап реализации."
         },
         {
           "language_tag": "en",
           "title": "Practice",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "changes": "Approved 2026-11-07 (design). Recipe-driven training execution remains a separate implementation stage."
         }
       ],
       "feature": "practice",
@@ -945,6 +971,30 @@
         "APP-02"
       ],
       "parent_id": null
+    },
+    {
+      "id": "PRACTICE.01",
+      "module": "web",
+      "key": "practice-complete",
+      "route": "practice-complete",
+      "status": "approved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Итог тренировки",
+          "changes": "Согласовано 2026-11-07 (макет итога). Хранение/статистика результатов — отдельный этап."
+        },
+        {
+          "language_tag": "en",
+          "title": "Training summary",
+          "changes": "Approved 2026-11-07 (summary design). Result storage/stats remain a separate stage."
+        }
+      ],
+      "feature": "practice",
+      "legacy_ids": [
+        "APP-02.01"
+      ],
+      "parent_id": "PRACTICE"
     },
     {
       "id": "SETTINGS",

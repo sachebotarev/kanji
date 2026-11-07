@@ -14,7 +14,9 @@ function updateChrome(){
  q('#feature-nav').replaceChildren(...viewerRegistry.features.map(f=>{const a=document.createElement('a');a.className='nav-link'+(f.id===selectedFeature?' active':'');a.href=routeFor(f.id);a.dataset.feature=f.id;if(f.id===selectedFeature)a.setAttribute('aria-current','page');a.textContent=localizedFeature(f).title;return a}));
  const screens=viewerRegistry.screens.filter(s=>s.feature===selectedFeature&&s.status!=='retired');
  q('#screen-list-label').hidden=!screens.length;
+ q('#screen-list-label').textContent=screens.length?`Экраны фичи · ${screens.length}`:'Экраны фичи';
  q('#feature-screens').replaceChildren(...screens.map(s=>{const a=document.createElement('a');a.className='nav-link screen-link'+(s.id===selectedScreen?.id?' active':'');a.href=routeFor(selectedFeature,s.id);a.dataset.screen=s.id;if(s.id===selectedScreen?.id)a.setAttribute('aria-current','page');const flag=document.createElement('span');flag.className='screen-status-mark';flag.textContent=s.status==='approved'?'✓':'○';flag.setAttribute('aria-label',s.status==='approved'?'Согласовано':'Не согласовано');a.style.paddingInlineStart=(12+Math.min(3,s.id.split('.').length-1)*12)+'px';a.title=(s.legacy_ids||[]).join(', ');a.append(flag,document.createTextNode(s.id+' · '+localizedScreen(s).title));return a}));
+ if(q('#viewer-registry-rev'))q('#viewer-registry-rev').textContent=viewerRegistry.revision||'';
  q('#feature-launchers').hidden=selectedFeature!=='home';q('#viewer-layout').classList.toggle('is-home',selectedFeature==='home');q('#viewer-layout').classList.toggle('is-theme',selectedFeature==='theme');
  q('#feature-cards').replaceChildren(...viewerRegistry.features.filter(f=>f.id!=='home').map(f=>{const a=document.createElement('a');a.className='feature-launcher';a.href=routeFor(f.id);a.dataset.feature=f.id;const title=document.createElement('strong'),desc=document.createElement('span');title.textContent=localizedFeature(f).title;desc.textContent=localizedFeature(f).description;a.append(title,desc);return a}));
  frame.title=row?.title||tr.title;
@@ -27,7 +29,8 @@ function choose(feature,id){
  selectedFeature=feature;selectedScreen=feature==='theme'?null:viewerRegistry.screens.find(s=>s.feature===feature&&s.id===id)||viewerRegistry.screens.find(s=>s.feature===feature);
  pendingKey=selectedScreen?.key;activeState=null;showState(null);updateChrome();
  const module=feature==='theme'?'theme':selectedScreen.module;
- if(module!==childModule){childModule=module;frame.style.height=module==='theme'?'1200px':'962px';const target=module==='theme'?'shared/theme-preview.html':module==='catalog'?'textbooks/index.html':'web/index.html';frame.src=target+'?embedded=1'+(selectedScreen?'#'+(module==='web'?'home':launchRoute||selectedScreen.route):'')}
+ const frameRoute=launchRoute||selectedScreen?.route||'home';
+ if(module!==childModule){childModule=module;frame.style.height=module==='theme'?'1200px':'962px';const target=module==='theme'?'shared/theme-preview.html':module==='catalog'?'textbooks/index.html':'web/index.html';frame.src=target+'?embedded=1'+(selectedScreen?'#'+frameRoute:'')}
  else sendConfiguration(true);
 }
 function showState(state){
@@ -58,9 +61,23 @@ q('.viewer-controls').addEventListener('change',event=>{
 });
 window.addEventListener('hashchange',navigateFromHash);
 window.addEventListener('kanji-theme-updated',()=>{if(viewerRegistry)sendConfiguration(false)});
-fetch('../theme/screens.json',{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Registry HTTP '+r.status);return r.json()}).then(registry=>{
- viewerRegistry=registry;
- const legacy=new URLSearchParams(location.search),legacyItem=registry.screens.find(s=>s.module===legacy.get('module')&&s.route===legacy.get('route'));
+function ensurePracticeCompleteScreen(registry){
+ if((registry.screens||[]).some(s=>s.id==='PRACTICE.01'))return registry;
+ registry.screens=registry.screens||[];
+ registry.screens.push({
+  id:'PRACTICE.01',module:'web',key:'practice-complete',route:'practice-complete',status:'unapproved',
+  feature:'practice',parent_id:'PRACTICE',legacy_ids:['APP-02.01'],
+  translations:[
+   {language_tag:'ru',title:'Итог тренировки',changes:'Краткая статистика, оценка и маскот в трёх вариантах. Требует согласования.'},
+   {language_tag:'en',title:'Training summary',changes:'Brief stats, grade and three mascot variants. Approval required.'},
+  ],
+ });
+ registry.revision=(registry.revision||'')+'+practice-complete-fallback';
+ return registry;
+}
+fetch(`../theme/screens.json?rev=home-split-2026-11-07&t=${Date.now()}`,{cache:'reload'}).then(r=>{if(!r.ok)throw Error('Registry HTTP '+r.status);return r.json()}).then(registry=>{
+ viewerRegistry=ensurePracticeCompleteScreen(registry);
+ const legacy=new URLSearchParams(location.search),legacyItem=viewerRegistry.screens.find(s=>s.module===legacy.get('module')&&s.route===legacy.get('route'));
  if(legacyItem){history.replaceState(null,'',location.pathname+routeFor(legacyItem.feature,legacyItem.id))}
  else if(!location.hash)history.replaceState(null,'','#home');
  navigateFromHash();window.DesignViewer={get registry(){return viewerRegistry},get selected(){return selectedScreen},get feature(){return selectedFeature}};

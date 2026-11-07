@@ -11,7 +11,6 @@
     <string name="library_clear">Clear</string>
     <string name="library_above">Move up</string>
     <string name="library_below">Move down</string>
-    <string name="library_select">Select recipe “%1$s”</string>
     <string name="library_open">Open recipe “%1$s”</string>
     <string name="library_edit">Edit</string>
     <string name="library_copy_name">%1$s (copy)</string>

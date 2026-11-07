@@ -1,5 +1,15 @@
 # Иконки учебников
 
-Согласованные авторские рисунки, не копии реальных обложек. `textbook-sage.png` — Tobira (source_id 1), `textbook-blue.png` — Basic Kanji Book (source_id 2). Масштаб 48 × 48 с сохранением альфа-канала и исходных полей. Цвет декоративный, не признак уровня или издания.
+Авторские стикеры в стиле HOME-канцелярии. Не копии реальных обложек. Цвет декоративный, не признак уровня или издания.
 
-Используется один PNG для обеих тем с общей [адаптацией](../illustration-style.md). Для неизвестного источника предусмотрена нейтральная книга. Исходные промпты сохраняются как происхождение выбранных ресурсов, не альтернативный дизайн.
+## Назначение
+
+| Файл | Назначение |
+| --- | --- |
+| `textbook-sage.png` | Tobira (`source_id` 1) → Android `catalog_tobira` |
+| `textbook-blue.png` | Basic Kanji Book (`source_id` 2) → Android `catalog_basic` |
+| `textbook-cream.png` | нейтральный fallback → Android `catalog_book` |
+
+Масштаб отображения 48 × 48. Один PNG для обеих тем; адаптация — [illustration-style.md](../illustration-style.md).
+
+Запасные цвета (coral / ochre / plum / teal) — в [`../_spare/`](../_spare/README.md).

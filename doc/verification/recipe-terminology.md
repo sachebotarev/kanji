@@ -12,17 +12,19 @@
 
 Технические `sessionStorage`, drag-and-drop-сеансы и временные сеансы выбора не являются бизнес-сущностью Training. Канонические идентификаторы экранов — `RECIPE.*` (миграция с `TRAIN.*` 2026-11-06). Исторические отчёты, изображения, манифесты и экспорты Room 1–5 сохраняют исходные свидетельства, а не изображают повторную проверку.
 
-## Room 6: чистая установка
+## Room 7: чистая установка
 
-Единая база приложения — `kanji.db`, 24 таблицы. Имена агрегата:
+Единая база приложения — `kanji.db`, 29 таблиц. Имена агрегата рецептов:
 
 - `recipes`, `recipes_translations`;
 - `recipe_materials`;
 - `recipe_materials_chapters`, `recipe_materials_kanji`, `recipe_materials_words`, `recipe_materials_tags`.
 
-`recipe_id` ссылается на рецепт; `material_id` — на материал. Настоящий `recipe_materials.source_id` остаётся ID каталожного источника, не переименовывается в ID материала. Переводы отделены и используют `language_tag`, русский остаётся языком подстановки. Entity/DAO/@Relation, PK/FK, индексы, проверки, транзакции и [справочный DDL](../database/recipes.sql) согласованы с этими именами. Миграций, старых таблиц и совместимых представлений нет. Сохранён существующий предрелизный destructive fallback; старая база не переносится. Пользователь согласовал установку заново.
+Исполнение тренировок (отдельно от рецептов): `trainings`, `trainings_recipe_translations`, `training_tasks`, `training_task_translations`, `training_task_symbols` — [trainings.md](../database/trainings.md).
 
-[Экспорт схемы](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/6.json) и [проверка настоящей чистой установки](recipe-terminology-fresh-install.json). Приложение удалялось и устанавливалось только на отдельном Android 17 AVD `emulator-5554`; телефон не сбрасывался. Проверка читает временные копии SQLite/WAL, не изменяет SQL: версия 6, 24 таблицы, 2 исходных источника, 0 рецептов, `quick_check=ok`, пустой `foreign_key_check`, отсутствие совместимых views.
+`recipe_id` ссылается на рецепт; `material_id` — на материал. Настоящий `recipe_materials.source_id` остаётся ID каталожного источника, не переименовывается в ID материала. Переводы отделены и используют `language_tag`, русский остаётся языком подстановки. Entity/DAO/@Relation, PK/FK, индексы, проверки, транзакции и справочные DDL согласованы с этими именами. Миграций, старых таблиц и совместимых представлений нет. Сохранён существующий предрелизный destructive fallback; старая база не переносится.
+
+[Экспорт схемы](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/7.json). Историческая [проверка чистой установки v6](recipe-terminology-fresh-install.json) описывает тогдашнюю версию и не переписывается.
 
 ## Проверки
 

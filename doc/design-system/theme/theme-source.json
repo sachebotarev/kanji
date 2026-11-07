@@ -1,14 +1,18 @@
 {
   "schema_version": 1,
-  "revision": "material-jade-proposal-2026-11-02",
+  "revision": "material-jade-tone-unify-2026-11-07",
   "key_colors": {
     "primary": "#1E6A4B",
     "secondary": "#585D72",
     "tertiary": "#80543D",
     "error": "#BA1A1A"
   },
-  "neutral_chroma": 2,
-  "neutral_variant_chroma": 8,
+  "neutral_chroma": 6,
+  "neutral_variant_chroma": 10,
+  "primary_container_tones": {
+    "light": 92,
+    "dark": 24
+  },
   "font_family": "AppRoboto, NativeRoboto, Roboto, Arial, sans-serif",
   "shape": {
     "none": 0,

@@ -3,6 +3,7 @@ package ru.mobui.kanji
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.hasClickAction
+import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -13,6 +14,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToLog
@@ -40,6 +42,21 @@ class CatalogNavigationTest {
         waitTag("source-1")
     }
 
+    private fun applyChapter(number: Int) {
+        waitTag("chapter-picker-list")
+        compose
+            .onNodeWithTag("chapter-picker-list")
+            .performScrollToNode(hasTestTag("chapter-$number"))
+        compose.onNodeWithTag("chapter-$number").performClick()
+        compose.onNodeWithTag("chapter-apply").performClick()
+    }
+
+    private fun applyRadical(id: Int) {
+        waitTag("kanji-$id")
+        compose.onNodeWithTag("kanji-$id").bringIntoViewIfNeeded().performClick()
+        compose.onNodeWithTag("facet-apply").performClick()
+    }
+
     @Test
     fun combinesChapterAndRadicalOpensCardsAndRestoresFilters() {
         openCatalog()
@@ -48,26 +65,25 @@ class CatalogNavigationTest {
         compose.onNodeWithTag("catalog-tab-1").performClick()
         waitTag("kanji-19968")
         compose.onNodeWithTag("catalog-filter-chapter").performClick()
-        waitTag("chapter-3")
-        compose.onNodeWithTag("chapter-3").performClick()
+        applyChapter(3)
         waitTag("catalog-filter-radical")
         compose.onNodeWithTag("catalog-filter-radical").performClick()
-        waitTag("radical-1")
-        compose.onNodeWithTag("catalog-toggle-search").performClick()
-        compose.onNodeWithTag("catalog-search").performTextInput("999999")
+        waitTag("facet-apply")
+        compose.onNodeWithTag("catalog-search-toggle").performClick()
+        waitTag("facet-search")
+        compose.onNodeWithTag("facet-search").performTextInput("999999")
         compose.waitUntil(5_000) {
             compose
                 .onAllNodesWithText(
                     compose.activity.getString(
-                        ru.mobui.kanji.feature.catalog.R.string.catalog_empty,
+                        ru.mobui.kanji.core.wordui.R.string.selection_empty,
                     ),
                 )
                 .fetchSemanticsNodes()
                 .isNotEmpty()
         }
-        compose.onNodeWithTag("catalog-search").performTextClearance()
-        waitTag("radical-1")
-        compose.onNodeWithTag("radical-1").performClick()
+        compose.onNodeWithTag("facet-search").performTextClearance()
+        applyRadical(1)
         waitTag("kanji-19968")
         compose.onNodeWithTag("kanji-19968").performClick()
         waitTag("kanji-symbol")
@@ -100,6 +116,7 @@ class CatalogNavigationTest {
         compose.onNodeWithTag("catalog-filter-kanji").performClick()
         waitTag("kanji-19968")
         compose.onNodeWithTag("kanji-19968").performClick()
+        compose.onNodeWithTag("symbol-picker-apply").performClick()
         waitTag("catalog-filter-kanji")
         compose
             .onNodeWithText(

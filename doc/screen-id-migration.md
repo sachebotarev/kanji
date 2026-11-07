@@ -67,7 +67,8 @@
 | `DLG-ACTIVITY` | `HOME.D01` | home |
 | `DLG-WORD-STATS` | `HOME.D02` | home |
 | `DLG-OLD-TRAINING` | `LEGACY.01` | legacy |
-| `EXT-PRACTICE-RESULT` | `PRACTICE.01` | practice |
+| `APP-02.01` | `PRACTICE.01` | practice |
+| `EXT-PRACTICE-RESULT` | `PRACTICE.01` | practice (исторический ярлык; в aliases — `APP-02.01`) |
 
 ## Соответствие 2026-11-06 (`TRAIN` → `RECIPE`)
 

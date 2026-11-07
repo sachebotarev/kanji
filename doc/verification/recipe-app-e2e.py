@@ -109,11 +109,15 @@ def open_library():
     shell('am', 'force-stop', package)
     shell('am', 'start', '-n', package + '/.MainActivity')
     time.sleep(2)
-    tap('Выбрать')
+    tap('Открыть рецепты тренировок')
+
+
+def open_detail(name):
+    tap('Открыть рецепт «' + name + '»')
 
 
 def create(name):
-    tap('+ Создать')
+    tap('Создать')
     field(name)
     tap('Добавить материал')
     tap('По кандзи')
@@ -123,7 +127,8 @@ def create(name):
 
 
 def delete(name):
-    tap('Действия с тренировкой «' + name + '»')
+    open_detail(name)
+    tap('Действия с рецептом «' + name + '»')
     tap('Удалить')
     # Dialog has a single confirm action bearing the same label.
     tap('Удалить')
@@ -146,13 +151,15 @@ assert len(active_rows(created)) == 2
 b_id = next(r['id'] for r in active_rows(created) if r['name'] == b_name)
 assert len({m['id'] for m in created['materials']}) == len(created['materials'])
 assert all(m['material_type'] == 'kanji' for m in created['materials'])
-# A body tap must not change active choice.
+# Body opens detail; permanent radio selection is gone, so is_active is unchanged.
 previous_active = [r['id'] for r in active_rows(created) if r['is_active']]
-tap(b_name)
+open_detail(b_name)
 assert [r['id'] for r in active_rows(database()) if r['is_active']] == previous_active
+shell('input', 'keyevent', 'KEYCODE_BACK')
+time.sleep(.4)
 # Editing returns through the actual app graph and keeps UUID/material identity.
-tap('Действия с тренировкой «' + a_name + '»')
-tap('Изменить тренировку')
+open_detail(a_name)
+tap('Изменить')
 a_name += '_edited'
 field(a_name)
 tap('Сохранить')
@@ -160,29 +167,25 @@ edited = record('edit A')
 a_after = next(r for r in active_rows(edited) if r['id'] == a_id)
 assert a_after['name'] == a_name and a_after['revision'] > a['revision']
 assert edited['materials'] == created['materials']
-tap('Выбрать тренировку «' + b_name + '»')
-selected = record('radio select B')
-assert [r['id'] for r in active_rows(selected) if r['is_active']] == [b_id]
+shell('input', 'keyevent', 'KEYCODE_BACK')
+time.sleep(.4)
+active_before_drag = [r['id'] for r in active_rows(edited) if r['is_active']]
 # Android input's built-in draganddrop produces the real platform drag session.
 start, end = center(find(b_name)), center(find(a_name))
 shell('input', 'touchscreen', 'draganddrop', *start, *end, '1200')
 time.sleep(1)
 reordered = record('native drag B before A')
 assert [r['id'] for r in active_rows(reordered)] == [b_id, a_id]
-assert [r['id'] for r in active_rows(reordered) if r['is_active']] == [b_id]
+assert [r['id'] for r in active_rows(reordered) if r['is_active']] == active_before_drag
 # Actual process stop/relaunch, not ActivityScenario recreation or mock restoration.
 open_library()
 restarted = record('force-stop and relaunch')
 assert restarted == reordered
-assert find('Выбрать тренировку «' + b_name + '»').get('checked') == 'true'
 find(a_name)
+find(b_name)
 delete(b_name)
-deleted = record('delete active B')
+deleted = record('delete B')
 assert [r['id'] for r in active_rows(deleted)] == [a_id]
-assert not any(r['is_active'] for r in active_rows(deleted))
-shell('input', 'keyevent', 'KEYCODE_BACK')
-find('Тренировка не выбрана')
-tap('Выбрать')
 delete(a_name)
 cleaned = record('delete A and cleanup')
 assert not active_rows(cleaned)

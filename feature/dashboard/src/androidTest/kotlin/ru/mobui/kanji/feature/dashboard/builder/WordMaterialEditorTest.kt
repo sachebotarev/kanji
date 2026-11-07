@@ -12,12 +12,11 @@ import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.core.wordui.SymbolGridItem
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.click
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performSemanticsAction
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import ru.mobui.kanji.domain.catalog.CatalogWord

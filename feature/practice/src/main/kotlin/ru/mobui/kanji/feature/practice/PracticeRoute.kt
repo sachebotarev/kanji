@@ -16,7 +16,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.mobui.kanji.domain.practice.PracticeResult
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 
-/** Navigation-independent entry point. The host owns the ViewModel and result destination. */
+/**
+ * Navigation-independent entry point. The host owns the ViewModel and result destination.
+ *
+ * Prefer [onOpenCheckerSettings] from a NavHost host so checker settings are a real route.
+ * When null and [settings] is set, a local overlay is kept for feature test hosts.
+ */
 @Composable
 fun PracticeRoute(
     viewModel: PracticeViewModel,
@@ -28,12 +33,16 @@ fun PracticeRoute(
     wordLabel: String? = null,
     progressLabel: String? = null,
     readabilityAvailable: Boolean = true,
+    onOpenCheckerSettings: (() -> Unit)? = null,
 ) {
     var settingsOpen by rememberSaveable { mutableStateOf(false) }
-    BackHandler(settingsOpen) { settingsOpen = false }
+    val usesOverlay = onOpenCheckerSettings == null && settings != null
+    val openSettings =
+        onOpenCheckerSettings ?: if (usesOverlay) ({ settingsOpen = true }) else null
+    BackHandler(usesOverlay && settingsOpen) { settingsOpen = false }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val preview = viewModel.preview.collectAsStateWithLifecycle()
-    BackHandler(!settingsOpen) { if (!state.gestureActive) onBack() }
+    BackHandler(!(usesOverlay && settingsOpen)) { if (!state.gestureActive) onBack() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(viewModel, lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -48,7 +57,7 @@ fun PracticeRoute(
         }
     }
     LaunchedEffect(state.practice.result) { viewModel.deliverResult(onResult) }
-    if (settingsOpen && settings != null) {
+    if (usesOverlay && settingsOpen && settings != null) {
         CheckerSettingsScreen(
             settings,
             onSettingsChanged,
@@ -63,7 +72,7 @@ fun PracticeRoute(
             viewModel::onAction,
             viewModel::onPadEvent,
             activeStroke = { preview.value?.stroke },
-            onOpenSettings = if (settings != null) ({ settingsOpen = true }) else null,
+            onOpenSettings = openSettings,
             wordLabel = wordLabel,
             progressLabel = progressLabel,
         )

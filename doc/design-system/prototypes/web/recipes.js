@@ -5,7 +5,7 @@ const recipeCopy={
   recipes:'Рецепты',recipeEditor:'Редактор рецепта',newRecipe:'Создать рецепт',editRecipe:'Изменить рецепт',recipeDetail:'Рецепт',viewRecipe:'Открыть рецепт',
   reorderPlans:'Изменить порядок',finishReorder:'Готово',reorderTitle:'Порядок рецептов',screenMenu:'Действия со списком',dragPlan:'Перетащить рецепт',moveUp:'Переместить выше',moveDown:'Переместить ниже',movedPlan:(name,n)=>`${name}: позиция ${n}`,
   personalDictionary:'Мой словарь',
-  selected:'Выбран',allWordsCount:n=>`Все ${t('wordCount')(n)}`,selectAction:'Выбрать',menuLabel:name=>`Действия: ${name}`,moreSources:(first,n)=>`${first} + ещё ${n}`,listHint:'Выберите или создайте' ,listCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'рецепт':new Intl.PluralRules('ru').select(n)==='few'?'рецепта':'рецептов'}`,kindWords:'Слова',kindBook:'Учебник',kindKanji:'Кандзи / JLPT',kindPersonal:'Мои слова',kindMixed:'Смешанная',createFab:'Создать',editFab:'Изменить',planDetails:'Подробнее',newShort:'Новый рецепт',perWord:n=>`${n} с на слово`,
+  selected:'Выбран',allWordsCount:n=>`Все ${t('wordCount')(n)}`,selectAction:'Выбрать',menuLabel:name=>`Действия: ${name}`,moreSources:(first,n)=>`${first} + ещё ${n}`,listHint:'Создайте или откройте',listCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'рецепт':new Intl.PluralRules('ru').select(n)==='few'?'рецепта':'рецептов'}`,kindWords:'Слова',kindBook:'Учебник',kindKanji:'Кандзи / JLPT',kindPersonal:'Мои слова',kindMixed:'Смешанная',createFab:'Создать',editFab:'Изменить',planDetails:'Подробнее',newShort:'Новый рецепт',perWord:n=>`${n} с на слово`,
   tasksLabel:'Заданий',timeLabel:'Таймер',poolLabel:'Слов',
   tagJlpt:n=>`Кандзи JLPT N${n}`,tagKanji:symbol=>`Кандзи ${symbol}`,tagEntry:form=>`Запись: ${form}`,tagUnion:'или',tagSourceNumber:n=>`Источник ${n}`,tagFrom:n=>`С главы ${n}`,tagTo:n=>`По главу ${n}`,
   moreRecipeTags:n=>`Ещё ${n}`,collapseRecipeSources:'Свернуть состав',
@@ -43,7 +43,7 @@ const recipeCopy={
   recipes:'Recipes',recipeEditor:'Recipe editor',newRecipe:'Create recipe',editRecipe:'Edit recipe',recipeDetail:'Recipe',viewRecipe:'Open recipe',
   reorderPlans:'Change order',finishReorder:'Done',reorderTitle:'Recipe order',screenMenu:'List actions',dragPlan:'Drag recipe',moveUp:'Move up',moveDown:'Move down',movedPlan:(name,n)=>`${name}: position ${n}`,
   personalDictionary:'My dictionary',
-  selected:'Selected',allWordsCount:n=>`All ${t('wordCount')(n)}`,selectAction:'Select',menuLabel:name=>`Actions: ${name}`,moreSources:(first,n)=>`${first} + ${n} more`,listHint:'Choose or create',listCount:n=>`${n} ${n===1?'recipe':'recipes'}`,kindWords:'Words',kindBook:'Textbook',kindKanji:'Kanji / JLPT',kindPersonal:'My words',kindMixed:'Mixed',createFab:'Create',editFab:'Edit',planDetails:'Details',newShort:'New recipe',perWord:n=>`${n} sec per word`,
+  selected:'Selected',allWordsCount:n=>`All ${t('wordCount')(n)}`,selectAction:'Select',menuLabel:name=>`Actions: ${name}`,moreSources:(first,n)=>`${first} + ${n} more`,listHint:'Create or open',listCount:n=>`${n} ${n===1?'recipe':'recipes'}`,kindWords:'Words',kindBook:'Textbook',kindKanji:'Kanji / JLPT',kindPersonal:'My words',kindMixed:'Mixed',createFab:'Create',editFab:'Edit',planDetails:'Details',newShort:'New recipe',perWord:n=>`${n} sec per word`,
   tasksLabel:'Tasks',timeLabel:'Timer',poolLabel:'Pool',
   tagJlpt:n=>`Kanji JLPT N${n}`,tagKanji:symbol=>`Kanji ${symbol}`,tagEntry:form=>`Entry: ${form}`,tagUnion:'or',tagSourceNumber:n=>`Source ${n}`,tagFrom:n=>`From chapter ${n}`,tagTo:n=>`Through chapter ${n}`,
   moreRecipeTags:n=>`${n} more`,collapseRecipeSources:'Collapse content',
@@ -234,20 +234,21 @@ function recipeSourceTagsView(plan){
  return `<div class="plan-source-preview${expanded?' is-expanded':''}" data-plan-id="${plan.id}"><div id="plan-sources-${plan.id}" class="plan-source-tags is-simple">${content}</div>${total>2?`<button type="button" class="plan-sources-toggle" data-tr="sources-toggle" data-id="${plan.id}" aria-controls="plan-sources-${plan.id}" aria-expanded="${expanded}">${expanded?t('collapseRecipeSources'):t('moreRecipeTags')(total-2)}</button>`:''}</div>`;
 }
 
-function planCardView(p){
- const selected=p.id===selectedRecipeId;
+function planCardView(p,mode='library'){
+ const pick=mode==='pick';
  const tasks=p.task_count===null?t('allWordsCount')(planWords(p).length):t('tasks')(p.task_count);
  const time=p.seconds_per_word===null?t('unlimited'):t('perWord')(p.seconds_per_word);
  const book=p.sources.length===1?p.sources[0].book:null;
  const kind=p.sources.length>1?'mixed':book==='personal'?'personal':typeof book==='number'?'book':p.sources.some(s=>s.kanji||s.jlpt)?'kanji':'words';
- return `<article class="plan-card ${selected?'plan-card-selected':''}" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_word!==null}">
-  <div class="plan-card-main" data-tr="view" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(t('viewRecipe')+': '+planName(p))}">
+ const cardAction=pick?'start':'view';
+ const label=pick?t('launch'):t('viewRecipe');
+ return `<article class="plan-card plan-card-plain ${pick?'plan-card-pick':''}" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_word!==null}" data-mode="${mode}">
+  <div class="plan-card-main" data-tr="${cardAction}" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(label+': '+planName(p))}">
    <span class="plan-title-row"><span class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</span></span>
    <div class="plan-material">${recipeSourceTagsView(p)}</div>
    <span class="plan-metrics"><span>${icon('word-stack')}${escapeHTML(tasks)}</span><span class="plan-time ${p.seconds_per_word===null?'':'is-timed'}">${icon(p.seconds_per_word===null?'no-timer':'timer')}${escapeHTML(time)}</span></span>
   </div>
-  <input type="radio" class="plan-select" name="recipe-selection" value="${p.id}" data-tr="select" data-id="${p.id}" ${selected?'checked':''} aria-label="${escapeHTML(t('selectRecipe')+': '+planName(p))}">
-  <div class="plan-accessible-actions">${['move-up','move-down'].map((action,index)=>`<button type="button" data-tr="${action}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>
+  ${pick?'':`<div class="plan-accessible-actions">${['move-up','move-down'].map((moveAction,index)=>`<button type="button" data-tr="${moveAction}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>`}
  </article>`;
 }
 const normalizeRecipeSearch=value=>value.normalize('NFKC').toLocaleLowerCase(locale).replaceAll('ё','е');
@@ -262,10 +263,13 @@ function recipeSearchCount(plans){
  const number=new Intl.NumberFormat(locale);
  return recipeSearchQuery.trim()?t('recipeResults')(number.format(plans.length),number.format(recipes.length)):t('listCount')(recipes.length);
 }
-function recipeListItems(plans){
- if(!recipes.length)return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('emptyRecipeHint'),false)}</div>`;
+function recipeListItems(plans,mode='library'){
+ if(!recipes.length){
+  if(mode==='pick')return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('pickEmptyHint'),false)}<button type="button" class="tonal-button" data-action="open-recipe-book">${t('openRecipeBook')}</button></div>`;
+  return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('emptyRecipeHint'),false)}</div>`;
+ }
  if(!plans.length)return `<div class="recipe-search-empty"><h3>${t('recipeNotFound')}</h3></div>`;
- return plans.map(planCardView).join('');
+ return plans.map(p=>planCardView(p,mode)).join('');
 }
 // Reuse the catalog Material search and search_off artwork.
 const recipeSearchIcons={"search": "<svg fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><path d=\"M0 0h24v24H0V0z\" fill=\"none\"/><path d=\"M15.5 14h-.79l-.28-.27c1.2-1.4 1.82-3.31 1.48-5.34-.47-2.78-2.79-5-5.59-5.34-4.23-.52-7.79 3.04-7.27 7.27.34 2.8 2.56 5.12 5.34 5.59 2.03.34 3.94-.28 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z\"/></svg>", "off": "<svg fill=\"currentColor\" aria-hidden=\"true\" xmlns=\"http://www.w3.org/2000/svg\" enable-background=\"new 0 0 24 24\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\"><g><rect fill=\"none\" height=\"24\" width=\"24\"/><rect fill=\"none\" height=\"24\" width=\"24\"/></g><g><g><path d=\"M15.5,14h-0.79l-0.28-0.27c1.2-1.4,1.82-3.31,1.48-5.34c-0.47-2.78-2.79-4.99-5.58-5.34C6.54,2.58,3.3,5.38,3.03,9h2.02 c0.24-2.12,1.92-3.8,4.06-3.98C11.65,4.8,14,6.95,14,9.5c0,2.49-2.01,4.5-4.5,4.5c-0.17,0-0.33-0.03-0.5-0.05l0,2.02 c0,0,0,0,0.01,0.01c1.8,0.13,3.47-0.47,4.72-1.55L14,14.71v0.79l4.25,4.25c0.41,0.41,1.08,0.41,1.49,0l0,0 c0.41-0.41,0.41-1.08,0-1.49L15.5,14z\"/><path d=\"M6.12,11.17L4,13.29l-2.12-2.12c-0.2-0.2-0.51-0.2-0.71,0l0,0c-0.2,0.2-0.2,0.51,0,0.71L3.29,14l-2.12,2.12 c-0.2,0.2-0.2,0.51,0,0.71l0,0c0.2,0.2,0.51,0.2,0.71,0L4,14.71l2.12,2.12c0.2,0.2,0.51,0.2,0.71,0l0,0c0.2-0.2,0.2-0.51,0-0.71 L4.71,14l2.12-2.12c0.2-0.2,0.2-0.51,0-0.71l0,0C6.63,10.98,6.32,10.98,6.12,11.17z\"/></g></g></svg>"};
@@ -274,8 +278,9 @@ function recipeSearchControl(){
  return `<div id="recipe-search"><label class="n-search"><span class="n-search-icon" aria-hidden="true">${icon('search')}</span><input id="recipe-query" type="search" value="${escapeHTML(recipeSearchQuery)}" placeholder="${t('recipeSearchHint')}" aria-label="${t('findRecipe')}" autocomplete="off" aria-controls="recipe-results"><button type="button" class="n-clear-query" data-tr="search-clear" ${recipeSearchQuery?'':'hidden'}>${t('clearRecipeSearch')}</button></label></div>`;
 }
 function updateRecipeSearch(){
+ const mode=screen==='training-pick'?'pick':'library';
  const plans=filteredRecipePlans();
- $('#recipe-results').innerHTML=recipeListItems(plans);
+ $('#recipe-results').innerHTML=recipeListItems(plans,mode);
  const count=$('#recipe-list-count'); if(count) count.textContent=recipeSearchCount(plans);
  $('#recipe-search .n-clear-query').hidden=!recipeSearchQuery;
  $('.recipe-list-scroll').scrollTop=0;
@@ -288,9 +293,19 @@ function recipesView(){
   ${welcome}
   ${recipeMessage?`<p role="status" class="recipe-status-msg">${escapeHTML(recipeMessage)}</p>`:''}
   <span class="plan-announcement" role="status" aria-live="polite" aria-atomic="true"></span>
-  <div class="plans-list" id="recipe-results" role="radiogroup" aria-label="${t('selectRecipe')}">${recipeListItems(plans)}</div>
+  <div class="plans-list" id="recipe-results" role="list" aria-label="${t('recipes')}">${recipeListItems(plans,'library')}</div>
  </div></div><div class="recipe-create-bar"><button type="button" class="recipe-create" data-tr="new" aria-label="${t('newRecipe')}">${icon('plus')}<span>${t('createFab')}</span></button></div>
  </div>`;
+}
+function trainingPickView(){
+ const plans=filteredRecipePlans();
+ const searchToggle=`<button type="button" class="recipe-search-toggle" data-tr="search-toggle" aria-label="${t(recipeSearchOpen?'hideRecipeSearch':'findRecipe')}" aria-expanded="${recipeSearchOpen}"${recipeSearchOpen?' aria-controls="recipe-search"':''}>${recipeSearchIcons[recipeSearchOpen?'off':'search']}</button>`;
+ const welcome=recipes.length?`<div class="recipe-welcome"><div><p>${t('pickRecipeHint')}</p><span id="recipe-list-count" role="status" aria-live="polite" aria-atomic="true">${recipeSearchCount(plans)}</span></div><img src="../../assets/mascot/cat-crafting-cards.png" alt="" aria-hidden="true"></div>`:'';
+ return `<div class="recipe-list-screen training-pick-screen">${header(t('pickRecipe'),'home',searchToggle)}<div class="recipe-list-scroll" tabindex="0" role="region" aria-label="${t('pickRecipe')}">${recipeSearchControl()}<div class="recipe-content recipe-list-content">
+  ${welcome}
+  <span class="plan-announcement" role="status" aria-live="polite" aria-atomic="true"></span>
+  <div class="plans-list" id="recipe-results" role="list" aria-label="${t('pickRecipe')}">${recipeListItems(plans,'pick')}</div>
+ </div></div></div>`;
 }
 function recipeDirty(){return recipeDraft&&JSON.stringify(recipeDraft)!==recipeOriginal;}
 function recipeLeave(next){showModal(t('unsaved'),`<p>${t('unsavedText')}</p>`,[{label:t('cancel'),fn:closeModal},{label:t('leaveUnsaved'),danger:true,fn:()=>{recipeDraft=null;go(next)}}]);}
@@ -361,7 +376,6 @@ document.addEventListener('click',e=>{
  const b=e.target.closest('[data-tr]');
  if(!b)return;
  const a=b.dataset.tr;
- if(a==='select')return; // Native radio selection is handled by change.
  e.preventDefault();
  if(a==='sources-toggle'){
   if(expandedRecipeSources.has(b.dataset.id))expandedRecipeSources.delete(b.dataset.id);else expandedRecipeSources.add(b.dataset.id);
@@ -404,6 +418,11 @@ document.addEventListener('click',e=>{
   if(Date.now()<suppressPlanClickUntil)return;
    openRecipeDetail(b.dataset.id);
  }
+ if(a==='start'){
+  if(Date.now()<suppressPlanClickUntil)return;
+  selectedRecipeId=b.dataset.id;
+  go('practice');
+ }
  if(a==='edit'){
    initRecipe(b.dataset.id);
  }
@@ -425,7 +444,7 @@ document.addEventListener('click',e=>{
 let planDrag=null,suppressPlanClickUntil=0;
 function beginPlanHold(target,x,y,pointer,touch=false){
  const card=target.closest('.plan-card');
- if(!card||target.closest('button,input,a,select,textarea')||recipeSearchQuery.trim())return;
+ if(!card||card.classList.contains('plan-card-pick')||target.closest('button,input,a,select,textarea')||recipeSearchQuery.trim())return;
  if(planDrag)finishPlanDrag(false);
  const drag={card,id:card.dataset.id,pointer,touch,startX:x,startY:y,active:false,timer:null};
  planDrag=drag;
@@ -510,16 +529,6 @@ document.addEventListener('input',e=>{const el=e.target;if(el.id==='recipe-query
 document.addEventListener('compositionend',e=>{if(e.target.id==='recipe-query'){recipeSearchQuery=e.target.value;updateRecipeSearch();}});
 document.addEventListener('change',e=>{
  const el=e.target;
- if(el.matches('.plan-select')&&el.checked){
-  const scroll=$('.recipe-list-scroll').scrollTop;
-  selectedRecipeId=el.dataset.id;
-  
-  recipeMessage='';
-  render();
-  $('.recipe-list-scroll').scrollTop=scroll;
-  document.querySelector('.plan-card-selected .plan-select')?.focus({preventScroll:true});
- }
-
  if(el.dataset.source){
   let val=el.value===''?null:(el.dataset.source==='book'&&el.value==='personal'?'personal':Number(el.value));
   if(el.dataset.source==='book'&&sourceDraft.book!==val){sourceDraft.chapters=[];sourceDraft.from=null;sourceDraft.to=null;sourceDraft.kanji_ids=[];materialOpenFilter=null;}

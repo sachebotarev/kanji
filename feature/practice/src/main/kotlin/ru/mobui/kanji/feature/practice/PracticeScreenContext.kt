@@ -218,16 +218,17 @@ internal fun PracticeWriting(
             }
             Spacer(Modifier.height(8.dp))
             if (flexiblePad) {
-                // Square keyed to width; leftover height keeps tools/status from being starved.
-                Box(
+                // Fit a square into leftover height so the pad never overflows onto tools.
+                BoxWithConstraints(
                     Modifier.weight(1f).fillMaxWidth(),
                     contentAlignment = Alignment.Center,
                 ) {
+                    val side = minOf(maxWidth, maxHeight)
                     key(practice.task.taskId) {
                         KanjiWritingPad(
                             state = context.padState(),
                             onEvent = onPadEvent,
-                            modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
+                            modifier = Modifier.size(side).testTag("practice-pad"),
                         )
                     }
                 }

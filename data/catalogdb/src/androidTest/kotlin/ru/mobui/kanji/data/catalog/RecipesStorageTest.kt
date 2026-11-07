@@ -48,13 +48,13 @@ class RecipesStorageTest {
     @Test fun schemaUsesRecipeAndMaterialNamesWithoutLegacyConfigurationTables() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(6, sql.version)
+        assertEquals(7, sql.version)
         val tables = sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
             buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
         }
         assertTrue(tables.containsAll(setOf("recipes", "recipes_translations", "recipe_materials",
             "recipe_materials_chapters", "recipe_materials_kanji", "recipe_materials_words", "recipe_materials_tags")))
-        assertFalse(tables.any { it == "trainings" || it.startsWith("training_") })
+        assertTrue(tables.containsAll(setOf("trainings", "training_tasks", "training_task_symbols")))
         listOf("chapters", "kanji", "words", "tags").forEach { suffix ->
             sql.query("PRAGMA foreign_key_list(recipe_materials_$suffix)").use { cursor ->
                 var found = false
@@ -145,8 +145,6 @@ class RecipesStorageTest {
         val word = catalog.saveWord(null, draft())
         catalog.recipesRepository.saveRecipe(recipe("one", word))
         rejected { sql.execSQL("UPDATE recipes SET task_count=0 WHERE id='one'") }
-        assertEquals(0, sql.query("SELECT name FROM sqlite_master WHERE type='table' AND name IN ('trainings','training_materials','training_results')").use {
-            it.count })
     }
 
     @Test fun oldVersionIsReplacedWithoutMigrationAndChecksSurviveReopen() = runBlocking {
@@ -172,7 +170,7 @@ class RecipesStorageTest {
                 val db = CatalogDatabase.open(context, name)
                 try {
                     val sql = db.openHelper.writableDatabase
-                    assertEquals(6, sql.version)
+                    assertEquals(7, sql.version)
                     assertEquals(0, sql.query("SELECT name FROM sqlite_master WHERE name='old_marker'").use { it.count })
                     rejected { sql.execSQL("INSERT INTO dictionary_tags(color,position,created_at,updated_at) VALUES('invalid',0,0,0)") }
                     RoomCatalogRepository(db, instrumentation.context.assets, Dispatchers.IO).load()

@@ -173,7 +173,9 @@ class HandwritingTraining(task: PracticeTask) {
         val index = state.selectedIndex ?: return
         if (state.result != null || state.cells[index].task.mode != EntryMode.User) return
         val current = state.cells[index]
-        history.getValue(current.task.occurrenceId).addLast(current)
+        val entries = history.getValue(current.task.occurrenceId)
+        entries.addLast(current)
+        while (entries.size > MAX_HISTORY_ENTRIES) entries.removeFirst()
         replace(index, transform(current).copy(revision = current.revision + 1))
     }
 
@@ -182,3 +184,5 @@ class HandwritingTraining(task: PracticeTask) {
             state.copy(cells = state.cells.mapIndexed { i, old -> if (i == index) cell else old })
     }
 }
+
+private const val MAX_HISTORY_ENTRIES = 30

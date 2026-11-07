@@ -1,6 +1,7 @@
 package ru.mobui.kanji.feature.dashboard.builder
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,10 +36,19 @@ class RecipeBuilderActions(
 )
 
 @Composable
-fun RecipeBuilderRoute(catalog: CatalogRepository, personal: PersonalDictionaryRepository,
-    recipesRepository: RecipesRepository, actions: RecipeBuilderActions, modifier: Modifier = Modifier) {
+fun RecipeBuilderRoute(
+    catalog: CatalogRepository,
+    personal: PersonalDictionaryRepository,
+    recipesRepository: RecipesRepository,
+    actions: RecipeBuilderActions,
+    modifier: Modifier = Modifier,
+    openCreate: Boolean = false,
+) {
     val nav = rememberNavController()
     val language = LocalConfiguration.current.preferredLanguageTag()
+    LaunchedEffect(openCreate) {
+        if (openCreate) nav.navigate(RecipeEdit())
+    }
     NavHost(nav, startDestination = RecipeLibrary, modifier = modifier) {
         composable<RecipeLibrary> {
             val model = libraryModel(catalog, personal, recipesRepository, "library")
@@ -46,12 +56,12 @@ fun RecipeBuilderRoute(catalog: CatalogRepository, personal: PersonalDictionaryR
             val query by model.query.collectAsStateWithLifecycle()
             RecipeLibraryScreen(state, query, language, RecipeLibraryActions(
                 actions.onBack, { nav.navigate(RecipeEdit()) }, { nav.navigate(RecipeDetail(it)) },
-                model::select, model::reorder, model::query, model::retry))
+                model::reorder, model::query, model::retry))
         }
         composable<RecipeDetail> { entry ->
             val id = entry.toRoute<RecipeDetail>().id
             // Share the library ViewModel so detail does not load a second catalog copy.
-            val libraryOwner = remember(nav) { nav.getBackStackEntry(RecipeLibrary) }
+            val libraryOwner = remember(entry) { nav.getBackStackEntry(RecipeLibrary) }
             val model = libraryModel(catalog, personal, recipesRepository, "library", libraryOwner)
             val state by model.state.collectAsStateWithLifecycle()
             RecipeDetailScreen(

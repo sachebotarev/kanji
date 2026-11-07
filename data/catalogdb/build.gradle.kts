@@ -14,6 +14,7 @@ android {
 }
 dependencies {
     api(project(":domain:catalog"))
+    api(project(":domain:practice"))
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.coroutines.android)

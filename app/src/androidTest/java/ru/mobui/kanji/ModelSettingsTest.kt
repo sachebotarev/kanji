@@ -20,6 +20,25 @@ class ModelSettingsTest {
     @get:Rule val compose = createComposeRule()
 
     @Test
+    fun clearTrainingHistoryRequiresConfirmation() {
+        var cleared = 0
+        compose.setContent {
+            KanjiTheme {
+                SettingsScreen({}, {}, onClearTrainingHistory = { cleared++ })
+            }
+        }
+        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history-dialog").assertExists()
+        compose.onNodeWithTag("clear-training-history-cancel").performClick()
+        compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(0, cleared) }
+        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history-confirm").performClick()
+        compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
+        compose.runOnIdle { assertEquals(1, cleared) }
+    }
+
+    @Test
     fun downloadButtonOnlyAcceptsMissingModel() {
         val loading = mutableStateOf(false)
         val ready = mutableStateOf(false)
