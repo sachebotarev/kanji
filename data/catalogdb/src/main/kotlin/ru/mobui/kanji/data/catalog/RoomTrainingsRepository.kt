@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import ru.mobui.kanji.domain.practice.CompletedTrainingTask
 import ru.mobui.kanji.domain.practice.StoredCheckVerdict
 import ru.mobui.kanji.domain.practice.Training
 import ru.mobui.kanji.domain.practice.TrainingRecipeName
@@ -41,6 +42,16 @@ internal class RoomTrainingsRepository(
 
     override fun observeInProgress(): Flow<Training?> = installed {
         dao.observeInProgress().map { it?.toDomain() }
+    }
+
+    override fun observeCompletedTasks(): Flow<List<CompletedTrainingTask>> = installed {
+        dao.observeCompletedTasks().map { rows ->
+            rows.map { CompletedTrainingTask(it.endedAt, it.status) }
+        }
+    }
+
+    override fun observeHistory(): Flow<List<Training>> = installed {
+        dao.observeHistory().map { rows -> rows.map { it.toDomain() } }
     }
 
     override suspend fun getInProgress(): Training? =
@@ -86,6 +97,12 @@ internal class RoomTrainingsRepository(
             }
         }
 
+    override suspend fun deleteTraining(id: String) =
+        withContext(io) {
+            prepare()
+            dao.deleteById(id)
+        }
+
     override suspend fun clearHistory() =
         withContext(io) {
             prepare()
@@ -99,7 +116,7 @@ internal class RoomTrainingsRepository(
                 training.recipeId,
                 training.recipeRevision,
                 training.taskCount,
-                training.secondsPerWord,
+                training.secondsPerSymbol,
                 training.status.key,
                 training.startedAt,
                 training.endedAt,
@@ -128,6 +145,7 @@ internal class RoomTrainingsRepository(
                         task.startedAt,
                         task.endedAt,
                         task.elapsedMs,
+                        task.readingHintUsed,
                     )
                 },
             )
@@ -179,7 +197,7 @@ private fun TrainingAggregate.toDomain(): Training =
         training.recipeRevision,
         recipeNames.map { TrainingRecipeName(it.languageTag, it.name) },
         training.taskCount,
-        training.secondsPerWord,
+        training.secondsPerSymbol,
         TrainingStatus.entries.single { it.key == training.status },
         training.startedAt,
         training.endedAt,
@@ -199,6 +217,7 @@ private fun TrainingAggregate.toDomain(): Training =
                     aggregate.task.startedAt,
                     aggregate.task.endedAt,
                     aggregate.task.elapsedMs,
+                    aggregate.task.readingHintUsed,
                     aggregate.symbols
                         .sortedBy { it.position }
                         .map { symbol ->

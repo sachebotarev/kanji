@@ -2,9 +2,11 @@ package ru.mobui.kanji.feature.practice
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -19,13 +21,15 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
 import ru.mobui.kanji.domain.practice.CheckKind
 import ru.mobui.kanji.domain.practice.CheckReport
@@ -91,9 +95,11 @@ internal fun CheckerTestingStatuses(
                             ?.let { stringResource(R.string.check_match_percent, it.roundToInt()) }
                     CheckKind.StrokeWriting -> strokeCount.toString()
                 }
+            // Fixed band height: a recognized kanji must never grow this row and resize the pad
+            // (pad size changes cancel the active stroke in UI-PAD).
             Column(
                 Modifier.weight(1f)
-                    .heightIn(min = 44.dp)
+                    .height(STATUS_BAND_HEIGHT)
                     .clip(RoundedCornerShape(10.dp))
                     .clickable(enabled = enabled, role = Role.Button, onClickLabel = label) {
                         onOpen(kind)
@@ -110,26 +116,39 @@ internal fun CheckerTestingStatuses(
                             }
                         else disabled()
                     }
-                    .padding(horizontal = 2.dp, vertical = 4.dp),
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(0.dp, Alignment.CenterVertically),
+                verticalArrangement = Arrangement.Center,
             ) {
                 Text(
                     label,
                     color = colors.onSurfaceVariant,
-                    style = MaterialTheme.typography.labelSmall,
-                )
-                Text(
-                    detail ?: if (checking) "…" else "—",
-                    color = valueColor,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.labelMedium,
                     maxLines = 1,
+                    overflow = TextOverflow.Clip,
                 )
+                Box(
+                    Modifier.fillMaxWidth().height(STATUS_VALUE_HEIGHT),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        detail ?: if (checking) "…" else "—",
+                        color = valueColor,
+                        style =
+                            MaterialTheme.typography.titleLarge.copy(lineHeight = 28.sp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip,
+                    )
+                }
             }
         }
     }
 }
+
+private val STATUS_BAND_HEIGHT = 60.dp
+private val STATUS_VALUE_HEIGHT = 30.dp
 
 @Preview
 @Composable

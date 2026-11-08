@@ -16,7 +16,7 @@ internal fun installRecipeChecks(db: SupportSQLiteDatabase) {
                 "NEW.is_archived IN (0,1) AND (NEW.is_archived=0 OR NEW.is_active=0) AND " +
                 "NEW.revision>0 AND NEW.selection_mode='shuffled_cycles' AND " +
                 "(NEW.task_count IS NULL OR NEW.task_count>0) AND " +
-                "(NEW.seconds_per_word IS NULL OR NEW.seconds_per_word>0)"
+                "(NEW.seconds_per_symbol IS NULL OR NEW.seconds_per_symbol>0)"
             ),
         "recipes_translations" to
             "length(trim(NEW.language_tag))>0 AND length(trim(NEW.name)) BETWEEN 1 AND 120",
@@ -40,6 +40,10 @@ internal fun installRecipeChecks(db: SupportSQLiteDatabase) {
             "EXISTS(SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='words')",
         "recipe_materials_tags" to
             "EXISTS(SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='dictionary')",
+        "recipe_materials_jlpt" to (
+            "(NEW.jlpt_level=-1 OR NEW.jlpt_level BETWEEN 1 AND 5) AND " +
+                "EXISTS(SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='kanji')"
+            ),
     )
     checks.forEach { (table, predicate) ->
         listOf("INSERT", "UPDATE").forEach { action ->

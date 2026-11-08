@@ -380,7 +380,7 @@
   {
     "word_id": 55,
     "language_tag": "ru",
-    "translation": "один предмет — со счётным словом 個",
+    "translation": "один предмет",
     "usage_note": null,
     "original_translation": "один предмет — со счётным словом 個"
   },
@@ -1094,7 +1094,7 @@
   {
     "word_id": 157,
     "language_tag": "ru",
-    "translation": "обычный, среднего уровня — форма с の",
+    "translation": "обычный, среднего уровня",
     "usage_note": null,
     "original_translation": "обычный, среднего уровня — форма с の"
   },
@@ -2585,7 +2585,7 @@
   {
     "word_id": 370,
     "language_tag": "ru",
-    "translation": "туалет — слово 便所",
+    "translation": "туалет",
     "usage_note": null,
     "original_translation": "туалет — слово 便所"
   },
@@ -2613,7 +2613,7 @@
   {
     "word_id": 374,
     "language_tag": "ru",
-    "translation": "каждый отдельный, индивидуальный — форма с の",
+    "translation": "каждый отдельный, индивидуальный",
     "usage_note": null,
     "original_translation": "каждый отдельный, индивидуальный — форма с の"
   },
@@ -2627,7 +2627,7 @@
   {
     "word_id": 376,
     "language_tag": "ru",
-    "translation": "личный, индивидуальный — форма с な",
+    "translation": "личный, индивидуальный",
     "usage_note": null,
     "original_translation": "личный, индивидуальный — форма с な"
   },
@@ -2746,7 +2746,7 @@
   {
     "word_id": 393,
     "language_tag": "ru",
-    "translation": "здоровый, бодрый — форма с な",
+    "translation": "здоровый, бодрый",
     "usage_note": null,
     "original_translation": "здоровый, бодрый — форма с な"
   },
@@ -3166,7 +3166,7 @@
   {
     "word_id": 453,
     "language_tag": "ru",
-    "translation": "общий для нескольких, совместный — форма с の",
+    "translation": "общий для нескольких, совместный",
     "usage_note": null,
     "original_translation": "общий для нескольких, совместный — форма с の"
   },
@@ -3488,7 +3488,7 @@
   {
     "word_id": 499,
     "language_tag": "ru",
-    "translation": "другой, иной — форма с の",
+    "translation": "другой, иной",
     "usage_note": null,
     "original_translation": "другой, иной — форма с の"
   },
@@ -3537,7 +3537,7 @@
   {
     "word_id": 506,
     "language_tag": "ru",
-    "translation": "достигать, доходить — написание 到る",
+    "translation": "достигать, доходить",
     "usage_note": null,
     "original_translation": "достигать, доходить — написание 到る"
   },
@@ -3873,7 +3873,7 @@
   {
     "word_id": 554,
     "language_tag": "ru",
-    "translation": "городской район — административная единица 区",
+    "translation": "городской район",
     "usage_note": null,
     "original_translation": "городской район — административная единица 区"
   },
@@ -4307,7 +4307,7 @@
   {
     "word_id": 616,
     "language_tag": "ru",
-    "translation": "друг — слово 友",
+    "translation": "друг",
     "usage_note": null,
     "original_translation": "друг — слово 友"
   },
@@ -4356,7 +4356,7 @@
   {
     "word_id": 623,
     "language_tag": "ru",
-    "translation": "торговая сделка — написание 取り引き",
+    "translation": "торговая сделка",
     "usage_note": null,
     "original_translation": "торговая сделка — написание 取り引き"
   },
@@ -4881,7 +4881,7 @@
   {
     "word_id": 698,
     "language_tag": "ru",
-    "translation": "вопрос, задание — написание 問",
+    "translation": "вопрос, задание",
     "usage_note": null,
     "original_translation": "вопрос, задание — написание 問"
   },
@@ -5658,7 +5658,7 @@
   {
     "word_id": 809,
     "language_tag": "ru",
-    "translation": "большой — форма 大きな перед существительным",
+    "translation": "большой",
     "usage_note": null,
     "original_translation": "большой — форма 大きな перед существительным"
   },
@@ -6456,7 +6456,7 @@
   {
     "word_id": 923,
     "language_tag": "ru",
-    "translation": "моя жена — слово 家内",
+    "translation": "моя жена",
     "usage_note": null,
     "original_translation": "моя жена — слово 家内"
   },
@@ -6995,7 +6995,7 @@
   {
     "word_id": 1000,
     "language_tag": "ru",
-    "translation": "город — административная единица 市",
+    "translation": "город",
     "usage_note": null,
     "original_translation": "город — административная единица 市"
   },
@@ -7611,7 +7611,7 @@
   {
     "word_id": 1088,
     "language_tag": "ru",
-    "translation": "необходимый — форма с な",
+    "translation": "необходимый",
     "usage_note": null,
     "original_translation": "необходимый — форма с な"
   },
@@ -7779,7 +7779,7 @@
   {
     "word_id": 1112,
     "language_tag": "ru",
-    "translation": "злокачественный — форма с の",
+    "translation": "злокачественный",
     "usage_note": null,
     "original_translation": "злокачественный — форма с の"
   },
@@ -8549,7 +8549,7 @@
   {
     "word_id": 1222,
     "language_tag": "ru",
-    "translation": "культурный — форма с な",
+    "translation": "культурный",
     "usage_note": null,
     "original_translation": "культурный — форма с な"
   },
@@ -9207,7 +9207,7 @@
   {
     "word_id": 1316,
     "language_tag": "ru",
-    "translation": "ужин — написание 晩御飯",
+    "translation": "ужин",
     "usage_note": null,
     "original_translation": "ужин — написание 晩御飯"
   },
@@ -9431,7 +9431,7 @@
   {
     "word_id": 1348,
     "language_tag": "ru",
-    "translation": "первый, начальный — форма с の",
+    "translation": "первый, начальный",
     "usage_note": null,
     "original_translation": "первый, начальный — форма с の"
   },
@@ -9508,7 +9508,7 @@
   {
     "word_id": 1359,
     "language_tag": "ru",
-    "translation": "существовать, иметься — написание 有る",
+    "translation": "существовать, иметься",
     "usage_note": null,
     "original_translation": "существовать, иметься — написание 有る"
   },
@@ -10558,7 +10558,7 @@
   {
     "word_id": 1509,
     "language_tag": "ru",
-    "translation": "сравнивать — слово 比べる",
+    "translation": "сравнивать",
     "usage_note": null,
     "original_translation": "сравнивать — слово 比べる"
   },
@@ -10572,7 +10572,7 @@
   {
     "word_id": 1511,
     "language_tag": "ru",
-    "translation": "сравнивать — слово 比較する",
+    "translation": "сравнивать",
     "usage_note": null,
     "original_translation": "сравнивать — слово 比較する"
   },
@@ -11468,7 +11468,7 @@
   {
     "word_id": 1639,
     "language_tag": "ru",
-    "translation": "отсутствовать, не иметься — написание 無い",
+    "translation": "отсутствовать, не иметься",
     "usage_note": null,
     "original_translation": "отсутствовать, не иметься — написание 無い"
   },
@@ -11566,7 +11566,7 @@
   {
     "word_id": 1653,
     "language_tag": "ru",
-    "translation": "жареное мясо — написание 焼肉",
+    "translation": "жареное мясо",
     "usage_note": null,
     "original_translation": "жареное мясо — написание 焼肉"
   },
@@ -11951,7 +11951,7 @@
   {
     "word_id": 1708,
     "language_tag": "ru",
-    "translation": "рисовое поле — отдельное слово 田",
+    "translation": "рисовое поле",
     "usage_note": null,
     "original_translation": "рисовое поле — отдельное слово 田"
   },
@@ -12483,7 +12483,7 @@
   {
     "word_id": 1784,
     "language_tag": "ru",
-    "translation": "префектура — обозначение 県",
+    "translation": "префектура",
     "usage_note": null,
     "original_translation": "префектура — обозначение 県"
   },
@@ -12567,7 +12567,7 @@
   {
     "word_id": 1796,
     "language_tag": "ru",
-    "translation": "совершенно белый — написание 真白",
+    "translation": "совершенно белый",
     "usage_note": null,
     "original_translation": "совершенно белый — написание 真白"
   },
@@ -13218,7 +13218,7 @@
   {
     "word_id": 1889,
     "language_tag": "ru",
-    "translation": "США — название с иероглифом 米",
+    "translation": "США",
     "usage_note": null,
     "original_translation": "США — название с иероглифом 米"
   },
@@ -13666,7 +13666,7 @@
   {
     "word_id": 1953,
     "language_tag": "ru",
-    "translation": "человек, лицо — написание 者",
+    "translation": "человек, лицо",
     "usage_note": null,
     "original_translation": "человек, лицо — написание 者"
   },
@@ -14975,7 +14975,7 @@
   {
     "word_id": 2140,
     "language_tag": "ru",
-    "translation": "покупки — написание без い",
+    "translation": "покупки",
     "usage_note": null,
     "original_translation": "покупки — написание без い"
   },
@@ -15920,7 +15920,7 @@
   {
     "word_id": 2275,
     "language_tag": "ru",
-    "translation": "подходящий, соответствующий — форма 適した",
+    "translation": "подходящий, соответствующий",
     "usage_note": null,
     "original_translation": "подходящий, соответствующий — форма 適した"
   },
@@ -16970,7 +16970,7 @@
   {
     "word_id": 2425,
     "language_tag": "ru",
-    "translation": "лицо — слово 顔面",
+    "translation": "лицо",
     "usage_note": null,
     "original_translation": "лицо — слово 顔面"
   },

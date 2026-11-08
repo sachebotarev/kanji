@@ -29,8 +29,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -79,11 +80,14 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.style.Hyphens
 import androidx.compose.ui.text.style.LineBreak
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -113,11 +117,10 @@ fun PracticeScreen(
     onPadEvent: (PadEvent) -> Unit,
     modifier: Modifier = Modifier,
     activeStroke: () -> InkStroke? = { null },
-    onOpenSettings: (() -> Unit)? = null,
     wordLabel: String? = null,
     progressLabel: String? = null,
+    onBack: (() -> Unit)? = null,
 ) {
-    var debugOpen by rememberSaveable { mutableStateOf(false) }
     val practice = state.practice
     val selected = practice.selected
     var openCheck by
@@ -126,18 +129,21 @@ fun PracticeScreen(
         }
     LaunchedEffect(state.gestureActive) { if (state.gestureActive) openCheck = null }
     val context =
-        PracticeScreenContext(state, onAction, onPadEvent, activeStroke, wordLabel, progressLabel)
+        PracticeScreenContext(
+            state,
+            onAction,
+            onPadEvent,
+            activeStroke,
+            wordLabel,
+            progressLabel,
+            onBack = onBack,
+        )
     Scaffold(modifier = modifier, bottomBar = { PracticeBottomBar(context) }) { padding ->
         PracticeContentLayout(context, padding) { openCheck = it }
     }
-    if (debugOpen && state.debugEnabled) DebugDialog(state) { debugOpen = false }
     if (openCheck != null && !state.gestureActive) {
-        PracticeDetails(context, openCheck!!, { openCheck = null }, onOpenSettings) {
-            openCheck = null
-            debugOpen = true
-        }
+        PracticeDetails(context, openCheck!!, { openCheck = null })
     }
-
 }
 
 @Composable
@@ -149,8 +155,9 @@ internal fun PracticeStatus(
     modifier: Modifier = Modifier,
     onOpen: (CheckKind) -> Unit,
 ) {
+    // Fixed-height host so check details never push/shrink the writing pad.
     Row(
-        modifier.heightIn(min = 40.dp),
+        modifier.height(48.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CheckerTestingStatuses(
@@ -160,91 +167,6 @@ internal fun PracticeStatus(
             strokeCount = strokeCount,
             enabled = enabled,
             onOpen = onOpen,
-        )
-    }
-}
-
-@Composable
-internal fun PracticeTools(
-    hintActive: Boolean,
-    hintEnabled: Boolean,
-    undoEnabled: Boolean,
-    clearEnabled: Boolean,
-    onAction: (PracticeAction) -> Unit,
-) {
-    val haptics = LocalHapticFeedback.current
-    val hintDescription =
-        stringResource(if (hintActive) R.string.hint_active else R.string.hint_idle)
-    LaunchedEffect(hintActive) {
-        if (hintActive) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
-    }
-    Row(
-        Modifier.fillMaxWidth()
-            .heightIn(min = 42.dp)
-            .background(MaterialTheme.colorScheme.secondaryContainer, RoundedCornerShape(16.dp))
-            .padding(horizontal = 5.dp, vertical = 5.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        WorkspaceTool(
-            R.drawable.ic_hint,
-            R.string.hint,
-            hintEnabled,
-            Modifier.weight(1f)
-                .testTag("trace-hint")
-                .toggleable(hintActive, enabled = hintEnabled, role = Role.Checkbox) {
-                    onAction(PracticeAction.ToggleHint)
-                }
-                .semantics { stateDescription = hintDescription },
-            hintActive,
-            R.string.hint_used,
-        )
-        WorkspaceTool(
-            R.drawable.ic_undo,
-            R.string.undo,
-            undoEnabled,
-            Modifier.weight(1f).clickable(enabled = undoEnabled) { onAction(PracticeAction.Undo) },
-            caption = R.string.tool_undo,
-        )
-        WorkspaceTool(
-            R.drawable.ic_clear,
-            R.string.clear,
-            clearEnabled,
-            Modifier.weight(1f).clickable(enabled = clearEnabled) {
-                onAction(PracticeAction.Clear)
-            },
-            caption = R.string.tool_clear,
-        )
-    }
-}
-
-@Composable
-private fun WorkspaceTool(
-    icon: Int,
-    label: Int,
-    enabled: Boolean,
-    modifier: Modifier,
-    active: Boolean = false,
-    caption: Int = label,
-) {
-    val color = MaterialTheme.colorScheme.primary.copy(alpha = if (enabled) 1f else .38f)
-    Row(
-        modifier
-            .heightIn(min = 42.dp)
-            .background(
-                if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent,
-                RoundedCornerShape(10.dp),
-            )
-            .padding(horizontal = 5.dp, vertical = 3.dp),
-        horizontalArrangement = Arrangement.spacedBy(5.dp, Alignment.CenterHorizontally),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Icon(painterResource(icon), stringResource(label), Modifier.size(23.dp), tint = color)
-        Text(
-            stringResource(caption),
-            style = MaterialTheme.typography.labelSmall,
-            color = color,
-            maxLines = 1,
-            modifier = Modifier.clearAndSetSemantics {},
         )
     }
 }
@@ -275,27 +197,133 @@ internal fun PracticeFeedback(state: PracticeUiState) {
 @Composable
 internal fun PracticeActions(
     enabled: Boolean,
-    complete: Boolean,
     checking: Boolean,
+    undoEnabled: Boolean,
+    clearEnabled: Boolean,
+    hintActive: Boolean,
+    hintEnabled: Boolean,
+    hintMode: ru.mobui.kanji.domain.practice.HintMode,
+    strokeHintCount: Int = 0,
+    maxNextStrokeHints: Int = 3,
     onAction: (PracticeAction) -> Unit,
 ) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-        TextButton(
-            { onAction(PracticeAction.Skip) },
-            Modifier.weight(1f).heightIn(min = 48.dp),
-            enabled,
-            colors =
-                ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.secondary),
-        ) {
-            Text(stringResource(R.string.skip))
-        }
+    val haptics = LocalHapticFeedback.current
+    val hintDescription =
+        stringResource(
+            when {
+                hintActive &&
+                    hintMode == ru.mobui.kanji.domain.practice.HintMode.NextStroke ->
+                    R.string.hint_next_stroke_active
+                hintActive -> R.string.hint_active
+                hintMode == ru.mobui.kanji.domain.practice.HintMode.NextStroke ->
+                    R.string.hint_next_stroke_idle
+                else -> R.string.hint_idle
+            },
+        )
+    val hintIconTint = hintBudgetIconTint(strokeHintCount, maxNextStrokeHints)
+    LaunchedEffect(hintActive) {
+        if (hintActive) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+    }
+    Row(
+        Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        PracticeRoundTool(
+            icon = R.drawable.ic_undo,
+            label = R.string.undo,
+            enabled = undoEnabled,
+            onClick = { onAction(PracticeAction.Undo) },
+        )
+        PracticeRoundTool(
+            icon = R.drawable.ic_clear,
+            label = R.string.clear,
+            enabled = clearEnabled,
+            onClick = { onAction(PracticeAction.Clear) },
+        )
+        PracticeRoundTool(
+            icon = R.drawable.ic_hint,
+            label = R.string.hint,
+            enabled = hintEnabled,
+            // Keep the tonal background stable; only the bulb tint shows budget warnings.
+            active = false,
+            iconTint = hintIconTint,
+            modifier =
+                Modifier.testTag("trace-hint").semantics {
+                    // Full-character hint is momentary — never latch the control as checked.
+                    if (hintMode == ru.mobui.kanji.domain.practice.HintMode.FullCharacter) {
+                        role = Role.Button
+                    } else {
+                        role = Role.Checkbox
+                        toggleableState =
+                            if (hintActive) ToggleableState.On else ToggleableState.Off
+                    }
+                    stateDescription = hintDescription
+                },
+            onClick = { onAction(PracticeAction.ToggleHint) },
+        )
         Button(
-            { onAction(PracticeAction.Submit) },
-            Modifier.widthIn(min = 124.dp).heightIn(min = 48.dp),
-            enabled = enabled && !checking && complete,
+            onClick = { onAction(PracticeAction.Submit) },
+            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
+            enabled = enabled && !checking,
         ) {
-            Text(stringResource(R.string.next))
+            Text(stringResource(R.string.next), maxLines = 1)
         }
+    }
+}
+
+private val HINT_BUDGET_CRITICAL_TINT = Color(0xFFE53935)
+private val HINT_BUDGET_WARNING_TINT = Color(0xFFFFC107)
+
+internal fun hintBudgetIconTint(used: Int, max: Int): Color? {
+    if (max <= 0) return null
+    return when {
+        used >= max - 1 -> HINT_BUDGET_CRITICAL_TINT
+        used >= max / 2 -> HINT_BUDGET_WARNING_TINT
+        else -> null
+    }
+}
+
+@Composable
+private fun PracticeRoundTool(
+    icon: Int,
+    label: Int,
+    enabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    active: Boolean = false,
+    iconTint: Color? = null,
+) {
+    val defaultContent =
+        if (active) MaterialTheme.colorScheme.onPrimaryContainer
+        else MaterialTheme.colorScheme.onSecondaryContainer
+    val content = iconTint ?: defaultContent
+    val colors =
+        if (active) {
+            IconButtonDefaults.filledTonalIconButtonColors(
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = content,
+                disabledContainerColor =
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.38f),
+                disabledContentColor = content.copy(alpha = 0.38f),
+            )
+        } else {
+            IconButtonDefaults.filledTonalIconButtonColors(
+                contentColor = content,
+                disabledContentColor = content.copy(alpha = 0.38f),
+            )
+        }
+    FilledTonalIconButton(
+        onClick = onClick,
+        modifier = modifier.size(48.dp),
+        enabled = enabled,
+        colors = colors,
+    ) {
+        Icon(
+            painterResource(icon),
+            stringResource(label),
+            Modifier.size(22.dp),
+        )
     }
 }
 

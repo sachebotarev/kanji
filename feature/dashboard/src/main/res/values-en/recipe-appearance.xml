@@ -1,6 +1,6 @@
 <resources>
     <string name="recipe_count_input">Number of tasks</string>
-    <string name="recipe_seconds_input">Seconds per word</string>
+    <string name="recipe_seconds_input">Seconds per symbol</string>
     <string name="recipe_new_title">New recipe</string>
     <string name="recipe_edit_title">Edit recipe</string>
     <plurals name="recipe_available_words"><item quantity="one">Available: %d word</item><item quantity="other">Available: %d words</item></plurals>

@@ -39,8 +39,9 @@
     <string name="material_kanji_type">По кандзи</string>
     <string name="material_kanji_title">Кандзи</string>
     <string name="material_all_kanji">Все кандзи</string>
+    <string name="material_all_jlpt">Все уровни</string>
     <string name="material_more">Ещё %1$d</string>
-    <string name="material_empty_pool">Нет подходящих слов. Измените выбор кандзи</string>
+    <string name="material_empty_pool">Нет подходящих слов. Измените JLPT или выбор кандзи</string>
     <plurals name="material_words_selected">
         <item quantity="one">Выбрано %1$d слово</item>
         <item quantity="few">Выбрано %1$d слова</item>

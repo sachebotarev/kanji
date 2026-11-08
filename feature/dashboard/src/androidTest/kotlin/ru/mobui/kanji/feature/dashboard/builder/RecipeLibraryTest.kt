@@ -25,6 +25,8 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextReplacement
 import androidx.compose.ui.test.performSemanticsAction
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeLeft
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -95,8 +97,9 @@ class RecipeLibraryTest {
     private fun actions(
         reorder: (List<String>) -> Unit = {},
         open: (String) -> Unit = {},
+        delete: (String) -> Unit = {},
         query: (String) -> Unit = {},
-    ) = RecipeLibraryActions({}, {}, open, reorder, query, {})
+    ) = RecipeLibraryActions({}, {}, open, reorder, delete, query, {})
 
     @Test fun selectionReorderSearchGuardAndActiveDeletionUsePersistentChoice() {
         val repo = Learning(); val saved = SavedStateHandle(); val model = model(repo, saved)
@@ -199,12 +202,38 @@ class RecipeLibraryTest {
         click("library-search-toggle"); compose.onNodeWithTag("library-search").performTextReplacement("ＭＯＯＮ")
         compose.onNodeWithTag("library-b").assertDoesNotExist()
         compose.onNodeWithTag("library-a").assertExists()
-        assertTrue(compose.onNodeWithTag("library-a").fetchSemanticsNode().config[SemanticsActions.CustomActions].isEmpty())
+        assertEquals(
+            listOf("Удалить"),
+            compose.onNodeWithTag("library-a").fetchSemanticsNode().config[SemanticsActions.CustomActions].map { it.label },
+        )
         restore.emulateSavedInstanceStateRestore(); compose.onNodeWithTag("library-search").assertTextContains("ＭＯＯＮ")
         assertTrue(moved.isEmpty()); compose.onNodeWithTag("library-search").performTextReplacement("")
-        val action = compose.onNodeWithTag("library-a").fetchSemanticsNode().config[SemanticsActions.CustomActions].single()
+        val action = compose.onNodeWithTag("library-a").fetchSemanticsNode().config[SemanticsActions.CustomActions]
+            .single { it.label == "Переместить ниже" }
         compose.runOnIdle { assertTrue(action.action()) }
         assertEquals(listOf("b", "a"), moved)
+    }
+
+    @Test fun swipeAsksConfirmationThenDeletes() {
+        var deleted = ""
+        compose.setContent {
+            KanjiTheme {
+                RecipeLibraryScreen(
+                    RecipeLibraryState(listOf(first, second), snapshot, loading = false),
+                    "",
+                    "ru",
+                    actions(delete = { deleted = it }),
+                )
+            }
+        }
+        compose.onNodeWithTag("library-a").performTouchInput { swipeLeft() }
+        compose.onNodeWithText("Удалить рецепт?").assertExists()
+        compose.onNodeWithTag("library-delete-cancel").performClick()
+        assertEquals("", deleted)
+        compose.onNodeWithTag("library-a").assertExists()
+        compose.onNodeWithTag("library-a").performTouchInput { swipeLeft() }
+        compose.onNodeWithTag("library-delete-confirm").performClick()
+        assertEquals("a", deleted)
     }
     @Test fun longPressDragCommitsAndCancellationDoesNotCommit() {
         var moved = emptyList<String>()

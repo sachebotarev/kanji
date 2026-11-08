@@ -30,6 +30,26 @@
     "reason": "editorial_note"
   },
   {
+    "word_id": 55,
+    "language_tag": "ru",
+    "translation": "один предмет",
+    "usage_note": null,
+    "original_translation": "один предмет — со счётным словом 個",
+    "written_form": "一個",
+    "reading": "いっこ",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 157,
+    "language_tag": "ru",
+    "translation": "обычный, среднего уровня",
+    "usage_note": null,
+    "original_translation": "обычный, среднего уровня — форма с の",
+    "written_form": "並の",
+    "reading": "なみの",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 216,
     "language_tag": "ru",
     "translation": "два человека",
@@ -47,6 +67,126 @@
     "original_translation": "что это? — вежливый вопрос",
     "written_form": "何ですか。",
     "reading": "なんですか。",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 370,
+    "language_tag": "ru",
+    "translation": "туалет",
+    "usage_note": null,
+    "original_translation": "туалет — слово 便所",
+    "written_form": "便所",
+    "reading": "べんじょ",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 374,
+    "language_tag": "ru",
+    "translation": "каждый отдельный, индивидуальный",
+    "usage_note": null,
+    "original_translation": "каждый отдельный, индивидуальный — форма с の",
+    "written_form": "個々の",
+    "reading": "ここの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 376,
+    "language_tag": "ru",
+    "translation": "личный, индивидуальный",
+    "usage_note": null,
+    "original_translation": "личный, индивидуальный — форма с な",
+    "written_form": "個人的な",
+    "reading": "こじんてきな",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 393,
+    "language_tag": "ru",
+    "translation": "здоровый, бодрый",
+    "usage_note": null,
+    "original_translation": "здоровый, бодрый — форма с な",
+    "written_form": "元気な",
+    "reading": "げんきな",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 453,
+    "language_tag": "ru",
+    "translation": "общий для нескольких, совместный",
+    "usage_note": null,
+    "original_translation": "общий для нескольких, совместный — форма с の",
+    "written_form": "共通の",
+    "reading": "きょうつうの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 499,
+    "language_tag": "ru",
+    "translation": "другой, иной",
+    "usage_note": null,
+    "original_translation": "другой, иной — форма с の",
+    "written_form": "別の",
+    "reading": "べつの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 506,
+    "language_tag": "ru",
+    "translation": "достигать, доходить",
+    "usage_note": null,
+    "original_translation": "достигать, доходить — написание 到る",
+    "written_form": "到る",
+    "reading": "いたる",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 554,
+    "language_tag": "ru",
+    "translation": "городской район",
+    "usage_note": null,
+    "original_translation": "городской район — административная единица 区",
+    "written_form": "区",
+    "reading": "く",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 616,
+    "language_tag": "ru",
+    "translation": "друг",
+    "usage_note": null,
+    "original_translation": "друг — слово 友",
+    "written_form": "友",
+    "reading": "とも",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 623,
+    "language_tag": "ru",
+    "translation": "торговая сделка",
+    "usage_note": null,
+    "original_translation": "торговая сделка — написание 取り引き",
+    "written_form": "取り引き",
+    "reading": "とりひき",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 698,
+    "language_tag": "ru",
+    "translation": "вопрос, задание",
+    "usage_note": null,
+    "original_translation": "вопрос, задание — написание 問",
+    "written_form": "問",
+    "reading": "とい",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 809,
+    "language_tag": "ru",
+    "translation": "большой",
+    "usage_note": null,
+    "original_translation": "большой — форма 大きな перед существительным",
+    "written_form": "大きな",
+    "reading": "おおきな",
     "reason": "editorial_note"
   },
   {
@@ -70,6 +210,16 @@
     "reason": "editorial_note"
   },
   {
+    "word_id": 923,
+    "language_tag": "ru",
+    "translation": "моя жена",
+    "usage_note": null,
+    "original_translation": "моя жена — слово 家内",
+    "written_form": "家内",
+    "reading": "かない",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 948,
     "language_tag": "ru",
     "translation": "ребёнок",
@@ -77,6 +227,16 @@
     "original_translation": "ребёнок — написание 小人, чтение こども",
     "written_form": "小人",
     "reading": "こども",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1000,
+    "language_tag": "ru",
+    "translation": "город",
+    "usage_note": null,
+    "original_translation": "город — административная единица 市",
+    "written_form": "市",
+    "reading": "し",
     "reason": "editorial_note"
   },
   {
@@ -100,6 +260,16 @@
     "reason": "redundant_reading"
   },
   {
+    "word_id": 1088,
+    "language_tag": "ru",
+    "translation": "необходимый",
+    "usage_note": null,
+    "original_translation": "необходимый — форма с な",
+    "written_form": "必要な",
+    "reading": "ひつような",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 1110,
     "language_tag": "ru",
     "translation": "злословие, дурные слова о ком-либо",
@@ -108,6 +278,26 @@
     "written_form": "悪口",
     "reading": "わるくち",
     "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1112,
+    "language_tag": "ru",
+    "translation": "злокачественный",
+    "usage_note": null,
+    "original_translation": "злокачественный — форма с の",
+    "written_form": "悪性の",
+    "reading": "あくせいの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1222,
+    "language_tag": "ru",
+    "translation": "культурный",
+    "usage_note": null,
+    "original_translation": "культурный — форма с な",
+    "written_form": "文化的な",
+    "reading": "ぶんかてきな",
+    "reason": "editorial_note"
   },
   {
     "word_id": 1225,
@@ -170,6 +360,36 @@
     "reason": "editorial_note"
   },
   {
+    "word_id": 1316,
+    "language_tag": "ru",
+    "translation": "ужин",
+    "usage_note": null,
+    "original_translation": "ужин — написание 晩御飯",
+    "written_form": "晩御飯",
+    "reading": "ばんごはん",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1348,
+    "language_tag": "ru",
+    "translation": "первый, начальный",
+    "usage_note": null,
+    "original_translation": "первый, начальный — форма с の",
+    "written_form": "最初の",
+    "reading": "さいしょの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1359,
+    "language_tag": "ru",
+    "translation": "существовать, иметься",
+    "usage_note": null,
+    "original_translation": "существовать, иметься — написание 有る",
+    "written_form": "有る",
+    "reading": "ある",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 1505,
     "language_tag": "ru",
     "translation": "каждый месяц",
@@ -178,6 +398,76 @@
     "written_form": "毎月",
     "reading": "まいげつ",
     "reason": "redundant_reading"
+  },
+  {
+    "word_id": 1509,
+    "language_tag": "ru",
+    "translation": "сравнивать",
+    "usage_note": null,
+    "original_translation": "сравнивать — слово 比べる",
+    "written_form": "比べる",
+    "reading": "くらべる",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1511,
+    "language_tag": "ru",
+    "translation": "сравнивать",
+    "usage_note": null,
+    "original_translation": "сравнивать — слово 比較する",
+    "written_form": "比較する",
+    "reading": "ひかくする",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1639,
+    "language_tag": "ru",
+    "translation": "отсутствовать, не иметься",
+    "usage_note": null,
+    "original_translation": "отсутствовать, не иметься — написание 無い",
+    "written_form": "無い",
+    "reading": "ない",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1653,
+    "language_tag": "ru",
+    "translation": "жареное мясо",
+    "usage_note": null,
+    "original_translation": "жареное мясо — написание 焼肉",
+    "written_form": "焼肉",
+    "reading": "やきにく",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1708,
+    "language_tag": "ru",
+    "translation": "рисовое поле",
+    "usage_note": null,
+    "original_translation": "рисовое поле — отдельное слово 田",
+    "written_form": "田",
+    "reading": "た",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1784,
+    "language_tag": "ru",
+    "translation": "префектура",
+    "usage_note": null,
+    "original_translation": "префектура — обозначение 県",
+    "written_form": "県",
+    "reading": "けん",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1796,
+    "language_tag": "ru",
+    "translation": "совершенно белый",
+    "usage_note": null,
+    "original_translation": "совершенно белый — написание 真白",
+    "written_form": "真白",
+    "reading": "まっしろ",
+    "reason": "editorial_note"
   },
   {
     "word_id": 1823,
@@ -200,6 +490,26 @@
     "reason": "editorial_note"
   },
   {
+    "word_id": 1889,
+    "language_tag": "ru",
+    "translation": "США",
+    "usage_note": null,
+    "original_translation": "США — название с иероглифом 米",
+    "written_form": "米国",
+    "reading": "べいこく",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 1953,
+    "language_tag": "ru",
+    "translation": "человек, лицо",
+    "usage_note": null,
+    "original_translation": "человек, лицо — написание 者",
+    "written_form": "者",
+    "reading": "もの",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 1989,
     "language_tag": "ru",
     "translation": "хороший",
@@ -210,6 +520,26 @@
     "reason": "redundant_reading"
   },
   {
+    "word_id": 2140,
+    "language_tag": "ru",
+    "translation": "покупки",
+    "usage_note": null,
+    "original_translation": "покупки — написание без い",
+    "written_form": "買物",
+    "reading": "かいもの",
+    "reason": "editorial_note"
+  },
+  {
+    "word_id": 2275,
+    "language_tag": "ru",
+    "translation": "подходящий, соответствующий",
+    "usage_note": null,
+    "original_translation": "подходящий, соответствующий — форма 適した",
+    "written_form": "適した",
+    "reading": "てきした",
+    "reason": "editorial_note"
+  },
+  {
     "word_id": 2406,
     "language_tag": "ru",
     "translation": "поверхность; сторона",
@@ -218,5 +548,15 @@
     "written_form": "面",
     "reading": "めん",
     "reason": "redundant_reading"
+  },
+  {
+    "word_id": 2425,
+    "language_tag": "ru",
+    "translation": "лицо",
+    "usage_note": null,
+    "original_translation": "лицо — слово 顔面",
+    "written_form": "顔面",
+    "reading": "がんめん",
+    "reason": "editorial_note"
   }
 ]

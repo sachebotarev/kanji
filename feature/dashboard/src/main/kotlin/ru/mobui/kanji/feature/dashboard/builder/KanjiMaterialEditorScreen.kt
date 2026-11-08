@@ -9,6 +9,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import ru.mobui.kanji.domain.catalog.CatalogKanji
 import ru.mobui.kanji.domain.catalog.CatalogWord
 import ru.mobui.kanji.domain.catalog.MaterialType
 import ru.mobui.kanji.domain.catalog.RecipeMaterial
@@ -18,19 +19,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import ru.mobui.kanji.core.wordui.FacetPickerScreen
 import ru.mobui.kanji.core.wordui.SelectionApplyButton
 import ru.mobui.kanji.core.wordui.SymbolFacet
 import ru.mobui.kanji.core.wordui.SymbolGridItem
 import ru.mobui.kanji.core.wordui.SymbolPickerHeader
 import ru.mobui.kanji.core.wordui.SymbolPickerScreen
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import ru.mobui.kanji.core.wordui.R as WordUiR
 
 /** The owner supplies the complete catalogue + personal word pool and literal kanji links. */
 @Composable
@@ -47,20 +50,55 @@ internal fun KanjiMaterialEditorScreen(
     editing: Boolean = false,
     kanjiFacets: List<SymbolFacet> = emptyList(),
     typeSelector: (@Composable () -> Unit)? = null,
+    kanjiPool: List<CatalogKanji> = emptyList(),
 ) {
     require(initial.type == MaterialType.Kanji && initial.id.isNotBlank())
     var ids by rememberSaveable(initial.id) { mutableStateOf(initial.kanjiIds.toIntArray()) }
+    var jlpt by rememberSaveable(initial.id) { mutableStateOf(initial.jlptLevels.sorted().toIntArray()) }
     var page by rememberSaveable(initial.id) { mutableStateOf("form") }
     var invalid by rememberSaveable(initial.id) { mutableStateOf(false) }
-    val eligible = kanjiEntries.map { it.id }.toSet()
+    val jlptById = remember(kanjiPool) {
+        kanjiPool.associate { it.id to (it.jlptLevel?.number ?: -1) }
+    }
+    val jlptSelected = jlpt.toSet()
+    fun matchesJlpt(kanjiId: Int): Boolean =
+        jlptSelected.isEmpty() || (jlptById[kanjiId] ?: -1) in jlptSelected
+    val scopedEntries = kanjiEntries.filter { matchesJlpt(it.id) }
+    val eligible = scopedEntries.map { it.id }.toSet()
     val selected = ids.toSet().intersect(eligible)
     val pool = words.distinctBy { it.id }.filter { word ->
-        selected.isEmpty() || kanjiByWord[word.id].orEmpty().any { it in selected }
+        val linked = kanjiByWord[word.id].orEmpty()
+        val jlptOk = jlptSelected.isEmpty() || linked.any { matchesJlpt(it) }
+        val kanjiOk = selected.isEmpty() || linked.any { it in selected }
+        jlptOk && kanjiOk
     }
+    val jlptFacet = kanjiFacets.firstOrNull { it.key == "jlpt" }
     val up = { page = "form" }
+    if (page == "jlpt" && jlptFacet != null) {
+        val counts = remember(scopedEntries, jlptById, kanjiEntries) {
+            kanjiEntries.map { jlptById[it.id] ?: -1 }.groupingBy { it }.eachCount()
+        }
+        BackHandler(onBack = up)
+        FacetPickerScreen(
+            jlptFacet,
+            counts,
+            jlptSelected,
+            onApply = { chosen ->
+                jlpt = chosen.sorted().toIntArray()
+                ids = ids.filter { matchesJlptFor(it, chosen, jlptById) }.toIntArray()
+                invalid = false
+                page = "form"
+            },
+            onBack = up,
+            modifier = modifier,
+            backTag = "material-back",
+            searchTag = "material-jlpt-search-toggle",
+        )
+        return
+    }
     if (page == "kanji") {
         val title = stringResource(R.string.material_kanji_title)
-        SymbolPickerScreen(kanjiEntries, selected, {
+        SymbolPickerScreen(scopedEntries, selected, {
             ids = it.toIntArray(); invalid = false; page = "form"
         }, { search -> SymbolPickerHeader(title, up, search) }, modifier,
             facets = kanjiFacets, onBack = up, backHandler = { back -> BackHandler(onBack = back) },
@@ -71,17 +109,29 @@ internal fun KanjiMaterialEditorScreen(
         MaterialWordsPreview(pool, language, onWord, up, modifier)
         return
     }
-    val dirty = ids.toSet() != initial.kanjiIds
+    val dirty = ids.toSet() != initial.kanjiIds || jlptSelected != initial.jlptLevels
     val leave = rememberMaterialLeave(dirty, onBack)
     val errorMessage = stringResource(R.string.material_empty_pool)
-    val symbols = kanjiEntries.filter { it.id in selected }.sortedBy { it.id }
-    val summary = if (selected.isEmpty()) stringResource(R.string.material_all_kanji)
+    val symbols = scopedEntries.filter { it.id in selected }.sortedBy { it.id }
+    val kanjiSummary = if (selected.isEmpty()) stringResource(R.string.material_all_kanji)
         else symbols.take(3).joinToString(" · ") { it.symbol } +
             if (symbols.size > 3) " · " + stringResource(R.string.material_more, symbols.size - 3) else ""
+    val noJlptLabel = stringResource(WordUiR.string.selection_no_jlpt)
+    val jlptSummary = if (jlptSelected.isEmpty()) stringResource(R.string.material_all_jlpt)
+        else jlptSelected.sortedDescending().joinToString(" · ") { level ->
+            if (level < 0) noJlptLabel else "N$level"
+        }
     Scaffold(modifier, floatingActionButton = {
         SelectionApplyButton(stringResource(if (editing) R.string.material_apply else R.string.material_add), {
             if (pool.isEmpty()) invalid = true
-            else onApply(RecipeMaterial(initial.id, MaterialType.Kanji, kanjiIds = selected))
+            else onApply(
+                RecipeMaterial(
+                    initial.id,
+                    MaterialType.Kanji,
+                    kanjiIds = selected,
+                    jlptLevels = jlptSelected,
+                ),
+            )
         }, Modifier.testTag("material-apply"))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
@@ -94,9 +144,13 @@ internal fun KanjiMaterialEditorScreen(
                 item {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         MaterialFiltersSection(
-                            listOf(
+                            listOfNotNull(
+                                if (jlptFacet != null) MaterialFilterRow(
+                                    stringResource(WordUiR.string.selection_jlpt), jlptSummary, { page = "jlpt" },
+                                    Modifier.testTag("material-jlpt"),
+                                ) else null,
                                 MaterialFilterRow(
-                                    stringResource(R.string.material_kanji_title), summary, { page = "kanji" },
+                                    stringResource(R.string.material_kanji_title), kanjiSummary, { page = "kanji" },
                                     Modifier.testTag("material-kanji").semantics { if (invalid) error(errorMessage) },
                                     invalid,
                                 ),
@@ -114,6 +168,9 @@ internal fun KanjiMaterialEditorScreen(
     }
 }
 
+private fun matchesJlptFor(kanjiId: Int, selected: Set<Int>, jlptById: Map<Int, Int>): Boolean =
+    selected.isEmpty() || (jlptById[kanjiId] ?: -1) in selected
+
 @androidx.compose.ui.tooling.preview.Preview(name = "Русский · крупный текст", locale = "ru", fontScale = 1.5f, showBackground = true)
 @androidx.compose.ui.tooling.preview.Preview(name = "English · dark", locale = "en", uiMode = android.content.res.Configuration.UI_MODE_NIGHT_YES,
     showBackground = true)
@@ -121,9 +178,16 @@ internal fun KanjiMaterialEditorScreen(
 private fun KanjiMaterialPreview() {
     val language = androidx.compose.ui.platform.LocalConfiguration.current.locales[0].language
     val sun = '日'.code
+    val pool = listOf(
+        CatalogKanji(sun, "日", 4, null, true, true, false,
+            mapOf("ru" to listOf("солнце"), "en" to listOf("sun")), listOf("ニチ"), listOf("ひ"),
+            jlptLevel = ru.mobui.kanji.domain.catalog.JlptLevel.N5),
+    )
     ru.mobui.kanji.core.designsystem.KanjiTheme {
         KanjiMaterialEditorScreen(RecipeMaterial("preview", MaterialType.Kanji, kanjiIds = setOf(sun)),
             listOf(CatalogWord(1, "日", "ひ", mapOf("ru" to "солнце", "en" to "sun"))),
-            listOf(SymbolGridItem(sun, "日", "日")), mapOf(1 to setOf(sun)), language, {}, {}, {})
+            listOf(SymbolGridItem(sun, "日", "日")), mapOf(1 to setOf(sun)), language, {}, {}, {},
+            kanjiFacets = ru.mobui.kanji.core.wordui.kanjiSymbolFacets(pool, emptyList(), language),
+            kanjiPool = pool)
     }
 }

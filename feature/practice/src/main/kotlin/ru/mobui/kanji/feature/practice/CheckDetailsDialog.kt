@@ -5,11 +5,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,15 +24,13 @@ import ru.mobui.kanji.domain.practice.CheckVerdict
 import ru.mobui.kanji.domain.practice.EntryMode
 import ru.mobui.kanji.domain.practice.PracticeCell
 
-/** Provider-specific details; an unevaluated subcheck never appears as passed. */
+/** Learner-facing check summary for one indicator. No settings or debug entry points. */
 @Composable
 internal fun CheckDetailsDialog(
     kind: CheckKind,
     report: CheckReport?,
     cell: PracticeCell?,
     onClose: () -> Unit,
-    onOpenSettings: (() -> Unit)? = null,
-    diagnostics: @Composable () -> Unit = {},
 ) {
     val result = report?.checks?.firstOrNull { it.kind == kind }
     val failures = result?.failures.orEmpty()
@@ -71,7 +67,7 @@ internal fun CheckDetailsDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(status)
+                Text(status, style = MaterialTheme.typography.titleMedium)
                 when (kind) {
                     CheckKind.Readability -> {
                         if (result?.verdict != null) {
@@ -105,7 +101,18 @@ internal fun CheckDetailsDialog(
                                 stringResource(R.string.check_match_percent, it.roundToInt()),
                             )
                         }
-                        failures.forEach { Text(checkFailureText(it)) }
+                        if (result?.verdict != null) {
+                            val used = report?.compensation?.budget?.totalPercent ?: 0f
+                            DetailRow(
+                                stringResource(R.string.check_compensation),
+                                stringResource(R.string.check_match_percent, used.roundToInt()),
+                                if (report?.compensation?.budget?.hasError == true) {
+                                    CheckVerdict.Incorrect
+                                } else {
+                                    null
+                                },
+                            )
+                        }
                     }
                     CheckKind.StrokeWriting -> {
                         val actual = cell?.sample?.strokeCount ?: 0
@@ -141,6 +148,26 @@ internal fun CheckDetailsDialog(
                                 else CheckVerdict.Incorrect
                             } else null,
                         )
+                        if (evaluated && order.isNotEmpty()) {
+                            Column(
+                                Modifier.testTag("check-order-detail"),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                order
+                                    .flatMap { it.mismatches }
+                                    .distinct()
+                                    .forEach { mismatch ->
+                                        Text(
+                                            stringResource(
+                                                R.string.check_order_mismatch,
+                                                mismatch.actualPosition,
+                                                mismatch.expectedPosition,
+                                            ),
+                                            color = MaterialTheme.colorScheme.error,
+                                        )
+                                    }
+                            }
+                        }
                         DetailRow(
                             stringResource(R.string.check_direction_label),
                             stringResource(
@@ -155,18 +182,9 @@ internal fun CheckDetailsDialog(
                                 else CheckVerdict.Incorrect
                             } else null,
                         )
-                        if (failures.isNotEmpty()) HorizontalDivider()
-                        failures.forEach { Text(checkFailureText(it)) }
                     }
                 }
-                diagnostics()
             }
-        },
-        dismissButton = {
-            if (onOpenSettings != null)
-                TextButton(onOpenSettings, Modifier.testTag("open-checker-settings")) {
-                    Text(stringResource(R.string.check_settings_short))
-                }
         },
         confirmButton = {
             TextButton(onClose, Modifier.testTag("close-check-details")) {

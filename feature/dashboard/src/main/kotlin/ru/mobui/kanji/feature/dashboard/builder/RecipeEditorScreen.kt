@@ -80,7 +80,7 @@ import ru.mobui.kanji.domain.catalog.recipeWords
 import ru.mobui.kanji.domain.catalog.validated
 
 private const val DefaultTaskCount = 20
-private const val DefaultSecondsPerWord = 20
+private const val DefaultSecondsPerSymbol = 10
 
 /** Local recipe draft. The owner persists onSave and handles navigation only after success. */
 @Composable
@@ -91,9 +91,9 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
     creating: Boolean = initial.names.none { it.name.isNotBlank() }) {
     var draft by rememberSaveable(initial.id, stateSaver = RecipeSaver) { mutableStateOf(initial) }
     var countMode by rememberSaveable(initial.id) { mutableStateOf(initial.taskCount != null) }
-    var timerMode by rememberSaveable(initial.id) { mutableStateOf(initial.secondsPerWord != null) }
+    var timerMode by rememberSaveable(initial.id) { mutableStateOf(initial.secondsPerSymbol != null) }
     var count by rememberSaveable(initial.id) { mutableStateOf(initial.taskCount?.toString().orEmpty()) }
-    var seconds by rememberSaveable(initial.id) { mutableStateOf(initial.secondsPerWord?.toString().orEmpty()) }
+    var seconds by rememberSaveable(initial.id) { mutableStateOf(initial.secondsPerSymbol?.toString().orEmpty()) }
     var material by rememberSaveable(initial.id) { mutableStateOf<Bundle?>(null) }
     var undo by rememberSaveable(initial.id) { mutableStateOf<Bundle?>(null) }
     var preview by rememberSaveable(initial.id) { mutableStateOf(false) }
@@ -142,8 +142,8 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
     val poolBad = words.isEmpty() || pools.any { it.isEmpty() }
     val countBad = countMode && (count.toIntOrNull()?.let { it > 0 } != true)
     val timerBad = timerMode && (seconds.toIntOrNull()?.let { it > 0 } != true)
-    val dirty = draft != initial || countMode != (initial.taskCount != null) || timerMode != (initial.secondsPerWord != null) ||
-        (countMode && count != initial.taskCount?.toString()) || (timerMode && seconds != initial.secondsPerWord?.toString())
+    val dirty = draft != initial || countMode != (initial.taskCount != null) || timerMode != (initial.secondsPerSymbol != null) ||
+        (countMode && count != initial.taskCount?.toString()) || (timerMode && seconds != initial.secondsPerSymbol?.toString())
     val up = { if (!saving) { if (dirty) leaving = true else onBack() } }
     val list = rememberLazyListState()
     material?.let { bundle ->
@@ -182,7 +182,7 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
                     when { nameBad -> nameFocus; poolBad -> poolFocus; countBad -> countFocus; else -> timerFocus }.requestFocus()
                 }
             } else onSave(withResolvedName(draft.copy(taskCount = if (countMode) count.toInt() else null,
-                secondsPerWord = if (timerMode) seconds.toInt() else null)).validated())
+                secondsPerSymbol = if (timerMode) seconds.toInt() else null)).validated())
         }
     }
     val poolError = stringResource(R.string.recipe_pool_error)
@@ -301,7 +301,7 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
                                 pluralStringResource(R.plurals.recipe_tasks_from_pool, words.count(), words.count()) else null)
                         RecipeLimit(stringResource(R.string.recipe_seconds), stringResource(R.string.recipe_seconds_input), timerMode, {
                             timerMode = it
-                            if (it && seconds.isBlank()) seconds = DefaultSecondsPerWord.toString()
+                            if (it && seconds.isBlank()) seconds = DefaultSecondsPerSymbol.toString()
                         }, seconds, { seconds = it },
                             stringResource(R.string.recipe_no_timer), stringResource(R.string.recipe_timer), attempted && timerBad, !saving, "recipe-timer",
                                 timerFocus,

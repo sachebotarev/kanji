@@ -31,6 +31,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,6 +54,10 @@ fun TrainingPickScreen(
     onPick: (String) -> Unit,
     onCreateFirstRecipe: () -> Unit,
     modifier: Modifier = Modifier,
+    /** Unique words in each recipe pool; used when [Recipe.taskCount] is null. */
+    poolCounts: Map<String, Int> = emptyMap(),
+    /** Recipe IDs whose current revision has been completed with an excellent score. */
+    excellentRecipeIds: Set<String> = emptySet(),
 ) {
     BackHandler { onBack() }
     var searching by rememberSaveable { mutableStateOf(false) }
@@ -119,19 +124,19 @@ fun TrainingPickScreen(
                         modifier = Modifier.weight(1f).fillMaxWidth(),
                     )
                 else -> {
-                    Text(
-                        stringResource(R.string.training_pick_hint),
-                        Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
                     LazyColumn(
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                         verticalArrangement = Arrangement.spacedBy(12.dp),
                         modifier = Modifier.weight(1f).testTag("training-pick-list"),
                     ) {
                         items(rows, key = { it.id }) { recipe ->
-                            TrainingPickRow(recipe, language, onPick)
+                            TrainingPickRow(
+                                recipe = recipe,
+                                language = language,
+                                poolWordCount = poolCounts[recipe.id] ?: 0,
+                                isMaster = excellentRecipeIds.contains(recipe.id),
+                                onPick = onPick,
+                            )
                         }
                     }
                 }
@@ -184,6 +189,8 @@ private fun TrainingPickEmptyState(
 private fun TrainingPickRow(
     recipe: Recipe,
     language: String,
+    poolWordCount: Int,
+    isMaster: Boolean = false,
     onPick: (String) -> Unit,
 ) {
     val title = recipe.name(language)
@@ -192,43 +199,44 @@ private fun TrainingPickRow(
         shape = MaterialTheme.shapes.medium,
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
-        Column(
+        Row(
             Modifier
                 .clickable { onPick(recipe.id) }
                 .padding(16.dp)
                 .testTag("training-pick-open-${recipe.id}"),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(
-                title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            val seconds = recipe.secondsPerWord
-            val summary =
-                when {
-                    seconds == null || seconds == 0 ->
-                        stringResource(R.string.library_tasks, recipe.taskCount ?: 0) +
-                            " · " +
-                            stringResource(R.string.library_no_timer)
-                    seconds % 60 == 0 ->
-                        stringResource(
-                            R.string.recipe_training_summary_minutes,
-                            recipe.taskCount ?: 0,
-                            seconds / 60,
-                        )
-                    else ->
-                        stringResource(
-                            R.string.recipe_training_summary,
-                            recipe.taskCount ?: 0,
-                            seconds,
-                        )
-                }
-            Text(
-                summary,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            Column(
+                Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    recipeTrainingSummaryLine(
+                        recipe.taskCount,
+                        poolWordCount,
+                        recipe.secondsPerSymbol,
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (isMaster) {
+                Image(
+                    painter = painterResource(R.drawable.ic_paw_stamp),
+                    contentDescription = stringResource(R.string.history_stamp_excellent),
+                    modifier =
+                        Modifier
+                            .padding(start = 12.dp)
+                            .size(24.dp)
+                            .rotate(-10f)
+                            .testTag("training-pick-stamp-${recipe.id}"),
+                )
+            }
         }
     }
 }

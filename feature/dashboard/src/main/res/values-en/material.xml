@@ -35,8 +35,9 @@
     <string name="material_kanji_type">By kanji</string>
     <string name="material_kanji_title">Kanji</string>
     <string name="material_all_kanji">All kanji</string>
+    <string name="material_all_jlpt">All levels</string>
     <string name="material_more">%1$d more</string>
-    <string name="material_empty_pool">No matching words. Change your kanji selection</string>
+    <string name="material_empty_pool">No matching words. Change JLPT or your kanji selection</string>
     <plurals name="material_words_selected">
         <item quantity="one">%1$d word selected</item>
         <item quantity="other">%1$d words selected</item>

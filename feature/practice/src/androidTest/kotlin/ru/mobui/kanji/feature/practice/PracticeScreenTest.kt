@@ -39,7 +39,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performSemanticsAction
 import androidx.compose.ui.test.performTouchInput
-import androidx.compose.ui.test.swipeDown
 import androidx.compose.ui.test.top
 import androidx.compose.ui.test.up
 import androidx.compose.ui.test.width
@@ -71,6 +70,7 @@ import ru.mobui.kanji.domain.practice.CheckVerdict
 import ru.mobui.kanji.domain.practice.CompensationStage
 import ru.mobui.kanji.domain.practice.EntryMode
 import ru.mobui.kanji.domain.practice.EntryStatus
+import ru.mobui.kanji.domain.practice.HintOverlayStyle
 import ru.mobui.kanji.domain.practice.IndividualCheckResult
 import ru.mobui.kanji.domain.practice.KanjiChecker
 import ru.mobui.kanji.domain.practice.KanjiId
@@ -83,7 +83,6 @@ import ru.mobui.kanji.domain.practice.RecognitionSettings
 import ru.mobui.kanji.domain.practice.RotationCompensation
 import ru.mobui.kanji.domain.practice.StretchCompensation
 import ru.mobui.kanji.domain.practice.StrokeOrderMismatch
-import ru.mobui.kanji.domain.practice.TraceReferenceHint
 
 @Suppress("LargeClass")
 class PracticeScreenTest {
@@ -219,6 +218,13 @@ class PracticeScreenTest {
         val report =
             CheckReport(
                 CheckVerdict.Incorrect,
+                compensation =
+                    CheckCompensation(
+                        budget =
+                            ru.mobui.kanji.domain.practice.CompensationBudget(
+                                translationPercent = 5f,
+                            ),
+                    ),
                 checks =
                     listOf(
                         IndividualCheckResult(CheckKind.Readability, CheckVerdict.Incorrect, "月"),
@@ -255,11 +261,16 @@ class PracticeScreenTest {
         compose.onNodeWithTag("close-check-details").performClick()
         compose.onNodeWithTag("check-indicator-Shape").performClick()
         compose.onNodeWithText("Соответствие").assertIsDisplayed()
+        compose.onNodeWithText("Компенсация").assertIsDisplayed()
+        compose.onNodeWithText("5%").assertIsDisplayed()
         compose.onNodeWithTag("close-check-details").performClick()
         compose.onNodeWithTag("check-indicator-StrokeWriting").performClick()
         compose.onNodeWithText("4 из 4").assertIsDisplayed()
         compose.onNodeWithText("Нарушен").assertIsDisplayed()
         compose.onNodeWithText("Порядок").assertIsDisplayed()
+        compose.onNodeWithTag("check-order-detail").assertIsDisplayed()
+        compose.onNodeWithText("2-й по счёту оказалась 3-я черта", substring = true).assertIsDisplayed()
+        compose.onNodeWithText("3-й по счёту оказалась 2-я черта", substring = true).assertIsDisplayed()
         compose.onNodeWithTag("close-check-details").performClick()
         compose.onNodeWithTag("check-details-dialog").assertDoesNotExist()
     }
@@ -289,16 +300,37 @@ class PracticeScreenTest {
     fun headerShowsOnlyElapsedTimeWithoutLimitAndNoInstructionOrButtons() {
         val initial = HandwritingTraining(task).state.copy(elapsedMs = 12_800)
         compose.setContent {
-            MaterialTheme { PracticeScreen(PracticeUiState(initial, debugEnabled = true), {}, {}) }
+            MaterialTheme {
+                PracticeScreen(PracticeUiState(initial, debugEnabled = true), {}, {}, onBack = {})
+            }
         }
         compose.onNodeWithTag("header-timer").assertTextEquals("00:12")
+        compose.onNodeWithTag("practice-back").assertIsDisplayed()
         compose.onNodeWithTag("open-checker-settings").assertDoesNotExist()
         compose.onNodeWithTag("open-debug").assertDoesNotExist()
         compose.onNodeWithTag("compensated-drawing").assertDoesNotExist()
         compose.onNodeWithText("Выберите клетку и пишите").assertDoesNotExist()
         compose
             .onNodeWithTag("word-reading")
-            .assert(hasContentDescription("Произношение скрыто. Откройте кнопкой подсказки"))
+            .assert(hasContentDescription("Произношение скрыто. Нажмите, чтобы открыть"))
+    }
+
+    @Test
+    fun backOpensInterruptDialogAndConfirmLeaves() {
+        var left = false
+        val vm = PracticeViewModel(task, references, KanjiChecker { CheckVerdict.Unavailable })
+        compose.setContent {
+            MaterialTheme { PracticeRoute(vm, {}, { left = true }) }
+        }
+        compose.onNodeWithTag("practice-back").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("practice-interrupt-dialog").assertIsDisplayed()
+        compose.onNodeWithText("Прогресс сохранится", substring = true).assertIsDisplayed()
+        compose.onNodeWithTag("practice-interrupt-stay").performClick()
+        compose.onNodeWithTag("practice-interrupt-dialog").assertDoesNotExist()
+        compose.runOnIdle { assertFalse(left) }
+        compose.onNodeWithTag("practice-back").performClick()
+        compose.onNodeWithTag("practice-interrupt-confirm").performClick()
+        compose.runOnIdle { assertTrue(left) }
     }
 
     @Test
@@ -336,7 +368,7 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun debugButtonShowsActualCompensatedInkInRedAndClearsOnNewGesture() {
+    fun indicatorDialogOmitsCompensatedDrawingControls() {
         val drawing =
             ComparisonDrawing(listOf(listOf(ComparisonPoint(.2f, .2f), ComparisonPoint(.8f, .8f))))
         val checker =
@@ -348,10 +380,6 @@ class PracticeScreenTest {
             }
         val vm = PracticeViewModel(task, references, checker, showCheckDiagnostics = true)
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
-        compose.onNodeWithTag("check-indicator-Shape").performClick()
-        val button = compose.onNodeWithTag("compensated-drawing")
-        button.bringIntoViewIfNeeded().assertIsNotEnabled()
-        compose.onNodeWithTag("close-check-details").performClick()
         compose.onNodeWithTag("practice-pad").performTouchInput {
             down(center)
             moveTo(Offset(center.x + 20, center.y))
@@ -359,27 +387,16 @@ class PracticeScreenTest {
         }
         compose.waitUntil(5_000) { vm.uiState.value.debugReport?.compensatedDrawing != null }
         compose.onNodeWithTag("check-indicator-Shape").performClick()
-        button.bringIntoViewIfNeeded().assertIsEnabled().performClick().assertIsOn()
+        compose.onNodeWithTag("check-details-dialog").assertIsDisplayed()
+        compose.onNodeWithTag("compensated-drawing").assertDoesNotExist()
+        compose.onNodeWithTag("open-debug").assertDoesNotExist()
         compose.onNodeWithTag("close-check-details").performClick()
-        compose.runOnIdle { assertTrue(vm.uiState.value.showCompensatedDrawing) }
-        val pixels = compose.onNodeWithTag("practice-pad").captureToImage().toPixelMap()
-        assertTrue(
-            (0 until pixels.width).any { x ->
-                (0 until pixels.height).any { y ->
-                    val color = pixels[x, y]
-                    color.red > .9f && color.green < .1f && color.blue < .1f
-                }
-            },
-        )
-        compose.onNodeWithTag("practice-pad").performTouchInput { down(center) }
-        compose.runOnIdle { assertFalse(vm.uiState.value.showCompensatedDrawing) }
-        compose.onNodeWithTag("check-details-dialog").assertDoesNotExist()
-        compose.onNodeWithTag("practice-pad").performTouchInput { cancel() }
     }
 
     @Test
     fun settingsChangeRechecksAcceptedInkAndWritingRulesToggleIndependently() {
         val settings = mutableStateOf(RecognitionSettings())
+        val showSettings = mutableStateOf(false)
         val checker =
             object : KanjiChecker {
                 override suspend fun check(request: CheckRequest) =
@@ -389,20 +406,24 @@ class PracticeScreenTest {
         val vm = PracticeViewModel(task, references, checker, showCheckDiagnostics = true)
         compose.setContent {
             MaterialTheme {
-                PracticeRoute(
-                    vm,
-                    {},
-                    {},
-                    settings.value,
-                    {
-                        settings.value = it
-                        vm.onCheckerSettingsChanged()
-                    },
-                    {
-                        settings.value = RecognitionSettings()
-                        vm.onCheckerSettingsChanged()
-                    },
-                )
+                // Keep PRACTICE mounted so lifecycle ticks still recheck after SETTINGS edits.
+                Box {
+                    PracticeRoute(vm, {}, {})
+                    if (showSettings.value) {
+                        CheckerSettingsScreen(
+                            settings.value,
+                            {
+                                settings.value = it
+                                vm.onCheckerSettingsChanged()
+                            },
+                            { showSettings.value = false },
+                            {
+                                settings.value = RecognitionSettings()
+                                vm.onCheckerSettingsChanged()
+                            },
+                        )
+                    }
+                }
             }
         }
         compose.onNodeWithTag("practice-pad").performTouchInput {
@@ -415,8 +436,7 @@ class PracticeScreenTest {
         }
         val oldRevision = vm.uiState.value.practice.cells[0].revision
         val oldInk = vm.uiState.value.practice.cells[0].sample
-        compose.onNodeWithTag("check-indicator-Shape").performClick()
-        compose.onNodeWithTag("open-checker-settings").bringIntoViewIfNeeded().performClick()
+        compose.runOnIdle { showSettings.value = true }
         compose.onNodeWithTag("parameter-match").bringIntoViewIfNeeded().performSemanticsAction(
             SemanticsActions.SetProgress,
         ) {
@@ -508,7 +528,7 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun nextIsEnabledOnlyAfterEveryRequiredSignIsAutomaticallyAccepted() {
+    fun nextSubmitsCorrectOnlyAfterEveryRequiredSignIsAccepted() {
         var result: PracticeResult? = null
         val vm =
             PracticeViewModel(
@@ -528,13 +548,16 @@ class PracticeScreenTest {
                 up()
             }
         }
+        compose.onNodeWithText("Далее").assertIsNotEnabled()
         drawStroke()
         compose.waitUntil(5_000) {
             vm.uiState.value.practice.cells[0].status == EntryStatus.Incorrect
         }
         compose.onNodeWithContentDescription("Знак 1, Неверно").assertExists()
+        // Failed check keeps the learner's ink in the strip, not the reference glyph.
+        compose.onNodeWithTag("kanji-cell-ink-0", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("kanji-cell-answer-0", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("practice-debug-feedback").assertDoesNotExist()
-        compose.onNodeWithText("Далее").assertIsNotEnabled()
         drawStroke()
         compose.waitUntil(5_000) {
             vm.uiState.value.practice.cells[0].status == EntryStatus.Correct &&
@@ -542,7 +565,6 @@ class PracticeScreenTest {
         }
         compose.onNodeWithContentDescription("Знак 1, Верно").assertExists()
         compose.onNodeWithContentDescription("Знак 2, Не введён").assertIsSelected()
-        compose.onNodeWithText("Далее").assertIsNotEnabled()
         compose.onNodeWithTag("next-kanji").assertDoesNotExist()
         drawStroke()
         compose.waitUntil(5_000) {
@@ -553,7 +575,49 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun incompleteSignStaysNeutralAndDoesNotEnableNext() {
+    fun autoAdvanceSubmitsSuccessfulWordWithoutNextTap() {
+        var result: PracticeResult? = null
+        val vm =
+            PracticeViewModel(
+                task,
+                references,
+                KanjiChecker { CheckVerdict.Correct },
+                autoAdvanceOnSuccess = { true },
+            )
+        compose.setContent { MaterialTheme { PracticeRoute(vm, { result = it }, {}) } }
+        fun drawStroke() {
+            compose.onNodeWithTag("practice-pad").bringIntoViewIfNeeded().performTouchInput {
+                down(center)
+                moveTo(Offset(center.x + 20, center.y))
+                up()
+            }
+        }
+        drawStroke()
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selectedIndex == 1 }
+        drawStroke()
+        compose.waitUntil(5_000) { result?.status == AnswerStatus.Correct }
+        compose.runOnIdle {
+            assertEquals(AnswerStatus.Correct, result!!.status)
+            assertTrue(vm.uiState.value.practice.isComplete)
+        }
+    }
+
+    @Test
+    fun nextStaysDisabledWhileWordIsUnresolved() {
+        val vm = PracticeViewModel(task, references, KanjiChecker { CheckVerdict.Incomplete })
+        compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
+        compose.onNodeWithText("Далее").assertIsNotEnabled()
+        compose.onNodeWithTag("practice-pad").bringIntoViewIfNeeded().performTouchInput {
+            down(center)
+            moveTo(Offset(center.x + 20, center.y))
+            up()
+        }
+        compose.waitUntil(5_000) { vm.uiState.value.notice == PracticeNotice.Incomplete }
+        compose.onNodeWithText("Далее").assertIsNotEnabled()
+    }
+
+    @Test
+    fun incompleteSignStaysNeutralWithoutFailing() {
         val vm = PracticeViewModel(task, references, KanjiChecker { CheckVerdict.Incomplete })
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
         compose.onNodeWithTag("practice-pad").bringIntoViewIfNeeded().performTouchInput {
@@ -569,7 +633,7 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun debugFailureExplainsSelectedRevisionAndClearsOnNewInput() {
+    fun indicatorDialogHasNoSettingsOrDebugEntry() {
         val checker =
             object : KanjiChecker {
                 override suspend fun check(request: CheckRequest) = CheckVerdict.Incorrect
@@ -588,29 +652,17 @@ class PracticeScreenTest {
             up()
         }
         compose.waitUntil(5_000) { vm.uiState.value.debugFailures.isNotEmpty() }
-        val bounds = compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot
-        compose.onNodeWithTag("practice-debug-feedback").assertDoesNotExist()
         compose.onNodeWithTag("check-indicator-Shape").performClick()
-        compose.onNodeWithTag("open-debug").bringIntoViewIfNeeded().performClick()
-        compose
-            .onNodeWithTag("practice-debug-feedback")
-            .assertIsDisplayed()
-            .assertTextContains("Штрихов: 1, нужно 5", substring = true)
-        compose.onNodeWithTag("close-debug").performClick()
-        compose.onNodeWithTag("debug-dialog").assertDoesNotExist()
-        assertEquals(
-            bounds,
-            compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot,
-        )
-        compose.onNodeWithTag("practice-pad").performTouchInput { down(center) }
-        compose.onNodeWithTag("practice-debug-feedback").assertDoesNotExist()
-        compose.onNodeWithTag("practice-pad").performTouchInput { cancel() }
-        compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
-        compose.onNodeWithTag("practice-debug-feedback").assertDoesNotExist()
+        compose.onNodeWithTag("check-details-dialog").assertIsDisplayed()
+        compose.onNodeWithTag("open-checker-settings").assertDoesNotExist()
+        compose.onNodeWithTag("open-debug").assertDoesNotExist()
+        compose.onNodeWithTag("compensated-drawing").assertDoesNotExist()
+        compose.onNodeWithTag("close-check-details").performClick()
+        compose.onNodeWithTag("check-details-dialog").assertDoesNotExist()
     }
 
     @Test
-    fun debugCompensationIsVisibleForCorrectAnswerAndClearsWhenSelectionChanges() {
+    fun debugCompensationStaysOutOfIndicatorDialog() {
         val checker =
             object : KanjiChecker {
                 override suspend fun check(request: CheckRequest) = CheckVerdict.Correct
@@ -638,51 +690,47 @@ class PracticeScreenTest {
             moveTo(Offset(center.x + 20, center.y))
             up()
         }
-        // Correct auto-advances selection; return to the checked cell to inspect compensation.
         compose.waitUntil(5_000) {
             vm.uiState.value.practice.cells[0].status == EntryStatus.Correct
         }
         compose.onNodeWithTag("kanji-cell-0").bringIntoViewIfNeeded().performClick()
         compose.waitUntil(5_000) { vm.uiState.value.debugCompensation != null }
         compose.onNodeWithTag("check-indicator-Shape").performClick()
-        compose.onNodeWithTag("open-debug").bringIntoViewIfNeeded().performClick()
-        compose
-            .onNodeWithTag("practice-debug-feedback")
-            .assertIsDisplayed()
-            .assertTextContains("Компенсация поворота:", substring = true)
-            .assertTextContains("Коррекция масштаба X:", substring = true)
-        compose.runOnIdle {
-            assertEquals(EntryStatus.Correct, vm.uiState.value.practice.selected!!.status)
-        }
-        compose.onNodeWithTag("debug-drag-handle").performTouchInput { swipeDown() }
-        compose.onNodeWithTag("debug-dialog").assertDoesNotExist()
-        compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
+        compose.onNodeWithTag("check-details-dialog").assertIsDisplayed()
+        compose.onNodeWithTag("open-debug").assertDoesNotExist()
         compose.onNodeWithTag("practice-debug-feedback").assertDoesNotExist()
+        compose.onNodeWithTag("close-check-details").performClick()
     }
 
     @Test
-    fun tracingHintTogglesAndAllowsInkUndoAndClearWithoutLosingUsage() {
+    fun tracingHintShowsBrieflyAndAllowsInkUndoAndClearWithoutLosingUsage() {
         val vm =
             PracticeViewModel(
                 task,
                 references,
                 // Incorrect avoids auto-advance so hint stays on the same cell for undo/clear.
                 KanjiChecker { CheckVerdict.Incorrect },
-                hintAlgorithm = TraceReferenceHint(),
+                // Keep the guide visible while exercising ink/undo/clear.
+                fullHintDisplayMillis = { 20_000 },
             )
         compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
         compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
         compose
             .onNodeWithTag("word-reading")
-            .assert(hasContentDescription("Произношение скрыто. Откройте кнопкой подсказки"))
+            .assert(hasContentDescription("Произношение скрыто. Нажмите, чтобы открыть"))
         val hint = compose.onNodeWithTag("trace-hint")
-        hint.bringIntoViewIfNeeded().assertIsOff().performClick().assertIsOn()
+        // Full-character control is a button, not a latched checkbox.
+        hint.bringIntoViewIfNeeded().performClick()
         compose.runOnIdle {
             assertNotNull(vm.uiState.value.hint)
             assertTrue(vm.uiState.value.practice.selected!!.hintUsed)
+            assertFalse(vm.uiState.value.readingRevealed)
             assertFalse(vm.uiState.value.practice.isComplete)
         }
-        compose.onNodeWithTag("word-reading").assert(hasContentDescription("としょかん"))
+        // Trace hint does not open the reading spoiler.
+        compose
+            .onNodeWithTag("word-reading")
+            .assert(hasContentDescription("Произношение скрыто. Нажмите, чтобы открыть"))
         compose
             .onNodeWithTag("practice-pad")
             .assertIsEnabled()
@@ -710,13 +758,8 @@ class PracticeScreenTest {
         compose.onNodeWithContentDescription("Отменить последнее действие").performClick()
         compose.runOnIdle {
             assertEquals(1, vm.uiState.value.practice.selected!!.sample.strokeCount)
-        }
-        hint.performClick().assertIsOff()
-        compose.runOnIdle {
-            assertNull(vm.uiState.value.hint)
             assertTrue(vm.uiState.value.practice.selected!!.hintUsed)
         }
-        hint.performClick().assertIsOn()
         compose.onNodeWithTag("next-kanji").assertDoesNotExist()
         compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
         compose.runOnIdle {
@@ -727,7 +770,55 @@ class PracticeScreenTest {
     }
 
     @Test
-    fun longTimedPromptStaysSingleLineAboveTools() {
+    fun fullCharacterHintAutoHidesAfterConfiguredDelay() {
+        val vm =
+            PracticeViewModel(
+                task,
+                references,
+                KanjiChecker { CheckVerdict.Incorrect },
+                fullHintDisplayMillis = { 200 },
+            )
+        compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
+        compose.onNodeWithTag("trace-hint").bringIntoViewIfNeeded().performClick()
+        compose.runOnIdle { assertNotNull(vm.uiState.value.hint) }
+        compose.waitUntil(2_000) { vm.uiState.value.hint == null }
+        compose.runOnIdle { assertTrue(vm.uiState.value.practice.selected!!.hintUsed) }
+    }
+
+    @Test
+    fun tappingReadingSpoilerRevealsPronunciationAndCountsAsHint() {
+        val vm =
+            PracticeViewModel(
+                task,
+                references,
+                KanjiChecker { CheckVerdict.Incorrect },
+            )
+        compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
+        compose
+            .onNodeWithTag("word-reading")
+            .assert(hasContentDescription("Произношение скрыто. Нажмите, чтобы открыть"))
+            .performClick()
+        compose.runOnIdle {
+            assertTrue(vm.uiState.value.readingRevealed)
+            assertTrue(vm.uiState.value.practice.readingHintUsed)
+            // Reading help is word-level; it must not mark the selected kanji cell.
+            assertFalse(vm.uiState.value.practice.selected!!.hintUsed)
+            assertNull(vm.uiState.value.hint)
+        }
+        compose.onNodeWithTag("word-reading").assert(hasContentDescription("としょかん"))
+        compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
+        compose.runOnIdle {
+            assertEquals(1, vm.uiState.value.practice.selectedIndex)
+            assertTrue(vm.uiState.value.readingRevealed)
+            assertTrue(vm.uiState.value.practice.readingHintUsed)
+            assertFalse(vm.uiState.value.practice.selected!!.hintUsed)
+        }
+    }
+
+    @Test
+    fun longTimedPromptFitsAtMostTwoLinesAboveTools() {
         val word = mutableStateOf("Библиотека")
         compose.setContent {
             MaterialTheme {
@@ -737,21 +828,21 @@ class PracticeScreenTest {
                 }
             }
         }
-        fun padAboveTools() {
+        fun padAboveHint() {
             val pad = compose.onNodeWithTag("practice-pad").fetchSemanticsNode().boundsInRoot
-            val tools = compose.onNodeWithTag("trace-hint").fetchSemanticsNode().boundsInRoot
-            assertTrue(pad.bottom <= tools.top + 1f)
+            val hint = compose.onNodeWithTag("trace-hint").fetchSemanticsNode().boundsInRoot
+            assertTrue(pad.bottom <= hint.top + 1f)
         }
-        padAboveTools()
+        padAboveHint()
         compose.runOnIdle { word.value = "Электроэнцефалографическое исследование" }
         compose.onNodeWithTag("word-prompt").performSemanticsAction(
             SemanticsActions.GetTextLayoutResult,
         ) { action ->
             val results = mutableListOf<TextLayoutResult>()
             assertTrue(action(results))
-            assertEquals(1, results.first().lineCount)
+            assertTrue(results.first().lineCount <= 2)
         }
-        padAboveTools()
+        padAboveHint()
         compose.onNodeWithContentDescription("Осталось 05:00").assertIsDisplayed()
         compose.onNodeWithTag("trace-hint").assertIsDisplayed()
         compose.onNodeWithTag("open-debug").assertDoesNotExist()
@@ -805,14 +896,42 @@ class PracticeScreenTest {
                 )
             }
         }
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
         compose.runOnIdle {
             now = 1_000
             vm.setActive(false)
             now = 10_000
             vm.setActive(true)
-            assertEquals(AnswerStatus.TimedOut, vm.uiState.value.practice.result!!.status)
+            assertNull(vm.uiState.value.practice.result)
+            assertTrue(vm.uiState.value.practice.timedOut)
+            assertTrue(vm.uiState.value.practice.readingHintUsed)
+            assertTrue(vm.uiState.value.readingRevealed)
+            assertTrue(vm.uiState.value.practice.isResolved)
             assertEquals(5_000L, vm.uiState.value.practice.elapsedMs)
             assertEquals(5_000L, vm.uiState.value.practice.cells.first().elapsedMs)
+            assertTrue(
+                vm.uiState.value.practice.cells
+                    .filter { it.task.mode == EntryMode.User }
+                    .all { it.status == EntryStatus.Incorrect },
+            )
+            assertNotNull(vm.uiState.value.hint)
+            assertEquals(HintOverlayStyle.Exhausted, vm.uiState.value.hint!!.style)
+            assertEquals(0, vm.uiState.value.practice.selectedIndex)
+        }
+        compose.onNodeWithTag("kanji-cell-1").bringIntoViewIfNeeded().performClick()
+        compose.runOnIdle {
+            assertEquals(1, vm.uiState.value.practice.selectedIndex)
+            assertNotNull(vm.uiState.value.hint)
+            assertEquals(HintOverlayStyle.Exhausted, vm.uiState.value.hint!!.style)
+        }
+        compose.onNodeWithTag("kanji-cell-0").bringIntoViewIfNeeded().performClick()
+        compose.runOnIdle { assertEquals(0, vm.uiState.value.practice.selectedIndex) }
+        compose.onNodeWithText("Далее").assertIsEnabled().performClick()
+        compose.runOnIdle {
+            assertEquals(1, deliveries)
+            assertEquals(AnswerStatus.TimedOut, result!!.status)
+            assertTrue(result!!.readingHintUsed)
+            assertEquals(5_000L, result!!.elapsedMs)
         }
         compose.runOnIdle {
             vm.setActive(false)
@@ -823,13 +942,11 @@ class PracticeScreenTest {
                 result = it
             }
             assertEquals(1, deliveries)
-            assertEquals(AnswerStatus.TimedOut, result!!.status)
-            assertEquals(5_000L, result!!.elapsedMs)
         }
     }
 
     @Test
-    fun skipDeliversTypedResultOnce() {
+    fun skipActionStillDeliversTypedResultOnce() {
         var deliveries = 0
         var result: PracticeResult? = null
         val vm = PracticeViewModel(task, references, KanjiChecker { CheckVerdict.Unavailable })
@@ -845,7 +962,8 @@ class PracticeScreenTest {
                 )
             }
         }
-        compose.onNodeWithText("Пропустить").performClick()
+        compose.onNodeWithText("Пропустить").assertDoesNotExist()
+        compose.runOnIdle { vm.onAction(PracticeAction.Skip) }
         compose.runOnIdle {
             assertEquals(1, deliveries)
             assertEquals("test-word", result!!.taskId)
@@ -854,5 +972,24 @@ class PracticeScreenTest {
             assertEquals(EntryStatus.Prefilled, result!!.kanji.last().status)
             assertEquals(0L, result!!.kanji.last().elapsedMs)
         }
+    }
+
+    @Test
+    fun headerShowsProgressAndBottomHasHintInsteadOfSkip() {
+        compose.setContent {
+            MaterialTheme {
+                PracticeScreen(
+                    PracticeUiState(HandwritingTraining(task).state),
+                    {},
+                    {},
+                    progressLabel = "2 из 90",
+                )
+            }
+        }
+        compose.onNodeWithTag("word-progress").assertTextEquals("Практика 2 из 90")
+        compose.onNodeWithText("Практика 2 из 90").assertIsDisplayed()
+        compose.onNodeWithTag("trace-hint").assertIsDisplayed()
+        compose.onNodeWithText("Пропустить").assertDoesNotExist()
+        compose.onNodeWithText("Далее").assertIsDisplayed()
     }
 }

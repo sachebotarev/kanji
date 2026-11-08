@@ -12,15 +12,17 @@ internal fun RecipeMaterial.toBundle() = Bundle().apply {
     sourceId?.let { putInt("source", it) }
     putIntArray("chapters", chapters.toIntArray()); putIntArray("kanji", kanjiIds.toIntArray())
     putIntArray("words", wordIds.toIntArray()); putLongArray("tags", tagIds.toLongArray())
+    putIntArray("jlpt", jlptLevels.toIntArray())
 }
 internal fun Bundle.toMaterial() = RecipeMaterial(requireNotNull(getString("id")),
     MaterialType.entries.first { it.key == getString("type") }, if (containsKey("source")) getInt("source") else null,
     (getIntArray("chapters") ?: intArrayOf()).toSet(), (getIntArray("kanji") ?: intArrayOf()).toSet(),
-    (getIntArray("words") ?: intArrayOf()).toSet(), (getLongArray("tags") ?: longArrayOf()).toSet())
+    (getIntArray("words") ?: intArrayOf()).toSet(), (getLongArray("tags") ?: longArrayOf()).toSet(),
+    (getIntArray("jlpt") ?: intArrayOf()).toSet())
 
 internal fun recipeBundle(recipe: Recipe): Bundle = Bundle().apply {
     putString("id", recipe.id); putLong("revision", recipe.revision); putBoolean("active", recipe.isActive)
-    recipe.taskCount?.let { putInt("tasks", it) }; recipe.secondsPerWord?.let { putInt("seconds", it) }
+    recipe.taskCount?.let { putInt("tasks", it) }; recipe.secondsPerSymbol?.let { putInt("seconds", it) }
     putStringArrayList("languages", ArrayList(recipe.names.map { it.languageTag }))
     putStringArrayList("names", ArrayList(recipe.names.map { it.name }))
     putInt("size", recipe.materials.size)

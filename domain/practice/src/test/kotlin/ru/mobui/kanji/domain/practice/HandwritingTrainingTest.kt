@@ -62,19 +62,53 @@ class HandwritingTrainingTest {
     }
 
     @Test
-    fun timeoutClampsTimeAndAttributesItByOccurrence() {
+    fun timeoutMarksUnsetCellsIncorrectAndWaitsForSubmit() {
         val training = HandwritingTraining(task(100))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
         training.advanceTime(40)
         training.select(1)
         training.advanceTime(500)
+        assertNull(training.state.result)
+        assertTrue(training.state.timedOut)
+        assertTrue(training.state.readingHintUsed)
+        assertTrue(training.state.isResolved)
+        assertEquals(100L, training.state.elapsedMs)
+        assertEquals(
+            listOf(EntryStatus.Incorrect, EntryStatus.Incorrect, EntryStatus.Prefilled),
+            training.state.cells.map { it.status },
+        )
+        assertEquals(listOf(40L, 60L, 0L), training.state.cells.map { it.elapsedMs })
+        training.addStroke("position-0", training.state.cells[0].revision, stroke)
+        assertEquals(0, training.state.cells[0].sample.strokeCount)
+        training.submit()
         val result = requireNotNull(training.state.result)
         assertEquals(AnswerStatus.TimedOut, result.status)
+        assertTrue(result.readingHintUsed)
         assertEquals(100L, result.elapsedMs)
-        assertEquals(listOf(40L, 60L, 0L), result.kanji.map { it.elapsedMs })
+        assertEquals(
+            listOf(EntryStatus.Incorrect, EntryStatus.Incorrect, EntryStatus.Prefilled),
+            result.kanji.map { it.status },
+        )
         assertEquals(
             listOf("position-0", "position-1", "position-2"),
             result.kanji.map { it.occurrenceId },
         )
+    }
+
+    @Test
+    fun timeoutKeepsAlreadyCorrectCells() {
+        val training = HandwritingTraining(task(100))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.advanceTime(100)
+        assertTrue(training.state.timedOut)
+        assertEquals(EntryStatus.Correct, training.state.cells[0].status)
+        assertEquals(EntryStatus.Incorrect, training.state.cells[1].status)
+        training.submit()
+        assertEquals(AnswerStatus.TimedOut, training.state.result!!.status)
     }
 
     @Test
@@ -131,14 +165,13 @@ class HandwritingTrainingTest {
         training.addStroke("position-0", 0, stroke)
         val sample = training.state.selected!!.sample
         val revision = training.state.selected!!.revision
-        training.recordHintUsed()
+        assertEquals(1, training.recordStrokeHint())
         assertSame(sample, training.state.selected!!.sample)
         assertEquals(revision, training.state.selected!!.revision)
-        training.submit()
-        assertNull(training.state.result)
         training.clear()
         training.undo()
         assertTrue(training.state.selected!!.hintUsed)
+        assertEquals(1, training.state.selected!!.strokeHintCount)
         training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
         training.select(1)
         training.addStroke("position-1", 0, stroke)
@@ -152,6 +185,29 @@ class HandwritingTrainingTest {
             listOf(EntryStatus.Correct, EntryStatus.Correct, EntryStatus.Prefilled),
             result.kanji.map { it.status },
         )
+        assertEquals(1, result.kanji.first().hintRequestCount)
+        assertFalse(result.readingHintUsed)
+    }
+
+    @Test
+    fun readingHintMarksWordAssistedWithoutCellHint() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.recordReadingHint()
+        assertTrue(training.state.readingHintUsed)
+        assertFalse(training.state.selected!!.hintUsed)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertEquals(AnswerStatus.Assisted, result.status)
+        assertTrue(result.readingHintUsed)
+        assertTrue(result.kanji.none { it.hintUsed })
+        assertTrue(result.kanji.none { it.hintRequestCount > 0 })
     }
 
     @Test
@@ -170,5 +226,59 @@ class HandwritingTrainingTest {
         assertEquals(EntryStatus.Editing, result.kanji.first().status)
         assertEquals(1, result.kanji.first().sample.strokeCount)
         assertEquals(25L, result.kanji.first().elapsedMs)
+    }
+
+    @Test
+    fun earlySubmitDoesNotFinishIncompleteWord() {
+        val training = HandwritingTraining(task())
+        training.addStroke("position-0", 0, stroke)
+        training.submit()
+        assertNull(training.state.result)
+        assertEquals(EntryStatus.Editing, training.state.selected!!.status)
+        assertFalse(training.state.isResolved)
+    }
+
+    @Test
+    fun submitAfterAllSettledWithIncorrectFinishesAsSkipped() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.exhaustStrokeHints()
+        training.select(1)
+        training.exhaustStrokeHints()
+        assertTrue(training.state.isResolved)
+        assertFalse(training.state.isComplete)
+        training.submit()
+        assertEquals(AnswerStatus.Skipped, training.state.result!!.status)
+    }
+
+    @Test
+    fun nextStrokeHintBudgetExhaustionMarksIncorrectAndBlocksEdits() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        assertEquals(1, training.recordStrokeHint())
+        assertEquals(2, training.recordStrokeHint())
+        assertEquals(3, training.recordStrokeHint())
+        training.exhaustStrokeHints()
+        val cell = training.state.selected!!
+        assertTrue(cell.hintUsed)
+        assertTrue(cell.strokeHintsExhausted)
+        assertEquals(3, cell.strokeHintCount)
+        assertEquals(EntryStatus.Incorrect, cell.status)
+        assertFalse(training.state.isComplete)
+        training.addStroke("position-0", cell.revision, stroke)
+        assertEquals(0, training.state.selected!!.sample.strokeCount)
+        assertFalse(
+            training.applyCheck(
+                CheckRequest(
+                    "word-1",
+                    "position-0",
+                    KanjiId("same-kanji"),
+                    training.state.selected!!.revision,
+                    training.state.selected!!.sample,
+                ),
+                CheckVerdict.Correct,
+            ),
+        )
+        assertEquals(EntryStatus.Incorrect, training.state.selected!!.status)
     }
 }

@@ -24,7 +24,7 @@ internal data class TrainingsRow(
     @ColumnInfo(name = "recipe_id") val recipeId: String?,
     @ColumnInfo(name = "recipe_revision") val recipeRevision: Long?,
     @ColumnInfo(name = "task_count") val taskCount: Int?,
-    @ColumnInfo(name = "seconds_per_word") val secondsPerWord: Int?,
+    @ColumnInfo(name = "seconds_per_symbol") val secondsPerSymbol: Int?,
     val status: String,
     @ColumnInfo(name = "started_at") val startedAt: Long,
     @ColumnInfo(name = "ended_at") val endedAt: Long?,
@@ -84,6 +84,7 @@ internal data class TrainingTasksRow(
     @ColumnInfo(name = "started_at") val startedAt: Long?,
     @ColumnInfo(name = "ended_at") val endedAt: Long?,
     @ColumnInfo(name = "elapsed_ms") val elapsedMs: Long,
+    @ColumnInfo(name = "reading_hint_used") val readingHintUsed: Boolean = false,
 )
 
 @Entity(

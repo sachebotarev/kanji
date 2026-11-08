@@ -1,6 +1,6 @@
 -- Reference DDL for Training execution tables.
 -- Apply after recipes.sql (and catalog tables words/kanji).
--- Documentation contract mirrored by Room v7 CatalogDatabase entities/DAO.
+-- Documentation contract mirrored by Room v9 CatalogDatabase entities/DAO.
 -- Not a migration: the unreleased Android database is replaced.
 PRAGMA foreign_keys = ON;
 
@@ -9,7 +9,7 @@ CREATE TABLE trainings (
     recipe_id TEXT REFERENCES recipes(id) ON DELETE SET NULL,
     recipe_revision INTEGER CHECK(recipe_revision IS NULL OR recipe_revision > 0),
     task_count INTEGER CHECK(task_count IS NULL OR task_count > 0),
-    seconds_per_word INTEGER CHECK(seconds_per_word IS NULL OR seconds_per_word > 0),
+    seconds_per_symbol INTEGER CHECK(seconds_per_symbol IS NULL OR seconds_per_symbol > 0),
     status TEXT NOT NULL CHECK(status IN ('in_progress', 'completed', 'interrupted')),
     started_at INTEGER NOT NULL,
     ended_at INTEGER,
@@ -43,6 +43,7 @@ CREATE TABLE training_tasks (
     started_at INTEGER,
     ended_at INTEGER,
     elapsed_ms INTEGER NOT NULL DEFAULT 0 CHECK(elapsed_ms >= 0),
+    reading_hint_used INTEGER NOT NULL DEFAULT 0 CHECK(reading_hint_used IN (0, 1)),
     UNIQUE(training_id, position)
 );
 CREATE INDEX idx_training_tasks_word_id ON training_tasks(word_id);

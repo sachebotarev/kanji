@@ -1,8 +1,8 @@
 'use strict';
 Object.assign(copy.ru,{textbookCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'учебник':new Intl.PluralRules('ru').select(n)==='few'?'учебника':'учебников'}`});
 Object.assign(copy.en,{textbookCount:n=>`${n} ${n===1?'textbook':'textbooks'}`});
-Object.assign(copy.ru,{references:'Справочники',referencesDesc:'Все кандзи и ключи',textbooksDesc:'Главы, кандзи и слова'});
-Object.assign(copy.en,{references:'References',referencesDesc:'All kanji and radicals',textbooksDesc:'Chapters, kanji and words'});
+Object.assign(copy.ru,{references:'Справочники',referencesDesc:'Кандзи и ключи',textbooksDesc:'Главы, кандзи и слова'});
+Object.assign(copy.en,{references:'References',referencesDesc:'Kanji and radicals',textbooksDesc:'Chapters, kanji and words'});
 Object.assign(copy.ru,{wordActions:'Действия со словом',wordParts:'Чтение по частям',wordKanji:'Кандзи в слове',wordUsage:'Употребление'});
 Object.assign(copy.en,{wordActions:'Word actions',wordParts:'Reading parts',wordKanji:'Kanji in word',wordUsage:'Usage'});
 Object.assign(copy.ru,{addTranslationRu:'Перевод на русский',addTranslationEn:'Перевод на английский'});

@@ -180,6 +180,10 @@ class CatalogSnapshot(val version: Int, content: CatalogContent) {
     val sourceById = sources.associateBy { it.id }
     private val placementByKey = placements.associateBy { it.sourceId to it.kanjiId }
 
+    /** Chapter of [kanjiId] in [sourceId], or null when the textbook does not place it. */
+    fun kanjiChapter(sourceId: Int, kanjiId: Int): Int? =
+        placementByKey[sourceId to kanjiId]?.chapter
+
     private val placementsBySource = placements.groupBy { it.sourceId }
     private val linksBySource = links.groupBy { it.sourceId }
     val sourceCounts: Map<Int, CatalogSourceCounts> = sources.associate { source ->

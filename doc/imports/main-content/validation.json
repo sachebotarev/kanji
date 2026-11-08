@@ -23,12 +23,12 @@
     "5": 79
   },
   "without_jlpt": 790,
-  "editorial_changes": 22,
+  "editorial_changes": 56,
   "notes_count": 9,
   "inputs_sha256": {
     "doc/imports/main-content/sources/classification-snapshot.json": "93d535c54f427ac1d417405f8c155d0b7ea25c702315858092c4361142ce7c4e",
-    "data/catalog/seed/catalog.json": "cb1b099c072cac384451dd8e5d97c9acf8b38596c365809175654c05563ff6c6",
+    "data/catalog/seed/catalog.json": "2c22530d973f6fcc3929c27584f591be3663cea29bbaf488a6095f24e893c54a",
     "data/catalog/kanji.csv": "d7d0b38066b1a6231dcada5555daf3bc5098b344d1ebe4210bfeb0d80ea8994b",
-    "doc/imports/main-content/build_content.py": "c640839ac2d0c9aac53373b0fe95cd7b898631ac44b6f64997926a590e967185"
+    "doc/imports/main-content/build_content.py": "ff3ae0eeb83ce82aa7b4a38ddebb4eaed0e35b789ea5b12f885bd65e2f98ecf2"
   }
 }

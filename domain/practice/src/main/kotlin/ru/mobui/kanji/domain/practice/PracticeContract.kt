@@ -61,6 +61,8 @@ data class KanjiResult(
     val elapsedMs: Long,
     val sample: WritingSample,
     val hintUsed: Boolean,
+    /** Counted character-guide presses; free peek on an already-correct cell is excluded. */
+    val hintRequestCount: Int = 0,
 )
 
 data class PracticeResult(
@@ -69,6 +71,8 @@ data class PracticeResult(
     val status: AnswerStatus,
     val kanji: List<KanjiResult>,
     val elapsedMs: Long,
+    /** Word-level reading spoiler was revealed during this attempt. */
+    val readingHintUsed: Boolean = false,
 )
 
 data class CheckRequest(

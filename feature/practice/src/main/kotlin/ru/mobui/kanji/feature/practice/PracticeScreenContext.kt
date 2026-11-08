@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,9 +33,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -47,10 +44,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toString
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -61,7 +56,6 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
@@ -71,7 +65,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.error
 import androidx.compose.ui.semantics.liveRegion
@@ -82,7 +75,8 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.shape
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -111,6 +105,7 @@ internal data class PracticeScreenContext(
     val activeStroke: () -> InkStroke?,
     val wordLabel: String?,
     val progressLabel: String? = null,
+    val onBack: (() -> Unit)? = null,
 ) {
     val practice get() = state.practice
     val selected get() = practice.selected
@@ -129,8 +124,15 @@ internal data class PracticeScreenContext(
     inputEnabled =
         selected != null &&
             practice.result == null &&
+            !practice.timedOut &&
+            selected.strokeHintsExhausted.not() &&
             state.hint?.blocksInput != true,
     overlay = state.hint?.overlay,
+    animateOverlay =
+        state.hint?.playback ==
+            ru.mobui.kanji.domain.practice.HintPlayback.AnimateOnce,
+    overlayAsError =
+        state.hint?.style == ru.mobui.kanji.domain.practice.HintOverlayStyle.Exhausted,
     comparisonOverlay =
         state.debugReport?.compensatedDrawing.takeIf {
             state.debugEnabled &&
@@ -146,33 +148,51 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
     with(context) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Row(
-                Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 8.dp),
+                Modifier.fillMaxWidth().height(56.dp).padding(horizontal = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(Modifier.weight(1f).padding(start = 16.dp)) {
-                    Text(
-                        stringResource(R.string.practice_title),
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                    progressLabel?.let { label ->
-                        Text(
-                            label,
-                            style = MaterialTheme.typography.labelLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                val title = stringResource(R.string.practice_title)
+                val headerTitle =
+                    if (progressLabel.isNullOrEmpty()) title else "$title $progressLabel"
+                if (onBack != null) {
+                    IconButton(onClick = onBack, modifier = Modifier.size(48.dp).testTag("practice-back")) {
+                        Icon(
+                            painterResource(R.drawable.ic_back),
+                            contentDescription = stringResource(R.string.back),
                         )
                     }
+                } else {
+                    Spacer(Modifier.width(8.dp))
                 }
+                Text(
+                    headerTitle,
+                    Modifier.weight(1f)
+                        .padding(end = 8.dp)
+                        .then(
+                            if (progressLabel.isNullOrEmpty()) Modifier
+                            else Modifier.testTag("word-progress"),
+                        ),
+                    style = MaterialTheme.typography.titleLarge,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
                 HeaderTaskTimer(
                     practice.elapsedMs,
                     practice.task.timeLimitMs,
-                    Modifier.padding(end = 16.dp),
+                    Modifier.padding(end = 12.dp),
                 )
             }
             Column(
                 Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp),
             ) {
-                WordPrompt(wordLabel ?: practice.task.russianWord)
-                WordReading(practice.task.reading, revealed = state.hint != null)
+                WordPrompt(word = wordLabel ?: practice.task.russianWord)
+                WordReading(
+                    practice.task.reading,
+                    revealed = state.readingRevealed,
+                    enabled = actionsEnabled,
+                ) {
+                    onAction(PracticeAction.RevealReading)
+                }
                 KanjiStrip(
                     KanjiStripState(
                         practice.cells,
@@ -184,7 +204,7 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
                 ) {
                     onAction(PracticeAction.Select(it))
                 }
-                // Keep the 72.dp cell underline clear of the status divider below.
+                // Keep the cell underline clear of the status divider below.
                 Spacer(Modifier.height(8.dp))
             }
         }
@@ -206,27 +226,29 @@ internal fun PracticeWriting(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-            Spacer(Modifier.height(8.dp))
+            // Air under the kanji strip / divider before the status chips.
+            Spacer(Modifier.height(12.dp))
             PracticeStatus(
                 state.currentCheckReport,
                 state.isChecking,
                 selected?.sample?.strokeCount ?: 0,
                 actionsEnabled,
-                modifier = Modifier.widthIn(max = 300.dp).fillMaxWidth(),
+                modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
             ) {
                 onOpenCheck(it)
             }
             Spacer(Modifier.height(8.dp))
             if (flexiblePad) {
-                // Fit a square into leftover height so the pad never overflows onto tools.
+                // Square pad under the chips; leftover height stays below. Pad size must not change
+                // mid-stroke — UI-PAD cancels the gesture when layout size changes.
                 BoxWithConstraints(
                     Modifier.weight(1f).fillMaxWidth(),
-                    contentAlignment = Alignment.Center,
+                    contentAlignment = Alignment.TopCenter,
                 ) {
                     val side = minOf(maxWidth, maxHeight)
                     key(practice.task.taskId) {
                         KanjiWritingPad(
-                            state = context.padState(),
+                            state = padState(),
                             onEvent = onPadEvent,
                             modifier = Modifier.size(side).testTag("practice-pad"),
                         )
@@ -235,28 +257,13 @@ internal fun PracticeWriting(
             } else {
                 key(practice.task.taskId) {
                     KanjiWritingPad(
-                        state = context.padState(),
+                        state = padState(),
                         onEvent = onPadEvent,
                         modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
                     )
                 }
             }
-            Spacer(Modifier.height(6.dp))
-            PracticeTools(
-                hintActive = state.hint != null,
-                hintEnabled =
-                    practice.result == null &&
-                        !state.gestureActive &&
-                        (selected?.reference != null ||
-                            practice.task.reading.isNotBlank()),
-                undoEnabled = actionsEnabled && state.canUndo,
-                clearEnabled =
-                    actionsEnabled &&
-                        selected != null &&
-                        selected.status != EntryStatus.Empty,
-                onAction = onAction,
-            )
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
@@ -269,7 +276,7 @@ internal fun PracticeContentLayout(
 ) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val padSide = minOf(maxWidth, 488.dp) - 48.dp
-        val needsScroll = maxHeight < padSide + 280.dp
+        val needsScroll = maxHeight < padSide + 230.dp
         if (needsScroll) {
             Column(
                 Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
@@ -279,8 +286,7 @@ internal fun PracticeContentLayout(
                 PracticeWriting(context, onOpenCheck)
             }
         } else {
-            // Header intrinsic; writing fills the rest. Pad uses weight so the tools row
-            // keeps full height and is never starved by the square pad.
+            // Header intrinsic; writing fills the rest. Pad uses weight inside leftover height.
             Column(
                 Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -298,50 +304,13 @@ internal fun PracticeContentLayout(
 }
 
 @Composable
-internal fun PracticeDetails(context: PracticeScreenContext, kind: CheckKind, onClose: () -> Unit,
-    onOpenSettings: (() -> Unit)?, onDebug: () -> Unit) {
-    with(context) {
-        CheckDetailsDialog(
-            kind,
-            state.currentCheckReport,
-            selected,
-            onClose = { onClose() },
-            onOpenSettings =
-                onOpenSettings?.let { callback ->
-                    {
-                        onClose()
-                        callback()
-                    }
-                },
-            diagnostics = {
-                if (kind == CheckKind.Shape && state.debugEnabled) {
-                    TextButton(
-                        onClick = {
-                            onClose()
-                            onDebug()
-                        },
-                        modifier = Modifier.testTag("open-debug"),
-                    ) {
-                        Text(stringResource(R.string.debug_title))
-                    }
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(
-                            stringResource(R.string.debug_compensated_drawing),
-                            Modifier.weight(1f),
-                        )
-                        Switch(
-                            checked = state.showCompensatedDrawing,
-                            onCheckedChange = { onAction(PracticeAction.ToggleCompensatedDrawing) },
-                            enabled =
-                                state.debugReport?.compensatedDrawing != null &&
-                                    !state.gestureActive,
-                            modifier = Modifier.testTag("compensated-drawing"),
-                        )
-                    }
-                }
-            },
-        )
-    }
+internal fun PracticeDetails(context: PracticeScreenContext, kind: CheckKind, onClose: () -> Unit) {
+    CheckDetailsDialog(
+        kind,
+        context.state.currentCheckReport,
+        context.selected,
+        onClose = onClose,
+    )
 }
 
 @Composable
@@ -356,10 +325,39 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
         ) {
             Column(Modifier.widthIn(max = 440.dp).fillMaxWidth()) {
                 PracticeFeedback(state)
+                val cell = selected
                 PracticeActions(
-                    enabled = actionsEnabled,
-                    complete = practice.isComplete,
+                    enabled = actionsEnabled && practice.isResolved,
                     checking = state.isChecking,
+                    undoEnabled =
+                        actionsEnabled &&
+                            !practice.timedOut &&
+                            state.canUndo &&
+                            cell?.strokeHintsExhausted != true,
+                    clearEnabled =
+                        actionsEnabled &&
+                            !practice.timedOut &&
+                            cell != null &&
+                            cell.status != EntryStatus.Empty &&
+                            !cell.strokeHintsExhausted,
+                    hintActive = state.hint != null,
+                    hintEnabled =
+                        run {
+                            val reference = cell?.reference
+                            practice.result == null &&
+                                !practice.timedOut &&
+                                !state.gestureActive &&
+                                reference != null &&
+                                cell?.strokeHintsExhausted != true &&
+                                (cell.status == EntryStatus.Correct ||
+                                    state.hint != null ||
+                                    state.hintMode !=
+                                        ru.mobui.kanji.domain.practice.HintMode.NextStroke ||
+                                    cell.sample.strokeCount < reference.strokes.size)
+                        },
+                    hintMode = state.hintMode,
+                    strokeHintCount = cell?.strokeHintCount ?: 0,
+                    maxNextStrokeHints = state.maxNextStrokeHints,
                     onAction = onAction,
                 )
             }
@@ -368,69 +366,22 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
 }
 
 @Composable
-private fun WordPrompt(word: String) {
-    val scroll = rememberScrollState()
-    Text(
-        word,
-        Modifier.fillMaxWidth()
-            .heightIn(min = 48.dp)
-            .horizontalScroll(scroll)
-            .padding(vertical = 4.dp)
-            .testTag("word-prompt"),
-        style = MaterialTheme.typography.headlineMedium,
-        fontWeight = FontWeight.SemiBold,
-        maxLines = 1,
-        softWrap = false,
-    )
-}
-
-@Composable
-private fun WordReading(reading: String, revealed: Boolean) {
+private fun WordReading(
+    reading: String,
+    revealed: Boolean,
+    enabled: Boolean,
+    onReveal: () -> Unit,
+) {
     val trimmed = reading.trim()
     if (trimmed.isEmpty()) {
         Spacer(Modifier.height(12.dp).testTag("reading-hints-space"))
         return
     }
-    val hiddenLabel = stringResource(R.string.reading_hidden)
-    val revealedLabel = stringResource(R.string.reading_revealed)
-    val supportsBlur = android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S
-    // Keep a stable reading-band height so blur/spoiler never collapses into a thin stub.
-    Box(
-        Modifier.fillMaxWidth()
-            .padding(top = 8.dp, bottom = 12.dp)
-            .heightIn(min = 44.dp)
-            .testTag("word-reading")
-            .clearAndSetSemantics {
-                contentDescription = if (revealed) trimmed else hiddenLabel
-                stateDescription = if (revealed) revealedLabel else hiddenLabel
-            },
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        Text(
-            trimmed,
-            Modifier.fillMaxWidth()
-                .then(
-                    when {
-                        revealed -> Modifier
-                        supportsBlur -> Modifier.blur(18.dp)
-                        else -> Modifier.graphicsLayer { alpha = 0f }
-                    },
-                ),
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Medium,
-        )
-        if (!revealed) {
-            Box(
-                Modifier.matchParentSize()
-                    .background(
-                        MaterialTheme.colorScheme.surfaceVariant.copy(
-                            alpha = if (supportsBlur) 0.35f else 1f,
-                        ),
-                        RoundedCornerShape(10.dp),
-                    ),
-            )
-        }
-    }
+    ReadingSpoiler(
+        reading = trimmed,
+        revealed = revealed,
+        enabled = enabled,
+        onReveal = onReveal,
+    )
 }
 

@@ -82,6 +82,7 @@ class RecognitionSettingsViewModel(
         savedState["recognition.readability"] = value.readabilityEnabled
         savedState["recognition.shape"] = value.shapeEnabled
         savedState["recognition.writing"] = value.strokeWritingEnabled
+        savedState["recognition.autoAdvance"] = value.autoAdvanceOnSuccess
         savedState["recognition.parameters"] =
             floatArrayOf(
                 value.requiredMatchPercent,
@@ -127,6 +128,7 @@ class RecognitionSettingsViewModel(
                     readabilityEnabled = savedState["recognition.readability"] ?: true,
                     shapeEnabled = savedState["recognition.shape"] ?: true,
                     strokeWritingEnabled = savedState["recognition.writing"] ?: true,
+                    autoAdvanceOnSuccess = savedState["recognition.autoAdvance"] ?: false,
                 )
                 .roundedParameters()
         }

@@ -4,14 +4,13 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,17 +27,19 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.text
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.drawText
 import androidx.compose.ui.text.rememberTextMeasurer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.mobui.kanji.feature.dashboard.ActivityOverview
+import ru.mobui.kanji.feature.dashboard.ActivityTone
 import ru.mobui.kanji.feature.dashboard.R
+import ru.mobui.kanji.feature.dashboard.VISIBLE_DAYS
+import ru.mobui.kanji.feature.dashboard.VISIBLE_WEEKS
+import ru.mobui.kanji.feature.dashboard.activityIntensity
 
 @Composable
 fun ActivityWidget(
@@ -59,6 +60,7 @@ fun ActivityWidget(
     val description = stringResource(R.string.dashboard_activity_description)
     val iconSize = with(LocalDensity.current) { 18.sp.toDp() }
     val openLabel = stringResource(R.string.dashboard_open_activity)
+    val phrase = stringResource(state.tone.phraseRes())
     DashboardCard(
         modifier
             .testTag("open-activity-details")
@@ -70,15 +72,21 @@ fun ActivityWidget(
             horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Image(painterResource(R.drawable.streak_flame), null, Modifier.size(iconSize))
-            Text(
-                pluralStringResource(
-                    R.plurals.dashboard_streak,
-                    state.streakDays,
-                    state.streakDays,
-                ),
-                modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.titleSmall,
-            )
+            Column(Modifier.weight(1f)) {
+                Text(
+                    pluralStringResource(
+                        R.plurals.dashboard_streak,
+                        state.streakDays,
+                        state.streakDays,
+                    ),
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Text(
+                    phrase,
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
             IllustratedIcon(DashboardIcon.Expand, Modifier.size(18.dp))
         }
         Canvas(
@@ -113,7 +121,7 @@ fun ActivityWidget(
             }
             state.dailyCounts.takeLast(VISIBLE_DAYS).forEachIndexed { index, count ->
                 drawRoundRect(
-                    lerp(low, high, (count / MAX_ACTIVITY_INTENSITY).coerceIn(0f, 1f)),
+                    lerp(low, high, activityIntensity(count)),
                     Offset(
                         gridLeft + index / DAYS_PER_WEEK * (cell + gap),
                         top + index % DAYS_PER_WEEK * (cell + gap),
@@ -126,9 +134,14 @@ fun ActivityWidget(
     }
 }
 
+internal fun ActivityTone.phraseRes(): Int =
+    when (this) {
+        ActivityTone.Start -> R.string.dashboard_activity_phrase_start
+        ActivityTone.Rebuild -> R.string.dashboard_activity_phrase_rebuild
+        ActivityTone.KeepGoing -> R.string.dashboard_activity_phrase_keep_going
+        ActivityTone.KeepItUp -> R.string.dashboard_activity_phrase_keep_it_up
+    }
+
 private const val FRIDAY_INDEX = 4
 private const val WEEK_COLUMN_GAPS = 5
-private const val VISIBLE_WEEKS = 6
 private const val DAYS_PER_WEEK = 7
-private const val VISIBLE_DAYS = 42
-private const val MAX_ACTIVITY_INTENSITY = 9f

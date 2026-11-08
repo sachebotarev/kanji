@@ -173,7 +173,7 @@ internal fun LegacyRecipeEditor(
         }
     var seconds by
         rememberSaveable(existing?.id) {
-            mutableStateOf((existing?.secondsPerWord ?: DEFAULT_SECONDS_PER_WORD).toString())
+            mutableStateOf((existing?.secondsPerSymbol ?: DEFAULT_SECONDS_PER_SYMBOL).toString())
         }
     val wordCount = words.toIntOrNull()
     val time = seconds.toIntOrNull()
@@ -182,7 +182,7 @@ internal fun LegacyRecipeEditor(
             wordCount != null &&
             wordCount in 1..MAX_WORDS_PER_TRAINING &&
             time != null &&
-            time in DEFAULT_WORDS_PER_TRAINING..MAX_SECONDS_PER_WORD
+            time in DEFAULT_WORDS_PER_TRAINING..MAX_SECONDS_PER_SYMBOL
     Dialog(onDismiss) {
         val focusManager = LocalFocusManager.current
         val keyboard = LocalSoftwareKeyboardController.current
@@ -199,7 +199,7 @@ internal fun LegacyRecipeEditor(
                 )
                 OutlinedTextField(
                     name,
-                    { name = it.take(DEFAULT_SECONDS_PER_WORD) },
+                    { name = it.take(DEFAULT_SECONDS_PER_SYMBOL) },
                     Modifier.fillMaxWidth().testTag("recipe-name"),
                     label = { Text(stringResource(R.string.legacy_recipe_name)) },
                     shape = MaterialTheme.inputShape,
@@ -275,6 +275,6 @@ internal fun TrainingHistory(recipe: RecipeOverview, onDismiss: () -> Unit) {
 }
 
 private const val DEFAULT_WORDS_PER_TRAINING = 10
-private const val DEFAULT_SECONDS_PER_WORD = 60
+private const val DEFAULT_SECONDS_PER_SYMBOL = 10
 private const val MAX_WORDS_PER_TRAINING = 100
-private const val MAX_SECONDS_PER_WORD = 600
+private const val MAX_SECONDS_PER_SYMBOL = 600

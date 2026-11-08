@@ -24,10 +24,12 @@
         <item quantity="many">Будет %d заданий</item>
         <item quantity="other">Будет %d задания</item>
     </plurals>
-    <string name="recipe_seconds">Секунд на слово</string>
+    <string name="recipe_seconds">Секунд на символ</string>
     <string name="recipe_no_timer">Без ограничения</string>
     <string name="recipe_timer">Ограничить время</string>
-    <string name="recipe_timer_hint">На каждое слово</string>
+    <string name="recipe_timer_hint">Лимит слова = секунды × число символов для письма</string>
+    <string name="recipe_param_show_help">Показать пояснение: %1$s</string>
+    <string name="recipe_param_hide_help">Скрыть пояснение: %1$s</string>
     <string name="recipe_number_error">Введите целое положительное число</string>
     <string name="recipe_open_material">Изменить материал «%1$s»</string>
     <string name="recipe_remove">Удалить материал</string>

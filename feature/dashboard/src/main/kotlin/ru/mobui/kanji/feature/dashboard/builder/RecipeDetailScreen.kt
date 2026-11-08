@@ -48,6 +48,7 @@ import ru.mobui.kanji.domain.catalog.CatalogSnapshot
 import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.recipeWords
 import ru.mobui.kanji.feature.dashboard.R
+import ru.mobui.kanji.feature.dashboard.recipeTaskMetricLabel
 
 internal data class RecipeDetailActions(
     val back: () -> Unit,
@@ -249,15 +250,15 @@ private fun RecipeDetailBody(
             }
         }
         item {
-            val tasks = recipe.taskCount?.let { pluralStringResource(R.plurals.library_task_count, it, it) }
-                ?: if (words.isNotEmpty()) {
-                    pluralStringResource(R.plurals.library_all_words, words.count(), words.count())
-                } else {
+            val tasks =
+                if (recipe.taskCount == null && words.isEmpty()) {
                     stringResource(R.string.recipe_word_count)
+                } else {
+                    recipeTaskMetricLabel(recipe.taskCount, words.count())
                 }
-            val time = recipe.secondsPerWord?.let { stringResource(R.string.library_seconds, it) }
+            val time = recipe.secondsPerSymbol?.let { stringResource(R.string.library_seconds, it) }
                 ?: stringResource(R.string.library_no_timer)
-            val timeHint = if (recipe.secondsPerWord != null) stringResource(R.string.recipe_timer_hint) else null
+            val timeHint = if (recipe.secondsPerSymbol != null) stringResource(R.string.recipe_timer_hint) else null
             Column(verticalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.testTag("recipe-detail-limits")) {
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
                 RecipeSectionTitle(stringResource(R.string.recipe_training_settings))
@@ -287,8 +288,31 @@ internal fun RecipeParamTitle(text: String, modifier: Modifier = Modifier) {
 
 @Composable
 private fun RecipeLimitSummary(title: String, value: String, tag: String, hint: String? = null) {
+    var helpOpen by rememberSaveable(tag) { mutableStateOf(false) }
     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-        RecipeParamTitle(title)
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            RecipeParamTitle(title, Modifier.weight(1f))
+            if (hint != null) {
+                IconButton(
+                    onClick = { helpOpen = !helpOpen },
+                    modifier = Modifier.size(48.dp).testTag("$tag-hint-toggle"),
+                ) {
+                    Icon(
+                        painterResource(R.drawable.ic_recipe_info),
+                        contentDescription =
+                            stringResource(
+                                if (helpOpen) R.string.recipe_param_hide_help
+                                else R.string.recipe_param_show_help,
+                                title,
+                            ),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+        }
         Text(
             value,
             Modifier.testTag(tag),
@@ -296,8 +320,20 @@ private fun RecipeLimitSummary(title: String, value: String, tag: String, hint: 
             fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        if (hint != null) {
-            MaterialSupportingText(hint, Modifier.testTag("$tag-hint"))
+        if (hint != null && helpOpen) {
+            Surface(
+                modifier =
+                    Modifier.fillMaxWidth().padding(top = 4.dp).testTag("$tag-hint"),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                Text(
+                    hint,
+                    Modifier.padding(12.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
         }
     }
 }

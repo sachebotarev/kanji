@@ -1,48 +1,45 @@
 package ru.mobui.kanji.feature.practice
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.mobui.kanji.domain.practice.PracticeResult
-import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 /**
  * Navigation-independent entry point. The host owns the ViewModel and result destination.
  *
- * Prefer [onOpenCheckerSettings] from a NavHost host so checker settings are a real route.
- * When null and [settings] is set, a local overlay is kept for feature test hosts.
+ * Checker settings are not opened from PRACTICE indicators; they live under SETTINGS.
  */
 @Composable
 fun PracticeRoute(
     viewModel: PracticeViewModel,
     onResult: (PracticeResult) -> Unit,
     onBack: () -> Unit,
-    settings: RecognitionSettings? = null,
-    onSettingsChanged: (RecognitionSettings) -> Unit = {},
-    onResetSettings: () -> Unit = {},
     wordLabel: String? = null,
     progressLabel: String? = null,
-    readabilityAvailable: Boolean = true,
-    onOpenCheckerSettings: (() -> Unit)? = null,
 ) {
-    var settingsOpen by rememberSaveable { mutableStateOf(false) }
-    val usesOverlay = onOpenCheckerSettings == null && settings != null
-    val openSettings =
-        onOpenCheckerSettings ?: if (usesOverlay) ({ settingsOpen = true }) else null
-    BackHandler(usesOverlay && settingsOpen) { settingsOpen = false }
+    var confirmLeave by rememberSaveable { mutableStateOf(false) }
+    val requestLeave: () -> Unit = {
+        if (!viewModel.uiState.value.gestureActive) confirmLeave = true
+    }
+    BackHandler { requestLeave() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val preview = viewModel.preview.collectAsStateWithLifecycle()
-    BackHandler(!(usesOverlay && settingsOpen)) { if (!state.gestureActive) onBack() }
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     DisposableEffect(viewModel, lifecycle) {
         val observer = LifecycleEventObserver { _, event ->
@@ -57,23 +54,40 @@ fun PracticeRoute(
         }
     }
     LaunchedEffect(state.practice.result) { viewModel.deliverResult(onResult) }
-    if (usesOverlay && settingsOpen && settings != null) {
-        CheckerSettingsScreen(
-            settings,
-            onSettingsChanged,
-            { settingsOpen = false },
-            onResetSettings,
-            preview = state,
-            readabilityAvailable = readabilityAvailable,
+    PracticeScreen(
+        state,
+        viewModel::onAction,
+        viewModel::onPadEvent,
+        activeStroke = { preview.value?.stroke },
+        wordLabel = wordLabel,
+        progressLabel = progressLabel,
+        onBack = requestLeave,
+    )
+    if (confirmLeave) {
+        AlertDialog(
+            onDismissRequest = { confirmLeave = false },
+            modifier = Modifier.testTag("practice-interrupt-dialog"),
+            title = { Text(stringResource(R.string.interrupt_title)) },
+            text = { Text(stringResource(R.string.interrupt_message)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        confirmLeave = false
+                        onBack()
+                    },
+                    modifier = Modifier.testTag("practice-interrupt-confirm"),
+                ) {
+                    Text(stringResource(R.string.interrupt_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { confirmLeave = false },
+                    modifier = Modifier.testTag("practice-interrupt-stay"),
+                ) {
+                    Text(stringResource(R.string.interrupt_stay))
+                }
+            },
         )
-    } else
-        PracticeScreen(
-            state,
-            viewModel::onAction,
-            viewModel::onPadEvent,
-            activeStroke = { preview.value?.stroke },
-            onOpenSettings = openSettings,
-            wordLabel = wordLabel,
-            progressLabel = progressLabel,
-        )
+    }
 }

@@ -1,5 +1,8 @@
 package ru.mobui.kanji.core.writingpad
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,6 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -41,6 +46,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
 import ru.mobui.kanji.domain.handwriting.ReferencePoint
 
@@ -66,11 +72,44 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
         }
     val inset = padMetrics.inset
     val paths = rememberPadPaths(state, canvasSize, inset)
+    val hintMeasure = remember { PathMeasure() }
+    val hintSegment = remember { Path() }
+    val overlayProgress = remember { Animatable(1f) }
+    val overlayAlpha = remember { Animatable(0.25f) }
+    LaunchedEffect(state.overlay, state.animateOverlay) {
+        if (state.overlay == null) {
+            overlayProgress.snapTo(1f)
+            overlayAlpha.snapTo(0.25f)
+            return@LaunchedEffect
+        }
+        if (!state.animateOverlay) {
+            overlayProgress.snapTo(1f)
+            overlayAlpha.snapTo(0.25f)
+            return@LaunchedEffect
+        }
+        overlayProgress.snapTo(0f)
+        overlayAlpha.snapTo(1f)
+        overlayProgress.animateTo(1f, animationSpec = tween(700, easing = LinearEasing))
+        delay(220)
+        overlayAlpha.animateTo(0f, animationSpec = tween(320))
+        currentOnEvent(PadEvent.HintPlaybackFinished)
+    }
     val shape = RoundedCornerShape(16.dp)
     val label = stringResource(R.string.writing_pad_label)
     val description = padDescription(state.content)
     val ink = MaterialTheme.colorScheme.onSurface
     val guide = MaterialTheme.colorScheme.outlineVariant
+    val progress = overlayProgress.value
+    val alpha = overlayAlpha.value
+    val overlayRender =
+        PadOverlayRender(
+            progress = progress,
+            alpha = alpha,
+            animate = state.animateOverlay,
+            asError = state.overlayAsError,
+            measure = hintMeasure,
+            segment = hintSegment,
+        )
     Canvas(
         modifier
             .aspectRatio(1f)
@@ -90,7 +129,14 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
         val side = size.minDimension - inset * 2
         if (side > 0) {
             drawPadGuides(guide, side, padMetrics)
-            drawPadContent(paths, active, state.content is PadContent.Reference, ink, padMetrics)
+            drawPadContent(
+                paths,
+                active,
+                state.content is PadContent.Reference,
+                ink,
+                padMetrics,
+                overlayRender,
+            )
         }
     }
 }
@@ -214,13 +260,34 @@ private fun DrawScope.drawPadContent(
     reference: Boolean,
     ink: Color,
     metrics: PadMetrics,
+    overlay: PadOverlayRender,
 ) {
     val inset = metrics.inset
     val side = size.minDimension - inset * 2
-    paths.overlay.forEach { (path, start) ->
-        drawInk(path, start, ink.copy(alpha = .25f), metrics.strokeWidth)
+    if (overlay.animate) {
+        val yellow = OVERLAY_ANIMATED_COLOR.copy(alpha = overlay.alpha)
+        paths.overlay.forEach { (path, start) ->
+            drawPartialInk(
+                path,
+                start,
+                yellow,
+                metrics.strokeWidth * OVERLAY_ANIMATE_WIDTH_FACTOR,
+                overlay.progress,
+                overlay.measure,
+                overlay.segment,
+            )
+        }
+    } else if (overlay.asError) {
+        paths.overlay.forEach { (path, start) ->
+            drawInk(path, start, Color.Red, metrics.strokeWidth * OVERLAY_ERROR_WIDTH_FACTOR)
+        }
+        drawStrokeLabels(paths.numbers, inset, side)
+    } else {
+        paths.overlay.forEach { (path, start) ->
+            drawInk(path, start, ink.copy(alpha = .25f), metrics.strokeWidth)
+        }
+        drawStrokeLabels(paths.numbers, inset, side)
     }
-    drawStrokeLabels(paths.numbers, inset, side)
     if (!reference || active.path == null) {
         paths.saved.forEach { (path, start) -> drawInk(path, start, ink, metrics.strokeWidth) }
     }
@@ -260,6 +327,29 @@ private fun DrawScope.drawInk(path: Path, start: Offset, color: Color, width: Fl
     drawCircle(color, radius = width / 2, center = start)
 }
 
+private fun DrawScope.drawPartialInk(
+    path: Path,
+    start: Offset,
+    color: Color,
+    width: Float,
+    progress: Float,
+    measure: PathMeasure,
+    segment: Path,
+) {
+    if (progress <= PROGRESS_EPSILON) return
+    if (progress >= PROGRESS_COMPLETE_THRESHOLD) {
+        drawInk(path, start, color, width)
+        return
+    }
+    measure.setPath(path, false)
+    val length = measure.length
+    if (length <= 0f) return
+    segment.rewind()
+    measure.getSegment(0f, length * progress, segment, true)
+    drawPath(segment, color, style = Stroke(width, cap = StrokeCap.Round, join = StrokeJoin.Round))
+    drawCircle(color, radius = width / 2, center = start)
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun WritingPadPreview() {
@@ -267,3 +357,19 @@ private fun WritingPadPreview() {
         KanjiWritingPad(PadUiState(ContentVersion("preview", 0)), {}, Modifier.size(300.dp))
     }
 }
+
+private data class PadOverlayRender(
+    val progress: Float,
+    val alpha: Float,
+    val animate: Boolean,
+    val asError: Boolean,
+    val measure: PathMeasure,
+    val segment: Path,
+)
+
+private val OVERLAY_ANIMATED_COLOR = Color(0xFFFFC107)
+private const val OVERLAY_ANIMATE_WIDTH_FACTOR = 1.15f
+private const val OVERLAY_ERROR_WIDTH_FACTOR = 1.1f
+private const val PROGRESS_EPSILON = 0.001f
+private const val PROGRESS_COMPLETE_THRESHOLD = 0.999f
+

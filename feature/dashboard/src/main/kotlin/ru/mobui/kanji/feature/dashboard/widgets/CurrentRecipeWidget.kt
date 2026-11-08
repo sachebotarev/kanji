@@ -75,16 +75,11 @@ fun CurrentRecipeWidget(
                             color = MaterialTheme.colorScheme.onSurface,
                         )
                         Spacer(Modifier.height(4.dp))
-                        val wholeMinutes = recipe.secondsPerWord % SECONDS_PER_MINUTE == 0
                         Text(
-                            if (recipe.secondsPerWord == 0) stringResource(R.string.library_tasks,
-                                recipe.wordsPerTraining) + " · " + stringResource(R.string.library_no_timer)
-                            else stringResource(
-                                if (wholeMinutes) R.string.recipe_training_summary_minutes
-                                else R.string.recipe_training_summary,
-                                recipe.wordsPerTraining,
-                                if (wholeMinutes) recipe.secondsPerWord / SECONDS_PER_MINUTE
-                                else recipe.secondsPerWord,
+                            ru.mobui.kanji.feature.dashboard.recipeTrainingSummaryLine(
+                                recipe.taskCount,
+                                recipe.poolWordCount,
+                                recipe.secondsPerSymbol,
                             ),
                             Modifier.padding(horizontal = 16.dp),
                             style = MaterialTheme.typography.bodySmall,
@@ -133,5 +128,3 @@ fun CurrentRecipeWidget(
         }
     }
 }
-
-private const val SECONDS_PER_MINUTE = 60

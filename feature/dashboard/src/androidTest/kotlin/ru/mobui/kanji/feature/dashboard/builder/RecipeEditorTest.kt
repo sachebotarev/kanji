@@ -101,7 +101,7 @@ class RecipeEditorTest {
         compose.runOnIdle { assertNull(result) }
         compose.onNodeWithTag("recipe-timer").performScrollTo().performTextReplacement("12")
         click("recipe-save")
-        compose.runOnIdle { assertEquals(9, result!!.taskCount); assertEquals(12, result!!.secondsPerWord) }
+        compose.runOnIdle { assertEquals(9, result!!.taskCount); assertEquals(12, result!!.secondsPerSymbol) }
     }
 
     @Test fun unsavedDialogCancelLeaveAndSaveWithOtherLanguagesPreserved() {

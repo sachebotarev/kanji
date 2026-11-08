@@ -37,9 +37,19 @@ class ContentTest(unittest.TestCase):
     def test_originals_and_identity_preserved(self):
         result = prepare()
         self.assertEqual(len({(r['word_id'], r['language_tag']) for r in result['words-translations.json']}), 2491)
-        self.assertEqual(len(result['editorial-changes.json']), 22)
+        self.assertEqual(len(result['editorial-changes.json']), 56)
         self.assertEqual(sum(r['usage_note'] is not None for r in result['words-translations.json']), 9)
         self.assertTrue(all(r['original_translation'] for r in result['words-translations.json']))
+
+    def test_no_japanese_characters_in_translations(self):
+        import re
+        jp_regex = re.compile(r'[\u3040-\u30ff\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\u3000-\u303f]')
+        result = prepare()
+        for row in result['words-translations.json']:
+            self.assertIsNone(
+                jp_regex.search(row['translation']),
+                f"Found Japanese character in translation for word {row['word_id']}: {row['translation']}",
+            )
 
     def test_localized_unit_and_russian_fallback(self):
         ru = {'language_tag': 'ru', 'translation': 'я', 'usage_note': 'Вежливая форма.'}

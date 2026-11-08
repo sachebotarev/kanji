@@ -51,7 +51,7 @@ class TrainingsStorageTest {
             recipeRevision = 1,
             recipeNames = listOf(TrainingRecipeName("ru", "Демо рецепт")),
             taskCount = 1,
-            secondsPerWord = 60,
+            secondsPerSymbol = 60,
             status = status,
             startedAt = 1_000L,
             endedAt = endedAt,
@@ -91,10 +91,10 @@ class TrainingsStorageTest {
         )
 
     @Test
-    fun schemaIncludesTrainingTablesOnVersion7() = storage { db, catalog ->
+    fun schemaIncludesTrainingTablesOnVersion9() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(7, sql.version)
+        assertEquals(10, sql.version)
         val tables =
             sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                 buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
@@ -174,9 +174,18 @@ class TrainingsStorageTest {
                             },
                     )
                 }
-        trainings.saveTraining(updated)
+        trainings.saveTraining(
+            updated.copy(
+                tasks =
+                    updated.tasks.map { task ->
+                        task.copy(readingHintUsed = true, status = TrainingTaskStatus.Assisted)
+                    },
+            ),
+        )
         val loaded = trainings.getInProgress()!!
         assertEquals(2, loaded.tasks.single().symbols.first().hintRequestCount)
+        assertTrue(loaded.tasks.single().readingHintUsed)
+        assertEquals(TrainingTaskStatus.Assisted, loaded.tasks.single().status)
         assertEquals("[]", loaded.tasks.single().symbols.first().writingSampleJson)
         try {
             trainings.saveTraining(training("other", wordId = null))
@@ -201,6 +210,32 @@ class TrainingsStorageTest {
         assertNull(trainings.getInProgress())
         assertNull(trainings.getTraining("one"))
         assertNull(trainings.getTraining("two"))
+    }
+
+    @Test
+    fun observeHistoryAndDeleteOneTraining() = storage { _, catalog ->
+        catalog.load()
+        val trainings = catalog.trainingsRepository
+        trainings.startTraining(training("live", wordId = null))
+        trainings.saveTraining(
+            training(
+                "live",
+                wordId = null,
+                status = TrainingStatus.Completed,
+                endedAt = 2_000L,
+                taskStatus = TrainingTaskStatus.Correct,
+            ),
+        )
+        trainings.startTraining(training("next", wordId = null))
+        val history = trainings.observeHistory().first()
+        assertEquals(listOf("next", "live"), history.map { it.id })
+        assertEquals(TrainingStatus.InProgress, history.first().status)
+        trainings.deleteTraining("next")
+        assertNull(trainings.getInProgress())
+        assertEquals(listOf("live"), trainings.observeHistory().first().map { it.id })
+        trainings.deleteTraining("live")
+        assertNull(trainings.getTraining("live"))
+        assertTrue(trainings.observeHistory().first().isEmpty())
     }
 
     @Test

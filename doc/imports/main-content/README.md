@@ -7,7 +7,7 @@
 - [`kanji-classifications.json`](../../../data/catalog/content/kanji-classifications.json): все 3001 знака, школьная ступень/год и необязательный JLPT.
 - [`words-translations.json`](../../../data/catalog/content/words-translations.json): все 2491 перевода с исходной формулировкой, переводом и необязательным учебным примечанием.
 - [`source-descriptions.json`](../../../data/catalog/content/source-descriptions.json): одна фраза описания учебника на язык. Она заполняет `sources_translations.description` согласованной [модели источников](../../database/words.md). Это пересказ открытых сведений издателя. В Room поле включено в схему 3.
-- [`editorial-changes.json`](editorial-changes.json): полный журнал 22 изменений, включая 13 удалений точного повтора чтения и 9 выделений примечаний.
+- [`editorial-changes.json`](editorial-changes.json): полный журнал 56 изменений, включая 13 удалений точного повтора чтения, 9 выделений примечаний и 34 очистки перевода от японских символов и связанных служебных пометок.
 - [`validation.json`](validation.json): охват, пропуски и SHA-256 входов. ID, японские написания, чтения, предложения и учебные связи не менялись.
 
 ## Перевод и учебное примечание: принятое решение

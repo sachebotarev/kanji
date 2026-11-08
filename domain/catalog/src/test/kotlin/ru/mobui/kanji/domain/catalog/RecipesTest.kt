@@ -13,7 +13,7 @@ class RecipesTest {
         assertEquals(setOf(-1), recipe.validated().materials.single().wordIds)
     }
     @Test fun rejectsInvalidCountsAndTypeSpecificConstraints() {
-        listOf(recipe.copy(taskCount = 0), recipe.copy(secondsPerWord = -1),
+        listOf(recipe.copy(taskCount = 0), recipe.copy(secondsPerSymbol = -1),
             recipe.copy(materials = emptyList()),
             recipe.copy(materials = listOf(material.copy(tagIds = setOf(1)))),
             recipe.copy(materials = listOf(material.copy(chapters = setOf(1)))),

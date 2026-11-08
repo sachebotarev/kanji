@@ -22,6 +22,7 @@ import ru.mobui.kanji.domain.catalog.CatalogRepository
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.name
+import ru.mobui.kanji.domain.practice.TrainingsRepository
 
 @Serializable private object RecipeLibrary
 @Serializable private data class RecipeDetail(val id: String)
@@ -33,6 +34,8 @@ class RecipeBuilderActions(
     val onBack: () -> Unit,
     val wordContent: @Composable (Int, () -> Unit) -> Unit,
     val tagContent: @Composable (() -> Unit) -> Unit,
+    /** Invoked after a successful create when the route was opened to start a training next. */
+    val onCreatedForLaunch: (String) -> Unit = {},
 )
 
 @Composable
@@ -43,26 +46,35 @@ fun RecipeBuilderRoute(
     actions: RecipeBuilderActions,
     modifier: Modifier = Modifier,
     openCreate: Boolean = false,
+    launchAfterCreate: Boolean = false,
+    trainingsRepository: TrainingsRepository? = null,
 ) {
     val nav = rememberNavController()
     val language = LocalConfiguration.current.preferredLanguageTag()
-    LaunchedEffect(openCreate) {
-        if (openCreate) nav.navigate(RecipeEdit())
+    LaunchedEffect(openCreate, launchAfterCreate) {
+        if (!openCreate) return@LaunchedEffect
+        if (launchAfterCreate) {
+            nav.navigate(RecipeEdit()) {
+                popUpTo(RecipeLibrary) { inclusive = true }
+            }
+        } else {
+            nav.navigate(RecipeEdit())
+        }
     }
     NavHost(nav, startDestination = RecipeLibrary, modifier = modifier) {
         composable<RecipeLibrary> {
-            val model = libraryModel(catalog, personal, recipesRepository, "library")
+            val model = libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository)
             val state by model.state.collectAsStateWithLifecycle()
             val query by model.query.collectAsStateWithLifecycle()
             RecipeLibraryScreen(state, query, language, RecipeLibraryActions(
                 actions.onBack, { nav.navigate(RecipeEdit()) }, { nav.navigate(RecipeDetail(it)) },
-                model::reorder, model::query, model::retry))
+                model::reorder, model::delete, model::query, model::retry))
         }
         composable<RecipeDetail> { entry ->
             val id = entry.toRoute<RecipeDetail>().id
             // Share the library ViewModel so detail does not load a second catalog copy.
             val libraryOwner = remember(entry) { nav.getBackStackEntry(RecipeLibrary) }
-            val model = libraryModel(catalog, personal, recipesRepository, "library", libraryOwner)
+            val model = libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository, libraryOwner)
             val state by model.state.collectAsStateWithLifecycle()
             RecipeDetailScreen(
                 recipe = state.recipes.firstOrNull { it.id == id },
@@ -81,10 +93,17 @@ fun RecipeBuilderRoute(
         }
         composable<RecipeEdit> { entry ->
             val route = entry.toRoute<RecipeEdit>()
+            val creating = route.id == null
             RecipeEditorRoute(route.id, catalog, personal, recipesRepository,
                 RecipeEditorActions(
-                    onSaved = { nav.popBackStack() },
-                    onBack = { nav.popBackStack() },
+                    onSaved = { id ->
+                        if (launchAfterCreate && creating) actions.onCreatedForLaunch(id)
+                        else nav.popBackStack()
+                    },
+                    onBack = {
+                        if (launchAfterCreate && creating) actions.onBack()
+                        else nav.popBackStack()
+                    },
                     onWord = { nav.navigate(RecipeWord(it)) },
                     onManageTags = { nav.navigate(RecipeTags) },
                 ),
@@ -105,10 +124,19 @@ fun RecipeHomeSummary(catalog: CatalogRepository, personal: PersonalDictionaryRe
     val state by model.state.collectAsStateWithLifecycle()
     val selected = state.recipes.firstOrNull { it.isActive }
     val language = LocalConfiguration.current.preferredLanguageTag()
-    content(ru.mobui.kanji.feature.dashboard.RecipeOverview(selected?.id.orEmpty(),
-        selected?.name(language)
-            ?: androidx.compose.ui.res.stringResource(ru.mobui.kanji.feature.dashboard.R.string.library_none),
-        selected?.taskCount ?: state.counts[selected?.id] ?: 0, selected?.secondsPerWord ?: 0))
+    content(
+        ru.mobui.kanji.feature.dashboard.RecipeOverview(
+            id = selected?.id.orEmpty(),
+            name =
+                selected?.name(language)
+                    ?: androidx.compose.ui.res.stringResource(
+                        ru.mobui.kanji.feature.dashboard.R.string.library_none,
+                    ),
+            taskCount = selected?.taskCount,
+            poolWordCount = selected?.id?.let { state.counts[it] } ?: 0,
+            secondsPerSymbol = selected?.secondsPerSymbol,
+        ),
+    )
 }
 
 @Composable
@@ -117,11 +145,18 @@ private fun libraryModel(
     personal: PersonalDictionaryRepository,
     recipesRepository: RecipesRepository,
     key: String,
+    trainingsRepository: TrainingsRepository? = null,
     viewModelStoreOwner: ViewModelStoreOwner? = null,
 ): RecipeLibraryViewModel {
     val factory = viewModelFactory {
         initializer {
-            RecipeLibraryViewModel(createSavedStateHandle(), catalog, personal, recipesRepository)
+            RecipeLibraryViewModel(
+                createSavedStateHandle(),
+                catalog,
+                personal,
+                recipesRepository,
+                trainingsRepository,
+            )
         }
     }
     return if (viewModelStoreOwner != null) {

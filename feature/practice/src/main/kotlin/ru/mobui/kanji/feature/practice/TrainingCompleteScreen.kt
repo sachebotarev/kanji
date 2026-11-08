@@ -48,7 +48,7 @@ fun TrainingCompleteScreen(
         Column(Modifier.fillMaxSize().padding(insets)) {
             Text(
                 stringResource(R.string.training_complete_title),
-                Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 24.dp).padding(top = 8.dp, bottom = 4.dp),
                 style = MaterialTheme.typography.headlineSmall,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.onSurface,
@@ -60,12 +60,12 @@ fun TrainingCompleteScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Image(
                     painterResource(mascotFor(summary.grade)),
                     contentDescription = null,
-                    Modifier.size(168.dp).testTag("training-complete-mascot"),
+                    Modifier.size(140.dp).testTag("training-complete-mascot"),
                 )
                 if (summary.recipeName.isNotBlank()) {
                     Text(

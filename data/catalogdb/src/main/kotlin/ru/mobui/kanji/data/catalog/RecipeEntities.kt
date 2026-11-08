@@ -43,7 +43,7 @@ internal data class RecipesRow(
     @ColumnInfo(name = "is_active") val isActive: Boolean,
     @ColumnInfo(name = "task_count") val taskCount: Int?,
     @ColumnInfo(name = "selection_mode") val selectionMode: String = "shuffled_cycles",
-    @ColumnInfo(name = "seconds_per_word") val secondsPerWord: Int?,
+    @ColumnInfo(name = "seconds_per_symbol") val secondsPerSymbol: Int?,
     val revision: Long,
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,
     @ColumnInfo(name = "created_at") val createdAt: Long,
@@ -107,4 +107,12 @@ internal data class RecipeMaterialWordsRow(
 internal data class RecipeMaterialTagsRow(
     @ColumnInfo(name = "material_id") val materialId: String,
     @ColumnInfo(name = "tag_id") val tagId: Long,
+)
+
+@Entity(tableName = "recipe_materials_jlpt", primaryKeys = ["material_id", "jlpt_level"],
+    foreignKeys = [ForeignKey(entity = RecipeMaterialsRow::class, parentColumns = ["id"], childColumns = ["material_id"], onDelete = ForeignKey.CASCADE)])
+internal data class RecipeMaterialJlptRow(
+    @ColumnInfo(name = "material_id") val materialId: String,
+    /** Exact N1…N5 as 1…5, or `-1` when the material includes unclassified kanji. */
+    @ColumnInfo(name = "jlpt_level") val jlptLevel: Int,
 )

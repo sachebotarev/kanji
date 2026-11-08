@@ -17,7 +17,13 @@ fun CatalogSnapshot.materialWords(material: RecipeMaterial, assignments: List<Wo
                     (material.kanjiIds.isEmpty() || literalKanji(word).any { it.id in material.kanjiIds })
             }
         }
-        MaterialType.Kanji -> words.filter { word -> material.kanjiIds.isEmpty() || literalKanji(word).any { it.id in material.kanjiIds } }
+        MaterialType.Kanji -> words.filter { word ->
+            val literals = literalKanji(word)
+            val jlptOk = material.jlptLevels.isEmpty() ||
+                literals.any { sign -> (sign.jlptLevel?.number ?: -1) in material.jlptLevels }
+            val kanjiOk = material.kanjiIds.isEmpty() || literals.any { it.id in material.kanjiIds }
+            jlptOk && kanjiOk
+        }
         MaterialType.Words -> words.filter { it.id in material.wordIds }
     }.distinctBy { it.id }
 }

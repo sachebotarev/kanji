@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "schema_version": 1,
-  "content_version": 2,
+  "content_version": 3,
   "tables": {
     "catalog_metadata": {
       "columns": [
@@ -13,7 +13,7 @@
         [
           1,
           1,
-          2
+          3
         ]
       ]
     },

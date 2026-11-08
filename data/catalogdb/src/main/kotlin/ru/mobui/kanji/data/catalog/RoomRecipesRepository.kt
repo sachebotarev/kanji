@@ -57,8 +57,9 @@ internal class RoomRecipesRepository(
                         material.chapters.map { it.chapterNumber }.toSet(),
                         material.kanji.map { it.kanjiId }.toSet(),
                         material.words.map { it.wordId }.toSet(),
-                        material.tags.map { it.tagId }.toSet())
-                }, row.recipe.taskCount, row.recipe.secondsPerWord, row.recipe.isActive,
+                        material.tags.map { it.tagId }.toSet(),
+                        material.jlpt.map { it.jlptLevel }.toSet())
+                }, row.recipe.taskCount, row.recipe.secondsPerSymbol, row.recipe.isActive,
                 row.recipe.revision)
         } }
     }
@@ -92,7 +93,7 @@ internal class RoomRecipesRepository(
             val active = previous?.isActive ?: (rows.isEmpty() || valid.isActive)
             if (active) dao.deactivateAll()
             dao.putRecipe(RecipesRow(valid.id, previous?.position ?: ((rows.maxOfOrNull { it.position } ?: -1) + 1),
-                active, valid.taskCount, secondsPerWord = valid.secondsPerWord,
+                active, valid.taskCount, secondsPerSymbol = valid.secondsPerSymbol,
                 revision = (previous?.revision ?: 0) + 1, createdAt = previous?.createdAt ?: now, updatedAt = now))
             dao.clearNames(valid.id)
             dao.insertNames(valid.names.map { RecipesTranslationsRow(valid.id, it.languageTag, it.name) })
@@ -104,6 +105,7 @@ internal class RoomRecipesRepository(
                 dao.insertKanji(material.kanjiIds.map { RecipeMaterialKanjiRow(material.id, it) })
                 dao.insertWords(material.wordIds.map { RecipeMaterialWordsRow(material.id, it) })
                 dao.insertTags(material.tagIds.map { RecipeMaterialTagsRow(material.id, it) })
+                dao.insertJlpt(material.jlptLevels.map { RecipeMaterialJlptRow(material.id, it) })
             }
         }
     }
