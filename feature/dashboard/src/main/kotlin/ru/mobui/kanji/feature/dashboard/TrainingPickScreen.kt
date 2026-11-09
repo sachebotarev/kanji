@@ -237,18 +237,12 @@ private fun TrainingPickRow(
                     contentDescription = stringResource(R.string.history_stamp_excellent),
                     modifier =
                         Modifier
-                            .padding(horizontal = 8.dp)
+                            .padding(start = 8.dp)
                             .size(24.dp)
                             .rotate(-10f)
                             .testTag("training-pick-stamp-${recipe.id}"),
                 )
             }
-            Icon(
-                painter = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

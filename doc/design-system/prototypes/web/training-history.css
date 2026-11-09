@@ -4,8 +4,12 @@
 .history-swipe{position:relative;border-radius:20px;overflow:hidden;min-height:64px;background:var(--md-sys-color-error-container, #f9dedc)}
 .history-swipe-bg{position:absolute;inset:0;display:flex;align-items:center;justify-content:flex-end;padding:0 20px;color:var(--md-sys-color-on-error-container, #410e0b);font-size:calc(14px * var(--scale));font-weight:600}
 .history-swipe-front{position:relative;z-index:1;background:var(--surface);border-radius:20px;min-height:64px;will-change:transform;touch-action:pan-y}
-.history-card-main{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;text-align:left;min-width:0;padding:10px 12px!important;background:transparent!important;border:0;color:inherit;width:100%;min-height:64px}
-.history-card-text{display:grid;gap:2px;min-width:0}
+.history-card-main{display:flex;align-items:center;gap:12px;text-align:left;min-width:0;padding:10px 12px!important;background:transparent!important;border:0;color:inherit;width:100%;min-height:64px}
+.history-card-text{display:grid;gap:2px;flex:1;min-width:0}
+.history-stamp{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.history-card-chevron{display:inline-flex;align-items:center;justify-content:center;color:var(--muted);width:18px;height:18px;flex-shrink:0}
+.history-words-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.history-words-header h3{margin:0}
 .history-card-title{display:block;font-size:calc(16px * var(--scale));font-weight:500;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .history-card-meta{display:block;font-size:calc(13px * var(--scale));color:var(--muted);line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .history-mini-ring{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;flex:none;position:relative}

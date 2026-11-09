@@ -78,6 +78,17 @@ const historyNow = historyAnchor();
 
 let historySessions = [
   {
+    id: 'h0',
+    recipe: { ru: 'Basic Kanji Book · Главы 1', en: 'Basic Kanji Book · Chapter 1' },
+    startedAt: historyNow - 3600000,
+    durationSec: 180,
+    words: [
+      { written: '一', reading: 'いち', gloss: { ru: 'один', en: 'one' }, status: 'correct', elapsedMs: 16000 },
+      { written: '二', reading: 'に', gloss: { ru: 'два', en: 'two' }, status: 'correct', elapsedMs: 18000 },
+      { written: '三', reading: 'さん', gloss: { ru: 'три', en: 'three' }, status: 'correct', elapsedMs: 15000 },
+    ],
+  },
+  {
     id: 'h1',
     recipe: { ru: 'Умный микс', en: 'Smart mix' },
     startedAt: historyNow - 2 * 3600000,
@@ -227,9 +238,16 @@ function historyTimeLabel(ms) {
   }).format(new Date(ms));
 }
 
+function historyIsExcellent(session) {
+  const { correct, missed, total } = historyCounts(session);
+  return total > 0 && missed === 0 && (correct / total) >= 0.85;
+}
+
 function historyCard(session) {
   const minutes = Math.max(1, Math.round(session.durationSec / 60));
   const name = historyRecipeName(session);
+  const isExcellent = historyIsExcellent(session);
+  const paw = typeof pawStampIcon === 'function' ? pawStampIcon(24) : '';
   return `<div class="history-swipe" role="listitem" data-history-id="${escapeHTML(session.id)}">
     <div class="history-swipe-bg" aria-hidden="true"><span>${escapeHTML(t('delete'))}</span></div>
     <div class="history-swipe-front">
@@ -239,6 +257,8 @@ function historyCard(session) {
           <strong class="history-card-title">${escapeHTML(name)}</strong>
           <small class="history-card-meta">${escapeHTML(historyTimeLabel(session.startedAt))} · ${escapeHTML(t('historyDuration')(minutes))}</small>
         </span>
+        ${isExcellent ? `<span class="history-stamp" title="${t('stampExcellent')}">${paw}</span>` : ''}
+        <span class="history-card-chevron" aria-hidden="true">${icon('chevron')}</span>
       </button>
     </div>
   </div>`;
@@ -286,7 +306,7 @@ function openHistoryPeriodPicker() {
 function trainingHistoryView() {
   const list = filteredHistorySessions();
   const groups = historyGrouped(list);
-  const searchToggle = `<button type="button" class="recipe-search-toggle" data-action="history-search-toggle" aria-label="${t(historySearchOpen ? 'hideHistorySearch' : 'findHistory')}" aria-expanded="${historySearchOpen}">${icon('search')}</button>`;
+  const searchToggle = `<button type="button" class="recipe-search-toggle" data-action="history-search-toggle" aria-label="${t(historySearchOpen ? 'hideHistorySearch' : 'findHistory')}" aria-expanded="${historySearchOpen}">${recipeSearchIcons[historySearchOpen ? 'off' : 'search']}</button>`;
   let body;
   if (!historySessions.length) {
     body = `<div class="recipe-search-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('historyEmpty')}</h3><p>${t('historyEmptyHint')}</p></div>`;
@@ -311,6 +331,7 @@ function trainingHistoryDetailView() {
   const { correct, assisted, missed, total } = historyCounts(session);
   const minutes = Math.max(1, Math.round(session.durationSec / 60));
   const name = historyRecipeName(session);
+  const isExcellent = historyIsExcellent(session);
   const words = session.words
     .map((w) => {
       const gloss = w.gloss[locale] || w.gloss.ru;
@@ -338,7 +359,7 @@ function trainingHistoryDetailView() {
         <p class="history-detail-total">${total} ${locale === 'en' ? 'words' : 'слов'}</p>
       </div>
     </div>
-    <section aria-label="${escapeHTML(t('words'))}"><h3>${t('words')}</h3><div class="history-word-list">${words}</div></section>
+    <section aria-label="${escapeHTML(t('words'))}"><div class="history-words-header"><h3>${t('words')}</h3>${isExcellent ? `<span class="history-stamp" title="${t('stampExcellent')}">${pawStampIcon(24)}</span>` : ''}</div><div class="history-word-list">${words}</div></section>
   </div></div>`;
 }
 

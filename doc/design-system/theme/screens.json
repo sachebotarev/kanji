@@ -62,12 +62,12 @@
         {
           "language_tag": "ru",
           "title": "Выбор рецепта",
-          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт»."
+          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт». Без строки «Нажми рецепт», без шевронов, со штампом мастера."
         },
         {
           "language_tag": "en",
           "title": "Choose recipe",
-          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”."
+          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”. No prompt line, no chevrons, master stamp included."
         }
       ],
       "feature": "home",
@@ -1004,12 +1004,12 @@
         {
           "language_tag": "ru",
           "title": "Тренировка",
-          "changes": "Согласовано 2026-11-07 (макет). Исполнение тренировок по рецепту — отдельный этап реализации."
+          "changes": "Макет приведён в соответствие Android: WordPrompt, ReadingSpoiler, полоса ячеек, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, панель действий."
         },
         {
           "language_tag": "en",
           "title": "Practice",
-          "changes": "Approved 2026-11-07 (design). Recipe-driven training execution remains a separate implementation stage."
+          "changes": "Prototype aligned with Android: WordPrompt, ReadingSpoiler, cell strip, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, action bar."
         }
       ],
       "feature": "practice",

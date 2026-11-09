@@ -26,7 +26,8 @@ const recipeCopy={
   moreMaterials:n=>`Ещё материалов: ${n}`,lessMaterials:'Свернуть материалы',missingName:'Введите название',invalidLimits:'Укажите целое число больше нуля',needSource:'Добавьте материал',invalidRecipe:'Введите название и целые положительные ограничения.',
   saveRecipeShort:'Сохранить',materialRemoved:'Материал удалён',wordPool:'Слова в рецепте',saveRecipe:'Сохранить рецепт',selectRecipe:'Выбрать рецепт',
   deleteRecipe:'Удалить рецепт?',deleteHint:'Настройки рецепта будут удалены. Учебные материалы останутся.',
-  emptyRecipes:'Создайте свой первый рецепт',emptyRecipeHint:'Выберите материал и удобный темп.',
+  emptyRecipes:'Нет рецептов',emptyRecipeHint:'Создайте свой первый рецепт для тренировок.',
+  createFirstRecipe:'Создать первый рецепт',stampExcellent:'Отлично! Печать мастера',pickRecipe:'Выбор рецепта',pickRecipeHint:'Нажмите рецепт, чтобы начать тренировку',
   draftOnly:'Макет для согласования. Сохранение действует до перезагрузки страницы.',savedRecipe:'Рецепт сохранён',
   sourceCount:n=>`Источников: ${n}`,allCatalog:'Все слова',noActive:'Рецепт не выбран',addFirst:'Создать рецепт',
   previewNote:'Здесь показаны уникальные слова набора, а не порядок и повторы заданий.',
@@ -63,7 +64,8 @@ const recipeCopy={
   moreMaterials:n=>`${n} more materials`,lessMaterials:'Collapse materials',missingName:'Enter a name',invalidLimits:'Enter a whole number greater than zero',needSource:'Add material',invalidRecipe:'Enter a name and positive whole-number limits.',
   saveRecipeShort:'Save',materialRemoved:'Material removed',wordPool:'Recipe words',saveRecipe:'Save recipe',selectRecipe:'Select recipe',
   deleteRecipe:'Delete recipe?',deleteHint:'The plan settings will be deleted. Study materials will remain.',
-  emptyRecipes:'Create your first recipe',emptyRecipeHint:'Choose study material and a comfortable pace.',
+  emptyRecipes:'No recipes',emptyRecipeHint:'Create your first training recipe.',
+  createFirstRecipe:'Create first recipe',stampExcellent:'Excellent! Master stamp',pickRecipe:'Choose recipe',pickRecipeHint:'Tap a recipe to start training',
   draftOnly:'Draft for review. Changes last until this page is reloaded.',savedRecipe:'Recipe saved',
   sourceCount:n=>`Sources: ${n}`,allCatalog:'All words',noActive:'No recipe selected',addFirst:'Create a recipe',
   previewNote:'These are the unique words in the pool, not the task order or repetitions.',
@@ -80,6 +82,8 @@ const recipeCopy={
 for(const lang of Object.keys(recipeCopy))Object.assign(copy[lang],recipeCopy[lang]);
 const TC=window.TEXTBOOK_CATALOG;
 const blankSource=()=>({book:null,from:null,to:null,jlpt:null,kanji:null,word:null});
+let excellentRecipeIds = new Set(['tobira-review', 'n5', 'bkb-all']);
+const pawStamp = (size=22) => (typeof window.pawStampIcon === 'function' ? window.pawStampIcon(size) : '');
 let recipes=[
  {id:'tobira10',translations:[{language_tag:'ru',name:'Tobira · глава 10'},{language_tag:'en',name:'Tobira · chapter 10'}],sources:[{...blankSource(),book:1,from:10,to:10}],selection_mode:'shuffled_cycles',task_count:20,seconds_per_symbol:30},
  {id:'tobira-review',translations:[{language_tag:'ru',name:'Tobira · повторение 1–10'},{language_tag:'en',name:'Tobira · review 1–10'}],sources:[{...blankSource(),book:1,from:1,to:10}],selection_mode:'shuffled_cycles',task_count:40,seconds_per_symbol:null},
@@ -144,6 +148,8 @@ function sourceWords(s){
  });
 }
 function planWords(p){return [...new Map(p.sources.flatMap(sourceWords).map(w=>[w.id,w])).values()];}
+window.selectedRecipe=selectedRecipe;
+window.planWords=planWords;
 
 function sourceLabel(s){
  const parts=[];
@@ -236,19 +242,39 @@ function recipeSourceTagsView(plan){
 
 function planCardView(p,mode='library'){
  const pick=mode==='pick';
+ const isMaster=excellentRecipeIds.has(p.id);
  const tasks=p.task_count===null?t('allWordsCount')(planWords(p).length):t('tasks')(p.task_count);
  const time=p.seconds_per_symbol===null?t('unlimited'):t('perWord')(p.seconds_per_symbol);
- const book=p.sources.length===1?p.sources[0].book:null;
- const kind=p.sources.length>1?'mixed':book==='personal'?'personal':typeof book==='number'?'book':p.sources.some(s=>s.kanji||s.jlpt)?'kanji':'words';
  const cardAction=pick?'start':'view';
  const label=pick?t('launch'):t('viewRecipe');
- return `<article class="plan-card plan-card-plain ${pick?'plan-card-pick':''}" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_symbol!==null}" data-mode="${mode}">
+
+ if(pick){
+  return `<article class="plan-card plan-card-plain plan-card-pick" data-id="${p.id}" data-mode="pick">
+   <div class="plan-card-main" data-tr="start" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(label+': '+planName(p))}">
+    <div class="plan-pick-body">
+     <strong class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</strong>
+     <span class="plan-summary-line">${escapeHTML(tasks)} · ${escapeHTML(time)}</span>
+    </div>
+    ${isMaster?`<span class="plan-stamp" title="${t('stampExcellent')}">${pawStamp(24)}</span>`:''}
+   </div>
+  </article>`;
+ }
+
+ const book=p.sources.length===1?p.sources[0].book:null;
+ const kind=p.sources.length>1?'mixed':book==='personal'?'personal':typeof book==='number'?'book':p.sources.some(s=>s.kanji||s.jlpt)?'kanji':'words';
+ return `<article class="plan-card plan-card-plain" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_symbol!==null}" data-mode="${mode}">
   <div class="plan-card-main" data-tr="${cardAction}" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(label+': '+planName(p))}">
-   <span class="plan-title-row"><span class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</span></span>
-   <div class="plan-material">${recipeSourceTagsView(p)}</div>
-   <span class="plan-metrics"><span>${icon('word-stack')}${escapeHTML(tasks)}</span><span class="plan-time ${p.seconds_per_symbol===null?'':'is-timed'}">${icon(p.seconds_per_symbol===null?'no-timer':'timer')}${escapeHTML(time)}</span></span>
+   <div class="plan-card-content">
+    <span class="plan-title-row"><span class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</span></span>
+    <div class="plan-material">${recipeSourceTagsView(p)}</div>
+    <span class="plan-metrics"><span>${icon('word-stack')}${escapeHTML(tasks)}</span><span class="plan-time ${p.seconds_per_symbol===null?'':'is-timed'}">${icon(p.seconds_per_symbol===null?'no-timer':'timer')}${escapeHTML(time)}</span></span>
+   </div>
+   <div class="plan-card-end">
+    ${icon('chevron')}
+    ${isMaster?`<span class="plan-stamp" title="${t('stampExcellent')}">${pawStamp(22)}</span>`:''}
+   </div>
   </div>
-  ${pick?'':`<div class="plan-accessible-actions">${['move-up','move-down'].map((moveAction,index)=>`<button type="button" data-tr="${moveAction}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>`}
+  ${`<div class="plan-accessible-actions">${['move-up','move-down'].map((moveAction,index)=>`<button type="button" data-tr="${moveAction}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>`}
  </article>`;
 }
 const normalizeRecipeSearch=value=>value.normalize('NFKC').toLocaleLowerCase(locale).replaceAll('ё','е');
@@ -265,10 +291,10 @@ function recipeSearchCount(plans){
 }
 function recipeListItems(plans,mode='library'){
  if(!recipes.length){
-  if(mode==='pick')return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('pickEmptyHint'),false)}<button type="button" class="tonal-button" data-action="open-recipe-book">${t('openRecipeBook')}</button></div>`;
-  return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('emptyRecipeHint'),false)}</div>`;
+  if(mode==='pick')return `<div class="recipe-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('emptyRecipes')}</h3><p>${t('emptyRecipeHint')}</p><button type="button" class="tonal-button" data-tr="new">${t('createFirstRecipe')}</button></div>`;
+  return `<div class="recipe-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('emptyRecipes')}</h3><p>${t('emptyRecipeHint')}</p></div>`;
  }
- if(!plans.length)return `<div class="recipe-search-empty"><h3>${t('recipeNotFound')}</h3></div>`;
+ if(!plans.length)return `<div class="recipe-search-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('recipeNotFound')}</h3><p>${t('recipeSearchHelp')}</p></div>`;
  return plans.map(p=>planCardView(p,mode)).join('');
 }
 // Reuse the catalog Material search and search_off artwork.
@@ -300,9 +326,7 @@ function recipesView(){
 function trainingPickView(){
  const plans=filteredRecipePlans();
  const searchToggle=`<button type="button" class="recipe-search-toggle" data-tr="search-toggle" aria-label="${t(recipeSearchOpen?'hideRecipeSearch':'findRecipe')}" aria-expanded="${recipeSearchOpen}"${recipeSearchOpen?' aria-controls="recipe-search"':''}>${recipeSearchIcons[recipeSearchOpen?'off':'search']}</button>`;
- const welcome=recipes.length?`<div class="recipe-welcome"><div><p>${t('pickRecipeHint')}</p><span id="recipe-list-count" role="status" aria-live="polite" aria-atomic="true">${recipeSearchCount(plans)}</span></div><img src="../../assets/mascot/cat-crafting-cards.png" alt="" aria-hidden="true"></div>`:'';
  return `<div class="recipe-list-screen training-pick-screen">${header(t('pickRecipe'),'home',searchToggle)}<div class="recipe-list-scroll" tabindex="0" role="region" aria-label="${t('pickRecipe')}">${recipeSearchControl()}<div class="recipe-content recipe-list-content">
-  ${welcome}
   <span class="plan-announcement" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="plans-list" id="recipe-results" role="list" aria-label="${t('pickRecipe')}">${recipeListItems(plans,'pick')}</div>
  </div></div></div>`;
@@ -370,7 +394,7 @@ function saveRecipe(){const p=recipeDraft;clearRecipeErrors();
  if(!p.translations.some(x=>x.name.trim()))showRecipeFieldError('#recipe-name',t('missingName'));
  for(const key of ['task_count','seconds_per_symbol'])if(p[key]!==null&&(!Number.isSafeInteger(p[key])||p[key]<1||p[key]>2147483647))showRecipeFieldError(`[data-limit="${key}"]`,t('invalidLimits'));
  if(!p.sources.length||p.sources.some(s=>!sourceWords(s).length))showRecipeFieldError('[data-tr="source-add"]',t('needSource'));
- const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');openRecipeDetail(saved.id);}
+ const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();else excellentRecipeIds.delete(p.id);const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');openRecipeDetail(saved.id);}
 
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-tr]');
@@ -421,6 +445,7 @@ document.addEventListener('click',e=>{
  if(a==='start'){
   if(Date.now()<suppressPlanClickUntil)return;
   selectedRecipeId=b.dataset.id;
+  if(typeof resetPracticeSession==='function')resetPracticeSession();
   go('practice');
  }
  if(a==='edit'){

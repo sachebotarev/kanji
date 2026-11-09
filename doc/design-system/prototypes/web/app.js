@@ -27,14 +27,15 @@ Object.assign(copy.ru,{
  toHome:'На главную',
  demoRecipe:'Умный микс',
  recipeBook:'Рецепты тренировок',
- recipeBookDesc:'Создай и настрой рецепты',
+ recipeBookDesc:'Настройка тем и параметров',
  startTrainingHint:'Начать тренировку',
  unfinishedHint:'Незавершённая тренировка',
- pickRecipe:'Выбери рецепт',
+ pickRecipe:'Выбор рецепта',
  pickRecipeHint:'Нажми рецепт, чтобы начать тренировку',
  pickEmptyHint:'Сначала создай рецепт в рецептах тренировок.',
  openRecipeBook:'Открыть рецепты тренировок',
  trainingPick:'Выбор рецепта',
+ stampExcellent:'Отлично! Печать мастера',
  continueLaunch:'Продолжим?',
  wordProgress:(n,m)=>`Слово ${n} из ${m}`,
  startNewTraining:'Начать новую',
@@ -43,6 +44,29 @@ Object.assign(copy.ru,{
  unfinishedBadge:'Незавершённая тренировка',
  unfinishedChoice:'Продолжить или начать новую?',
  continueTraining:'Продолжить',
+ practice_title:'Практика',
+ interrupt_title:'Прервать практику?',
+ interrupt_message:'Прогресс сохранится. Позже можно продолжить с главного экрана.',
+ interrupt_confirm:'Прервать',
+ interrupt_stay:'Продолжить',
+ prompt_more:'ещё',
+ prompt_full_title:'Перевод',
+ reading_hidden:'Произношение скрыто',
+ reading_revealed:'Произношение открыто',
+ checks_testing:'Проверки (тестирование)',
+ check_readability:'Читаемость',
+ check_shape:'Форма',
+ check_writing_short:'Черты',
+ check_passed:'Пройдена',
+ check_failed:'Требуется исправление',
+ check_pending:'Ожидание ввода',
+ check_expected:'Задано',
+ check_recognized:'Распознано',
+ check_similarity:'Соответствие',
+ check_compensation:'Компенсация',
+ check_quantity:'Количество черт',
+ check_order:'Порядок черт',
+ check_understood:'Понятно',
 });
 Object.assign(copy.en,{
  practiceComplete:'Training summary',
@@ -62,14 +86,15 @@ Object.assign(copy.en,{
  toHome:'Back home',
  demoRecipe:'Smart mix',
  recipeBook:'Training recipes',
- recipeBookDesc:'Create and edit recipes',
+ recipeBookDesc:'Customize topics and settings',
  startTrainingHint:'Start training',
  unfinishedHint:'Unfinished training',
- pickRecipe:'Choose a recipe',
+ pickRecipe:'Choose recipe',
  pickRecipeHint:'Tap a recipe to start training',
  pickEmptyHint:'Create a recipe in training recipes first.',
  openRecipeBook:'Open training recipes',
  trainingPick:'Choose recipe',
+ stampExcellent:'Excellent! Master stamp',
  continueLaunch:'Continue?',
  wordProgress:(n,m)=>`Word ${n} of ${m}`,
  startNewTraining:'Start new',
@@ -78,9 +103,34 @@ Object.assign(copy.en,{
  unfinishedBadge:'Unfinished training',
  unfinishedChoice:'Continue or start new?',
  continueTraining:'Continue',
+ practice_title:'Practice',
+ interrupt_title:'Interrupt practice?',
+ interrupt_message:'Progress will be saved. You can continue later from the home screen.',
+ interrupt_confirm:'Interrupt',
+ interrupt_stay:'Continue',
+ prompt_more:'more',
+ prompt_full_title:'Translation',
+ reading_hidden:'Pronunciation hidden',
+ reading_revealed:'Pronunciation revealed',
+ checks_testing:'Checks (testing)',
+ check_readability:'Reading',
+ check_shape:'Shape',
+ check_writing_short:'Strokes',
+ check_passed:'Passed',
+ check_failed:'Needs correction',
+ check_pending:'Pending input',
+ check_expected:'Expected',
+ check_recognized:'Recognized',
+ check_similarity:'Similarity',
+ check_compensation:'Compensation',
+ check_quantity:'Stroke count',
+ check_order:'Stroke order',
+ check_understood:'Understood',
 });
 const glyphs={settings:'<path d="m9 3-.7 2.4-2 .9L4 5.7 2 9.2l1.7 1.7v2.2L2 14.8l2 3.5 2.3-.6 2 .9L9 21h6l.7-2.4 2-.9 2.3.6 2-3.5-1.7-1.7v-2.2L22 9.2l-2-3.5-2.3.6-2-.9L15 3Z"/><circle cx="12" cy="12" r="3"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',back:'<path d="m15 5-7 7 7 7M8 12h13"/>',arrow:'<path d="M4 12h16m-7-7 7 7-7 7"/>',chevron:'<path d="m9 5 7 7-7 7"/>',search:'<circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/>',plus:'<path d="M12 4v16M4 12h16"/>',edit:'<path d="m15 4 5 5M4 20l4-1 13-13-4-4L4 15v5Z"/>',more:'<circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/>',hint:'<path d="M8 17c0-4-3-4-3-9a7 7 0 0 1 14 0c0 5-3 5-3 9M8 17h8M9 21h6"/>',undo:'<path d="m8 4-5 5 5 5M3 9h10a6 6 0 0 1 0 12"/>',trash:'<path d="M4 6h16M9 6V3h6v3M6 6l1 15h10l1-15M10 10v7M14 10v7"/>',check:'<path d="m4 12 5 5L20 6"/>',paw:'<ellipse cx="12" cy="16" rx="6" ry="5" fill="currentColor" stroke="none"/><ellipse cx="4" cy="9" rx="2.5" ry="3" fill="currentColor" stroke="none"/><ellipse cx="9" cy="4" rx="2.5" ry="3" fill="currentColor" stroke="none"/><ellipse cx="15" cy="4" rx="2.5" ry="3" fill="currentColor" stroke="none"/><ellipse cx="20" cy="9" rx="2.5" ry="3" fill="currentColor" stroke="none"/>',book:'<path d="M5 4h7v16l-6-2a1 1 0 0 1-.1-.02L5 17.7V4Zm14 0h-7v16l6-2 .1-.02L19 17.7V4Z"/>',dictionary:'<path d="M6 4h11a2 2 0 0 1 2 2v13a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1ZM9 4v16M12 9h4M12 13h3"/>',kanji:'<path d="M5 5h14v14H5ZM12 8v9M8.5 11.5h7M9.5 11.5 12 17M14.5 11.5 12 17"/>',words:'<path d="M5 6h14M5 12h14M5 18h9"/>','word-stack':'<rect x="6" y="4" width="13" height="15" rx="3"/><path d="M3 8v10a4 4 0 0 0 4 4M10 9h5M10 13h4"/>',timer:'<circle cx="12" cy="14" r="8"/><path d="M12 10v4l3 2M9 2h6M12 2v4M19 6l2 2"/>','no-timer':'<path d="M6 9c-4 0-5 8 0 8 4 0 8-8 12-8 5 0 4 8 0 8-4 0-8-8-12-8Z"/>'};
 const icon=(name,cls='svg-icon')=>`<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${glyphs[name]||glyphs.chevron}</svg>`;
+const pawStampIcon=(size=22)=>`<svg class="paw-stamp-icon" viewBox="0 0 48 48" width="${size}" height="${size}" aria-hidden="true" style="transform:rotate(-10deg);color:var(--md-sys-color-error,#d32f2f);flex-shrink:0"><circle cx="24" cy="24" r="21.5" fill="none" stroke="currentColor" stroke-width="2.6"/><path fill="currentColor" d="M 12.93,13.11 C 14.57,12.44 16.6,13.65 17.47,15.8 C 18.34,17.95 17.71,20.23 16.07,20.89 C 14.43,21.56 12.4,20.35 11.53,18.2 C 10.66,16.05 11.29,13.77 12.93,13.11 Z M 20.19,9.14 C 21.94,8.9 23.63,10.65 23.97,13.05 C 24.31,15.46 23.16,17.61 21.41,17.86 C 19.66,18.1 17.97,16.35 17.63,13.95 C 17.29,11.54 18.44,9.39 20.19,9.14 Z M 27.81,9.14 C 29.56,9.39 30.71,11.54 30.37,13.95 C 30.03,16.35 28.34,18.1 26.59,17.86 C 24.84,17.61 23.69,15.46 24.03,13.05 C 24.37,10.65 26.06,8.9 27.81,9.14 Z M 35.07,13.11 C 36.71,13.77 37.34,16.05 36.47,18.2 C 35.6,20.35 33.57,21.56 31.93,20.89 C 30.29,20.23 29.66,17.95 30.53,15.8 C 31.4,13.65 33.43,12.44 35.07,13.11 Z M 24,22 C 25.2,22 26.3,22.8 27.2,23.8 C 28.5,23.2 30.2,23.2 31.5,24.2 C 33.2,25.6 34,27.8 33.5,30 C 33,32.5 31.5,34.8 29.5,35.6 C 27.5,36.4 25.5,35.5 24,34.5 C 22.5,35.5 20.5,36.4 18.5,35.6 C 16.5,34.8 15,32.5 14.5,30 C 14,27.8 14.8,25.6 16.5,24.2 C 17.8,23.2 19.5,23.2 20.8,23.8 C 21.7,22.8 22.8,22 24,22 Z"/></svg>`;
+window.pawStampIcon=pawStampIcon;
 const iconButton=(name,label,action)=>`<button class="icon-button" aria-label="${escapeHTML(label)}" data-action="${action}">${icon(name)}</button>`;
 const header=(title,back='home',actions='')=>`<header class="appbar">${iconButton('back',t('back'),`go:${back}`)}<h2>${escapeHTML(title)}</h2>${actions}</header>`;
 const sampleWords=[
@@ -92,13 +142,146 @@ const sampleWords=[
 ];
 let words=[...structuredClone(sampleWords.filter(w=>!w.personal)),...PersonalWords.read()],selectedId=-1,wordSource='dictionary',query='',catalogQuery='',bookId=0,chapterId=1,chapterTab='kanji',recipeName=null;
 let draft=null,draftOriginal='',editingId=null,lastEditorScreen='dictionary',practiceState='empty',practiceCompleteGrade='excellent',homeTraining='idle',hint=false,selectedCell=0;
-const strokes=[[],[],[]];
+let readingRevealed=false;
+let practiceWordIndex=0;
+let practiceWordsCache=null;
+let currentPracticeRecipeId=null;
+
+function getPracticeSessionWords(){
+ const getRecipe=typeof window.selectedRecipe==='function'?window.selectedRecipe:(typeof selectedRecipe==='function'?selectedRecipe:null);
+ const recipe=getRecipe?getRecipe():(typeof recipes!=='undefined'?recipes[0]:null);
+ const getWords=typeof window.planWords==='function'?window.planWords:(typeof planWords==='function'?planWords:null);
+ let rawWords=[];
+ if(recipe&&getWords){
+  try{rawWords=getWords(recipe);}catch(_){}
+ }
+ if(!rawWords||!rawWords.length){
+  const pool=(typeof TC!=='undefined'&&TC.words&&TC.words.length)?TC.words:(typeof words!=='undefined'&&words.length?words:sampleWords);
+  rawWords=pool.filter(w=>/[\u4e00-\u9faf\u3400-\u4dbf]/.test(w.written));
+ }
+ const taskCount=(recipe&&recipe.task_count)?recipe.task_count:10;
+ const list=rawWords.slice(0,Math.min(rawWords.length,taskCount));
+ return list.map((w,idx)=>{
+  const chars=[...w.written];
+  const kanjiList=chars.map(ch=>{
+   const isK=/[\u4e00-\u9faf\u3400-\u4dbf]/.test(ch);
+   const code=ch.codePointAt(0).toString(16).padStart(5,'0');
+   let strokeCount=10;
+   if(typeof TC!=='undefined'&&TC.kanji){
+    const found=TC.kanji.find(k=>k.symbol===ch);
+    if(found&&found.stroke_count)strokeCount=found.stroke_count;
+   }
+   return {char:ch,prefilled:!isK,svg:isK?code:null,strokes:strokeCount};
+  });
+  let tr='';
+  if(w.translations&&w.translations.length){
+   tr=w.translations.find(x=>x.language_tag===locale)?.text||w.translations.find(x=>x.language_tag==='ru')?.text||w.translations[0].text;
+  }else if(w.meanings){
+   tr=w.meanings[locale]||w.meanings.ru||w.meanings.en||'';
+  }
+  return {id:w.id||idx,written:w.written,reading:w.reading||'',translation:tr||w.written,kanji:kanjiList};
+ });
+}
+
+function currentPracticeWords(){
+ const currentId=typeof selectedRecipeId!=='undefined'?selectedRecipeId:'tobira10';
+ if(!practiceWordsCache||currentPracticeRecipeId!==currentId){
+  currentPracticeRecipeId=currentId;
+  practiceWordsCache=getPracticeSessionWords();
+  practiceWordIndex=0;
+ }
+ return practiceWordsCache.length?practiceWordsCache:[
+  {id:1,written:'木漏れ日',reading:'こもれび',translation:'солнечный свет сквозь листву',kanji:[
+   {char:'木',svg:'06728',strokes:4,prefilled:false},
+   {char:'漏',svg:'06f0f',strokes:14,prefilled:false},
+   {char:'れ',prefilled:true},
+   {char:'日',svg:'065e5',strokes:4,prefilled:false}
+  ]}
+ ];
+}
+
+function currentPracticeWord(){
+ const list=currentPracticeWords();
+ return list[practiceWordIndex]||list[0];
+}
+
+function currentPracticeKanji(){
+ const w=currentPracticeWord();
+ if(selectedCell>=w.kanji.length||(w.kanji[selectedCell]&&w.kanji[selectedCell].prefilled)){
+  const firstWritable=w.kanji.findIndex(k=>!k.prefilled);
+  selectedCell=firstWritable>=0?firstWritable:0;
+ }
+ return w.kanji[selectedCell]||w.kanji[0];
+}
+
+function resetPracticeSession(){
+ practiceWordIndex=0;
+ practiceWordsCache=null;
+ selectedCell=0;
+ readingRevealed=false;
+ hint=false;
+ practiceState='empty';
+ strokes=[[],[],[],[],[]];
+}
+window.resetPracticeSession=resetPracticeSession;
+let strokes=[[],[],[],[],[]];
+function svgThumb(strokeList){
+ if(!strokeList||!strokeList.length)return '';
+ const paths=strokeList.map(stroke=>{
+  if(!stroke||!stroke.length)return '';
+  const d=stroke.map((p,i)=>`${i===0?'M':'L'} ${(p[0]*100).toFixed(1)} ${(p[1]*100).toFixed(1)}`).join(' ');
+  return `<path d="${d}" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>`;
+ }).join('');
+ return `<svg class="cell-thumb-svg" viewBox="0 0 100 100" aria-hidden="true">${paths}</svg>`;
+}
+function openPracticeInterruptDialog(){
+ showModal(t('interrupt_title'),`<p>${escapeHTML(t('interrupt_message'))}</p>`,[
+  {label:t('interrupt_stay'),fn:closeModal},
+  {label:t('interrupt_confirm'),danger:true,fn:()=>{homeTraining='unfinished';const sel=$('#home-state');if(sel)sel.value='unfinished';closeModal();go('home');}}
+ ]);
+}
+function openPromptFullDialog(){
+ const w=currentPracticeWord();
+ const text=w.translation;
+ showModal(t('prompt_full_title'),`<p style="font-size:16px;line-height:1.5;margin:4px 0">${escapeHTML(text)}</p>`,[
+  {label:t('close'),primary:true,fn:closeModal}
+ ]);
+}
+function openCheckDetails(kind){
+ const k=currentPracticeKanji();
+ const isCorrect=['correct','assisted'].includes(practiceState);
+ const isIncorrect=practiceState==='incorrect';
+ let title='',status=isCorrect?t('check_passed'):isIncorrect?t('check_failed'):t('check_pending'),rows=[];
+ if(kind==='readability'){
+  title=t('check_readability');
+  rows=[
+   {label:t('check_expected'),val:k.char},
+   {label:t('check_recognized'),val:isCorrect?k.char:isIncorrect?'—':'…'}
+  ];
+ } else if(kind==='shape'){
+  title=t('check_shape');
+  rows=[
+   {label:t('check_similarity'),val:isCorrect?'96%':isIncorrect?'68%':'—'},
+   {label:t('check_compensation'),val:isCorrect?'8%':isIncorrect?'14%':'0%'}
+  ];
+ } else {
+  title=t('check_writing_short');
+  const drawn=strokes[selectedCell]?.length||(isCorrect?(k.strokes||11):0);
+  const target=k.strokes||11;
+  rows=[
+   {label:t('check_quantity'),val:`${drawn} ${locale==='ru'?'из':'of'} ${target}`},
+   {label:t('check_order'),val:isCorrect?(locale==='ru'?'Соблюдён':'Complied'):(locale==='ru'?'Ожидает проверки':'Pending')}
+  ];
+ }
+ const body=`<p style="font-weight:600;margin:0 0 12px;color:${isCorrect?'var(--primary)':isIncorrect?'var(--error)':'var(--muted)'}">${escapeHTML(status)}</p><div style="display:grid;gap:10px;font-size:14px">${rows.map(r=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${escapeHTML(r.label)}</span><strong>${escapeHTML(r.val)}</strong></div>`).join('')}</div>`;
+ showModal(title,body,[{label:t('check_understood'),primary:true,fn:closeModal}]);
+}
 let modalClose=null;
 let selectedWordOrigin=null;
 let screen='home';
 const screens=['dictionary-kanji','dictionary-translations','dictionary-tags','material-filter','recipe-words','recipe-source','recipe-material-view','settings','checker-settings','recipes','recipe-detail','recipe-editor','training-pick','home','practice','practice-complete','dictionary','word','editor','catalog','book','chapter'];
 const names={'dictionary-kanji':'kanji','dictionary-translations':'otherTranslations','dictionary-tags':'dictionaryTags','material-filter':'materials','recipe-words':'wordPool','recipe-source':'addSource','recipe-material-view':'materialType',settings:'settings','checker-settings':'checkerSettings',recipes:'recipes','recipe-detail':'recipeDetail','recipe-editor':'recipeEditor','training-pick':'trainingPick',home:'home',practice:'practice','practice-complete':'practiceComplete',dictionary:'dictionary',word:'word',editor:'editor',catalog:'catalog',book:'book',chapter:'chapter'};
-const captions={home:'Черновик: книга рецептов отдельно; незавершённая — статус на кнопке и диалог. HOME.W02/W03 открывают следы тренировок (HOME.02).',practice:'Предложение: зелёная тема, видимый возврат, статусы со знаком результата. Поле принимает штрихи; состояния проверки выбираются слева и не вычисляются по рисунку.','practice-complete':'Итог тренировки: процент, три уровня оценки и маскот. Состояния оценки переключаются слева; расчёт — training-grade.md.','training-pick':'Черновик: выбор рецепта перед стартом тренировки. Тап по карточке открывает PRACTICE. Требует согласования.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
+const captions={home:'Черновик: книга рецептов отдельно; незавершённая — статус на кнопке и диалог. HOME.W02/W03 открывают следы тренировок (HOME.02).',practice:'Практика: приведено в соответствие Android (WordPrompt с диалогом перевода, ReadingSpoiler со скрытием чтения, полоса ячеек с миниатюрами, показатели проверки с диалогом деталей PRACTICE.D01, круглые инструменты и диалог прерывания PRACTICE.D04).','practice-complete':'Итог тренировки: процент, три уровня оценки и маскот. Состояния оценки переключаются слева; расчёт — training-grade.md.','training-pick':'Черновик: выбор рецепта перед стартом тренировки. Тап по карточке открывает PRACTICE. Требует согласования.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
 const wordById=()=>words.find(w=>w.id===selectedId)||window.CATALOG_DATA.flatMap(b=>b.chapters.flatMap(c=>c.words)).find(w=>w.id===selectedId)||words[0];
 function translation(word){return word.translations.find(x=>x.language_tag===locale)?.text||word.translations.find(x=>x.language_tag==='ru')?.text||t('translationMissing');}
 function openCatalogRoute(route){PersonalWords.write(words,dictionaryTags);if(parent!==window){parent.postMessage({type:'kanji-viewer-navigate',module:'catalog',route},location.origin);return;}location.href='../textbooks/#'+route;}
@@ -185,10 +368,25 @@ function saveWord(next=editingId?'word':'dictionary'){
  selectedId=w.id;wordSource='dictionary';draft=null;query='';$('#dictionary-state').value='ready';go(next);return true;
 }
 function practiceView(){
- const complete=['correct','assisted'].includes(practiceState),error=practiceState==='incorrect';
- const status=complete?t('correct'):error?t('incorrect'):practiceState==='editing'?t('editing'):t('pending');
- const token=complete?'success':error?'failure':'';
- return `<div class="practice">${header(t('practiceLabel'),'home',iconButton('more',t('settings'),'practice-info'))}<div class="practice-content"><div class="practice-meta"><span>${t('wordPosition')}</span></div><h3 class="practice-prompt">${t('prompt')}</h3><div class="cells" aria-label="${t('kanji')}">${['脳','波','検','査'].map((c,i)=>`<button class="kanji-cell ${selectedCell===i?'selected':''} ${i<3&&complete?'correct':i===selectedCell&&error?'incorrect':''}" ${i===3?'disabled':''} data-action="cell:${i}" aria-label="${locale==='ru'?'Знак':'Character'} ${i+1}${selectedCell===i?', '+status:''}" aria-pressed="${selectedCell===i}">${i===3?c:((i<3&&complete)||(i===selectedCell&&error)?c:'')}${i<3&&complete?'<small aria-hidden="true">○</small>':i===selectedCell&&error?'<small aria-hidden="true">×</small>':''}</button>`).join('')}</div><div class="checkers">${[['readability',complete?'○ '+t('correct'):error?'× '+t('incorrect'):'—'],['shape',complete?'○ 96%':error?'× 68%':'—'],['strokes',String(complete?[11,8,12][selectedCell]:(strokes[selectedCell]?.length||0))]].map(([k,v])=>`<button class="checker ${token}" data-action="check:${k}"><span>${t(k)}</span><strong>${v}</strong></button>`).join('')}</div><div class="drawing-wrap"><svg class="drawing-grid" viewBox="0 0 320 320" aria-hidden="true"><path d="M160 0v320M0 160h320"/><path class="diagonal" d="m0 0 320 320M320 0 0 320"/></svg>${hint||complete?`<img class="hint-reference ${complete?'sample-answer':''}" src="assets/${['08133','06ce2','0691c'][selectedCell]}.svg" alt="">`:''}<canvas id="ink" aria-label="${locale==='ru'?'Поле для письма. Рисуйте мышью или пальцем.':'Drawing pad. Use a pointer or touch.'}"></canvas></div><div class="tools"><button class="tool ${hint?'active':''}" data-action="hint" aria-pressed="${hint}">${icon('hint')}${t('hint')}</button><button class="tool" data-action="undo" ${!strokes[selectedCell]?.length?'disabled':''}>${icon('undo')}${t('undo')}</button><button class="tool" data-action="clear" ${!strokes[selectedCell]?.length?'disabled':''}>${icon('trash')}${t('clear')}</button></div><p class="practice-feedback ${error?'error':''}" aria-live="polite">${practiceState==='unavailable'?t('checkUnavailable'):hint?t('hintPrompt'):practiceState==='assisted'?t('assisted'):error?t('incorrect'):complete?t('correct'):''}</p></div><div class="practice-actions"><button class="text-button" data-action="skip">${t('skip')}</button><button class="primary-button" data-action="finish" ${complete?'':'disabled'}>${t('next')}${icon('arrow')}</button></div></div>`;
+ const wordsList=currentPracticeWords();
+ const word=currentPracticeWord();
+ const k=currentPracticeKanji();
+ const isComplete=['correct','assisted'].includes(practiceState),isError=practiceState==='incorrect';
+ const totalWords=wordsList.length,wordNum=practiceWordIndex+1;
+ const progressText=t('wordProgress')(wordNum,totalWords);
+ const promptText=word.translation;
+ const isLong=$('#long-text')?.checked||promptText.length>55;
+ const readabilityVal=isComplete?`○ ${k.char}`:isError?'× —':'—';
+ const shapeVal=isComplete?'96%':isError?'68%':'—';
+ const strokeTarget=k.strokes||10;
+ const drawnStrokes=strokes[selectedCell]?.length||(isComplete?strokeTarget:0);
+ const strokesVal=isComplete?String(strokeTarget):drawnStrokes?String(drawnStrokes):'0';
+ const feedbackText=practiceState==='unavailable'?t('checkUnavailable'):hint?t('hintPrompt'):isError?t('incorrect'):isComplete?t('correct'):'';
+ const canUndo=Boolean(strokes[selectedCell]?.length);
+ const canClear=Boolean(strokes[selectedCell]?.length);
+ const canSubmit=isComplete;
+
+ return `<div class="practice"><header class="appbar practice-appbar"><button type="button" class="icon-button" data-action="practice-back" aria-label="${t('back')}">${icon('back')}</button><h2 class="practice-title">${t('practice_title')} <span class="practice-progress-num">${escapeHTML(progressText)}</span></h2><span class="practice-timer" aria-label="${t('statTime')}">${icon('timer','timer-icon')}<span class="timer-digits">0:45</span></span></header><div class="practice-content"><div class="practice-prompt-wrap"><h3 class="practice-prompt"><span>${escapeHTML(promptText)}</span>${isLong?`<button type="button" class="prompt-more" data-action="prompt-more">… ${t('prompt_more')}</button>`:''}</h3></div><div class="reading-spoiler ${readingRevealed?'':'hidden'}" data-action="reading-spoiler" role="button" tabindex="0" aria-label="${readingRevealed?t('reading_revealed'):t('reading_hidden')}"><span class="reading-spoiler-text" lang="ja">${escapeHTML(word.reading)}</span><div class="reading-spoiler-grain" aria-hidden="true"></div></div><div class="practice-strip" aria-label="${t('kanji')}">${word.kanji.map((cellItem,i)=>{const isSelected=selectedCell===i,isPrefilled=cellItem.prefilled,isCellCorrect=isComplete,isCellError=isError&&isSelected;const statusCls=isPrefilled?'prefilled':isCellCorrect?'correct':isCellError?'incorrect':isSelected?'selected':'';let content='';if(isPrefilled){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}else if(strokes[i]?.length){content=svgThumb(strokes[i]);}else if(isCellCorrect||(isCellError&&!strokes[i]?.length)){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}return `<div class="practice-cell-wrap ${isSelected?'selected':''}"><button type="button" class="kanji-cell ${statusCls}" ${isPrefilled?'disabled':''} data-action="cell:${i}" aria-label="${locale==='ru'?'Знак':'Character'} ${i+1}" aria-pressed="${isSelected}">${content}</button><span class="cell-underline" aria-hidden="true"></span></div>`;}).join('')}</div><div class="practice-divider" aria-hidden="true"></div><div class="practice-checkers" aria-label="${t('checks_testing')}"><button type="button" class="practice-checker-card" data-action="check:readability"><span class="practice-checker-label">${t('check_readability')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${readabilityVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:shape"><span class="practice-checker-label">${t('check_shape')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${shapeVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:strokes"><span class="practice-checker-label">${t('check_writing_short')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${strokesVal}</strong></button></div><div class="drawing-wrap"><svg class="drawing-grid" viewBox="0 0 320 320" aria-hidden="true"><path d="M160 0v320M0 160h320"/><path class="diagonal" d="m0 0 320 320M320 0 0 320"/></svg>${(hint||isComplete)&&k.svg?`<img class="hint-reference ${isComplete?'sample-answer':''}" src="assets/${k.svg}.svg" alt="" onerror="this.style.display='none'">`:''}<canvas id="ink" aria-label="${locale==='ru'?'Поле для письма. Рисуйте мышью или пальцем.':'Drawing pad. Use a pointer or touch.'}"></canvas></div>${feedbackText?`<p class="practice-feedback ${isError?'error':''}" aria-live="polite">${escapeHTML(feedbackText)}</p>`:''}</div><div class="practice-bottom-bar"><button type="button" class="practice-round-tool" data-action="undo" ${canUndo?'':'disabled'} aria-label="${t('undo')}">${icon('undo')}</button><button type="button" class="practice-round-tool" data-action="clear" ${canClear?'':'disabled'} aria-label="${t('clear')}">${icon('trash')}</button><button type="button" class="practice-round-tool ${hint?'active':''}" data-action="hint" aria-pressed="${hint}" aria-label="${t('hint')}">${icon('hint')}</button><button type="button" class="practice-submit-btn" data-action="practice-submit" ${canSubmit?'':'disabled'}>${t('next')}</button></div></div>`;
 }
 function practiceCompleteDemo(grade){
  const demos={
@@ -210,7 +408,7 @@ function practiceCompleteView(){
   <header class="appbar"><h2>${t('practiceCompleteTitle')}</h2></header>
   <div class="practice-complete-body">
    <img class="practice-complete-mascot" src="../../assets/mascot/${mascot}" alt="" width="168" height="168">
-   <p class="practice-complete-recipe">${escapeHTML(t('demoRecipe'))}</p>
+   <p class="practice-complete-recipe">${escapeHTML(typeof selectedRecipeName==='function'?selectedRecipeName():t('demoRecipe'))}</p>
    <p class="practice-complete-grade" data-grade="${grade}">${escapeHTML(title)}</p>
    <p class="practice-complete-percent" aria-label="${t('percentLabel')}"><strong>${demo.percent}</strong><span>%</span></p>
    <p class="practice-complete-hint">${escapeHTML(hint)}</p>
@@ -225,7 +423,7 @@ function practiceCompleteView(){
   <div class="practice-complete-actions"><button type="button" class="primary-button" data-action="go:home">${t('toHome')}</button></div>
  </div>`;
 }
-function setupCanvas(){const canvas=$('#ink');const rect=canvas.getBoundingClientRect();const ratio=devicePixelRatio||1;canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=3;const ink=getComputedStyle($('#phone')).getPropertyValue('--ink');ctx.strokeStyle=ink;const draw=()=>{ctx.clearRect(0,0,rect.width,rect.height);for(const stroke of strokes[selectedCell]||[]){ctx.beginPath();stroke.forEach(([x,y],i)=>{if(i)ctx.lineTo(x*rect.width,y*rect.height);else ctx.moveTo(x*rect.width,y*rect.height)});ctx.stroke()}};draw();let active=null;const point=e=>{const r=canvas.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);active=[point(e)];strokes[selectedCell].push(active);};canvas.onpointermove=e=>{if(active){active.push(point(e));draw()}};const finish=()=>{if(active){active=null;if(['correct','assisted','incorrect','empty'].includes(practiceState))practiceState='editing';$('#practice-state').value=practiceState;const scroll=$('#app').scrollTop;render();$('#app').scrollTop=scroll;}};canvas.onpointerup=finish;canvas.onpointercancel=finish;}
+function setupCanvas(){const canvas=$('#ink');if(!canvas)return;const rect=canvas.getBoundingClientRect();const ratio=devicePixelRatio||1;canvas.width=rect.width*ratio;canvas.height=rect.height*ratio;const ctx=canvas.getContext('2d');ctx.scale(ratio,ratio);ctx.lineCap='round';ctx.lineJoin='round';ctx.lineWidth=3;const ink=getComputedStyle($('#phone')).getPropertyValue('--ink')||'#212121';ctx.strokeStyle=ink;const draw=()=>{ctx.clearRect(0,0,rect.width,rect.height);for(const stroke of strokes[selectedCell]||[]){ctx.beginPath();stroke.forEach(([x,y],i)=>{if(i)ctx.lineTo(x*rect.width,y*rect.height);else ctx.moveTo(x*rect.width,y*rect.height)});ctx.stroke()}};draw();let active=null;const point=e=>{const r=canvas.getBoundingClientRect();return [(e.clientX-r.left)/r.width,(e.clientY-r.top)/r.height]};canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);active=[point(e)];if(!strokes[selectedCell])strokes[selectedCell]=[];strokes[selectedCell].push(active);};canvas.onpointermove=e=>{if(active){active.push(point(e));draw()}};const finish=()=>{if(active){active=null;if(['correct','assisted','incorrect','empty'].includes(practiceState)){practiceState='editing';const sel=$('#practice-state');if(sel)sel.value=practiceState;}const scroll=$('#app').scrollTop;render();$('#app').scrollTop=scroll;}};canvas.onpointerup=finish;canvas.onpointercancel=finish;}
 const books=window.CATALOG_DATA.map((b,i)=>({...b,subtitle:b.kanjiCount+' '+(locale==='ru'?'кандзи':'kanji'),color:i?'blue':''}));
 let bookTab='chapters';
 const currentChapter=()=>books[bookId].chapters.find(c=>c.number===chapterId)||books[bookId].chapters[0];
@@ -256,12 +454,32 @@ document.addEventListener('click',e=>{
  else if(action==='retry'){$('#dictionary-state').value='ready';render();}
  else if(action==='add-translation'){const used=[locale,...draft.translations.map(x=>x.language_tag)],language=['ru','en'].find(code=>!used.includes(code));if(!language)return;draft.translations.push({language_tag:language,text:''});render();document.querySelector('#translations .dictionary-additional-translation:last-child textarea')?.focus();}
  else if(action==='remove-translation'){draft.translations.splice(Number(value),1);render();}
+ else if(action==='practice-back')openPracticeInterruptDialog();
+ else if(action==='prompt-more')openPromptFullDialog();
+ else if(action==='reading-spoiler'){readingRevealed=!readingRevealed;render();}
  else if(action==='hint'){hint=!hint;render();}
- else if(action==='undo'){strokes[selectedCell].pop();practiceState=strokes[selectedCell].length?'editing':'empty';$('#practice-state').value=practiceState;render();}
- else if(action==='clear'){strokes[selectedCell]=[];practiceState='empty';$('#practice-state').value=practiceState;render();}
+ else if(action==='undo'){if(strokes[selectedCell]?.length){strokes[selectedCell].pop();practiceState=strokes[selectedCell].length?'editing':'empty';const sel=$('#practice-state');if(sel)sel.value=practiceState;render();}}
+ else if(action==='clear'){strokes[selectedCell]=[];practiceState='empty';const sel=$('#practice-state');if(sel)sel.value=practiceState;render();}
  else if(action==='cell'){selectedCell=Number(value);render();}
- else if(action==='check'){infoModal(t(value),`${value==='strokes'?t('strokeCount'):t('info')}: ${['correct','assisted'].includes(practiceState)?t('correct'):practiceState==='incorrect'?t('incorrect'):t('pending')}`);}
- else if(action==='skip'||action==='finish'){showModal(t(action==='skip'?'skipped':'result'),`<p>${t('resultHint')}</p>`,[{label:t('home'),fn:()=>go('home')},{label:t('close'),fn:closeModal}]);}
+ else if(action==='check')openCheckDetails(value);
+ else if(action==='practice-submit'||action==='finish'){
+  const wordsList=currentPracticeWords();
+  if(practiceWordIndex<wordsList.length-1){
+   practiceWordIndex++;
+   selectedCell=0;
+   readingRevealed=false;
+   hint=false;
+   practiceState='empty';
+   strokes=[[],[],[],[],[]];
+   const sel=$('#practice-state');
+   if(sel)sel.value='empty';
+   render();
+  }else{
+   resetPracticeSession();
+   go('practice-complete');
+  }
+ }
+ else if(action==='skip'){showModal(t('skipped'),`<p>${t('resultHint')}</p>`,[{label:t('home'),fn:()=>go('home')},{label:t('close'),fn:closeModal}]);}
  else if(action==='book'){bookId=Number(value);bookTab='chapters';chapterId=1;go('book');}
  else if(action==='chapter'){chapterId=Number(value);chapterTab='kanji';go('chapter');}
  else if(action==='book-tab'){bookTab=value;render();}
