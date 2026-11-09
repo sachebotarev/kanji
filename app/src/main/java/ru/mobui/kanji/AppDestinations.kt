@@ -119,15 +119,11 @@ internal fun MainContent(
     val modelStatus by dependencies.japaneseModel.status.collectAsStateWithLifecycle()
     val modelError by dependencies.japaneseModel.error.collectAsStateWithLifecycle()
     if (modelError) {
-        AlertDialog(
-            onDismissRequest = dependencies.japaneseModel::dismissError,
-            title = { Text(stringResource(R.string.japanese_model_title)) },
-            text = { Text(stringResource(R.string.japanese_model_failed)) },
-            confirmButton = {
-                TextButton(onClick = dependencies.japaneseModel::dismissError) {
-                    Text(stringResource(R.string.close))
-                }
-            },
+        ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+            title = stringResource(R.string.japanese_model_title),
+            message = stringResource(R.string.japanese_model_failed),
+            onDismiss = dependencies.japaneseModel::dismissError,
+            buttonText = stringResource(R.string.close),
         )
     }
     val loaded by settingsModel.loaded.collectAsStateWithLifecycle()
@@ -522,28 +518,12 @@ private fun TrainingPickDestination(
         val scope = rememberCoroutineScope()
         val language = LocalConfiguration.current.preferredLanguageTag()
         if (emptyLaunch) {
-            AlertDialog(
-                onDismissRequest = { emptyLaunch = false },
-                modifier = Modifier.testTag("training-pick-no-tasks"),
-                title = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title,
-                        ),
-                    )
-                },
-                text = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body,
-                        ),
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { emptyLaunch = false }) {
-                        Text(stringResource(R.string.close))
-                    }
-                },
+            ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+                title = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title),
+                message = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body),
+                onDismiss = { emptyLaunch = false },
+                buttonText = stringResource(R.string.close),
+                testTag = "training-pick-no-tasks",
             )
         }
         ru.mobui.kanji.feature.dashboard.TrainingPickScreen(
@@ -619,28 +599,12 @@ private fun RecipeBuilderDestination(
         val scope = rememberCoroutineScope()
         var emptyLaunch by rememberSaveable { mutableStateOf(false) }
         if (emptyLaunch) {
-            AlertDialog(
-                onDismissRequest = { emptyLaunch = false },
-                modifier = Modifier.testTag("recipe-create-no-tasks"),
-                title = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title,
-                        ),
-                    )
-                },
-                text = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body,
-                        ),
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { emptyLaunch = false }) {
-                        Text(stringResource(R.string.close))
-                    }
-                },
+            ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+                title = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title),
+                message = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body),
+                onDismiss = { emptyLaunch = false },
+                buttonText = stringResource(R.string.close),
+                testTag = "recipe-create-no-tasks",
             )
         }
         ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderRoute(

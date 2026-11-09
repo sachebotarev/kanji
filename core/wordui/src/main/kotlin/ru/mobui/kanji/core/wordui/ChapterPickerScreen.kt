@@ -14,11 +14,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -50,7 +45,6 @@ fun ChapterPickerScreen(
     backTag: String = "symbol-picker-back",
     searchTag: String = "symbol-picker-search-toggle",
 ) {
-    val focus = LocalFocusManager.current
     var selected by rememberSaveable { mutableStateOf(selectedIds.sorted().toIntArray()) }
     var query by rememberSaveable { mutableStateOf("") }
     var searchOpen by rememberSaveable { mutableStateOf(false) }
@@ -67,15 +61,25 @@ fun ChapterPickerScreen(
             Modifier.testTag("chapter-apply"))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            SymbolPickerHeader(title ?: stringResource(R.string.selection_chapters), onBack, { searchOpen = !searchOpen },
-                backTag = backTag, searchTag = searchTag)
-            if (searchOpen) OutlinedTextField(
-                query, { query = it },
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp).testTag("chapter-search"),
-                label = { Text(stringResource(R.string.selection_chapter_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Search),
-                keyboardActions = KeyboardActions(onSearch = { focus.clearFocus() }),
-                colors = kanjiOutlinedTextFieldColors(),
+            SymbolPickerHeader(
+                title ?: stringResource(R.string.selection_chapters),
+                onBack,
+                {
+                    searchOpen = !searchOpen
+                    if (!searchOpen) query = ""
+                },
+                searchOpen = searchOpen,
+                backTag = backTag,
+                searchTag = searchTag,
+            )
+            if (searchOpen) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = { query = it },
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.selection_chapter_search),
+                autoFocus = true,
+                numeric = true,
+                testTag = "chapter-search",
             )
             Row {
                 TextButton({ selectedOnly = !selectedOnly }, Modifier.weight(1f).heightIn(min = 48.dp).testTag("chapter-view")) {

@@ -37,7 +37,7 @@ fun WordStatisticsWidget(
     val colors =
         listOf(
             MaterialTheme.colorScheme.primary,
-            Color(color = 0xFFE4B94F),
+            ru.mobui.kanji.core.designsystem.KanjiColorAssisted,
             MaterialTheme.colorScheme.error,
         )
     val emptyRing = MaterialTheme.colorScheme.surfaceVariant

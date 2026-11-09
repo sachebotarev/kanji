@@ -1,5 +1,6 @@
 package ru.mobui.kanji.feature.dashboard.builder
 
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 
@@ -138,7 +139,16 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
     val reorder = rememberRecipeReorderState(scroll, state.recipes.map { it.id }, canDrag, actions.reorder)
     val dragId = reorder.draggedId
     val platformView = LocalView.current
-    val back = { if (dragId != null) platformView.cancelDragAndDrop() else if (!state.busy) actions.back() }
+    val back = {
+        if (dragId != null) {
+            platformView.cancelDragAndDrop()
+        } else if (searching) {
+            searching = false
+            actions.query("")
+        } else if (!state.busy) {
+            actions.back()
+        }
+    }
     BackHandler { back() }
     val typeLabels = mapOf(MaterialType.Book to stringResource(R.string.material_book_type),
         MaterialType.Dictionary to stringResource(R.string.material_dictionary_type),
@@ -176,28 +186,35 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
         }
     }) { padding ->
         Column(Modifier.padding(padding)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = 68.dp).padding(horizontal = 12.dp, vertical = 4.dp),
+            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 IconButton(back, Modifier.size(48.dp)) {
-                    Icon(painterResource(R.drawable.ic_recipe_back), stringResource(R.string.material_back))
+                    Icon(painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back), stringResource(R.string.material_back))
                 }
                 Text(
                     stringResource(R.string.library_title),
-                    Modifier.weight(1f),
+                    Modifier.weight(1f).padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                val searchLabel = stringResource(R.string.library_search)
-                IconButton({ searching = !searching; if (!searching) actions.query("") },
-                    Modifier.testTag("library-search-toggle").semantics { contentDescription = searchLabel }) {
-                    Icon(androidx.compose.ui.res.painterResource(R.drawable.library_search), null)
-                }
+                KanjiSearchToggle(
+                    open = searching,
+                    onToggle = {
+                        searching = !searching
+                        if (!searching) actions.query("")
+                    },
+                    testTag = "library-search-toggle",
+                )
             }
-            if (searching) OutlinedTextField(query, actions.query, Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("library-search"),
-                label = { Text(stringResource(R.string.library_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                trailingIcon = { TextButton({ actions.query("") }) { Text(stringResource(R.string.library_clear)) } },
-                colors = kanjiOutlinedTextFieldColors())
+            if (searching) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = actions.query,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.library_search),
+                autoFocus = true,
+                testTag = "library-search",
+            )
             if (state.error) Row {
                 Text(stringResource(R.string.recipe_load_failed), Modifier.weight(1f).padding(16.dp))
                 TextButton(actions.retry) { Text(stringResource(R.string.recipe_retry)) }
@@ -405,9 +422,9 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                 verticalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
                                 Icon(
-                                    painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down),
+                                    painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
                                     null,
-                                    Modifier.size(18.dp).rotate(-90f),
+                                    Modifier.size(18.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 if (state.excellentRecipeIds.contains(recipe.id)) {
@@ -431,31 +448,19 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
 }
     val pending = pendingDeleteId?.let { id -> state.recipes.firstOrNull { it.id == id } }
     if (pending != null) {
-        AlertDialog(
-            onDismissRequest = { pendingDeleteId = null },
-            title = { Text(stringResource(R.string.library_delete_title)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(recipeName(pending, language))
-                    Text(stringResource(R.string.library_delete_message))
-                }
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.library_delete_title),
+            message = "${recipeName(pending, language)}\n${stringResource(R.string.library_delete_message)}",
+            onConfirm = {
+                val id = pending.id
+                pendingDeleteId = null
+                actions.delete(id)
             },
-            confirmButton = {
-                TextButton(
-                    {
-                        val id = pending.id
-                        pendingDeleteId = null
-                        actions.delete(id)
-                    },
-                    Modifier.testTag("library-delete-confirm"),
-                ) { Text(stringResource(R.string.dictionary_remove_recipe)) }
-            },
-            dismissButton = {
-                TextButton(
-                    { pendingDeleteId = null },
-                    Modifier.testTag("library-delete-cancel"),
-                ) { Text(stringResource(R.string.library_cancel)) }
-            },
+            onDismiss = { pendingDeleteId = null },
+            confirmText = stringResource(R.string.dictionary_remove_recipe),
+            dismissText = stringResource(R.string.library_cancel),
+            confirmTag = "library-delete-confirm",
+            dismissTag = "library-delete-cancel",
         )
     }
 }

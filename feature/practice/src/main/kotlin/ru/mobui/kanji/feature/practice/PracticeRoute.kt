@@ -2,6 +2,7 @@ package ru.mobui.kanji.feature.practice
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -77,7 +78,10 @@ fun PracticeRoute(
                     },
                     modifier = Modifier.testTag("practice-interrupt-confirm"),
                 ) {
-                    Text(stringResource(R.string.interrupt_confirm))
+                    Text(
+                        stringResource(R.string.interrupt_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                    )
                 }
             },
             dismissButton = {
@@ -85,7 +89,10 @@ fun PracticeRoute(
                     onClick = { confirmLeave = false },
                     modifier = Modifier.testTag("practice-interrupt-stay"),
                 ) {
-                    Text(stringResource(R.string.interrupt_stay))
+                    Text(
+                        stringResource(R.string.interrupt_stay),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
                 }
             },
         )

@@ -98,15 +98,19 @@ internal fun RecipeDetailScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(
-                Modifier.fillMaxWidth().heightIn(min = 68.dp).padding(horizontal = 12.dp, vertical = 4.dp),
+                Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(actions.back, Modifier.size(48.dp).testTag("recipe-detail-back")) {
-                    Icon(painterResource(R.drawable.ic_recipe_back), stringResource(R.string.material_back))
+                    Icon(
+                        painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                        stringResource(R.string.material_back),
+                        Modifier.size(24.dp),
+                    )
                 }
                 Text(
                     stringResource(R.string.recipe_title),
-                    Modifier.weight(1f),
+                    Modifier.weight(1f).padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
@@ -153,24 +157,16 @@ internal fun RecipeDetailScreen(
         }
     }
     if (confirmDelete && recipe != null) {
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text(stringResource(R.string.library_delete_title)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    Text(recipeName(recipe, language))
-                    Text(stringResource(R.string.library_delete_message))
-                }
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.library_delete_title),
+            message = "${recipeName(recipe, language)}\n${stringResource(R.string.library_delete_message)}",
+            onConfirm = {
+                confirmDelete = false
+                actions.delete()
             },
-            confirmButton = {
-                TextButton({
-                    confirmDelete = false
-                    actions.delete()
-                }) { Text(stringResource(R.string.dictionary_remove_recipe)) }
-            },
-            dismissButton = {
-                TextButton({ confirmDelete = false }) { Text(stringResource(R.string.library_cancel)) }
-            },
+            onDismiss = { confirmDelete = false },
+            confirmText = stringResource(R.string.dictionary_remove_recipe),
+            dismissText = stringResource(R.string.library_cancel),
         )
     }
 }

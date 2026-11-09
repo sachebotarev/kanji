@@ -149,9 +149,9 @@ internal fun RecipeMaterialRow(
             }
             if (showChevron) {
                 Icon(
-                    painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down),
+                    painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
                     null,
-                    Modifier.size(18.dp).rotate(-90f),
+                    Modifier.size(18.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }

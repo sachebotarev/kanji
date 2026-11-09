@@ -82,7 +82,7 @@ internal fun WordPrompt(word: String, modifier: Modifier = Modifier) {
     if (showFull) {
         Dialog(onDismissRequest = { showFull = false }) {
             Surface(
-                shape = MaterialTheme.shapes.large,
+                shape = MaterialTheme.shapes.extraLarge,
                 color = MaterialTheme.colorScheme.surface,
                 tonalElevation = 6.dp,
             ) {

@@ -35,8 +35,10 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 import ru.mobui.kanji.domain.catalog.Recipe
@@ -59,8 +61,15 @@ fun TrainingPickScreen(
     /** Recipe IDs whose current revision has been completed with an excellent score. */
     excellentRecipeIds: Set<String> = emptySet(),
 ) {
-    BackHandler { onBack() }
     var searching by rememberSaveable { mutableStateOf(false) }
+    BackHandler {
+        if (searching) {
+            searching = false
+            onQuery("")
+        } else {
+            onBack()
+        }
+    }
     val empty = !loading && recipes.isEmpty()
     val rows =
         if (query.isBlank()) recipes
@@ -73,44 +82,41 @@ fun TrainingPickScreen(
     Scaffold(modifier.testTag("training-pick")) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             Row(
-                Modifier.fillMaxWidth().heightIn(min = 68.dp).padding(horizontal = 12.dp, vertical = 4.dp),
+                Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onBack, Modifier.size(48.dp).testTag("training-pick-back")) {
                     Icon(
-                        painterResource(R.drawable.ic_recipe_back),
+                        painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                         stringResource(R.string.recipe_back),
+                        Modifier.size(24.dp),
                     )
                 }
                 Text(
                     stringResource(R.string.training_pick_title),
-                    Modifier.weight(1f),
+                    Modifier.weight(1f).padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Medium,
                 )
                 if (!empty) {
-                    IconButton(
-                        { searching = !searching; if (!searching) onQuery("") },
-                        Modifier.testTag("training-pick-search-toggle"),
-                    ) {
-                        Icon(
-                            painterResource(R.drawable.library_search),
-                            stringResource(R.string.recipe_search),
-                        )
-                    }
+                    KanjiSearchToggle(
+                        open = searching,
+                        onToggle = {
+                            searching = !searching
+                            if (!searching) onQuery("")
+                        },
+                        testTag = "training-pick-search-toggle",
+                    )
                 }
             }
             if (searching && !empty) {
-                OutlinedTextField(
-                    query,
-                    onQuery,
-                    Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("training-pick-search"),
-                    label = { Text(stringResource(R.string.recipe_search)) },
-                    shape = MaterialTheme.inputShape,
-                    singleLine = true,
-                    trailingIcon = {
-                        TextButton({ onQuery("") }) { Text(stringResource(R.string.recipe_cancel)) }
-                    },
-                    colors = kanjiOutlinedTextFieldColors(),
+                ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                    query = query,
+                    onQuery = onQuery,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    placeholder = stringResource(R.string.recipe_search),
+                    autoFocus = true,
+                    testTag = "training-pick-search",
                 )
             }
             when {
@@ -231,12 +237,18 @@ private fun TrainingPickRow(
                     contentDescription = stringResource(R.string.history_stamp_excellent),
                     modifier =
                         Modifier
-                            .padding(start = 12.dp)
+                            .padding(horizontal = 8.dp)
                             .size(24.dp)
                             .rotate(-10f)
                             .testTag("training-pick-stamp-${recipe.id}"),
                 )
             }
+            Icon(
+                painter = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

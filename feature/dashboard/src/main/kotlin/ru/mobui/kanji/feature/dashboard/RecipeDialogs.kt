@@ -186,7 +186,7 @@ internal fun LegacyRecipeEditor(
     Dialog(onDismiss) {
         val focusManager = LocalFocusManager.current
         val keyboard = LocalSoftwareKeyboardController.current
-        Surface(shape = RoundedCornerShape(24.dp), modifier = Modifier.testTag("recipe-editor")) {
+        Surface(shape = MaterialTheme.shapes.extraLarge, modifier = Modifier.testTag("recipe-editor")) {
             Column(
                 Modifier.padding(20.dp).verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),

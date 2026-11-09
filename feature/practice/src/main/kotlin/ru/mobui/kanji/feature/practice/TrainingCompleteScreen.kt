@@ -141,7 +141,7 @@ fun TrainingCompleteScreen(
                 onClick = onDone,
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
                     .testTag("training-complete-done"),
             ) {
                 Text(stringResource(R.string.training_complete_home))

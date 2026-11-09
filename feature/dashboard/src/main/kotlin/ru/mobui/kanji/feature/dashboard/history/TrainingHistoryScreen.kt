@@ -1,5 +1,8 @@
 package ru.mobui.kanji.feature.dashboard.history
 
+import androidx.activity.compose.BackHandler
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
+
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -89,6 +92,10 @@ internal fun TrainingHistoryScreen(
     zone: ZoneId = ZoneId.systemDefault(),
 ) {
     var searching by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = searching) {
+        searching = false
+        actions.onQuery("")
+    }
     var pendingDeleteId by rememberSaveable { mutableStateOf<String?>(null) }
     var periodPickerOpen by rememberSaveable { mutableStateOf(false) }
     val today = remember(zone) { LocalDate.now(zone) }
@@ -110,48 +117,36 @@ internal fun TrainingHistoryScreen(
                 navigationIcon = {
                     IconButton(actions.onBack, Modifier.testTag("training-history-back")) {
                         Icon(
-                            painterResource(R.drawable.ic_recipe_back),
+                            painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                             stringResource(R.string.recipe_back),
                         )
                     }
                 },
                 actions = {
-                    val searchLabel =
-                        stringResource(
-                            if (searching) R.string.history_hide_search else R.string.history_find,
-                        )
-                    IconButton(
-                        {
+                    KanjiSearchToggle(
+                        open = searching,
+                        onToggle = {
                             searching = !searching
                             if (!searching) actions.onQuery("")
                         },
-                        Modifier.testTag("training-history-search-toggle").semantics {
-                            contentDescription = searchLabel
-                        },
-                    ) {
-                        Icon(painterResource(R.drawable.library_search), null)
-                    }
+                        testTag = "training-history-search-toggle",
+                        contentDescription = stringResource(
+                            if (searching) R.string.history_hide_search else R.string.history_find,
+                        ),
+                    )
                 },
             )
         },
     ) { insets ->
         Column(Modifier.fillMaxSize().padding(insets)) {
             if (searching) {
-                OutlinedTextField(
-                    query,
-                    actions.onQuery,
-                    Modifier.fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .testTag("training-history-search"),
-                    label = { Text(stringResource(R.string.history_search_hint)) },
-                    shape = MaterialTheme.inputShape,
-                    singleLine = true,
-                    trailingIcon = {
-                        TextButton({ actions.onQuery("") }) {
-                            Text(stringResource(R.string.library_clear))
-                        }
-                    },
-                    colors = kanjiOutlinedTextFieldColors(),
+                ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                    query = query,
+                    onQuery = actions.onQuery,
+                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    placeholder = stringResource(R.string.history_search_hint),
+                    autoFocus = true,
+                    testTag = "training-history-search",
                 )
             }
             SelectionFilterChip(
@@ -240,35 +235,19 @@ internal fun TrainingHistoryScreen(
                 language,
                 stringResource(R.string.dashboard_mix),
             )
-        AlertDialog(
-            onDismissRequest = { pendingDeleteId = null },
-            title = { Text(stringResource(R.string.history_delete_title)) },
-            text = {
-                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(name)
-                    Text(stringResource(R.string.history_delete_text))
-                }
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.history_delete_title),
+            message = "$name\n${stringResource(R.string.history_delete_text)}",
+            onConfirm = {
+                val id = pending.id
+                pendingDeleteId = null
+                actions.onDelete(id)
             },
-            confirmButton = {
-                TextButton(
-                    {
-                        val id = pending.id
-                        pendingDeleteId = null
-                        actions.onDelete(id)
-                    },
-                    Modifier.testTag("training-history-delete-confirm"),
-                ) {
-                    Text(stringResource(R.string.dictionary_remove_recipe))
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    { pendingDeleteId = null },
-                    Modifier.testTag("training-history-delete-cancel"),
-                ) {
-                    Text(stringResource(R.string.library_cancel))
-                }
-            },
+            onDismiss = { pendingDeleteId = null },
+            confirmText = stringResource(R.string.dictionary_remove_recipe),
+            dismissText = stringResource(R.string.library_cancel),
+            confirmTag = "training-history-delete-confirm",
+            dismissTag = "training-history-delete-cancel",
         )
     }
 }
@@ -391,11 +370,17 @@ private fun HistoryCard(
                         contentDescription = stringResource(R.string.history_stamp_excellent),
                         modifier =
                             Modifier
-                                .size(28.dp)
+                                .size(24.dp)
                                 .rotate(-10f)
                                 .testTag("training-history-stamp-${training.id}"),
                     )
                 }
+                Icon(
+                    painter = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }
@@ -403,30 +388,12 @@ private fun HistoryCard(
 
 @Composable
 private fun HistoryEmptyState(title: String, hint: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier.fillMaxWidth().padding(horizontal = 32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Image(
-            painterResource(ru.mobui.kanji.core.designsystem.R.drawable.mascot_sticker_peek_empty_box),
-            null,
-            Modifier.size(112.dp).testTag("training-history-empty-mascot"),
-        )
-        Text(
-            title,
-            style = MaterialTheme.typography.titleMedium,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 16.dp),
-        )
-        Text(
-            hint,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
-        )
-    }
+    ru.mobui.kanji.core.designsystem.KanjiEmptyState(
+        title = title,
+        hint = hint,
+        modifier = modifier,
+        testTag = "training-history-empty",
+    )
 }
 
 @Composable

@@ -1,5 +1,6 @@
 package ru.mobui.kanji.feature.dictionary
 
+import ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 
@@ -106,13 +107,15 @@ internal fun DictionaryTagsRoute(repository: RecipesRepository, sessionKey: Stri
             dismissButton = { TextButton({ editId = null }, enabled = !state.busy) { Text(stringResource(R.string.dictionary_cancel)) } })
     }
     deleteId?.let { id ->
-        AlertDialog(onDismissRequest = { if (!state.busy) deleteId = null },
-            title = { Text(stringResource(R.string.dictionary_tags_delete_title)) },
-            text = { Text(stringResource(R.string.dictionary_tags_delete_text)) }, confirmButton = {
-                TextButton({ model.delete(id) { deleteId = null } }, enabled = !state.busy,
-                    modifier = Modifier.testTag("tag-delete-confirm")) { Text(stringResource(R.string.dictionary_delete)) }
-            }, dismissButton = { TextButton({ deleteId = null }, enabled = !state.busy) {
-                Text(stringResource(R.string.dictionary_cancel))
-            } })
+        KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.dictionary_tags_delete_title),
+            message = stringResource(R.string.dictionary_tags_delete_text),
+            onConfirm = { model.delete(id) { deleteId = null } },
+            onDismiss = { if (!state.busy) deleteId = null },
+            confirmTag = "tag-delete-confirm",
+            confirmText = stringResource(R.string.dictionary_delete),
+            dismissText = stringResource(R.string.dictionary_cancel),
+            enabled = !state.busy,
+        )
     }
 }

@@ -117,16 +117,24 @@ fun CheckerSettingsScreen(
 @Composable
 private fun SettingsHeader(onBack: () -> Unit, onReset: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
-        TextButton(onBack, Modifier.heightIn(min = 48.dp)) {
-            Text(stringResource(R.string.back))
+        androidx.compose.material3.IconButton(
+            onClick = onBack,
+            modifier = Modifier.size(48.dp).testTag("checker-settings-back"),
+        ) {
+            androidx.compose.material3.Icon(
+                painter = androidx.compose.ui.res.painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                contentDescription = stringResource(R.string.back),
+                modifier = Modifier.size(24.dp),
+            )
         }
         Text(
             stringResource(R.string.checker_settings_title),
-            Modifier.weight(1f),
+            Modifier.weight(1f).padding(horizontal = 8.dp),
             style = MaterialTheme.typography.headlineSmall,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
         )
         TextButton(

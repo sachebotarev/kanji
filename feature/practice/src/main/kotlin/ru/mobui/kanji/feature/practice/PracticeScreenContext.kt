@@ -157,7 +157,7 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
                 if (onBack != null) {
                     IconButton(onClick = onBack, modifier = Modifier.size(48.dp).testTag("practice-back")) {
                         Icon(
-                            painterResource(R.drawable.ic_back),
+                            painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                             contentDescription = stringResource(R.string.back),
                         )
                     }

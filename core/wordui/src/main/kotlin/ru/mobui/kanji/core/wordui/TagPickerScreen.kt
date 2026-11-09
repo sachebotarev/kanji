@@ -1,5 +1,9 @@
 package ru.mobui.kanji.core.wordui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
+import ru.mobui.kanji.core.designsystem.LocalSearchOpen
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -20,6 +24,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.size
@@ -59,7 +64,12 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
             else R.string.tag_picker_choose, selectedIds.count()), onApply, Modifier.testTag("tags-apply"))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            header { search = !search }
+            CompositionLocalProvider(LocalSearchOpen provides search) {
+                header {
+                    search = !search
+                    if (!search) onQuery("")
+                }
+            }
             if (search) WordSearch(query, stringResource(R.string.tag_picker_search), onQuery,
                 Modifier.padding(horizontal = 18.dp).testTag("tags-search"))
             if (!manage) FlowRow(Modifier.padding(horizontal = 8.dp)) {
@@ -92,23 +102,38 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
 }
 
 @Composable
-fun TagPickerHeader(onBack: () -> Unit, onSearch: () -> Unit, modifier: Modifier = Modifier,
-    manage: Boolean = false, busy: Boolean = false, onCreate: (() -> Unit)? = null, onManage: (() -> Unit)? = null) {
+fun TagPickerHeader(
+    onBack: () -> Unit,
+    onSearch: () -> Unit,
+    modifier: Modifier = Modifier,
+    manage: Boolean = false,
+    busy: Boolean = false,
+    searchOpen: Boolean = LocalSearchOpen.current,
+    onCreate: (() -> Unit)? = null,
+    onManage: (() -> Unit)? = null,
+) {
     var menu by remember { mutableStateOf(false) }
-    Row(modifier.fillMaxWidth().padding(8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+    Row(modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
         IconButton(onBack, Modifier.testTag("tags-back"), enabled = !busy) {
-            Icon(painterResource(R.drawable.selection_back), stringResource(R.string.selection_back))
+            Icon(
+                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                stringResource(R.string.selection_back),
+                Modifier.size(24.dp),
+            )
         }
         Text(
             stringResource(if (manage) R.string.tag_picker_manage else R.string.tag_picker_title),
-            Modifier.weight(1f),
+            Modifier.weight(1f).padding(horizontal = 8.dp),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        IconButton(onSearch, Modifier.testTag("tags-search-toggle"), enabled = !busy) {
-            Icon(painterResource(R.drawable.selection_search), stringResource(R.string.tag_picker_search))
-        }
+        KanjiSearchToggle(
+            open = searchOpen,
+            onToggle = onSearch,
+            testTag = "tags-search-toggle",
+            enabled = !busy,
+        )
         if (onCreate != null || onManage != null) Box {
             IconButton({ menu = true }, Modifier.testTag("tags-menu"), enabled = !busy) {
                 Icon(painterResource(R.drawable.selection_more), stringResource(R.string.tag_picker_more))

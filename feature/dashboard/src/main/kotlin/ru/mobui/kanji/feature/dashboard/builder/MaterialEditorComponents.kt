@@ -110,8 +110,12 @@ internal fun MaterialNavigationRow(title: String, subtitle: String?, onClick: ()
             else -> PaddingValues(horizontal = 4.dp, vertical = 12.dp)
         },
         trailing = {
-            Icon(painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down), null,
-                Modifier.size(20.dp).rotate(-90f), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
+                null,
+                Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         })
 }
 
@@ -136,8 +140,8 @@ internal fun MaterialHeader(title: String, onBack: () -> Unit) {
     KanjiScreenHeader(
         title,
         onBack,
-        painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_back),
-        stringResource(R.string.material_back),
+        backIcon = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+        backContentDescription = stringResource(R.string.material_back),
         backTestTag = "material-back",
     )
 }

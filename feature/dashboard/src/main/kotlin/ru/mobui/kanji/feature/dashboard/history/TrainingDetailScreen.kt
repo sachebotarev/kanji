@@ -69,7 +69,7 @@ internal fun TrainingDetailScreen(
                 navigationIcon = {
                     IconButton(onBack, Modifier.testTag("training-detail-back")) {
                         Icon(
-                            painterResource(R.drawable.ic_recipe_back),
+                            painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                             stringResource(R.string.recipe_back),
                         )
                     }
@@ -78,13 +78,10 @@ internal fun TrainingDetailScreen(
         },
     ) { insets ->
         if (training == null) {
-            Column(
-                Modifier.fillMaxSize().padding(insets).padding(24.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(stringResource(R.string.history_empty))
-            }
+            ru.mobui.kanji.core.designsystem.KanjiEmptyState(
+                title = stringResource(R.string.history_empty),
+                modifier = Modifier.padding(insets),
+            )
             return@Scaffold
         }
         val counts = remember(training) { training.taskCounts() }
@@ -178,7 +175,7 @@ internal fun TrainingDetailScreen(
                             contentDescription = stringResource(R.string.history_stamp_excellent),
                             modifier =
                                 Modifier
-                                    .size(36.dp)
+                                    .size(24.dp)
                                     .rotate(-10f)
                                     .testTag("training-detail-stamp"),
                         )
@@ -253,7 +250,7 @@ private fun statusLabel(status: TrainingTaskStatus): String =
 private fun statusColor(status: TrainingTaskStatus) =
     when (status) {
         TrainingTaskStatus.Correct -> MaterialTheme.colorScheme.primary
-        TrainingTaskStatus.Assisted -> androidx.compose.ui.graphics.Color(0xFFB8860B)
+        TrainingTaskStatus.Assisted -> ru.mobui.kanji.core.designsystem.KanjiColorAssisted
         TrainingTaskStatus.Skipped,
         TrainingTaskStatus.TimedOut -> MaterialTheme.colorScheme.error
         TrainingTaskStatus.Pending,

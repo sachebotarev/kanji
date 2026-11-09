@@ -1,5 +1,7 @@
 package ru.mobui.kanji.core.wordui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import ru.mobui.kanji.core.designsystem.LocalSearchOpen
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 
@@ -65,19 +67,35 @@ internal fun SymbolFacetScreen(facet: SymbolFacet, candidates: List<SymbolGridIt
     val shown = facet.options.filter { (facet.showZeroCounts || (counts[it.id] ?: 0) > 0 || it.id in selected) &&
         (!selectedOnly || it.id in selected) && normalized(it.label + it.symbol.orEmpty() + " " + it.id).contains(normalized(query.trim())) }
     val toggle: (Int) -> Unit = { id -> onSelect(if (id in selected) selected - id else selected + id) }
-    if (helpOpen && facet.helpText != null) AlertDialog(onDismissRequest = { helpOpen = false },
-        title = { Text(facet.title) }, text = { Text(facet.helpText) },
-        confirmButton = { TextButton({ helpOpen = false }) { Text(stringResource(R.string.selection_close)) } })
+    if (helpOpen && facet.helpText != null) {
+        ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+            title = facet.title,
+            message = facet.helpText,
+            onDismiss = { helpOpen = false },
+            buttonText = stringResource(R.string.selection_close),
+            testTag = "facet-help-dialog",
+        )
+    }
     Scaffold(modifier, floatingActionButton = {
         SelectionApplyButton(if (selected.isEmpty()) stringResource(R.string.selection_apply)
             else stringResource(R.string.selection_choose, selected.count()), onApply,
             Modifier.testTag("facet-apply"), showCheck = true)
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            header(facet.title, onBack) { searchOpen = !searchOpen }
-            if (searchOpen) OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(horizontal = 18.dp).testTag("facet-search"),
-                label = { Text(stringResource(R.string.selection_facet_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                colors = kanjiOutlinedTextFieldColors())
+            CompositionLocalProvider(LocalSearchOpen provides searchOpen) {
+                header(facet.title, onBack) {
+                    searchOpen = !searchOpen
+                    if (!searchOpen) query = ""
+                }
+            }
+            if (searchOpen) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = { query = it },
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.selection_facet_search),
+                autoFocus = true,
+                testTag = "facet-search",
+            )
             Row {
                 TextButton({ selectedOnly = !selectedOnly }, Modifier.weight(1f).heightIn(min = 48.dp).testTag("facet-view")) {
                     Text(if (selectedOnly) stringResource(R.string.selection_all) else stringResource(R.string.selection_count, selected.count()))
