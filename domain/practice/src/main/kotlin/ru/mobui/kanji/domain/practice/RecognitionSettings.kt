@@ -37,12 +37,19 @@ data class RecognitionSettings(
     val strokeWritingEnabled: Boolean = true,
     val checkStrokeOrder: Boolean = false,
     val checkStrokeDirection: Boolean = false,
-    /** Character-guide mode on PRACTICE (full glyph vs next stroke). */
+    /**
+     * Retained stored value. Practice takes the stroke-hint mode from the recipe, not from here.
+     */
     val hintMode: HintMode = HintMode.FullCharacter,
     /** Max hint shows per character (any mode) before a full red fail reveal. */
     val maxNextStrokeHints: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,
     /** How long the full-character guide stays visible after a tap, in milliseconds. */
     val fullHintDisplayMillis: Int = DEFAULT_FULL_HINT_DISPLAY_MILLIS,
+    /**
+     * When true, accepted kanji advances to the next unfinished kanji in the word without
+     * waiting for manual cell selection.
+     */
+    val autoAdvanceKanjiOnSuccess: Boolean = true,
     /**
      * When true, a fully accepted word (Correct/Assisted) advances to the next word without
      * waiting for «Далее». Timeout and skip still require an explicit next action.
@@ -184,7 +191,7 @@ private const val MAX_JITTER_PERCENT = 5f
 private const val MIN_DISTANCE_TOLERANCE = 0.001f
 private const val MAX_DISTANCE_TOLERANCE = 0.15f
 internal const val DEFAULT_MAX_NEXT_STROKE_HINTS = 3
-internal const val MIN_NEXT_STROKE_HINTS = 1
+internal const val MIN_NEXT_STROKE_HINTS = 0
 internal const val MAX_NEXT_STROKE_HINTS = 12
 internal const val DEFAULT_FULL_HINT_DISPLAY_MILLIS = 500
 internal const val MIN_FULL_HINT_DISPLAY_MILLIS = 200

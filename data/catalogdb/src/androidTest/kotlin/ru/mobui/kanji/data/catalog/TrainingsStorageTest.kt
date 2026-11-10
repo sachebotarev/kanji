@@ -10,6 +10,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.Training
 import ru.mobui.kanji.domain.practice.TrainingRecipeName
 import ru.mobui.kanji.domain.practice.TrainingStatus
@@ -91,10 +92,10 @@ class TrainingsStorageTest {
         )
 
     @Test
-    fun schemaIncludesTrainingTablesOnVersion9() = storage { db, catalog ->
+    fun schemaIncludesTrainingTablesOnVersion12() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(10, sql.version)
+        assertEquals(12, sql.version)
         val tables =
             sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                 buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
@@ -130,16 +131,21 @@ class TrainingsStorageTest {
             ),
         )
         val trainings = catalog.trainingsRepository
-        trainings.startTraining(training("first", word))
-        assertEquals("first", trainings.getInProgress()!!.id)
-        trainings.startTraining(training("second", word))
+        trainings.startTraining(training("first", word).copy(strokeHintMode = HintMode.FullCharacter))
+        val firstStarted = trainings.getInProgress()!!
+        assertEquals(HintMode.FullCharacter, firstStarted.strokeHintMode)
+        assertEquals("first", firstStarted.id)
+        trainings.startTraining(training("second", word).copy(strokeHintMode = HintMode.NextStroke))
         assertEquals("second", trainings.observeInProgress().first()!!.id)
         val first = trainings.getTraining("first")!!
         assertEquals(TrainingStatus.Interrupted, first.status)
+        assertEquals(HintMode.FullCharacter, first.strokeHintMode)
         assertNotNull(first.endedAt)
         assertEquals(2, first.tasks.single().symbols.size)
         assertEquals("Япония", first.tasks.single().translations.single().translation)
         assertEquals("Демо рецепт", first.recipeNames.single().name)
+        val second = trainings.getTraining("second")!!
+        assertEquals(HintMode.NextStroke, second.strokeHintMode)
     }
 
     @Test

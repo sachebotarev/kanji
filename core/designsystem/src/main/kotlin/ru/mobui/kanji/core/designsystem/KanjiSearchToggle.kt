@@ -43,6 +43,7 @@ fun KanjiSearchToggle(
         onClick = onToggle,
         enabled = enabled,
         modifier = modifier
+            .size(48.dp)
             .testTag(testTag)
             .background(
                 MaterialTheme.colorScheme.surfaceContainer,

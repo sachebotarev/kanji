@@ -71,7 +71,8 @@ class HandwritingTrainingTest {
         training.advanceTime(500)
         assertNull(training.state.result)
         assertTrue(training.state.timedOut)
-        assertTrue(training.state.readingHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        assertFalse(training.state.translationHintUsed)
         assertTrue(training.state.isResolved)
         assertEquals(100L, training.state.elapsedMs)
         assertEquals(
@@ -84,7 +85,8 @@ class HandwritingTrainingTest {
         training.submit()
         val result = requireNotNull(training.state.result)
         assertEquals(AnswerStatus.TimedOut, result.status)
-        assertTrue(result.readingHintUsed)
+        assertFalse(result.readingHintUsed)
+        assertFalse(result.translationHintUsed)
         assertEquals(100L, result.elapsedMs)
         assertEquals(
             listOf(EntryStatus.Incorrect, EntryStatus.Incorrect, EntryStatus.Prefilled),
@@ -109,6 +111,35 @@ class HandwritingTrainingTest {
         assertEquals(EntryStatus.Incorrect, training.state.cells[1].status)
         training.submit()
         assertEquals(AnswerStatus.TimedOut, training.state.result!!.status)
+    }
+
+    @Test
+    fun advanceTimeStopsWhenAllCellsAreResolvedEvenIfSomeAreIncorrect() {
+        val training = HandwritingTraining(task(1000))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.exhaustStrokeHints()
+        assertTrue(training.state.isResolved)
+        assertFalse(training.state.isComplete)
+        training.advanceTime(50)
+        assertEquals(0L, training.state.elapsedMs)
+    }
+
+    @Test
+    fun timeoutKeepsASpoilerTheLearnerAlreadyOpened() {
+        val training = HandwritingTraining(task(100))
+        training.recordTranslationHint()
+        training.advanceTime(100)
+        assertTrue(training.state.timedOut)
+        assertTrue(training.state.translationHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertTrue(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
     }
 
     @Test
@@ -208,6 +239,47 @@ class HandwritingTrainingTest {
         assertTrue(result.readingHintUsed)
         assertTrue(result.kanji.none { it.hintUsed })
         assertTrue(result.kanji.none { it.hintRequestCount > 0 })
+    }
+
+    @Test
+    fun translationHintMarksWordAssistedWithoutCellHint() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.recordTranslationHint()
+        assertTrue(training.state.translationHintUsed)
+        assertFalse(training.state.selected!!.hintUsed)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertEquals(AnswerStatus.Assisted, result.status)
+        assertTrue(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
+        assertTrue(result.kanji.none { it.hintUsed })
+        assertTrue(result.kanji.none { it.hintRequestCount > 0 })
+    }
+
+    @Test
+    fun withoutHintsWordIsCorrectWithoutAssistance() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        assertFalse(training.state.translationHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertEquals(AnswerStatus.Correct, result.status)
+        assertFalse(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
     }
 
     @Test

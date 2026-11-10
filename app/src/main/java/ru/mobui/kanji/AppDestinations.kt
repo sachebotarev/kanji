@@ -77,8 +77,6 @@ private data class RecipeBuilder(
 
 @Serializable private data class TrainingHistory(val period: String = "all")
 
-@Serializable private data object PracticeChecker
-
 internal data class AppModels(
     val settingsModel: RecognitionSettingsViewModel,
     val dictionarySummary: DictionarySummaryViewModel,
@@ -136,28 +134,13 @@ internal fun MainContent(
     var activeTraining by remember { mutableStateOf<ActiveTraining?>(null) }
     // Exit transition still composes Practice after pop; block resume of in_progress there.
     var suppressPracticeResume by remember { mutableStateOf(false) }
-    var practicePreview by remember {
-        mutableStateOf<ru.mobui.kanji.feature.practice.PracticeUiState?>(null)
-    }
     val trainingPersistence =
         remember(dependencies) {
             TrainingPersistence(dependencies.trainingsRepository, dependencies.persistenceScope)
         }
     val savedSettings by settingsModel.settings.collectAsStateWithLifecycle()
     val modelReady = modelStatus == JapaneseModelStatus.Ready
-    val settings =
-        savedSettings.copy(
-            readabilityEnabled = savedSettings.readabilityEnabled && modelReady,
-        )
-    LaunchedEffect(modelStatus, savedSettings) {
-        if (modelStatus == JapaneseModelStatus.Missing && savedSettings.readabilityEnabled) {
-            settingsModel.update(savedSettings.copy(readabilityEnabled = false))
-        }
-    }
-    LaunchedEffect(activeTraining) {
-        if (activeTraining == null) practicePreview = null
-    }
-    val context = AppUiContext(dependencies, models, graph, modelStatus, settings)
+    val context = AppUiContext(dependencies, models, graph, modelStatus, savedSettings)
     HandleAppDeepLinks(nav)
     NavHost(nav, startDestination = Dashboard) {
         composable<Dashboard>(
@@ -206,7 +189,6 @@ internal fun MainContent(
                     context,
                     training,
                     onActiveTrainingChange = { activeTraining = it },
-                    onPreview = { practicePreview = it },
                     trainingPersistence = trainingPersistence,
                     onLeave = {
                         suppressPracticeResume = true
@@ -214,13 +196,6 @@ internal fun MainContent(
                         nav.popOrDashboard()
                     },
                 )
-            }
-        }
-        composable<PracticeChecker> {
-            if (activeTraining == null) {
-                LaunchedEffect(Unit) { nav.popBackStack() }
-            } else {
-                PracticeCheckerDestination(context, nav, practicePreview)
             }
         }
         composable<Settings>(
@@ -353,12 +328,20 @@ private fun SettingsDestination(context: AppUiContext, nav: NavHostController) {
         SettingsScreen(
             onBack = { nav.popOrDashboard() },
             onOpenChecker = { nav.navigate(CheckerSettings) },
+            settings = settings,
+            onChangeSettings = settingsModel::update,
+            readabilityAvailable = modelReady,
+            showCalibration = BuildConfig.DEBUG,
             modelLoaded = modelStatus == JapaneseModelStatus.Ready,
             modelLoading = modelStatus == JapaneseModelStatus.Loading,
             onDownloadModel = dependencies.japaneseModel::load,
             onClearTrainingHistory = {
                 dependencies.persistenceScope.launch(Dispatchers.IO) {
                     runCatching { dependencies.trainingsRepository.clearHistory() }
+                        .onFailure { error ->
+                            java.util.logging.Logger.getLogger("ru.mobui.kanji.TrainingHistory")
+                                .log(java.util.logging.Level.SEVERE, "Failed to clear history", error)
+                        }
                 }
             },
         )
@@ -373,7 +356,6 @@ private fun CheckerSettingsDestination(context: AppUiContext, nav: NavHostContro
             settingsModel::update,
             onBack = { nav.popOrDashboard() },
             onReset = settingsModel::reset,
-            readabilityAvailable = modelReady,
         )
     }
 }
@@ -440,7 +422,9 @@ private fun DashboardDestination(
             DashboardDemo.state.copy(
                 statistics = statistics,
                 activity = activity,
-                vocabulary = DashboardDemo.state.vocabulary.copy(personalTotal = personalCount),
+                vocabulary = ru.mobui.kanji.feature.dashboard.VocabularyOverview(
+                    personalTotal = personalCount,
+                ),
             ),
             onStartTraining = { nav.navigate(TrainingPick) },
             onOpenSettings = { nav.navigate(Settings) },
@@ -537,7 +521,7 @@ private fun TrainingPickDestination(
             excellentRecipeIds = excellentRecipeIds,
             onPick = { recipeId ->
                 scope.launch {
-                    val launch = loadTrainingLaunch(dependencies, recipeId)
+                    val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
                     if (launch == null) {
                         withContext(Dispatchers.Main.immediate) { emptyLaunch = true }
                         return@launch
@@ -573,6 +557,7 @@ private suspend fun interruptInProgress(dependencies: KanjiApplication) {
 private suspend fun loadTrainingLaunch(
     dependencies: KanjiApplication,
     recipeId: String? = null,
+    maxNextStrokeHints: Int = 3,
 ): TrainingLaunch? {
     val recipes = dependencies.recipesRepository.observeRecipes().first()
     val recipe =
@@ -581,7 +566,7 @@ private suspend fun loadTrainingLaunch(
             ?: return null
     val assignments = dependencies.recipesRepository.observeWordTags().first()
     val snapshot = dependencies.catalog.load()
-    return launchTrainingFromRecipe(snapshot, recipe, assignments)
+    return launchTrainingFromRecipe(snapshot, recipe, assignments, maxNextStrokeHints)
 }
 
 @Composable
@@ -630,7 +615,7 @@ private fun RecipeBuilderDestination(
                 },
                 onCreatedForLaunch = { recipeId ->
                     scope.launch {
-                        val launch = loadTrainingLaunch(dependencies, recipeId)
+                        val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
                         if (launch == null) {
                             withContext(Dispatchers.Main.immediate) {
                                 emptyLaunch = true
@@ -662,7 +647,6 @@ private fun PracticePadDestination(
     context: AppUiContext,
     active: ActiveTraining,
     onActiveTrainingChange: (ActiveTraining?) -> Unit,
-    onPreview: (ru.mobui.kanji.feature.practice.PracticeUiState) -> Unit,
     trainingPersistence: TrainingPersistence,
     onLeave: () -> Unit,
 ) {
@@ -686,7 +670,6 @@ private fun PracticePadDestination(
             practice.onCheckerSettingsChanged()
         }
         val state by practice.uiState.collectAsStateWithLifecycle()
-        LaunchedEffect(state) { onPreview(state) }
         val result = state.practice.result
         var resultReceived by rememberSaveable(task.taskId, active.index) { mutableStateOf(false) }
         var advancing by remember(task.taskId, active.index) { mutableStateOf(false) }
@@ -702,15 +685,35 @@ private fun PracticePadDestination(
                                     practiceResult,
                                     System.currentTimeMillis(),
                                 )
-                            // Await boundary write so resume after kill matches the demo screen.
-                            runCatching { trainingPersistence.save(updated.training) }
-                            val next = updated.advance()
-                            if (next != null) {
-                                onActiveTrainingChange(next)
-                            } else {
-                                onActiveTrainingChange(updated)
-                                resultReceived = true
-                                advancing = false
+                            val saveResult =
+                                runCatching { trainingPersistence.save(updated.training) }
+                            if (saveResult.isFailure) {
+                                val error = saveResult.exceptionOrNull()
+                                java.util.logging.Logger.getLogger("ru.mobui.kanji.PracticePad")
+                                    .log(
+                                        java.util.logging.Level.SEVERE,
+                                        "Failed to persist task result for training=${updated.training.id} task=${task.taskId}",
+                                        error,
+                                    )
+                                withContext(Dispatchers.Main.immediate) {
+                                    android.widget.Toast.makeText(
+                                        dependencies,
+                                        R.string.training_save_failed_transient,
+                                        android.widget.Toast.LENGTH_SHORT,
+                                    ).show()
+                                    advancing = false
+                                }
+                                return@launch
+                            }
+                            withContext(Dispatchers.Main.immediate) {
+                                val next = updated.advance()
+                                if (next != null) {
+                                    onActiveTrainingChange(next)
+                                } else {
+                                    onActiveTrainingChange(updated)
+                                    resultReceived = true
+                                    advancing = false
+                                }
                             }
                         }
                     }
@@ -725,29 +728,12 @@ private fun PracticePadDestination(
                     ),
             )
         } else {
+            val language = LocalConfiguration.current.preferredLanguageTag()
             BackHandler(enabled = !leaving) { leave() }
             TrainingCompleteScreen(
-                summary = active.training.summarize(),
+                summary = active.training.summarize(language, active.training.maxNextStrokeHints),
                 onDone = leave,
             )
         }
-    }
-}
-
-@Composable
-private fun PracticeCheckerDestination(
-    context: AppUiContext,
-    nav: NavHostController,
-    preview: ru.mobui.kanji.feature.practice.PracticeUiState?,
-) {
-    with(context) {
-        CheckerSettingsScreen(
-            settings,
-            onChange = { settingsModel.update(it) },
-            onBack = { nav.popBackStack() },
-            onReset = { settingsModel.reset() },
-            preview = preview,
-            readabilityAvailable = modelReady,
-        )
     }
 }

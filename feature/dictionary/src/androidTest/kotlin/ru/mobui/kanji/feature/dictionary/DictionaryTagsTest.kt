@@ -8,8 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
-import androidx.compose.ui.test.assertDoesNotExist
-import androidx.compose.ui.test.assertExists
+import androidx.compose.ui.test.assert
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.filter
 import androidx.compose.ui.test.hasText
@@ -20,7 +19,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.waitUntil
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -174,7 +172,7 @@ class DictionaryTagsTest {
                 "en", { _, _ -> }, {}, managementOnly = true) }
         }
         compose.onNodeWithTag("tag-1").performClick()
-        compose.onNodeWithTag("tag-name").assert(!hasText("Первый", substring = true)).performTextInput("First")
+        compose.onNodeWithTag("tag-name").assert(hasText("Первый", substring = true).not()).performTextInput("First")
         compose.runOnIdle { assertEquals(0, repository.writes) }
         compose.onNodeWithTag("tag-save").performClick()
         compose.waitUntil { repository.writes == 1 }
@@ -218,6 +216,50 @@ class DictionaryTagsTest {
         compose.onNodeWithTag("tag-2").assertIsSelected()
         compose.onNodeWithTag("tags-selected-only").performClick().performClick()
         compose.onNodeWithTag("tag-1").assertIsSelected()
+    }
+
+    @Test fun emptyTagsInSelectionShowsMascotAndCreateButtonOpensDialog() {
+        val emptyRepo = TagsRepository().apply { tags.value = emptyList() }
+        compose.setContent {
+            KanjiTheme {
+                DictionaryTagsRoute(emptyRepo, "empty-select", emptySet(), emptyList(), false, "ru", { _, _ -> }, {})
+            }
+        }
+        compose.onNodeWithTag("tags-empty-state").assertExists()
+        compose.onNodeWithTag("empty-mascot").assertExists()
+        compose.onNodeWithText("Тегов пока нет").assertExists()
+        compose.onNodeWithText("Создайте первый тег, чтобы группировать слова").assertExists()
+        compose.onNodeWithTag("empty-cta").assertExists().performClick()
+        compose.onNodeWithTag("tag-name").assertExists()
+    }
+
+    @Test fun emptyTagsInManagementShowsMascotAndCreateButtonOpensDialog() {
+        val emptyRepo = TagsRepository().apply { tags.value = emptyList() }
+        compose.setContent {
+            KanjiTheme {
+                DictionaryTagsRoute(emptyRepo, "empty-manage", emptySet(), emptyList(), false, "ru", { _, _ -> }, {}, managementOnly = true)
+            }
+        }
+        compose.onNodeWithTag("tags-empty-state").assertExists()
+        compose.onNodeWithTag("empty-mascot").assertExists()
+        compose.onNodeWithText("Тегов пока нет").assertExists()
+        compose.onNodeWithTag("empty-cta").assertExists().performClick()
+        compose.onNodeWithTag("tag-name").assertExists()
+    }
+
+    @Test fun searchNoResultsShowsSearchEmptyStateWithoutCta() {
+        compose.setContent {
+            KanjiTheme {
+                DictionaryTagsRoute(repository, "search-empty", emptySet(), emptyList(), false, "ru", { _, _ -> }, {})
+            }
+        }
+        compose.onNodeWithTag("tags-search-toggle").performClick()
+        compose.onNodeWithTag("tags-search").performTextInput("НесуществующийТег")
+        compose.onNodeWithTag("tags-empty-state").assertExists()
+        compose.onNodeWithTag("empty-mascot").assertExists()
+        compose.onNodeWithText("Теги не найдены").assertExists()
+        compose.onNodeWithText("Попробуйте изменить поисковый запрос").assertExists()
+        compose.onNodeWithTag("empty-cta").assertDoesNotExist()
     }
 }
 

@@ -75,3 +75,9 @@ style:
     active: true
   ForbiddenComment:
     active: false
+
+exceptions:
+  TooGenericExceptionCaught:
+    active: true
+    allowedExceptionNameRegex: '_|(ignore|expected).*'
+

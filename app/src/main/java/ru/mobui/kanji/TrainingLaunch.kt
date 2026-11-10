@@ -71,6 +71,7 @@ internal fun launchTrainingFromRecipe(
     snapshot: CatalogSnapshot,
     recipe: Recipe,
     assignments: List<WordTagAssignment>,
+    maxNextStrokeHints: Int = 3,
     nowMs: Long = System.currentTimeMillis(),
     random: Random = Random.Default,
 ): TrainingLaunch? {
@@ -83,7 +84,7 @@ internal fun launchTrainingFromRecipe(
     if (pool.isEmpty()) return null
     val count = recipe.taskCount?.coerceAtLeast(1) ?: pool.size
     val ordered = shuffledLaunchWords(pool, count, random)
-    return buildLaunch(recipe, ordered, nowMs)
+    return buildLaunch(recipe, ordered, maxNextStrokeHints, nowMs)
 }
 
 private data class LaunchWord(
@@ -142,11 +143,27 @@ private fun shuffledLaunchWords(
     random: Random,
 ): List<LaunchWord> = shuffledCycles(pool, count, random)
 
+private fun ru.mobui.kanji.domain.catalog.RecipeHintMode.toTaskClueMode(): ru.mobui.kanji.domain.practice.TaskClueMode =
+    when (this) {
+        ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation -> ru.mobui.kanji.domain.practice.TaskClueMode.Translation
+        ru.mobui.kanji.domain.catalog.RecipeHintMode.Reading -> ru.mobui.kanji.domain.practice.TaskClueMode.Reading
+        ru.mobui.kanji.domain.catalog.RecipeHintMode.None -> ru.mobui.kanji.domain.practice.TaskClueMode.None
+    }
+
+private fun ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.toHintMode(): ru.mobui.kanji.domain.practice.HintMode =
+    when (this) {
+        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke -> ru.mobui.kanji.domain.practice.HintMode.NextStroke
+        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter -> ru.mobui.kanji.domain.practice.HintMode.FullCharacter
+    }
+
 private fun buildLaunch(
     recipe: Recipe,
     words: List<LaunchWord>,
+    maxNextStrokeHints: Int,
     nowMs: Long,
 ): TrainingLaunch {
+    val clueMode = recipe.hintMode.toTaskClueMode()
+    val strokeHintMode = recipe.strokeHintMode.toHintMode()
     val trainingId = UUID.randomUUID().toString()
     val practiceTasks = ArrayList<PracticeTask>(words.size)
     val trainingTasks = ArrayList<TrainingTask>(words.size)
@@ -164,6 +181,8 @@ private fun buildLaunch(
                 kanji = kanjiTasks,
                 reading = launch.word.reading.trim(),
                 timeLimitMs = wordTimeLimitMs(recipe.secondsPerSymbol, practiceCount),
+                clueMode = clueMode,
+                strokeHintMode = strokeHintMode,
             )
         trainingTasks +=
             TrainingTask(
@@ -207,6 +226,9 @@ private fun buildLaunch(
             recipeNames = recipe.names.map { TrainingRecipeName(it.languageTag, it.name) },
             taskCount = recipe.taskCount,
             secondsPerSymbol = recipe.secondsPerSymbol,
+            clueMode = clueMode,
+            strokeHintMode = strokeHintMode,
+            maxNextStrokeHints = maxNextStrokeHints,
             status = TrainingStatus.InProgress,
             startedAt = nowMs,
             endedAt = null,
@@ -233,6 +255,7 @@ internal fun ActiveTraining.withTaskResult(result: PracticeResult, nowMs: Long):
                 endedAt = nowMs,
                 elapsedMs = result.elapsedMs,
                 readingHintUsed = result.readingHintUsed,
+                translationHintUsed = result.translationHintUsed,
                 symbols =
                     trainingTask.symbols.map { symbol ->
                         val cell =
@@ -297,6 +320,8 @@ internal fun resumeActiveTraining(training: Training): ActiveTraining? {
                     },
                 reading = task.reading,
                 timeLimitMs = wordTimeLimitMs(training.secondsPerSymbol, practiceCount),
+                clueMode = training.clueMode,
+                strokeHintMode = training.strokeHintMode,
             )
         }
     return ActiveTraining(training, practiceTasks, index)

@@ -139,11 +139,11 @@ flowchart TD
 ### 4.2. Каталог и личный словарь
 - Каталог предоставляет иммутабельный снимок данных (`CatalogSnapshot`), который кэшируется в репозитории приложения. Все фильтры, фасеты и поиск вычисляются в памяти на фоновом диспетчере.
 - Личный словарь использует реактивный `Flow<List<CatalogWord>>` из Room и транзакционные операции создания, редактирования и архивации слов.
-- База данных (`learning.db`) автоматически устанавливается из `seed/catalog.json` с проверкой SHA-256 и версионированием. Подробнее: [каталог](implementation/catalog.md) и [личный словарь](implementation/personal-dictionary.md).
+- База данных (`kanji.db`, схема Room 12) устанавливается из `seed/catalog.json` с проверкой SHA-256 и версионированием. До выпуска несовместимая схема заменяется целиком: личный словарь, рецепты и история тренировок не переносятся. Подробнее: [каталог](implementation/catalog.md) и [личный словарь](implementation/personal-dictionary.md).
 - Масштабирование снимка (paging / SQL-страницы) отложено до явных триггеров: [навигация и масштаб каталога](decisions/navigation-and-catalog-scale.md).
 
 ### 4.3. Навигация и состояние
 - Верхний уровень в `:app` — корневой type-safe `NavHost` (`AppDestinations.kt`) со стеком `navigate` / `popBackStack`.
-- Внутри фичей (каталог, словарь, конструктор рецептов) — nested `NavHost`; PRACTICE → checker settings — соседний маршрут корневого стека (`Practice` / `PracticeChecker`), не второй хост и не boolean-overlay.
+- Внутри фичей (каталог, словарь, конструктор рецептов) — nested `NavHost`; настройки проверок кандзи открываются через корневой маршрут `CheckerSettings` (`SETTINGS.01`), не второй хост и не boolean-overlay.
 - Состояния экранов переживают смену конфигурации и уничтожение процесса через `SavedStateHandle`; `ActiveTraining` остаётся in-memory с resume из Room на PRACTICE.
 - Deep links хабов: custom scheme `kanji://mobui/...` ([AppDeepLinks](../app/src/main/java/ru/mobui/kanji/AppDeepLinks.kt)); paging каталога и App Links отложены: [навигация и масштаб каталога](decisions/navigation-and-catalog-scale.md).

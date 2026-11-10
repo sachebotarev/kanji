@@ -12,4 +12,5 @@ dependencies {
     api(project(":domain:practice"))
     implementation(libs.mlkit.ink)
     implementation(libs.kotlinx.coroutines.core)
+    testImplementation(libs.junit)
 }

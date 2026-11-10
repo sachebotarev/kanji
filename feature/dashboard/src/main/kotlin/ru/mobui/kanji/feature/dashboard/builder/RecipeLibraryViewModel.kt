@@ -3,6 +3,8 @@ package ru.mobui.kanji.feature.dashboard.builder
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.Dispatchers
@@ -56,6 +58,7 @@ internal class RecipeLibraryViewModel(
     private var observation: Job? = null
     init { retry() }
     fun query(value: String) { search.value = value; saved["query"] = value }
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         observation?.cancel()
         mutable.update { it.copy(loading = it.snapshot == null, error = false) }
@@ -89,7 +92,8 @@ internal class RecipeLibraryViewModel(
                     }
                 }
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) {
+            catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to load recipes", error)
                 currentCoroutineContext().ensureActive()
                 mutable.update { it.copy(loading = false, error = true) }
             }
@@ -102,14 +106,22 @@ internal class RecipeLibraryViewModel(
         if (ids.toSet() != mutable.value.recipes.map { it.id }.toSet() || ids.distinct().size != ids.size) return
         operation { recipesRepository.reorderRecipes(ids) }
     }
+    @Suppress("TooGenericExceptionCaught")
     private fun operation(block: suspend () -> Unit) {
         if (mutable.value.busy || mutable.value.loading) return
         mutable.update { it.copy(busy = true, error = false) }
         viewModelScope.launch {
             try { block() }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { mutable.update { it.copy(error = true) } }
+            catch (error: Exception) {
+                logger.log(Level.SEVERE, "Recipe library write failed", error)
+                mutable.update { it.copy(error = true) }
+            }
             finally { mutable.update { it.copy(busy = false) } }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.RecipeLibrary")
     }
 }

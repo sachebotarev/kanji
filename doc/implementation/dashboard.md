@@ -6,11 +6,11 @@
 
 `:feature:dashboard` не зависит от других feature-модулей. `DashboardScreen` получает состояние и callbacks через конструкторный граф приложения; `:app` связывает переходы с каталогом, словарём, настройками и существующим рукописным прототипом. Общие атомарные селекторы и строки слов находятся в `:core:wordui`.
 
-Запуск тренировки идёт через `HOME.01` (`TrainingPickScreen`); постоянный выбор радиокнопкой в списке RECIPE отсутствует. `RecipeHomeSummary` ещё может читать `is_active` для сводки/fallback. Порядок рецептов хранится в Room. `RecipeBuilderRoute` предоставляет отдельного владельца состояния каждому редактору; предварительный просмотр и управление тегами возвращают в тот же черновик. Копия публикуется только после Save. Успешное создание из книги рецептов (RECIPE.01) возвращает на список RECIPE; успешное редактирование (RECIPE.01.01) — на RECIPE.02. Создание первого рецепта с `HOME.01` (`launchAfterCreate`) после Save сразу открывает PRACTICE.
+Запуск тренировки идёт через `HOME.01` (`TrainingPickScreen`); постоянный выбор радиокнопкой в списке RECIPE отсутствует. `RecipeHomeSummary` ещё может читать `is_active` для сводки/fallback. Порядок рецептов хранится в Room. `RecipeBuilderRoute` предоставляет отдельного владельца состояния каждому редактору; предварительный просмотр и управление тегами возвращают в тот же черновик. Копия публикуется только после Save. Успешное сохранение в редакторе рецептов (RECIPE.01.01) возвращает на список RECIPE. Создание первого рецепта с `HOME.01` (`launchAfterCreate`) после Save сразу открывает PRACTICE.
 
 ## Состояние
 
-`DashboardState` объединяет `WordStatistics`, `ActivityOverview` и `VocabularyOverview`. Количество личных слов поступает из `PersonalDictionaryRepository`. `HOME.W02` и `HOME.W03` строятся из `TrainingsRepository.observeCompletedTasks()` — [активность](home-activity.md), [день](home-word-stats.md).
+`DashboardState` объединяет `WordStatistics`, `ActivityOverview` и `VocabularyOverview`. Живой экран берёт число личных слов из `PersonalDictionaryRepository`. Кольцо `HOME.W02` и сетка `HOME.W03` строятся из `TrainingsRepository.observeCompletedTasks()` — [активность](home-activity.md), [день](home-word-stats.md). `DashboardDemo` используется только в превью Compose. Карточка словаря на живом экране не подставляет демонстрационные 12 учебников и 156 слов: показаны переходы и фактическое число личных слов.
 
 `RecipeOverview` — представление конфигурации, не запущенная тренировка:
 

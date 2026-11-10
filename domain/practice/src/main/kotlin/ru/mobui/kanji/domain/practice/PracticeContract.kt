@@ -22,6 +22,25 @@ data class KanjiTask(val occurrenceId: String, val kanjiId: KanjiId, val mode: E
     }
 }
 
+enum class TaskClueMode(val key: String) {
+    Translation("translation"),
+    Reading("reading"),
+    None("none");
+
+    companion object {
+        /** Null or unknown keeps the training default. */
+        fun fromKey(key: String?): TaskClueMode {
+            if (key == null) return Reading
+            return when (key.trim().lowercase()) {
+                "translation" -> Translation
+                "reading" -> Reading
+                "none" -> None
+                else -> Reading
+            }
+        }
+    }
+}
+
 data class PracticeTask(
     val taskId: String,
     val russianWord: String,
@@ -29,6 +48,8 @@ data class PracticeTask(
     val timeLimitMs: Long? = null,
     /** Japanese reading of the word (kana); empty when the host has none. */
     val reading: String = "",
+    val clueMode: TaskClueMode = TaskClueMode.Reading,
+    val strokeHintMode: HintMode = HintMode.NextStroke,
 ) {
     init {
         require(taskId.isNotBlank() && russianWord.isNotBlank())
@@ -73,6 +94,7 @@ data class PracticeResult(
     val elapsedMs: Long,
     /** Word-level reading spoiler was revealed during this attempt. */
     val readingHintUsed: Boolean = false,
+    val translationHintUsed: Boolean = false,
 )
 
 data class CheckRequest(

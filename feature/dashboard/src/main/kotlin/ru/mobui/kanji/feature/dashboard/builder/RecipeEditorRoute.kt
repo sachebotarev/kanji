@@ -78,6 +78,7 @@ fun RecipeEditorRoute(
                 saving = state.saving || state.loading || state.completed,
                 creating = recipeId == null,
                 saveError = if (state.writeError) stringResource(R.string.recipe_write_failed) else null,
+                onDelete = actions.onDelete,
             )
         } else {
             MaterialHeader(stringResource(R.string.recipe_title), actions.onBack)

@@ -76,12 +76,15 @@ class MainActivity : ComponentActivity() {
                             task,
                             source,
                             checker,
-                            hintMode = { settingsModel.settings.value.hintMode },
+                            hintMode = { task.strokeHintMode },
                             maxNextStrokeHints = {
                                 settingsModel.settings.value.maxNextStrokeHints
                             },
                             fullHintDisplayMillis = {
                                 settingsModel.settings.value.fullHintDisplayMillis
+                            },
+                            autoAdvanceKanjiOnSuccess = {
+                                settingsModel.settings.value.autoAdvanceKanjiOnSuccess
                             },
                             autoAdvanceOnSuccess = {
                                 settingsModel.settings.value.autoAdvanceOnSuccess

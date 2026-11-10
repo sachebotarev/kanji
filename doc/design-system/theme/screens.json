@@ -9,20 +9,19 @@
       "dictionary",
       "recipe-builder",
       "practice",
-      "shared"
-    ],
-    "excluded_features": [
+      "shared",
       "settings"
     ],
+    "excluded_features": [],
     "spec": "../../implementation/approved-ui-handoff.md",
     "translations": [
       {
         "language_tag": "ru",
-        "text": "Согласовано пользователем 2026-11-07 для всех экранов реестра, кроме SETTINGS и SETTINGS.01. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
+        "text": "Согласовано пользователем для всех экранов реестра. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
       },
       {
         "language_tag": "en",
-        "text": "Approved by the user on 2026-11-07 for all registry screens except SETTINGS and SETTINGS.01. Ready for implementation against the specification; design approval does not imply Android completion."
+        "text": "Approved by the user for all registry screens. Ready for implementation against the specification; design approval does not imply Android completion."
       }
     ]
   },
@@ -668,17 +667,17 @@
       "module": "web",
       "key": "recipe-detail",
       "route": "recipe-detail",
-      "status": "approved",
+      "status": "retired",
       "translations": [
         {
           "language_tag": "ru",
           "title": "Рецепт",
-          "changes": "Согласовано 2026-11-07: просмотр рецепта без радиовыбора; редактирование через меню."
+          "changes": "Выведен: просмотр рецептов исключён, нажатие на карточку сразу открывает редактирование RECIPE.01.01. Меню с удалением перенесено в редактор."
         },
         {
           "language_tag": "en",
           "title": "Recipe",
-          "changes": "Approved 2026-11-07: read-only recipe view without radio selection; edit via menu."
+          "changes": "Retired: recipe view removed; tapping card opens RECIPE.01.01 editor directly. Deletion menu moved to editor."
         }
       ],
       "feature": "recipe-builder",
@@ -1047,17 +1046,17 @@
       "module": "web",
       "key": "settings",
       "route": "settings",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",
           "title": "Настройки",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "changes": "Разделение настроек: ход тренировки, подсказки, модули проверки (ML Kit), калибровка формы кандзи (только develop), очистка истории."
         },
         {
           "language_tag": "en",
           "title": "Settings",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "changes": "Separation of settings: training flow, hints, check modules (ML Kit), kanji shape calibration (develop-only), clear history."
         }
       ],
       "feature": "settings",
@@ -1071,17 +1070,17 @@
       "module": "web",
       "key": "checker-settings",
       "route": "checker-settings",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",
-          "title": "Параметры проверки",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "title": "Калибровка формы кандзи",
+          "changes": "Калибровка формы кандзи: пороги совпадения, трансформации, компенсации, бюджет, правила структуры черт (только develop-сборка)."
         },
         {
           "language_tag": "en",
-          "title": "Checker settings",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "title": "Kanji shape calibration",
+          "changes": "Kanji shape calibration: match thresholds, transformations, compensations, budget, stroke structure rules (develop build only)."
         }
       ],
       "feature": "settings",

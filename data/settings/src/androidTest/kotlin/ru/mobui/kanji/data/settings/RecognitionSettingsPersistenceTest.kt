@@ -50,6 +50,7 @@ class RecognitionSettingsPersistenceTest {
                     hintMode = HintMode.NextStroke,
                     maxNextStrokeHints = 5,
                     fullHintDisplayMillis = 800,
+                    autoAdvanceKanjiOnSuccess = false,
                     autoAdvanceOnSuccess = true,
                 )
                 .roundedParameters()

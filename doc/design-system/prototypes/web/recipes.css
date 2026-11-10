@@ -123,6 +123,7 @@
 .recipe-training-settings-body{display:grid;gap:24px}
 .recipe-limit,.recipe-detail-limit{display:grid;gap:12px}
 .recipe-limit>h4,.recipe-detail-limit>h4{margin:0;font-size:calc(12px * var(--scale));font-weight:500;line-height:1.4;color:var(--md-sys-color-on-surface-variant)}
+.recipe-param-help{margin:0;font-size:calc(12px * var(--scale));line-height:1.4;color:var(--md-sys-color-on-surface-variant)}
 .recipe-detail-limit>p{margin:0;font-size:calc(16px * var(--scale));font-weight:600;line-height:1.4;color:var(--md-sys-color-on-surface)}
 .recipe-remove-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:calc(14px * var(--scale));color:var(--md-sys-color-on-surface-variant)}
 .recipe-catalog-words{gap:16px;padding:12px 18px 24px}

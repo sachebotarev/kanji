@@ -36,6 +36,7 @@ import java.util.UUID
 import kotlinx.coroutines.launch
 import ru.mobui.kanji.feature.dashboard.R
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -47,7 +48,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExtendedFloatingActionButton
+import ru.mobui.kanji.core.designsystem.KanjiScreenHeader
+import androidx.compose.ui.semantics.heading
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -88,8 +93,11 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
     assignments: List<WordTagAssignment>, language: String, onSave: (Recipe) -> Unit,
     onBack: () -> Unit, onWord: (Int) -> Unit, onManageTags: () -> Unit,
     modifier: Modifier = Modifier, saving: Boolean = false, saveError: String? = null,
-    creating: Boolean = initial.names.none { it.name.isNotBlank() }) {
+    creating: Boolean = initial.names.none { it.name.isNotBlank() },
+    onDelete: (() -> Unit)? = null) {
     var draft by rememberSaveable(initial.id, stateSaver = RecipeSaver) { mutableStateOf(initial) }
+    var hintMode by rememberSaveable(initial.id) { mutableStateOf(initial.hintMode) }
+    var strokeHintMode by rememberSaveable(initial.id) { mutableStateOf(initial.strokeHintMode) }
     var countMode by rememberSaveable(initial.id) { mutableStateOf(initial.taskCount != null) }
     var timerMode by rememberSaveable(initial.id) { mutableStateOf(initial.secondsPerSymbol != null) }
     var count by rememberSaveable(initial.id) { mutableStateOf(initial.taskCount?.toString().orEmpty()) }
@@ -101,6 +109,8 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
     var attempted by rememberSaveable(initial.id) { mutableStateOf(false) }
     var leaving by rememberSaveable(initial.id) { mutableStateOf(false) }
     var skipSuggested by rememberSaveable(initial.id) { mutableStateOf(false) }
+    var menu by rememberSaveable(initial.id) { mutableStateOf(false) }
+    var confirmDelete by rememberSaveable(initial.id) { mutableStateOf(false) }
     val lang = if (language.startsWith("en", true)) "en" else "ru"
     val name = draft.names.firstOrNull { it.languageTag.equals(lang, true) }?.name.orEmpty()
     val pools = remember(snapshot, draft.materials, assignments) { draft.materials.map { snapshot.materialWords(it, assignments) } }
@@ -142,8 +152,11 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
     val poolBad = words.isEmpty() || pools.any { it.isEmpty() }
     val countBad = countMode && (count.toIntOrNull()?.let { it > 0 } != true)
     val timerBad = timerMode && (seconds.toIntOrNull()?.let { it > 0 } != true)
-    val dirty = draft != initial || countMode != (initial.taskCount != null) || timerMode != (initial.secondsPerSymbol != null) ||
-        (countMode && count != initial.taskCount?.toString()) || (timerMode && seconds != initial.secondsPerSymbol?.toString())
+    val dirty = draft != initial || hintMode != initial.hintMode ||
+        strokeHintMode != initial.strokeHintMode ||
+        countMode != (initial.taskCount != null) || timerMode != (initial.secondsPerSymbol != null) ||
+        (countMode && count != initial.taskCount?.toString()) ||
+        (timerMode && seconds != initial.secondsPerSymbol?.toString())
     val up = { if (!saving) { if (dirty) leaving = true else onBack() } }
     val list = rememberLazyListState()
     material?.let { bundle ->
@@ -182,7 +195,9 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
                     when { nameBad -> nameFocus; poolBad -> poolFocus; countBad -> countFocus; else -> timerFocus }.requestFocus()
                 }
             } else onSave(withResolvedName(draft.copy(taskCount = if (countMode) count.toInt() else null,
-                secondsPerSymbol = if (timerMode) seconds.toInt() else null)).validated())
+                secondsPerSymbol = if (timerMode) seconds.toInt() else null,
+                hintMode = hintMode,
+                strokeHintMode = strokeHintMode)).validated())
         }
     }
     val poolError = stringResource(R.string.recipe_pool_error)
@@ -194,7 +209,49 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
         }
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            MaterialHeader(stringResource(if (creating) R.string.recipe_new_title else R.string.recipe_edit_title), up)
+            KanjiScreenHeader(
+                title = stringResource(if (creating) R.string.recipe_new_title else R.string.recipe_edit_title),
+                onBack = up,
+                backIcon = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                backContentDescription = stringResource(R.string.material_back),
+                backTestTag = "material-back",
+                trailing = {
+                    if (!creating && onDelete != null) {
+                        Box {
+                            val menuLabel = stringResource(
+                                R.string.library_menu,
+                                effectiveName.ifEmpty { stringResource(R.string.recipe_title) },
+                            )
+                            IconButton(
+                                onClick = { menu = true },
+                                enabled = !saving,
+                                modifier = Modifier.size(48.dp).testTag("recipe-menu").semantics {
+                                    contentDescription = menuLabel
+                                },
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.ic_recipe_more),
+                                    contentDescription = null,
+                                    Modifier.size(24.dp),
+                                )
+                            }
+                            DropdownMenu(
+                                expanded = menu,
+                                onDismissRequest = { menu = false },
+                            ) {
+                                DropdownMenuItem(
+                                    text = { Text(stringResource(R.string.dictionary_remove_recipe)) },
+                                    onClick = {
+                                        menu = false
+                                        confirmDelete = true
+                                    },
+                                    modifier = Modifier.testTag("recipe-delete"),
+                                )
+                            }
+                        }
+                    }
+                },
+            )
             LazyColumn(Modifier.weight(1f).clipToBounds().testTag("recipe-list"), state = list,
                 contentPadding = MaterialFormContentPadding, verticalArrangement = Arrangement.spacedBy(24.dp)) {
                 item {
@@ -306,6 +363,16 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
                             stringResource(R.string.recipe_no_timer), stringResource(R.string.recipe_timer), attempted && timerBad, !saving, "recipe-timer",
                                 timerFocus,
                             hint = if (timerMode) stringResource(R.string.recipe_timer_hint) else null)
+                        RecipeHintSelector(
+                            selected = hintMode,
+                            onSelect = { hintMode = it },
+                            enabled = !saving,
+                        )
+                        RecipeStrokeHintSelector(
+                            selected = strokeHintMode,
+                            onSelect = { strokeHintMode = it },
+                            enabled = !saving,
+                        )
                         if (saveError != null) Text(saveError, Modifier.testTag("recipe-save-error"), color = MaterialTheme.colorScheme.error)
                         if (saving) CircularProgressIndicator(Modifier.testTag("recipe-saving"))
                     }
@@ -328,6 +395,19 @@ internal fun RecipeEditorScreen(initial: Recipe, snapshot: CatalogSnapshot, tags
                     Text(stringResource(R.string.recipe_stay), color = MaterialTheme.colorScheme.primary)
                 }
             },
+        )
+    }
+    if (confirmDelete && onDelete != null) {
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.library_delete_title),
+            message = "${effectiveName.ifEmpty { stringResource(R.string.recipe_title) }}\n${stringResource(R.string.library_delete_message)}",
+            onConfirm = {
+                confirmDelete = false
+                onDelete()
+            },
+            onDismiss = { confirmDelete = false },
+            confirmText = stringResource(R.string.dictionary_remove_recipe),
+            dismissText = stringResource(R.string.library_cancel),
         )
     }
 }
@@ -377,4 +457,123 @@ private fun RecipeLimit(title: String, inputLabel: String, active: Boolean, onMo
                 colors = kanjiOutlinedTextFieldColors())
         }
     }
+}
+
+@Composable
+private fun RecipeHintSelector(
+    selected: ru.mobui.kanji.domain.catalog.RecipeHintMode,
+    onSelect: (ru.mobui.kanji.domain.catalog.RecipeHintMode) -> Unit,
+    enabled: Boolean,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        RecipeParamTitle(stringResource(R.string.recipe_hints_title))
+        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(4.dp), space = 0.dp) {
+                ru.mobui.kanji.domain.catalog.RecipeHintMode.entries.forEach { mode ->
+                    val isSelected = selected == mode
+                    val label = when (mode) {
+                        ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation -> stringResource(R.string.recipe_hint_translation)
+                        ru.mobui.kanji.domain.catalog.RecipeHintMode.Reading -> stringResource(R.string.recipe_hint_reading)
+                        ru.mobui.kanji.domain.catalog.RecipeHintMode.None -> stringResource(R.string.recipe_hint_none)
+                    }
+                    SegmentedButton(
+                        selected = isSelected,
+                        onClick = { onSelect(mode) },
+                        enabled = enabled,
+                        shape = RoundedCornerShape(22.dp),
+                        modifier = Modifier.testTag("recipe-hint-${mode.key}"),
+                        icon = {},
+                        border = BorderStroke(0.dp, Color.Transparent),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    ) {
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        }
+        val hintText = when (selected) {
+            ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation -> stringResource(R.string.recipe_hint_translation_description)
+            ru.mobui.kanji.domain.catalog.RecipeHintMode.Reading -> stringResource(R.string.recipe_hint_reading_description)
+            ru.mobui.kanji.domain.catalog.RecipeHintMode.None -> stringResource(R.string.recipe_hint_none_description)
+        }
+        MaterialSupportingText(hintText, Modifier.testTag("recipe-hint-description"))
+    }
+}
+
+@Composable
+private fun RecipeStrokeHintSelector(
+    selected: ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode,
+    onSelect: (ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode) -> Unit,
+    enabled: Boolean,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        RecipeParamTitle(stringResource(R.string.recipe_stroke_hints_title))
+        Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.surfaceContainer) {
+            SingleChoiceSegmentedButtonRow(Modifier.fillMaxWidth().padding(4.dp), space = 0.dp) {
+                ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.entries.forEach { mode ->
+                    val isSelected = selected == mode
+                    val label = when (mode) {
+                        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke ->
+                            stringResource(R.string.recipe_stroke_hint_next_stroke)
+                        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter ->
+                            stringResource(R.string.recipe_stroke_hint_full_kanji)
+                    }
+                    SegmentedButton(
+                        selected = isSelected,
+                        onClick = { onSelect(mode) },
+                        enabled = enabled,
+                        shape = RoundedCornerShape(22.dp),
+                        modifier = Modifier.testTag("recipe-stroke-hint-${mode.key}"),
+                        icon = {},
+                        border = BorderStroke(0.dp, Color.Transparent),
+                        colors = SegmentedButtonDefaults.colors(
+                            activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            inactiveContainerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    ) {
+                        Text(
+                            label,
+                            style = MaterialTheme.typography.labelLarge,
+                            maxLines = 1,
+                        )
+                    }
+                }
+            }
+        }
+        val hintText = when (selected) {
+            ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke ->
+                stringResource(R.string.recipe_stroke_hint_next_stroke_description)
+            ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter ->
+                stringResource(R.string.recipe_stroke_hint_full_kanji_description)
+        }
+        MaterialSupportingText(hintText, Modifier.testTag("recipe-stroke-hint-description"))
+    }
+}
+
+/** Section heading shared with RECIPE.01.02 — titleMedium / SemiBold / onSurface. */
+@Composable
+internal fun RecipeSectionTitle(text: String, modifier: Modifier = Modifier) {
+    MaterialSectionTitle(text, modifier.semantics { heading() })
+}
+
+@Composable
+internal fun RecipeParamTitle(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        modifier,
+        style = MaterialTheme.typography.labelMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }

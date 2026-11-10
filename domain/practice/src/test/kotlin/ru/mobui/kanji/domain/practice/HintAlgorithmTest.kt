@@ -30,7 +30,7 @@ class HintAlgorithmTest {
     }
 
     @Test
-    fun nextStrokeReturnsOnlyTheFollowingReferenceStroke() {
+    fun nextStrokeReturnsReferenceStrokesUpToNextMissingStroke() {
         val sample =
             WritingSample(
                 listOf(
@@ -43,19 +43,39 @@ class HintAlgorithmTest {
         val hint =
             hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference))
         assertNotNull(hint)
-        assertEquals(listOf(strokeB), hint!!.overlay.strokes)
+        assertEquals(listOf(strokeA, strokeB), hint!!.overlay.strokes)
         assertEquals(HintPlayback.AnimateOnce, hint.playback)
         assertTrue(!hint.blocksInput)
     }
 
     @Test
-    fun nextStrokeUnavailableWhenEveryReferenceStrokeHasInk() {
+    fun nextStrokeWhenAllStrokesDrawnReturnsFullReferenceWithAnimateAll() {
         val sample =
             WritingSample(
                 List(3) {
                     InkStroke(listOf(InkPoint(0f, 0f, 0L), InkPoint(1f, 1f, 1L)), InkTool.Finger)
                 },
             )
-        assertNull(hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference)))
+        val hint = hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference))
+        assertNotNull(hint)
+        assertEquals(reference, hint!!.overlay)
+        assertEquals(HintPlayback.AnimateAll, hint.playback)
+        assertTrue(!hint.blocksInput)
+    }
+
+    @Test
+    fun fromKeyIsResilientWithFallbackAndAliases() {
+        assertEquals(HintMode.NextStroke, HintMode.fromKey(null))
+        assertEquals(HintMode.NextStroke, HintMode.fromKey("unknown"))
+        assertEquals(HintMode.NextStroke, HintMode.fromKey(" next_stroke "))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("FULL_CHARACTER"))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("full"))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("full_kanji"))
+
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(null))
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey("unknown"))
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(" reading "))
+        assertEquals(TaskClueMode.Translation, TaskClueMode.fromKey("TRANSLATION"))
+        assertEquals(TaskClueMode.None, TaskClueMode.fromKey("none"))
     }
 }

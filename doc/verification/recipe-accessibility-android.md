@@ -2,7 +2,7 @@
 
 ## Реализация
 
-`RecipeLibraryScreen` объединяет неинтерактивное содержимое карточки через стабильный `semantics(mergeDescendants = true)`: название, материалы и сводка доступны вместе с именованными действиями «Переместить выше/ниже». Тело карточки открывает просмотр RECIPE.02 (именованное действие «Открыть рецепт…», цель не меньше 48 dp). Постоянной радиокнопки выбора и overflow-меню на карточке нет: рецепт для тренировки выбирается на `HOME.01`. Сама карточка не получает `OnClick` на корневом узле.
+`RecipeLibraryScreen` объединяет неинтерактивное содержимое карточки через стабильный `semantics(mergeDescendants = true)`: название, материалы и сводка доступны вместе с именованными действиями «Переместить выше/ниже». Тело карточки сразу открывает редактирование RECIPE.01.01 (именованное действие «Открыть рецепт…», цель не меньше 48 dp; отдельный экран просмотра RECIPE.02 выведен). Постоянной радиокнопки выбора и overflow-меню на карточке нет: рецепт для тренировки выбирается на `HOME.01`. Сама карточка не получает `OnClick` на корневом узле.
 
 Выбор семантики сверён через Context7 с официальными разделами Compose [semantics](https://developer.android.com/develop/ui/compose/accessibility/semantics), [merging](https://developer.android.com/develop/ui/compose/accessibility/merging-clearing) и [testing](https://developer.android.com/develop/ui/compose/accessibility/testing). Использованы стабильные API текущего UI/Foundation; версии и opt-in не менялись. Интерактивные дочерние элементы не очищаются через `clearAndSetSemantics`.
 

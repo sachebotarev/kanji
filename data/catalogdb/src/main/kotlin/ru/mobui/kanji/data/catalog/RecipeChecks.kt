@@ -16,7 +16,9 @@ internal fun installRecipeChecks(db: SupportSQLiteDatabase) {
                 "NEW.is_archived IN (0,1) AND (NEW.is_archived=0 OR NEW.is_active=0) AND " +
                 "NEW.revision>0 AND NEW.selection_mode='shuffled_cycles' AND " +
                 "(NEW.task_count IS NULL OR NEW.task_count>0) AND " +
-                "(NEW.seconds_per_symbol IS NULL OR NEW.seconds_per_symbol>0)"
+                "(NEW.seconds_per_symbol IS NULL OR NEW.seconds_per_symbol>0) AND " +
+                "NEW.hint_mode IN ('translation','reading','none') AND " +
+                "NEW.stroke_hint_mode IN ('next_stroke','full_character')"
             ),
         "recipes_translations" to
             "length(trim(NEW.language_tag))>0 AND length(trim(NEW.name)) BETWEEN 1 AND 120",

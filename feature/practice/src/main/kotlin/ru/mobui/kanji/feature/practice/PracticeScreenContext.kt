@@ -130,7 +130,13 @@ internal data class PracticeScreenContext(
     overlay = state.hint?.overlay,
     animateOverlay =
         state.hint?.playback ==
-            ru.mobui.kanji.domain.practice.HintPlayback.AnimateOnce,
+            ru.mobui.kanji.domain.practice.HintPlayback.AnimateOnce ||
+            state.hint?.playback ==
+                ru.mobui.kanji.domain.practice.HintPlayback.AnimateAll,
+    animateAllStrokes =
+        state.hint?.playback ==
+            ru.mobui.kanji.domain.practice.HintPlayback.AnimateAll,
+    fullHintHoldMillis = state.fullHintDisplayMillis.toLong(),
     overlayAsError =
         state.hint?.style == ru.mobui.kanji.domain.practice.HintOverlayStyle.Exhausted,
     comparisonOverlay =
@@ -185,7 +191,13 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
             Column(
                 Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp),
             ) {
-                WordPrompt(word = wordLabel ?: practice.task.russianWord)
+                WordPrompt(
+                    word = wordLabel ?: practice.task.russianWord,
+                    revealed = state.translationRevealed,
+                    enabled = actionsEnabled,
+                ) {
+                    onAction(PracticeAction.RevealTranslation)
+                }
                 WordReading(
                     practice.task.reading,
                     revealed = state.readingRevealed,
@@ -327,7 +339,10 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
                 PracticeFeedback(state)
                 val cell = selected
                 PracticeActions(
-                    enabled = actionsEnabled && practice.isResolved,
+                    actionsEnabled = actionsEnabled,
+                    isComplete = practice.isComplete,
+                    isResolved = practice.isResolved,
+                    isTimedOut = practice.timedOut,
                     checking = state.isChecking,
                     undoEnabled =
                         actionsEnabled &&
@@ -348,12 +363,7 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
                                 !practice.timedOut &&
                                 !state.gestureActive &&
                                 reference != null &&
-                                cell?.strokeHintsExhausted != true &&
-                                (cell.status == EntryStatus.Correct ||
-                                    state.hint != null ||
-                                    state.hintMode !=
-                                        ru.mobui.kanji.domain.practice.HintMode.NextStroke ||
-                                    cell.sample.strokeCount < reference.strokes.size)
+                                cell?.strokeHintsExhausted != true
                         },
                     hintMode = state.hintMode,
                     strokeHintCount = cell?.strokeHintCount ?: 0,

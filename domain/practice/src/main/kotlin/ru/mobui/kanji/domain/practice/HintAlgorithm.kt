@@ -7,8 +7,28 @@ import ru.mobui.kanji.domain.handwriting.WritingSample
 enum class HintMode {
     /** Pale full reference under the user's ink (toggle). */
     FullCharacter,
-    /** Animate the next missing stroke once, then clear. */
-    NextStroke,
+    /** Strokes up to the next missing one: earlier strokes at once, the next one animated. */
+    NextStroke;
+
+    /** Value stored in `stroke_hint_mode`. */
+    val storageKey: String
+        get() =
+            when (this) {
+                FullCharacter -> "full_character"
+                NextStroke -> "next_stroke"
+            }
+
+    companion object {
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): HintMode {
+            if (key == null) return NextStroke
+            return when (key.trim().lowercase()) {
+                "next_stroke" -> NextStroke
+                "full_character", "full", "full_kanji" -> FullCharacter
+                else -> NextStroke
+            }
+        }
+    }
 }
 
 /** A strategy receives neutral geometry, never a KanjiVG asset or UI widget. */
@@ -20,6 +40,8 @@ enum class HintPlayback {
     Static,
     /** Draw the overlay stroke once (UI animates), then the host clears the hint. */
     AnimateOnce,
+    /** Draw all strokes sequentially in accelerated tempo, hold for display time, then clear. */
+    AnimateAll,
 }
 
 enum class HintOverlayStyle {
@@ -53,18 +75,28 @@ class TraceReferenceHint : HintAlgorithm {
 }
 
 /**
- * Shows only the next reference stroke after the strokes the learner already drew. Unavailable when
- * every reference stroke already has a user stroke.
+ * Shows the reference strokes up to the next missing stroke. The strokes already drawn are shown
+ * immediately, and the next stroke is animated. When every reference stroke has already been drawn
+ * (and the sign is not correct), returns the full reference with [HintPlayback.AnimateAll] to animate
+ * drawing of the whole kanji in accelerated tempo.
  */
 class NextStrokeHint : HintAlgorithm {
     override fun create(request: HintRequest): HintPresentation? {
         val next = request.sample.strokeCount
         val strokes = request.reference.strokes
-        if (next >= strokes.size) return null
-        return HintPresentation(
-            overlay = ReferenceDrawing(listOf(strokes[next])),
-            blocksInput = false,
-            playback = HintPlayback.AnimateOnce,
-        )
+        if (strokes.isEmpty()) return null
+        return if (next < strokes.size) {
+            HintPresentation(
+                overlay = ReferenceDrawing(strokes.take(next + 1)),
+                blocksInput = false,
+                playback = HintPlayback.AnimateOnce,
+            )
+        } else {
+            HintPresentation(
+                overlay = request.reference,
+                blocksInput = false,
+                playback = HintPlayback.AnimateAll,
+            )
+        }
     }
 }

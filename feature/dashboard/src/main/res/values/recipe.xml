@@ -28,6 +28,25 @@
     <string name="recipe_no_timer">Без ограничения</string>
     <string name="recipe_timer">Ограничить время</string>
     <string name="recipe_timer_hint">Лимит слова = секунды × число символов для письма</string>
+    <string name="recipe_hints">Подсказка</string>
+    <string name="recipe_hints_title">Подсказка в задании</string>
+    <string name="recipe_hint_translation">Перевод</string>
+    <string name="recipe_hint_reading">Чтение</string>
+    <string name="recipe_hint_none">Без подсказок</string>
+    <string name="recipe_hint_translation_description">Перевод скрыт и открывается как подсказка. Чтение показано</string>
+    <string name="recipe_hint_reading_description">Чтение скрыто и открывается как подсказка. Перевод показан</string>
+    <string name="recipe_hint_none_description">Перевод и чтение показаны сразу. Без штрафа к результату</string>
+    <string name="recipe_detail_hint_translation">Перевод как подсказка</string>
+    <string name="recipe_detail_hint_reading">Чтение как подсказка</string>
+    <string name="recipe_detail_hint_none">Без подсказок</string>
+    <string name="recipe_stroke_hints">Подсказка знака</string>
+    <string name="recipe_stroke_hints_title">Тип подсказки знака</string>
+    <string name="recipe_stroke_hint_next_stroke">Следующая черта</string>
+    <string name="recipe_stroke_hint_full_kanji">Весь кандзи</string>
+    <string name="recipe_stroke_hint_next_stroke_description">Сразу отображаются нарисованные черты, а следующая плавно дорисовывается</string>
+    <string name="recipe_stroke_hint_full_kanji_description">Бледный эталон кандзи целиком под вашим рисунком</string>
+    <string name="recipe_detail_stroke_hint_next_stroke">Следующая черта</string>
+    <string name="recipe_detail_stroke_hint_full_kanji">Весь кандзи</string>
     <string name="recipe_param_show_help">Показать пояснение: %1$s</string>
     <string name="recipe_param_hide_help">Скрыть пояснение: %1$s</string>
     <string name="recipe_number_error">Введите целое положительное число</string>

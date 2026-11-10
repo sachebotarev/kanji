@@ -13,6 +13,13 @@ class HintScoringTest {
     }
 
     @Test
+    fun zeroMaxHintsGivesFullScoreWhenCorrectWithNoHints() {
+        assertEquals(1.0, practiceSymbolPoints(TrainingSymbolStatus.Correct, 0, 0), 1e-9)
+        assertEquals(0.0, practiceSymbolPoints(TrainingSymbolStatus.Incorrect, 0, 0), 1e-9)
+        assertEquals(0.0, practiceSymbolPoints(TrainingSymbolStatus.Incorrect, 1, 0), 1e-9)
+    }
+
+    @Test
     fun wordPointsAveragesPracticeSymbolsAndAppliesReadingFactor() {
         val task =
             TrainingTask(
@@ -32,6 +39,94 @@ class HintScoringTest {
             )
         // avg(2/3, 1) × 0.85
         assertEquals((2.0 / 3.0 + 1.0) / 2.0 * 0.85, task.wordPoints(3), 1e-9)
+    }
+
+    @Test
+    fun wordPointsAppliesTranslationFactor() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本",
+                reading = "にほん",
+                translations = listOf(TrainingTaskTranslation("ru", "Япония")),
+                status = TrainingTaskStatus.Assisted,
+                readingHintUsed = false,
+                translationHintUsed = true,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                    ),
+            )
+        // 1.0 × 0.85
+        assertEquals(0.85, task.wordPoints(3), 1e-9)
+    }
+
+    @Test
+    fun wordPointsWithoutHintsHasNoPenaltyOnResult() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本",
+                reading = "にほん",
+                translations = listOf(TrainingTaskTranslation("ru", "Япония")),
+                status = TrainingTaskStatus.Correct,
+                readingHintUsed = false,
+                translationHintUsed = false,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                        symbol("1", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                    ),
+            )
+        // avg(1, 1) × 1.0 × 1.0 = 1.0 (no penalty)
+        assertEquals(1.0, task.wordPoints(3), 1e-9)
+    }
+
+    @Test
+    fun wordPointsForTimedOutAwardsPartialCreditForCorrectKanji() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本",
+                reading = "にほん",
+                translations = listOf(TrainingTaskTranslation("ru", "Япония")),
+                status = TrainingTaskStatus.TimedOut,
+                readingHintUsed = false,
+                translationHintUsed = false,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                        symbol("1", TrainingSymbolRole.Practice, TrainingSymbolStatus.Incorrect, 0),
+                    ),
+            )
+        // (1.0 + 0.0) / 2 = 0.50
+        assertEquals(0.50, task.wordPoints(3), 1e-9)
+    }
+
+    @Test
+    fun wordPointsForSkippedAwardsPartialCreditForCorrectKanji() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本語",
+                reading = "にほんご",
+                translations = listOf(TrainingTaskTranslation("ru", "Японский язык")),
+                status = TrainingTaskStatus.Skipped,
+                readingHintUsed = true,
+                translationHintUsed = false,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                        symbol("1", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 1),
+                        symbol("2", TrainingSymbolRole.Practice, TrainingSymbolStatus.Empty, 0),
+                    ),
+            )
+        // avg(1.0, 2/3, 0.0) * 0.85 = (5/3 / 3) * 0.85 = (5/9) * 0.85 ≈ 0.4722
+        assertEquals((1.0 + 2.0 / 3.0 + 0.0) / 3.0 * 0.85, task.wordPoints(3), 1e-9)
     }
 
     private fun symbol(

@@ -51,7 +51,7 @@ class LocalizationTest {
     fun russianSettingsDiagnosticsAndRulesAreLocalized() {
         show("ru")
         val expected =
-            "Настройки проверки\nНеверно\nЧерты с пропущенным крючком\nДа\nЦентроид черт\n" +
+            "Калибровка формы кандзи\nНеверно\nЧерты с пропущенным крючком\nДа\nЦентроид черт\n" +
                 "Черта 1 должна быть короче черты 2.\nОтсутствует обязательный крючок в чертах: 2"
         compose
             .onNodeWithText(expected)
@@ -61,14 +61,14 @@ class LocalizationTest {
     @Test
     fun unsupportedLanguageFallsBackToRussian() {
         show("de")
-        compose.onNodeWithText("Настройки проверки", substring = true).assertExists()
+        compose.onNodeWithText("Калибровка формы кандзи", substring = true).assertExists()
     }
 
     @Test
     fun englishSettingsDiagnosticsAndRulesAreLocalized() {
         show("en")
         val expected =
-            "Recognition settings\nIncorrect\nStrokes with missing hooks\nYes\nStroke centroid\n" +
+            "Kanji shape calibration\nIncorrect\nStrokes with missing hooks\nYes\nStroke centroid\n" +
                 "Stroke 1 must be shorter than stroke 2.\nRequired hook missing from strokes: 2"
         compose
             .onNodeWithText(expected)

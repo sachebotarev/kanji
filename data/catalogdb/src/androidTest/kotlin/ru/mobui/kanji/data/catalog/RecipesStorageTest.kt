@@ -48,7 +48,7 @@ class RecipesStorageTest {
     @Test fun schemaUsesRecipeAndMaterialNamesWithoutLegacyConfigurationTables() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(7, sql.version)
+        assertEquals(12, sql.version)
         val tables = sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
             buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
         }
@@ -170,7 +170,7 @@ class RecipesStorageTest {
                 val db = CatalogDatabase.open(context, name)
                 try {
                     val sql = db.openHelper.writableDatabase
-                    assertEquals(7, sql.version)
+                    assertEquals(12, sql.version)
                     assertEquals(0, sql.query("SELECT name FROM sqlite_master WHERE name='old_marker'").use { it.count })
                     rejected { sql.execSQL("INSERT INTO dictionary_tags(color,position,created_at,updated_at) VALUES('invalid',0,0,0)") }
                     RoomCatalogRepository(db, instrumentation.context.assets, Dispatchers.IO).load()

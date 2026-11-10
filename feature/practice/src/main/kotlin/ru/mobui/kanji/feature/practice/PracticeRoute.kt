@@ -35,10 +35,9 @@ fun PracticeRoute(
     progressLabel: String? = null,
 ) {
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
-    val requestLeave: () -> Unit = {
+    BackHandler {
         if (!viewModel.uiState.value.gestureActive) confirmLeave = true
     }
-    BackHandler { requestLeave() }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val preview = viewModel.preview.collectAsStateWithLifecycle()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -62,7 +61,7 @@ fun PracticeRoute(
         activeStroke = { preview.value?.stroke },
         wordLabel = wordLabel,
         progressLabel = progressLabel,
-        onBack = requestLeave,
+        onBack = { confirmLeave = true },
     )
     if (confirmLeave) {
         AlertDialog(

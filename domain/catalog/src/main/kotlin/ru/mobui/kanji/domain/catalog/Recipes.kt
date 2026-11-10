@@ -38,6 +38,42 @@ data class RecipeMaterial(
     val jlptLevels: Set<Int> = emptySet(),
 )
 
+enum class RecipeHintMode(val key: String) {
+    Translation("translation"),
+    Reading("reading"),
+    None("none");
+
+    companion object {
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): RecipeHintMode {
+            if (key == null) return Reading
+            return when (key.trim().lowercase()) {
+                "translation" -> Translation
+                "reading" -> Reading
+                "none" -> None
+                else -> Reading
+            }
+        }
+    }
+}
+
+enum class RecipeStrokeHintMode(val key: String) {
+    NextStroke("next_stroke"),
+    FullCharacter("full_character");
+
+    companion object {
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): RecipeStrokeHintMode {
+            if (key == null) return NextStroke
+            return when (key.trim().lowercase()) {
+                "next_stroke" -> NextStroke
+                "full_character", "full", "full_kanji" -> FullCharacter
+                else -> NextStroke
+            }
+        }
+    }
+}
+
 data class RecipeName(val languageTag: String, val name: String)
 data class Recipe(
     val id: String,
@@ -45,6 +81,8 @@ data class Recipe(
     val materials: List<RecipeMaterial>,
     val taskCount: Int? = null,
     val secondsPerSymbol: Int? = null,
+    val hintMode: RecipeHintMode = RecipeHintMode.Reading,
+    val strokeHintMode: RecipeStrokeHintMode = RecipeStrokeHintMode.NextStroke,
     val isActive: Boolean = false,
     val revision: Long = 1,
 )

@@ -64,10 +64,12 @@ internal fun ReadingSpoiler(
     val haptics = LocalHapticFeedback.current
     val particleColor = MaterialTheme.colorScheme.onSurface
     // Snap closed on a new word; only animate when the learner opens the spoiler.
-    val revealProgress = remember(reading) { Animatable(1f) }
+    val revealProgress = remember(reading) { Animatable(if (revealed) 0f else 1f) }
     LaunchedEffect(reading, revealed) {
         if (revealed) {
-            revealProgress.animateTo(0f, animationSpec = tween(durationMillis = REVEAL_DURATION_MILLIS))
+            if (revealProgress.value > 0f) {
+                revealProgress.animateTo(0f, animationSpec = tween(durationMillis = REVEAL_DURATION_MILLIS))
+            }
         } else {
             revealProgress.snapTo(1f)
         }
@@ -133,7 +135,7 @@ internal fun ReadingSpoiler(
 }
 
 @Composable
-private fun SpoilerNoise(
+internal fun SpoilerNoise(
     progress: Float,
     revealed: Boolean,
     particleColor: Color,
@@ -266,8 +268,8 @@ private const val PARTICLE_COUNT = 1100
 private const val READING_SPOILER_SEED = 0x52EAD1A6
 private const val SPOILER_FRAME_COUNT = 8
 private const val SPOILER_FRAME_INTERVAL_MILLIS = 90L
-private const val REVEAL_DURATION_MILLIS = 380
-private const val SPOILER_VISIBILITY_THRESHOLD = 0.01f
+internal const val REVEAL_DURATION_MILLIS = 380
+internal const val SPOILER_VISIBILITY_THRESHOLD = 0.01f
 
 private const val PARTICLE_BASE_RADIUS = 0.9f
 private const val PARTICLE_RADIUS_SPREAD = 1.7f

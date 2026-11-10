@@ -2,6 +2,7 @@
 
 package ru.mobui.kanji.core.writingpad
 
+import android.os.SystemClock
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.size
@@ -18,6 +19,10 @@ import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.PointerType
 import androidx.compose.ui.input.pointer.isPrimaryPressed
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.mobui.kanji.domain.handwriting.InkPoint
 import ru.mobui.kanji.domain.handwriting.InkStroke
 import ru.mobui.kanji.domain.handwriting.InkTool
@@ -50,30 +55,122 @@ internal suspend fun PointerInputScope.capturePadGestures(
     version: ContentVersion,
     active: ActivePadGesture,
     publish: (PadEvent) -> Unit,
-) {
+) = coroutineScope {
     val inset = 8.dp.toPx()
-    awaitEachGesture {
-        val down = awaitFirstDown(requireUnconsumed = true)
-        val mouseAllowed = down.type != PointerType.Mouse || currentEvent.buttons.isPrimaryPressed
-        val side = minOf(size.width, size.height).toFloat() - 2 * inset
-        val bounds = Rect(inset, inset, inset + side, inset + side)
-        if (mouseAllowed && side > 0 && bounds.contains(down.position)) {
+    val touchSlop = viewConfiguration.touchSlop
+    val doubleTapTimeout = viewConfiguration.doubleTapTimeoutMillis
+    val longPressTimeout = viewConfiguration.longPressTimeoutMillis
+    var lastTwoFingerTapTime = 0L
+    var pendingUndoJob: Job? = null
+
+    fun flushPendingUndo() {
+        if (pendingUndoJob?.isActive == true) {
+            pendingUndoJob?.cancel()
+            pendingUndoJob = null
+            lastTwoFingerTapTime = 0L
+            publish(PadEvent.UndoRequested)
+        }
+    }
+
+    try {
+        awaitEachGesture {
+            val down = awaitFirstDown(requireUnconsumed = true)
+            val mouseAllowed = down.type != PointerType.Mouse || currentEvent.buttons.isPrimaryPressed
+            val side = minOf(size.width, size.height).toFloat() - 2 * inset
+            val bounds = Rect(inset, inset, inset + side, inset + side)
+            if (!mouseAllowed || side <= 0 || !bounds.contains(down.position)) {
+                return@awaitEachGesture
+            }
+
+            val initialPressed = currentEvent.changes.filter { it.pressed }
+            if (initialPressed.size >= 2) {
+                initialPressed.forEach { it.consume() }
+                val isTap = trackTwoFingerTap(bounds, touchSlop)
+                if (isTap) {
+                    val now = SystemClock.uptimeMillis()
+                    if (lastTwoFingerTapTime > 0L && (now - lastTwoFingerTapTime) <= doubleTapTimeout) {
+                        pendingUndoJob?.cancel()
+                        pendingUndoJob = null
+                        lastTwoFingerTapTime = 0L
+                        publish(PadEvent.ClearRequested)
+                    } else {
+                        lastTwoFingerTapTime = now
+                        pendingUndoJob?.cancel()
+                        pendingUndoJob = launch {
+                            delay(doubleTapTimeout)
+                            if (lastTwoFingerTapTime == now) {
+                                lastTwoFingerTapTime = 0L
+                                publish(PadEvent.UndoRequested)
+                            }
+                        }
+                    }
+                }
+                return@awaitEachGesture
+            }
+
             down.consume()
             val stroke = PadStroke(version, active.nextId(), down, bounds)
+            var longPressTriggered = false
+            val longPressJob = launch {
+                delay(longPressTimeout)
+                longPressTriggered = true
+                active.clear()
+                publish(PadEvent.GesturePreview(version, stroke.id, null))
+                publish(PadEvent.HintRequested)
+            }
             try {
                 stroke.append(down, active)
                 publish(stroke.preview())
-                trackPadStroke(stroke, active, publish)
+                val result =
+                    trackPadStroke(
+                        stroke = stroke,
+                        active = active,
+                        bounds = bounds,
+                        touchSlop = touchSlop,
+                        publish = publish,
+                        flushPendingUndo = ::flushPendingUndo,
+                        cancelLongPress = { longPressJob.cancel() },
+                        isLongPressTriggered = { longPressTriggered },
+                    )
+                if (result == StrokeResult.TwoFingerTap) {
+                    val now = SystemClock.uptimeMillis()
+                    if (lastTwoFingerTapTime > 0L && (now - lastTwoFingerTapTime) <= doubleTapTimeout) {
+                        pendingUndoJob?.cancel()
+                        pendingUndoJob = null
+                        lastTwoFingerTapTime = 0L
+                        publish(PadEvent.ClearRequested)
+                    } else {
+                        lastTwoFingerTapTime = now
+                        pendingUndoJob?.cancel()
+                        pendingUndoJob = launch {
+                            delay(doubleTapTimeout)
+                            if (lastTwoFingerTapTime == now) {
+                                lastTwoFingerTapTime = 0L
+                                publish(PadEvent.UndoRequested)
+                            }
+                        }
+                    }
+                }
             } finally {
+                longPressJob.cancel()
                 active.clear()
                 publish(PadEvent.GesturePreview(version, stroke.id, null))
             }
         }
+    } finally {
+        flushPendingUndo()
     }
 }
 
+private enum class StrokeResult {
+    Finished,
+    Cancelled,
+    TwoFingerTap,
+    LongPress,
+}
+
 private class PadStroke(
-    private val version: ContentVersion,
+    val version: ContentVersion,
     val id: Long,
     val down: PointerInputChange,
     val bounds: Rect,
@@ -110,21 +207,119 @@ private class PadStroke(
 private suspend fun AwaitPointerEventScope.trackPadStroke(
     stroke: PadStroke,
     active: ActivePadGesture,
+    bounds: Rect,
+    touchSlop: Float,
     publish: (PadEvent) -> Unit,
-) {
+    flushPendingUndo: () -> Unit,
+    cancelLongPress: () -> Unit,
+    isLongPressTriggered: () -> Boolean,
+): StrokeResult {
     val startSize = size
-    var tracking = true
-    while (tracking) {
-        val change = awaitPointerEvent().changes.firstOrNull { it.id == stroke.down.id }
+    val downPos = stroke.down.position
+    var movedPastSlop = false
+
+    while (true) {
+        val event = awaitPointerEvent()
+        val pressedPointers = event.changes.filter { it.pressed }
+
+        if (pressedPointers.size >= 2) {
+            cancelLongPress()
+            return if (!movedPastSlop && !isLongPressTriggered()) {
+                active.clear()
+                publish(PadEvent.GesturePreview(stroke.version, stroke.id, null))
+                event.changes.forEach { it.consume() }
+                val isTap = trackTwoFingerTap(bounds, touchSlop)
+                if (isTap) StrokeResult.TwoFingerTap else StrokeResult.Cancelled
+            } else {
+                StrokeResult.Cancelled
+            }
+        }
+
+        val change = event.changes.firstOrNull { it.id == stroke.down.id }
         val valid =
             change != null &&
                 size == startSize &&
                 !change.isConsumed
-        if (valid) {
-            requireNotNull(change).consume()
-            stroke.append(change, active)
-            if (change.pressed) publish(stroke.preview()) else publish(stroke.finished())
-            tracking = change.pressed
-        } else tracking = false
+        if (!valid) {
+            cancelLongPress()
+            return StrokeResult.Cancelled
+        }
+
+        val currentChange = requireNotNull(change)
+        currentChange.consume()
+
+        if (isLongPressTriggered()) {
+            if (!currentChange.pressed) {
+                return StrokeResult.LongPress
+            }
+            continue
+        }
+
+        val dx = currentChange.position.x - downPos.x
+        val dy = currentChange.position.y - downPos.y
+        if (dx * dx + dy * dy > touchSlop * touchSlop) {
+            if (!movedPastSlop) {
+                movedPastSlop = true
+                cancelLongPress()
+                flushPendingUndo()
+            }
+        }
+        stroke.append(currentChange, active)
+        if (currentChange.pressed) {
+            publish(stroke.preview())
+        } else {
+            cancelLongPress()
+            flushPendingUndo()
+            publish(stroke.finished())
+            return StrokeResult.Finished
+        }
+    }
+}
+
+private suspend fun AwaitPointerEventScope.trackTwoFingerTap(
+    bounds: Rect,
+    touchSlop: Float,
+    maxDurationMs: Long = 300L,
+): Boolean {
+    val initialPointers = currentEvent.changes.filter { it.pressed }
+    if (initialPointers.size != 2) return false
+    val p0 = initialPointers[0]
+    val p1 = initialPointers[1]
+    if (!bounds.contains(p0.position) || !bounds.contains(p1.position)) return false
+    val p0Id = p0.id
+    val p1Id = p1.id
+    val p0Start = p0.position
+    val p1Start = p1.position
+    val startTime = SystemClock.uptimeMillis()
+    val maxSlopSq = (touchSlop * 2) * (touchSlop * 2)
+
+    while (true) {
+        val event = awaitPointerEvent()
+        val changes = event.changes
+        if (changes.count { it.pressed } > 2) {
+            changes.forEach { it.consume() }
+            return false
+        }
+        val currentTime = SystemClock.uptimeMillis()
+        if (currentTime - startTime > maxDurationMs) {
+            changes.forEach { it.consume() }
+            return false
+        }
+        for (change in changes) {
+            if (change.id == p0Id) {
+                val dx = change.position.x - p0Start.x
+                val dy = change.position.y - p0Start.y
+                if (dx * dx + dy * dy > maxSlopSq) return false
+            }
+            if (change.id == p1Id) {
+                val dx = change.position.x - p1Start.x
+                val dy = change.position.y - p1Start.y
+                if (dx * dx + dy * dy > maxSlopSq) return false
+            }
+            change.consume()
+        }
+        if (changes.none { it.pressed }) {
+            return true
+        }
     }
 }

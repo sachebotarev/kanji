@@ -38,6 +38,8 @@ data class PracticeState(
     val gestureActive: Boolean = false,
     /** Reading spoiler opened once for this word; does not mark a kanji cell. */
     val readingHintUsed: Boolean = false,
+    /** Translation spoiler opened once for this word; does not mark a kanji cell. */
+    val translationHintUsed: Boolean = false,
     /**
      * Word deadline hit: unsettled practice cells are Incorrect, input frozen, «Далее» unlocks;
      * [result] is still null until submit.
@@ -150,7 +152,7 @@ class HandwritingTraining(task: PracticeTask) {
         if (
             state.result != null ||
                 state.timedOut ||
-                (state.isComplete && !state.gestureActive)
+                (state.isResolved && !state.gestureActive)
         )
             return
         val remaining = state.task.timeLimitMs?.minus(state.elapsedMs) ?: Long.MAX_VALUE
@@ -172,7 +174,7 @@ class HandwritingTraining(task: PracticeTask) {
 
     /**
      * Freezes the word at the deadline: Empty/Editing practice cells become Incorrect so «Далее»
-     * unlocks; Correct/Incorrect/Prefilled stay. Opens the reading spoiler for scoring/UI.
+     * unlocks; Correct/Incorrect/Prefilled stay. Does not mark text spoilers as used.
      * Does not emit [PracticeResult] until [submit].
      */
     private fun settleTimedOut() {
@@ -180,7 +182,6 @@ class HandwritingTraining(task: PracticeTask) {
         state =
             state.copy(
                 timedOut = true,
-                readingHintUsed = true,
                 gestureActive = false,
                 cells =
                     state.cells.map { cell ->
@@ -197,6 +198,7 @@ class HandwritingTraining(task: PracticeTask) {
             state.isComplete -> {
                 val assisted =
                     state.readingHintUsed ||
+                        state.translationHintUsed ||
                         state.cells.any {
                             it.task.mode == EntryMode.User && it.strokeHintCount > 0
                         }
@@ -206,7 +208,7 @@ class HandwritingTraining(task: PracticeTask) {
         }
     }
 
-    fun skip() = finish(AnswerStatus.Skipped)
+    fun skip() = finish(if (state.timedOut) AnswerStatus.TimedOut else AnswerStatus.Skipped)
 
     private fun finish(status: AnswerStatus) {
         if (state.result != null) return
@@ -231,6 +233,7 @@ class HandwritingTraining(task: PracticeTask) {
                         },
                         state.elapsedMs,
                         readingHintUsed = state.readingHintUsed,
+                        translationHintUsed = state.translationHintUsed,
                     ),
             )
     }

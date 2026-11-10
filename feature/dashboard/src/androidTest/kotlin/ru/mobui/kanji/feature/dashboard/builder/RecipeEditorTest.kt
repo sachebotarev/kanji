@@ -197,4 +197,78 @@ class RecipeEditorTest {
         compose.onNodeWithTag("recipe-saving").assertExists()
         compose.runOnIdle { assertEquals(1, calls) }
     }
+
+    @Test fun hintModeSegmentedButtonChangesAndSavesSelectedMode() {
+        var result: Recipe? = null
+        compose.setContent { KanjiTheme { RecipeEditorScreen(initial, snapshot, emptyList(), emptyList(), "ru", { result = it }, {}, {}, {}) } }
+        section(2)
+        compose.onNodeWithTag("recipe-hint-reading").assertIsSelected()
+        click("recipe-hint-translation")
+        compose.onNodeWithTag("recipe-hint-translation").assertIsSelected()
+        click("recipe-save")
+        compose.runOnIdle { assertEquals(ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation, result!!.hintMode) }
+    }
+
+    @Test fun strokeHintModeSegmentedButtonChangesAndSavesSelectedMode() {
+        var result: Recipe? = null
+        compose.setContent { KanjiTheme { RecipeEditorScreen(initial, snapshot, emptyList(), emptyList(), "ru", { result = it }, {}, {}, {}) } }
+        section(2)
+        compose.onNodeWithTag("recipe-stroke-hint-next_stroke").assertIsSelected()
+        click("recipe-stroke-hint-full_character")
+        compose.onNodeWithTag("recipe-stroke-hint-full_character").assertIsSelected()
+        click("recipe-save")
+        compose.runOnIdle {
+            assertEquals(ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter, result!!.strokeHintMode)
+        }
+    }
+
+    @Test fun existingRecipeShowsDeleteMenuAndConfirmationDeletesRecipe() {
+        var deleted = false
+        compose.setContent {
+            KanjiTheme {
+                RecipeEditorScreen(
+                    initial = initial,
+                    snapshot = snapshot,
+                    tags = emptyList(),
+                    assignments = emptyList(),
+                    language = "ru",
+                    onSave = {},
+                    onBack = {},
+                    onWord = {},
+                    onManageTags = {},
+                    onDelete = { deleted = true }
+                )
+            }
+        }
+        compose.onNodeWithTag("recipe-menu").assertExists()
+        click("recipe-menu")
+        compose.onNodeWithTag("recipe-delete").assertExists()
+        click("recipe-delete")
+        compose.onNodeWithTag("delete-confirm").assertExists()
+        click("delete-confirm")
+        compose.runOnIdle {
+            assertTrue(deleted)
+        }
+    }
+
+    @Test fun newRecipeHidesDeleteMenu() {
+        val blankRecipe = initial.copy(id = "")
+        compose.setContent {
+            KanjiTheme {
+                RecipeEditorScreen(
+                    initial = blankRecipe,
+                    snapshot = snapshot,
+                    tags = emptyList(),
+                    assignments = emptyList(),
+                    language = "ru",
+                    onSave = {},
+                    onBack = {},
+                    onWord = {},
+                    onManageTags = {},
+                    onDelete = {}
+                )
+            }
+        }
+        compose.onNodeWithTag("recipe-menu").assertDoesNotExist()
+    }
 }

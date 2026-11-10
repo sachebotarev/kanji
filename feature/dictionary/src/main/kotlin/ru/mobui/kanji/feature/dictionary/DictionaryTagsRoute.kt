@@ -65,7 +65,7 @@ internal fun DictionaryTagsRoute(repository: RecipesRepository, sessionKey: Stri
                 onManage = if (state.manage) null else ({ model.manage(true) }))
         }, manage = state.manage, busy = state.busy, loading = state.loading, error = state.error,
         onRetry = model::retry, onEdit = { editId = it }, usageCounts = state.usageCounts,
-        onDelete = { deleteId = it })
+        onDelete = { deleteId = it }, onCreate = { editId = 0L })
     editId?.let { id ->
         val tag = state.tags.firstOrNull { it.id == id }
         val base = if (language.startsWith("en")) "en" else "ru"

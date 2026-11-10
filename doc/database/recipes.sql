@@ -11,6 +11,8 @@ CREATE TABLE recipes (
     task_count INTEGER CHECK(task_count IS NULL OR task_count > 0),
     selection_mode TEXT NOT NULL DEFAULT 'shuffled_cycles' CHECK(selection_mode = 'shuffled_cycles'),
     seconds_per_symbol INTEGER CHECK(seconds_per_symbol IS NULL OR seconds_per_symbol > 0),
+    hint_mode TEXT NOT NULL DEFAULT 'reading' CHECK(hint_mode IN ('translation', 'reading', 'none')),
+    stroke_hint_mode TEXT NOT NULL DEFAULT 'next_stroke' CHECK(stroke_hint_mode IN ('next_stroke', 'full_character')),
     revision INTEGER NOT NULL DEFAULT 1 CHECK(revision > 0),
     is_archived INTEGER NOT NULL DEFAULT 0 CHECK(is_archived IN (0, 1)),
     created_at INTEGER NOT NULL,

@@ -29,10 +29,10 @@ data class TrainingSummary(
  */
 fun Training.summarize(
     languageTag: String = "ru",
-    maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,
+    maxHintsPerKanji: Int = maxNextStrokeHints,
 ): TrainingSummary {
     require(tasks.isNotEmpty())
-    require(maxHintsPerKanji > 0)
+    require(maxHintsPerKanji >= 0)
     var correct = 0
     var assisted = 0
     var skipped = 0

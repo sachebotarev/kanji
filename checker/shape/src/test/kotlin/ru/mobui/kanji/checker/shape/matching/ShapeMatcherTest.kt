@@ -94,6 +94,7 @@ class ShapeMatcherTest {
         val incomplete = checker.checkWithDetails(request.copy(sample = sample(cross.take(1))))
         assertEquals(CheckVerdict.Incomplete, incomplete.verdict)
         assertNotNull(incomplete.matchPercent)
+        assertTrue(incomplete.failures.contains(CheckFailure.StrokeCount(1, 2)))
     }
 
     @Test

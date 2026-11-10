@@ -1,16 +1,51 @@
 <resources>
     <string name="settings_title">Настройки</string>
     <string name="settings_back">Назад</string>
-    <string name="settings_checker">Проверка кандзи</string>
-    <string name="settings_checker_detail">Точность, допуски и правила</string>
+
+    <string name="settings_group_flow">Ход тренировки</string>
+    <string name="setting_auto_advance_kanji">Автопереход к следующему кандзи</string>
+    <string name="help_auto_advance_kanji">Переход к следующему знаку после верного написания текущего.</string>
+    <string name="setting_auto_advance">Автопереход к следующему слову</string>
+    <string name="help_auto_advance">Переход к следующему слову после верного написания или по истечении таймера.</string>
+    <string name="setting_on">Вкл</string>
+    <string name="setting_off">Выкл</string>
+
+    <string name="settings_group_hint">Подсказки</string>
+    <string name="setting_max_next_stroke_hints">Количество подсказок</string>
+    <string name="help_max_next_stroke_hints">Количество доступных подсказок на знак (0–12). При превышении знак считается неверным.</string>
+    <string name="setting_count_value">%1$d</string>
+    <string name="setting_full_hint_display">Время показа полного знака</string>
+    <string name="help_full_hint_display">Время показа эталона знака перед его скрытием.</string>
+    <string name="setting_millis_value">%1$d мс</string>
+
+    <string name="settings_group_checkers">Модули проверки</string>
+    <string name="check_readability">Читаемость</string>
+    <string name="help_readability">Распознавание рукописного ввода моделью ML Kit.</string>
+    <string name="readability_model_required">Требуется загрузка японской модели</string>
+    <string name="check_writing">Порядок и направление черт</string>
+    <string name="help_writing">Проверка порядка и направления начертания черт.</string>
+    <string name="check_shape">Форма знака</string>
+    <string name="help_shape">Геометрическое сравнение формы знака с эталоном.</string>
+
     <string name="settings_japanese_model">Японская языковая модель</string>
     <string name="settings_model_loaded">Загружена</string>
     <string name="settings_model_loading">Загружается…</string>
     <string name="settings_model_missing">Не загружена · Скачать</string>
+
+    <string name="settings_group_calibration">Калибровка формы кандзи</string>
+    <string name="settings_checker">Калибровка формы кандзи</string>
+    <string name="settings_checker_detail">Пороги совпадения формы, допуски трансформаций и компенсаций</string>
+
+    <string name="settings_group_data">Данные и память</string>
     <string name="settings_clear_history">Очистить историю тренировок</string>
     <string name="settings_clear_history_detail">Удалить все сохранённые тренировки</string>
     <string name="settings_clear_history_title">Очистить историю?</string>
     <string name="settings_clear_history_message">Все сохранённые тренировки будут удалены безвозвратно.</string>
     <string name="settings_clear_history_confirm">Очистить</string>
     <string name="settings_cancel">Отмена</string>
+
+    <string name="help_expand">Показать справку: %1$s</string>
+    <string name="help_collapse">Скрыть справку: %1$s</string>
+    <string name="help_expanded">Справка открыта</string>
+    <string name="help_collapsed">Справка скрыта</string>
 </resources>

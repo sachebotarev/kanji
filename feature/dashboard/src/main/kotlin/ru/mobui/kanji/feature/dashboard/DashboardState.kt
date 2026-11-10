@@ -1,12 +1,12 @@
 package ru.mobui.kanji.feature.dashboard
 
 data class VocabularyOverview(
-    val textbookCount: Int,
-    val activeTextbooks: Int,
-    val personalTotal: Int?,
-    val personalLearned: Int,
-    val personalErrors: Int,
-    val personalAssisted: Int,
+    val textbookCount: Int = 0,
+    val activeTextbooks: Int = 0,
+    val personalTotal: Int? = null,
+    val personalLearned: Int = 0,
+    val personalErrors: Int = 0,
+    val personalAssisted: Int = 0,
 )
 
 data class DashboardState(

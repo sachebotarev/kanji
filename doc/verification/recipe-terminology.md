@@ -40,7 +40,7 @@
 
 Два native drag-теста полного набора (68 тестов) остаются неисправны: `longPressDragCommitsAndCancellationDoesNotCommit` и `platformDragAutoScrollsBeyondInitialViewportAndCommitsOnce`. Источник штатного переноса расположен на родителе, а новая кликабельная область карточки потребляет Down; штатный long-press не начинает перенос. Обработка жестов не переписывалась ради терминологического рефакторинга, experimental API не вводились. Предыдущие успешные drag-отчёты не доказывают исправность текущей карточки.
 
-Выведенные ID (`RECIPE.02.01`, бывшие `TRAIN.01.02.02`/`TRAIN.01.02.03` и виджеты) учитываются в `check-project-map.py` как история, а не как живые виджеты; `screens.json` допускает статус `retired`.
+Выведенные ID (`RECIPE.02`, `RECIPE.02.01`, бывшие `TRAIN.01.02.02`/`TRAIN.01.02.03` и виджеты) учитываются в `check-project-map.py` как история, а не как живые виджеты; `screens.json` допускает статус `retired`.
 
 ## Воспроизведение
 

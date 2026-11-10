@@ -28,9 +28,11 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -54,6 +56,7 @@ import ru.mobui.kanji.domain.handwriting.ReferencePoint
 @Composable
 fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Modifier = Modifier) {
     val currentOnEvent by rememberUpdatedState(onEvent)
+    val haptics = LocalHapticFeedback.current
     val active = remember { ActivePadGesture() }
     var canvasSize by remember { mutableStateOf(IntSize.Zero) }
     val density = LocalDensity.current
@@ -76,7 +79,7 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
     val hintSegment = remember { Path() }
     val overlayProgress = remember { Animatable(1f) }
     val overlayAlpha = remember { Animatable(0.25f) }
-    LaunchedEffect(state.overlay, state.animateOverlay) {
+    LaunchedEffect(state.overlay, state.animateOverlay, state.animateAllStrokes) {
         if (state.overlay == null) {
             overlayProgress.snapTo(1f)
             overlayAlpha.snapTo(0.25f)
@@ -89,10 +92,26 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
         }
         overlayProgress.snapTo(0f)
         overlayAlpha.snapTo(1f)
-        overlayProgress.animateTo(1f, animationSpec = tween(700, easing = LinearEasing))
-        delay(220)
-        overlayAlpha.animateTo(0f, animationSpec = tween(320))
-        currentOnEvent(PadEvent.HintPlaybackFinished)
+        val strokeCount = state.overlay.strokes.size
+        if (state.animateAllStrokes && strokeCount > 0) {
+            val strokeDuration = 180
+            val totalDuration = strokeCount * strokeDuration
+            overlayProgress.animateTo(
+                targetValue = strokeCount.toFloat(),
+                animationSpec = tween(totalDuration, easing = LinearEasing),
+            )
+            val hold = state.fullHintHoldMillis.coerceAtLeast(0L)
+            if (hold > 0) {
+                delay(hold)
+            }
+            overlayAlpha.animateTo(0f, animationSpec = tween(320))
+            currentOnEvent(PadEvent.HintPlaybackFinished)
+        } else {
+            overlayProgress.animateTo(1f, animationSpec = tween(700, easing = LinearEasing))
+            delay(220)
+            overlayAlpha.animateTo(0f, animationSpec = tween(320))
+            currentOnEvent(PadEvent.HintPlaybackFinished)
+        }
     }
     val shape = RoundedCornerShape(16.dp)
     val label = stringResource(R.string.writing_pad_label)
@@ -106,6 +125,7 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
             progress = progress,
             alpha = alpha,
             animate = state.animateOverlay,
+            animateAll = state.animateAllStrokes,
             asError = state.overlayAsError,
             measure = hintMeasure,
             segment = hintSegment,
@@ -122,8 +142,17 @@ fun KanjiWritingPad(state: PadUiState, onEvent: (PadEvent) -> Unit, modifier: Mo
                 if (!state.inputEnabled) disabled()
             }
             .pointerInput(state.version, state.inputEnabled, canvasSize, inset) {
-                if (state.inputEnabled)
-                    capturePadGestures(state.version, active) { currentOnEvent(it) }
+                if (state.inputEnabled) {
+                    capturePadGestures(state.version, active) { event ->
+                        if (event is PadEvent.UndoRequested ||
+                            event is PadEvent.ClearRequested ||
+                            event is PadEvent.HintRequested
+                        ) {
+                            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+                        }
+                        currentOnEvent(event)
+                    }
+                }
             },
     ) {
         val side = size.minDimension - inset * 2
@@ -266,16 +295,41 @@ private fun DrawScope.drawPadContent(
     val side = size.minDimension - inset * 2
     if (overlay.animate) {
         val yellow = OVERLAY_ANIMATED_COLOR.copy(alpha = overlay.alpha)
-        paths.overlay.forEach { (path, start) ->
-            drawPartialInk(
-                path,
-                start,
-                yellow,
-                metrics.strokeWidth * OVERLAY_ANIMATE_WIDTH_FACTOR,
-                overlay.progress,
-                overlay.measure,
-                overlay.segment,
-            )
+        if (overlay.animateAll) {
+            paths.overlay.forEachIndexed { index, (path, start) ->
+                val strokeProgress = (overlay.progress - index).coerceIn(0f, 1f)
+                if (strokeProgress > 0f) {
+                    drawPartialInk(
+                        path,
+                        start,
+                        yellow,
+                        metrics.strokeWidth * OVERLAY_ANIMATE_WIDTH_FACTOR,
+                        strokeProgress,
+                        overlay.measure,
+                        overlay.segment,
+                    )
+                }
+            }
+            if (paths.numbers.isNotEmpty()) {
+                val visibleNumbers =
+                    paths.numbers.filter { it.first.number <= overlay.progress + PROGRESS_EPSILON }
+                if (visibleNumbers.isNotEmpty()) {
+                    drawStrokeLabels(visibleNumbers, inset, side, alpha = overlay.alpha)
+                }
+            }
+        } else {
+            paths.overlay.forEachIndexed { index, (path, start) ->
+                val strokeProgress = if (index < paths.overlay.lastIndex) 1f else overlay.progress
+                drawPartialInk(
+                    path,
+                    start,
+                    yellow,
+                    metrics.strokeWidth * OVERLAY_ANIMATE_WIDTH_FACTOR,
+                    strokeProgress,
+                    overlay.measure,
+                    overlay.segment,
+                )
+            }
         }
     } else if (overlay.asError) {
         paths.overlay.forEach { (path, start) ->
@@ -303,6 +357,7 @@ private fun DrawScope.drawStrokeLabels(
     numbers: List<Pair<ru.mobui.kanji.domain.handwriting.ReferenceStrokeNumber, TextLayoutResult>>,
     inset: Float,
     side: Float,
+    alpha: Float = 1f,
 ) {
     numbers.forEach { (position, layout) ->
         drawText(
@@ -318,6 +373,7 @@ private fun DrawScope.drawStrokeLabels(
                         (inset + side - layout.size.height).coerceAtLeast(inset),
                     ),
                 ),
+            alpha = alpha,
         )
     }
 }
@@ -362,6 +418,7 @@ private data class PadOverlayRender(
     val progress: Float,
     val alpha: Float,
     val animate: Boolean,
+    val animateAll: Boolean = false,
     val asError: Boolean,
     val measure: PathMeasure,
     val segment: Path,

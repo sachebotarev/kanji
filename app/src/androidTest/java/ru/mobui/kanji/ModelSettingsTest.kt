@@ -13,7 +13,6 @@ import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.domain.practice.RecognitionSettings
-import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
 import ru.mobui.kanji.feature.settings.SettingsScreen
 
 class ModelSettingsTest {
@@ -27,12 +26,12 @@ class ModelSettingsTest {
                 SettingsScreen({}, {}, onClearTrainingHistory = { cleared++ })
             }
         }
-        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history").performScrollTo().performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertExists()
         compose.onNodeWithTag("clear-training-history-cancel").performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
         compose.runOnIdle { assertEquals(0, cleared) }
-        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history").performScrollTo().performClick()
         compose.onNodeWithTag("clear-training-history-confirm").performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, cleared) }
@@ -74,11 +73,11 @@ class ModelSettingsTest {
             mutableStateOf(RecognitionSettings.touchInput().copy(readabilityEnabled = false))
         compose.setContent {
             KanjiTheme {
-                CheckerSettingsScreen(
-                    settings.value,
-                    { settings.value = it },
-                    {},
-                    {},
+                SettingsScreen(
+                    onBack = {},
+                    onOpenChecker = {},
+                    settings = settings.value,
+                    onChangeSettings = { settings.value = it },
                     readabilityAvailable = ready.value,
                 )
             }

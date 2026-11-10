@@ -19,6 +19,13 @@ const recipeCopy={
   noWords:'По этим фильтрам слов нет. Измените условия.',add:'Добавить',apply:'Применить',remove:'Убрать',
   trainingSettings:'Параметры тренировки',
   wordsLimit:'Заданий за рецепт',timeLimit:'Время на одно слово',unlimited:'Без таймера',limited:'Ограничить',
+  recipeHintsTitle:'Подсказка в задании',hintTranslation:'Перевод',hintReading:'Чтение',hintNone:'Без подсказок',
+  hintTranslationDesc:'Перевод скрыт и открывается как подсказка. Чтение показано',
+  hintReadingDesc:'Чтение скрыто и открывается как подсказка. Перевод показан',
+  hintNoneDesc:'Перевод и чтение показаны сразу. Без штрафа к результату',
+  recipeStrokeHintsTitle:'Тип подсказки знака',strokeHintNextStroke:'Следующая черта',strokeHintFullKanji:'Весь кандзи',
+  strokeHintNextStrokeDesc:'Сразу отображаются нарисованные черты, а следующая плавно дорисовывается',
+  strokeHintFullKanjiDesc:'Бледный эталон кандзи целиком под вашим рисунком',
   count:'Количество заданий',seconds:'Секунд на символ',preview:'Итого',unique:'Уникальные слова в наборе',
   tasks:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'задание':new Intl.PluralRules('ru').select(n)==='few'?'задания':'заданий'}`,
   poolSize:'По числу слов',setCount:'Задать число',allWords:'Весь набор',secondsValue:n=>`${n} с`,
@@ -58,6 +65,13 @@ const recipeCopy={
   noWords:'No words match these filters. Change the conditions.',add:'Add',apply:'Apply',remove:'Remove',
   trainingSettings:'Training settings',
   wordsLimit:'Tasks per recipe',timeLimit:'Time per symbol',unlimited:'No timer',limited:'Set limit',
+  recipeHintsTitle:'Prompt hint',hintTranslation:'Translation',hintReading:'Reading',hintNone:'No hints',
+  hintTranslationDesc:'Translation is hidden as a hint. Reading is shown',
+  hintReadingDesc:'Reading is hidden as a hint. Translation is shown',
+  hintNoneDesc:'Both translation and reading are shown. No penalty to score',
+  recipeStrokeHintsTitle:'Character hint type',strokeHintNextStroke:'Next stroke',strokeHintFullKanji:'Full kanji',
+  strokeHintNextStrokeDesc:'Drawn strokes are shown immediately while the next stroke is smoothly drawn',
+  strokeHintFullKanjiDesc:'Pale reference of the full kanji under your ink',
   count:'Task count',seconds:'Seconds per symbol',preview:'Summary',unique:'Unique words in the pool',
   tasks:n=>`${n} ${n===1?'task':'tasks'}`,poolSize:'Match word count',setCount:'Set count',allWords:'Entire pool',
   secondsValue:n=>`${n} s`,available:n=>`Available: ${t('wordCount')(n)}`,tasksCount:n=>`Tasks: ${n}`,
@@ -245,8 +259,8 @@ function planCardView(p,mode='library'){
  const isMaster=excellentRecipeIds.has(p.id);
  const tasks=p.task_count===null?t('allWordsCount')(planWords(p).length):t('tasks')(p.task_count);
  const time=p.seconds_per_symbol===null?t('unlimited'):t('perWord')(p.seconds_per_symbol);
- const cardAction=pick?'start':'view';
- const label=pick?t('launch'):t('viewRecipe');
+ const cardAction=pick?'start':'edit';
+ const label=pick?t('launch'):t('editRecipe');
 
  if(pick){
   return `<article class="plan-card plan-card-plain plan-card-pick" data-id="${p.id}" data-mode="pick">
@@ -333,10 +347,27 @@ function trainingPickView(){
 }
 function recipeDirty(){return recipeDraft&&JSON.stringify(recipeDraft)!==recipeOriginal;}
 function recipeLeave(next){showModal(t('unsaved'),`<p>${t('unsavedText')}</p>`,[{label:t('cancel'),fn:closeModal},{label:t('leaveUnsaved'),danger:true,fn:()=>{recipeDraft=null;go(next)}}]);}
-function initRecipe(id,next='recipe-editor'){recipeWordsOrigin='recipe-editor';expandedEditorMaterials=false;removedRecipeSource=null;const p=recipes.find(p=>p.id===id);recipeDraft=p?structuredClone(p):{id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null};recipeOriginal=JSON.stringify(recipeDraft);showRecipeWords=false;if(next)go(next);}
+function initRecipe(id,next='recipe-editor'){recipeWordsOrigin='recipe-editor';expandedEditorMaterials=false;removedRecipeSource=null;const p=recipes.find(p=>p.id===id);recipeDraft=p?structuredClone(p):{id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null,hint_mode:'reading',stroke_hint_mode:'next_stroke'};recipeOriginal=JSON.stringify(recipeDraft);showRecipeWords=false;if(next)go(next);}
 
+function recipeHintsControl(mode='reading'){
+ const options=[
+  {key:'translation',label:t('hintTranslation'),desc:t('hintTranslationDesc')},
+  {key:'reading',label:t('hintReading'),desc:t('hintReadingDesc')},
+  {key:'none',label:t('hintNone'),desc:t('hintNoneDesc')}
+ ];
+ const current=options.find(o=>o.key===mode)||options[1];
+ return `<div class="recipe-limit" data-limit-setting="hint_mode"><h4>${t('recipeHintsTitle')}</h4><div class="limit-choices" role="group" aria-label="${t('recipeHintsTitle')}">${options.map(opt=>`<button type="button" aria-pressed="${opt.key===mode}" data-tr="hint-mode" data-value="${opt.key}">${escapeHTML(opt.label)}</button>`).join('')}</div><p class="recipe-param-help" data-tr="hint-help">${escapeHTML(current.desc)}</p></div>`;
+}
+function recipeStrokeHintsControl(mode='next_stroke'){
+ const options=[
+  {key:'next_stroke',label:t('strokeHintNextStroke'),desc:t('strokeHintNextStrokeDesc')},
+  {key:'full_character',label:t('strokeHintFullKanji'),desc:t('strokeHintFullKanjiDesc')}
+ ];
+ const current=options.find(o=>o.key===mode)||options[0];
+ return `<div class="recipe-limit" data-limit-setting="stroke_hint_mode"><h4>${t('recipeStrokeHintsTitle')}</h4><div class="limit-choices" role="group" aria-label="${t('recipeStrokeHintsTitle')}">${options.map(opt=>`<button type="button" aria-pressed="${opt.key===mode}" data-tr="stroke-hint-mode" data-value="${opt.key}">${escapeHTML(opt.label)}</button>`).join('')}</div><p class="recipe-param-help" data-tr="stroke-hint-help">${escapeHTML(current.desc)}</p></div>`;
+}
 
-function openRecipeDetail(id){viewingId=id;recipeDraft=null;go('recipe-detail');}
+function openRecipeDetail(id){viewingId=id;recipeDraft=null;initRecipe(id);}
 function limitView(key,title,value,pool=0){
  const text=key==='task_count'?(value===null?t('allWordsCount')(pool):t('tasks')(value)):(value===null?t('unlimited'):t('perWord')(value));
  return `<div data-limit-view="${key}" class="recipe-detail-limit"><h4>${t(title)}</h4><p data-tr="detail-${key}">${escapeHTML(text)}</p></div>`;
@@ -359,7 +390,7 @@ function recipeDetailView(){
  const materials=p.sources.map((s,i)=>`<div class="source-row"><div class="source-row-body"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></div></div>`).join('');
  return `<div class="recipe-editor-screen recipe-detail-screen">${header(t('recipeDetail'),'recipes',menu)}<div class="recipe-content recipe-source-content"><label class="field recipe-name-field"><span>${t('name')}</span><div class="recipe-detail-title" data-tr="detail-name">${escapeHTML(planName(p))}</div></label><section><h3>${t('materials')}</h3><div class="source-list">${materials}</div>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitView('task_count','wordsLimit',p.task_count,ws.length)+limitView('seconds_per_symbol','timeLimit',p.seconds_per_symbol))}</div><div class="recipe-editor-footer"><button type="button" class="recipe-save-fab" data-tr="edit" data-id="${p.id}">${icon('edit')}${t('editFab')}</button></div></div>`;
 }
-function recipeEditorView(){if(!recipeDraft){recipeDraft={id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null};recipeOriginal=JSON.stringify(recipeDraft);}const p=recipeDraft,ws=planWords(p);const localName=p.translations.find(x=>x.language_tag===locale)?.name||'';return `<div class="recipe-editor-screen">`+header(t(p.id?'editRecipe':'newRecipe'),'recipes')+`<form id="recipe-form" class="recipe-content" novalidate><label class="field recipe-name-field"><span>${t('name')}</span><span class="recipe-name-input"><input id="recipe-name" maxlength="120" value="${escapeHTML(localName)}" placeholder="${t('nameHint')}"><button type="button" class="recipe-name-clear" data-tr="name-clear" aria-label="${t('clearName')}" ${localName?'':'hidden'}>${icon('close')}</button></span></label><section><h3>${t('materials')}</h3>${removedRecipeSource?`<div class="recipe-remove-notice"><span role="status">${t('materialRemoved')}</span><button type="button" class="text-button" data-tr="source-undo">${t('undo')}</button></div>`:''}<div class="source-list">${p.sources.map((s,i)=>`<div class="source-row" ${i>=3&&!expandedEditorMaterials?'hidden':''}><button type="button" data-tr="source-edit" data-index="${i}"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></button><button type="button" data-tr="source-remove" data-index="${i}" aria-label="${t('remove')} ${escapeHTML(sourceLabel(s))}">${icon('trash')}</button></div>`).join('')}</div>${p.sources.length>3?`<button type="button" class="text-button" data-tr="materials-toggle" aria-expanded="${expandedEditorMaterials}">${expandedEditorMaterials?t('lessMaterials'):t('moreMaterials')(p.sources.length-3)}</button>`:''}<button type="button" class="tonal-button full-width" data-tr="source-add">${icon('plus')}${t('addSource')}</button>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitControl('task_count','wordsLimit','count',p.task_count)+limitControl('seconds_per_symbol','timeLimit','seconds',p.seconds_per_symbol))}</form><div class="recipe-editor-footer"><button class="recipe-save-fab" type="submit" form="recipe-form" aria-label="${t('saveRecipe')}"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4ZM7 5h9v4H7V5Zm10 14H7v-6h10v6Z"/></svg>${t('saveRecipeShort')}</button></div></div>`;}
+function recipeEditorView(){if(!recipeDraft){recipeDraft={id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null,hint_mode:'reading',stroke_hint_mode:'next_stroke'};recipeOriginal=JSON.stringify(recipeDraft);}const p=recipeDraft,ws=planWords(p);const localName=p.translations.find(x=>x.language_tag===locale)?.name||'';const menu=p.id?`<span class="dictionary-word-menu-wrap"><button type="button" class="icon-button" data-tr="detail-menu" data-id="${p.id}" aria-label="${escapeHTML(t('menuLabel')(planName(p)))}" aria-haspopup="menu">${icon('more')}</button></span>`:'';return `<div class="recipe-editor-screen">`+header(t(p.id?'editRecipe':'newRecipe'),'recipes',menu)+`<form id="recipe-form" class="recipe-content" novalidate><label class="field recipe-name-field"><span>${t('name')}</span><span class="recipe-name-input"><input id="recipe-name" maxlength="120" value="${escapeHTML(localName)}" placeholder="${t('nameHint')}"><button type="button" class="recipe-name-clear" data-tr="name-clear" aria-label="${t('clearName')}" ${localName?'':'hidden'}>${icon('close')}</button></span></label><section><h3>${t('materials')}</h3>${removedRecipeSource?`<div class="recipe-remove-notice"><span role="status">${t('materialRemoved')}</span><button type="button" class="text-button" data-tr="source-undo">${t('undo')}</button></div>`:''}<div class="source-list">${p.sources.map((s,i)=>`<div class="source-row" ${i>=3&&!expandedEditorMaterials?'hidden':''}><button type="button" data-tr="source-edit" data-index="${i}"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></button><button type="button" data-tr="source-remove" data-index="${i}" aria-label="${t('remove')} ${escapeHTML(sourceLabel(s))}">${icon('trash')}</button></div>`).join('')}</div>${p.sources.length>3?`<button type="button" class="text-button" data-tr="materials-toggle" aria-expanded="${expandedEditorMaterials}">${expandedEditorMaterials?t('lessMaterials'):t('moreMaterials')(p.sources.length-3)}</button>`:''}<button type="button" class="tonal-button full-width" data-tr="source-add">${icon('plus')}${t('addSource')}</button>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitControl('task_count','wordsLimit','count',p.task_count)+limitControl('seconds_per_symbol','timeLimit','seconds',p.seconds_per_symbol)+recipeHintsControl(p.hint_mode||'reading')+recipeStrokeHintsControl(p.stroke_hint_mode||'next_stroke'))}</form><div class="recipe-editor-footer"><button class="recipe-save-fab" type="submit" form="recipe-form" aria-label="${t('saveRecipe')}"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4ZM7 5h9v4H7V5Zm10 14H7v-6h10v6Z"/></svg>${t('saveRecipeShort')}</button></div></div>`;}
 function recipeWordsView(){
  const viewedSource=recipes.find(x=>x.id===viewingId)?.sources?.[viewingSourceIndex];
  const ws=recipeWordsOrigin==='recipe-source'&&sourceDraft?sourceWords(sourceDraft)
@@ -394,7 +425,7 @@ function saveRecipe(){const p=recipeDraft;clearRecipeErrors();
  if(!p.translations.some(x=>x.name.trim()))showRecipeFieldError('#recipe-name',t('missingName'));
  for(const key of ['task_count','seconds_per_symbol'])if(p[key]!==null&&(!Number.isSafeInteger(p[key])||p[key]<1||p[key]>2147483647))showRecipeFieldError(`[data-limit="${key}"]`,t('invalidLimits'));
  if(!p.sources.length||p.sources.some(s=>!sourceWords(s).length))showRecipeFieldError('[data-tr="source-add"]',t('needSource'));
- const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();else excellentRecipeIds.delete(p.id);const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');openRecipeDetail(saved.id);}
+ const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();else excellentRecipeIds.delete(p.id);const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');go('recipes');}
 
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-tr]');
@@ -438,9 +469,9 @@ document.addEventListener('click',e=>{
   (card.querySelector(`[data-tr="${a}"]:not(:disabled)`)||card.querySelector('.plan-accessible-actions button:not(:disabled)'))?.focus({preventScroll:true});
   $('.plan-announcement').textContent=t('movedPlan')(planName(recipes[to]),to+1);
  }
- if(a==='view'){
+ if(a==='view'||a==='edit'){
   if(Date.now()<suppressPlanClickUntil)return;
-   openRecipeDetail(b.dataset.id);
+  initRecipe(b.dataset.id);
  }
  if(a==='start'){
   if(Date.now()<suppressPlanClickUntil)return;
@@ -448,13 +479,16 @@ document.addEventListener('click',e=>{
   if(typeof resetPracticeSession==='function')resetPracticeSession();
   go('practice');
  }
- if(a==='edit'){
-   initRecipe(b.dataset.id);
- }
  if(a==='source-view'){viewingSourceIndex=Number(b.dataset.index);go('recipe-material-view');}
  if(a==='detail-menu'){
   const id=b.dataset.id,p=recipes.find(x=>x.id===id);
-  showModal(t('deleteRecipe'),`<p>${escapeHTML(planName(p))}</p><p>${t('deleteHint')}</p>`,[{label:t('cancel'),fn:closeModal},{label:t('delete'),danger:true,fn:()=>{recipes=recipes.filter(x=>x.id!==id);if(selectedRecipeId===id)selectedRecipeId=null;viewingId=null;closeModal();go('recipes');}}]);
+  showModal(t('deleteRecipe'),`<p>${escapeHTML(planName(p))}</p><p>${t('deleteHint')}</p>`,[{label:t('cancel'),fn:closeModal},{label:t('delete'),danger:true,fn:()=>{recipes=recipes.filter(x=>x.id!==id);if(selectedRecipeId===id)selectedRecipeId=null;recipeDraft=null;viewingId=null;closeModal();go('recipes');}}]);
+ }
+ if(a==='hint-mode'){
+  if(recipeDraft){recipeDraft.hint_mode=b.dataset.value;render();}
+ }
+ if(a==='stroke-hint-mode'){
+  if(recipeDraft){recipeDraft.stroke_hint_mode=b.dataset.value;render();}
  }
  if(a==='source-add'||a==='source-edit'){sourceIndex=a==='source-edit'?Number(b.dataset.index):null;sourceDraft=sourceIndex===null?newMaterialDraft():structuredClone(recipeDraft.sources[sourceIndex]);resetMaterialPicker();if(sourceIndex===null)sourceDraft.type='book';go('recipe-source');}
  if(a==='source-apply')applyRecipeSource();
