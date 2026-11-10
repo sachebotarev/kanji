@@ -14,7 +14,7 @@
 
 - `training_task_symbols.hint_request_count` на practice-символах;
 - `training_tasks.reading_hint_used`;
-- лимит `H` = `RecognitionSettings.maxNextStrokeHints` (по умолчанию 3).
+- лимит `H` = `training.maxNextStrokeHints` (сохраняется в агрегате `Training` из `RecognitionSettings.maxNextStrokeHints` при старте, по умолчанию 3). По умолчанию `Training.summarize()` использует этот сохранённый лимит, обеспечивая воспроизводимость оценки как сразу после прохождения, так и при открытии из истории тренировок.
 
 Незавершённые (`pending` / `in_progress`) на экране итога не ожидаются.
 

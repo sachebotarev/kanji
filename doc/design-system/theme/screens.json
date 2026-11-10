@@ -1052,12 +1052,12 @@
         {
           "language_tag": "ru",
           "title": "Настройки",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "changes": "Разделение настроек: ход тренировки, подсказки, модули проверки (ML Kit), калибровка формы кандзи (только develop), очистка истории."
         },
         {
           "language_tag": "en",
           "title": "Settings",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "changes": "Separation of settings: training flow, hints, check modules (ML Kit), kanji shape calibration (develop-only), clear history."
         }
       ],
       "feature": "settings",
@@ -1075,13 +1075,13 @@
       "translations": [
         {
           "language_tag": "ru",
-          "title": "Параметры проверки",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "title": "Калибровка формы кандзи",
+          "changes": "Калибровка формы кандзи: пороги совпадения, трансформации, компенсации, бюджет, правила структуры черт (только develop-сборка)."
         },
         {
           "language_tag": "en",
-          "title": "Checker settings",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "title": "Kanji shape calibration",
+          "changes": "Kanji shape calibration: match thresholds, transformations, compensations, budget, stroke structure rules (develop build only)."
         }
       ],
       "feature": "settings",
