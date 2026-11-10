@@ -70,6 +70,7 @@
     <string name="debug_shear">Shear compensation: %1$+.2f°</string>
     <string name="debug_shear_error">Shear: %1$+.2f°; limit %2$.2f°.</string>
     <string name="checker_settings_title">Kanji shape calibration</string>
+    <string name="checker_settings_menu">Calibration menu</string>
     <string name="checker_settings_reset">Reset</string>
     <string name="checker_settings_preview">Current drawing</string>
     <string name="checker_preview_correct">Accepted</string>
@@ -116,8 +117,8 @@
     <string name="help_auto_advance">When on, a successfully completed word opens the next one immediately. Timeout and skip still require tapping Next.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
-    <string name="setting_max_next_stroke_hints">Max hints</string>
-    <string name="help_max_next_stroke_hints">How many times the hint can be shown for one character. The recipe chooses full kanji or next stroke: strokes already drawn appear at once, and the next stroke is animated. Each show counts. When the limit is reached, the full character is drawn in red with stroke numbers and marked incorrect.</string>
+    <string name="setting_max_next_stroke_hints">Hint limit before failure</string>
+    <string name="help_max_next_stroke_hints">Maximum hint requests per character (applies to all hint modes: next stroke and full kanji). Reaching the limit fails the character: for example, with a value of 3, you get 2 helpful hints, and the 3rd request marks the character incorrect and reveals it in red.</string>
     <string name="setting_full_hint_display">Full-character display time</string>
     <string name="help_full_hint_display">How many milliseconds the full reference with stroke numbers stays on the pad after a tap. Then the hint hides itself; the button does not stay pressed.</string>
     <string name="setting_count_value">%1$d</string>

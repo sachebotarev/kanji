@@ -91,6 +91,11 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
                     valueOrDefault(MaxNextStrokeHints, defaults.maxNextStrokeHints),
                 fullHintDisplayMillis =
                     valueOrDefault(FullHintDisplayMillis, defaults.fullHintDisplayMillis),
+                autoAdvanceKanjiOnSuccess =
+                    valueOrDefault(
+                        AutoAdvanceKanjiOnSuccess,
+                        defaults.autoAdvanceKanjiOnSuccess,
+                    ),
                 autoAdvanceOnSuccess =
                     valueOrDefault(AutoAdvanceOnSuccess, defaults.autoAdvanceOnSuccess),
             )
@@ -122,6 +127,7 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
             values[HintModeKey] = value.hintMode.name
             values[MaxNextStrokeHints] = value.maxNextStrokeHints
             values[FullHintDisplayMillis] = value.fullHintDisplayMillis
+            values[AutoAdvanceKanjiOnSuccess] = value.autoAdvanceKanjiOnSuccess
             values[AutoAdvanceOnSuccess] = value.autoAdvanceOnSuccess
         }
     }
@@ -151,6 +157,7 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
         val HintModeKey = stringPreferencesKey("hintMode")
         val MaxNextStrokeHints = intPreferencesKey("maxNextStrokeHints")
         val FullHintDisplayMillis = intPreferencesKey("fullHintDisplayMillis")
+        val AutoAdvanceKanjiOnSuccess = booleanPreferencesKey("autoAdvanceKanjiOnSuccess")
         val AutoAdvanceOnSuccess = booleanPreferencesKey("autoAdvanceOnSuccess")
     }
 }

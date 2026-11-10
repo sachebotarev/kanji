@@ -481,6 +481,7 @@ class PracticeScreenTest {
             assertFalse(settings.value.readabilityEnabled)
             assertTrue(settings.value.shapeEnabled)
         }
+        compose.onNodeWithTag("checker-settings-menu").performClick()
         compose.onNodeWithTag("reset-checker-settings").performClick()
         compose.waitUntil(5_000) {
             vm.uiState.value.practice.cells[0].status == EntryStatus.Correct

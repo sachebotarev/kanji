@@ -52,6 +52,8 @@ class RecognitionSettingsRestorationTest {
                 readabilityEnabled = false,
                 shapeEnabled = true,
                 strokeWritingEnabled = false,
+                autoAdvanceKanjiOnSuccess = false,
+                autoAdvanceOnSuccess = true,
             )
         first.update(changed)
         val restored = model(handle)

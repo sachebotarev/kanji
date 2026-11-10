@@ -36,7 +36,7 @@ class CheckerSettingsNavigationTest {
         assertTrue(compose.openPracticePad())
         compose.onNodeWithTag("check-indicator-Shape").performClick()
         compose.onNodeWithTag("open-checker-settings").performClick()
-        compose.onNodeWithTag("reset-checker-settings").assertIsDisplayed()
+        compose.onNodeWithTag("checker-settings-menu").assertIsDisplayed()
         compose
             .onNodeWithTag("enable-writing-off")
             .performScrollTo()
@@ -47,6 +47,7 @@ class CheckerSettingsNavigationTest {
         compose.onNodeWithTag("check-indicator-Shape").performClick()
         compose.onNodeWithTag("open-checker-settings").performClick()
         compose.onNodeWithTag("enable-writing-off").performScrollTo().assertIsSelected()
+        compose.onNodeWithTag("checker-settings-menu").performClick()
         compose.onNodeWithTag("reset-checker-settings").performClick()
         compose.onNodeWithTag("enable-writing-off").performScrollTo().assertIsNotSelected()
         backToDashboard()

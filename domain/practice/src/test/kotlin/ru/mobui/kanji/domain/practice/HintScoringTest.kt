@@ -13,6 +13,13 @@ class HintScoringTest {
     }
 
     @Test
+    fun zeroMaxHintsGivesFullScoreWhenCorrectWithNoHints() {
+        assertEquals(1.0, practiceSymbolPoints(TrainingSymbolStatus.Correct, 0, 0), 1e-9)
+        assertEquals(0.0, practiceSymbolPoints(TrainingSymbolStatus.Incorrect, 0, 0), 1e-9)
+        assertEquals(0.0, practiceSymbolPoints(TrainingSymbolStatus.Incorrect, 1, 0), 1e-9)
+    }
+
+    @Test
     fun wordPointsAveragesPracticeSymbolsAndAppliesReadingFactor() {
         val task =
             TrainingTask(

@@ -1,6 +1,7 @@
 package ru.mobui.kanji.feature.practice
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,7 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -53,7 +55,12 @@ internal fun SettingHelp(
             Modifier.fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .testTag("help-toggle-$tag")
-                .clickable(role = Role.Button, onClickLabel = action) { expanded = !expanded }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    role = Role.Button,
+                    onClickLabel = action,
+                ) { expanded = !expanded }
                 .semantics { stateDescription = description },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),

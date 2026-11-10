@@ -70,6 +70,7 @@
     <string name="debug_shear">Компенсация перекоса: %1$+.2f°</string>
     <string name="debug_shear_error">Перекос: %1$+.2f°, допускается не больше %2$.2f°.</string>
     <string name="checker_settings_title">Калибровка формы кандзи</string>
+    <string name="checker_settings_menu">Меню калибровки</string>
     <string name="checker_settings_reset">Сбросить</string>
     <string name="checker_settings_preview">Текущий рисунок</string>
     <string name="checker_preview_correct">Принят</string>
@@ -116,8 +117,8 @@
     <string name="help_auto_advance">Если включено, после успешного заполнения слова сразу открывается следующее. При таймауте или пропуске «Далее» нажимается вручную.</string>
     <string name="setting_on">Вкл</string>
     <string name="setting_off">Выкл</string>
-    <string name="setting_max_next_stroke_hints">Максимум подсказок</string>
-    <string name="help_max_next_stroke_hints">Сколько раз можно нажать подсказку на одном знаке. Режим задаётся в рецепте: весь кандзи или следующая черта, у которой уже нарисованные черты видны сразу, а следующая дорисовывается. Каждое включение считается. При достижении лимита знак полностью дорисовывается красным с номерами черт и засчитывается как неверный.</string>
+    <string name="setting_max_next_stroke_hints">Лимит подсказок до провала</string>
+    <string name="help_max_next_stroke_hints">Лимит обращений к подсказкам на один знак (относится ко всем видам подсказок: и следующая черта, и весь кандзи). Обращение, на котором счётчик достигает лимита, приводит к провалу: например, при значении 3 доступны 2 подсказки, а 3-я признаёт знак неверным и дорисовывает его красным с номерами черт.</string>
     <string name="setting_full_hint_display">Время показа полного знака</string>
     <string name="help_full_hint_display">Сколько миллисекунд полный эталон с номерами черт остаётся на поле после нажатия. Затем подсказка сама скрывается; кнопка не остаётся нажатой.</string>
     <string name="setting_count_value">%1$d</string>

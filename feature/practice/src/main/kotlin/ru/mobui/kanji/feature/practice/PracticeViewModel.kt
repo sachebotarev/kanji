@@ -106,6 +106,7 @@ class PracticeViewModel(
     private val hintMode: () -> HintMode = { HintMode.FullCharacter },
     private val maxNextStrokeHints: () -> Int = { DEFAULT_MAX_NEXT_STROKE_HINTS },
     private val fullHintDisplayMillis: () -> Int = { DEFAULT_FULL_HINT_DISPLAY_MILLIS },
+    private val autoAdvanceKanjiOnSuccess: () -> Boolean = { true },
     private val autoAdvanceOnSuccess: () -> Boolean = { false },
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
@@ -315,7 +316,7 @@ class PracticeViewModel(
         }
         cancelCheck()
         val count = training.recordStrokeHint()
-        if (count >= maxNextStrokeHints()) {
+        if (count > maxNextStrokeHints()) {
             revealHintExhausted(cell.task.occurrenceId, reference)
         } else {
             val hint = hintAlgorithmFor(mode).create(HintRequest(cell.sample, reference)) ?: return
@@ -429,7 +430,9 @@ class PracticeViewModel(
                             if (report.verdict == CheckVerdict.Correct) {
                                 delay(CORRECT_HOLD_MILLIS)
                                 if (generation != coordinator.generation) return@launch
-                                advanceToNextUserCell(request.occurrenceId)
+                                if (autoAdvanceKanjiOnSuccess()) {
+                                    advanceToNextUserCell(request.occurrenceId)
+                                }
                                 publish(notice)
                                 maybeAutoSubmitOnSuccess()
                             }

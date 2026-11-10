@@ -2,6 +2,7 @@ package ru.mobui.kanji.feature.settings
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -98,6 +100,16 @@ fun SettingsScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     KanjiSectionTitle(stringResource(R.string.settings_group_flow))
                     BinaryChoiceRow(
+                        label = R.string.setting_auto_advance_kanji,
+                        help = R.string.help_auto_advance_kanji,
+                        checked = settings.autoAdvanceKanjiOnSuccess,
+                        tag = "auto-advance-kanji",
+                        allowEnable = true,
+                        onChange = {
+                            onChangeSettings(settings.copy(autoAdvanceKanjiOnSuccess = it))
+                        },
+                    )
+                    BinaryChoiceRow(
                         label = R.string.setting_auto_advance,
                         help = R.string.help_auto_advance,
                         checked = settings.autoAdvanceOnSuccess,
@@ -117,7 +129,7 @@ fun SettingsScreen(
                         help = R.string.help_max_next_stroke_hints,
                         tag = "max-next-stroke-hints",
                         value = settings.maxNextStrokeHints.toFloat(),
-                        range = 1f..12f,
+                        range = 0f..12f,
                         increment = 1f,
                         unit = R.string.setting_count_value,
                         onChange = { onChangeSettings(settings.copy(maxNextStrokeHints = it.roundToInt())) },
@@ -171,20 +183,20 @@ fun SettingsScreen(
                         )
                     }
                     BinaryChoiceRow(
-                        label = R.string.check_writing,
-                        help = R.string.help_writing,
-                        checked = settings.strokeWritingEnabled,
-                        tag = "enable-writing",
-                        allowEnable = true,
-                        onChange = { onChangeSettings(settings.copy(strokeWritingEnabled = it)) },
-                    )
-                    BinaryChoiceRow(
                         label = R.string.check_shape,
                         help = R.string.help_shape,
                         checked = settings.shapeEnabled,
                         tag = "enable-shape",
                         allowEnable = true,
                         onChange = { onChangeSettings(settings.copy(shapeEnabled = it)) },
+                    )
+                    BinaryChoiceRow(
+                        label = R.string.check_writing,
+                        help = R.string.help_writing,
+                        checked = settings.strokeWritingEnabled,
+                        tag = "enable-writing",
+                        allowEnable = true,
+                        onChange = { onChangeSettings(settings.copy(strokeWritingEnabled = it)) },
                     )
                 }
 
@@ -386,7 +398,12 @@ internal fun SettingHelp(
             Modifier.fillMaxWidth()
                 .heightIn(min = 48.dp)
                 .testTag("help-toggle-$tag")
-                .clickable(role = Role.Button, onClickLabel = action) { expanded = !expanded }
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = null,
+                    role = Role.Button,
+                    onClickLabel = action,
+                ) { expanded = !expanded }
                 .semantics { stateDescription = description },
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),

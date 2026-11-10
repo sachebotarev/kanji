@@ -276,10 +276,10 @@ private val HINT_BUDGET_CRITICAL_TINT = Color(0xFFE53935)
 private val HINT_BUDGET_WARNING_TINT = Color(0xFFFFC107)
 
 internal fun hintBudgetIconTint(used: Int, max: Int): Color? {
-    if (max <= 0) return null
+    if (max <= 0) return HINT_BUDGET_CRITICAL_TINT
     return when {
-        used >= max - 1 -> HINT_BUDGET_CRITICAL_TINT
-        used >= max / 2 -> HINT_BUDGET_WARNING_TINT
+        used >= max -> HINT_BUDGET_CRITICAL_TINT
+        used >= (max + 1) / 2 -> HINT_BUDGET_WARNING_TINT
         else -> null
     }
 }

@@ -1,6 +1,7 @@
 package ru.mobui.kanji.feature.practice
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,18 +12,26 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.selected
@@ -86,16 +95,18 @@ fun CheckerSettingsScreen(
 
 @Composable
 private fun SettingsHeader(onBack: () -> Unit, onReset: () -> Unit) {
+    var menuExpanded by rememberSaveable { mutableStateOf(false) }
+
     Row(
         Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
-        androidx.compose.material3.IconButton(
+        IconButton(
             onClick = onBack,
             modifier = Modifier.size(48.dp).testTag("checker-settings-back"),
         ) {
-            androidx.compose.material3.Icon(
-                painter = androidx.compose.ui.res.painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+            Icon(
+                painter = painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                 contentDescription = stringResource(R.string.back),
                 modifier = Modifier.size(24.dp),
             )
@@ -107,11 +118,31 @@ private fun SettingsHeader(onBack: () -> Unit, onReset: () -> Unit) {
             fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        TextButton(
-            onReset,
-            Modifier.heightIn(min = 48.dp).testTag("reset-checker-settings"),
-        ) {
-            Text(stringResource(R.string.checker_settings_reset))
+        Box {
+            IconButton(
+                onClick = { menuExpanded = true },
+                modifier = Modifier.size(48.dp).testTag("checker-settings-menu"),
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_more),
+                    contentDescription = stringResource(R.string.checker_settings_menu),
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+            DropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = { menuExpanded = false },
+                modifier = Modifier.testTag("checker-settings-dropdown"),
+            ) {
+                DropdownMenuItem(
+                    text = { Text(stringResource(R.string.checker_settings_reset)) },
+                    onClick = {
+                        menuExpanded = false
+                        onReset()
+                    },
+                    modifier = Modifier.testTag("reset-checker-settings"),
+                )
+            }
         }
     }
 }

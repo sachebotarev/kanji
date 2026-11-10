@@ -13,11 +13,16 @@ const val TRANSLATION_HINT_FACTOR = 0.85
  * [maxHints] is the configured per-character budget (`maxNextStrokeHints`).
  */
 fun practiceSymbolPoints(status: TrainingSymbolStatus, hintRequestCount: Int, maxHints: Int): Double {
-    require(maxHints > 0)
+    require(maxHints >= 0)
     return when (status) {
         TrainingSymbolStatus.Incorrect -> 0.0
-        TrainingSymbolStatus.Correct ->
-            max(0.0, 1.0 - hintRequestCount.toDouble() / maxHints.toDouble())
+        TrainingSymbolStatus.Correct -> {
+            if (maxHints == 0) {
+                if (hintRequestCount == 0) 1.0 else 0.0
+            } else {
+                max(0.0, 1.0 - hintRequestCount.toDouble() / maxHints.toDouble())
+            }
+        }
         TrainingSymbolStatus.Prefilled,
         TrainingSymbolStatus.Empty,
         TrainingSymbolStatus.Editing -> 0.0
@@ -29,7 +34,7 @@ fun practiceSymbolPoints(status: TrainingSymbolStatus, hintRequestCount: Int, ma
  * the kanji average × reading factor.
  */
 fun TrainingTask.wordPoints(maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINTS): Double {
-    require(maxHintsPerKanji > 0)
+    require(maxHintsPerKanji >= 0)
     return when (status) {
         TrainingTaskStatus.Skipped -> 0.0
         TrainingTaskStatus.TimedOut -> TIMED_OUT_WORD_POINTS

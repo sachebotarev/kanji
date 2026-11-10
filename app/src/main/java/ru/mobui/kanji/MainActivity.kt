@@ -83,6 +83,9 @@ class MainActivity : ComponentActivity() {
                             fullHintDisplayMillis = {
                                 settingsModel.settings.value.fullHintDisplayMillis
                             },
+                            autoAdvanceKanjiOnSuccess = {
+                                settingsModel.settings.value.autoAdvanceKanjiOnSuccess
+                            },
                             autoAdvanceOnSuccess = {
                                 settingsModel.settings.value.autoAdvanceOnSuccess
                             },

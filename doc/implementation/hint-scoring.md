@@ -30,7 +30,10 @@
 если status = incorrect (в т.ч. исчерпание лимита):
     cell = 0
 иначе если status = correct:
-    cell = max(0, 1 − k / H)
+    если H == 0:
+        cell = (1.0 при k == 0, иначе 0.0)
+    иначе:
+        cell = max(0, 1 − k / H)
 иначе:
     # editing/empty на итоговом слове не ожидаются
     cell = 0

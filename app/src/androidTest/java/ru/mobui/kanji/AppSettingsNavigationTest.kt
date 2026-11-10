@@ -30,7 +30,7 @@ class AppSettingsNavigationTest {
             .performClick()
             .assertIsSelected()
         compose.onNodeWithTag("open-app-checker-settings").performClick()
-        compose.onNodeWithTag("reset-checker-settings").assertIsDisplayed()
+        compose.onNodeWithTag("checker-settings-menu").assertIsDisplayed()
         back()
         compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("settings-screen").assertIsDisplayed()
