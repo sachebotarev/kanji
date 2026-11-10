@@ -11,11 +11,22 @@ data class PracticeCell(
     val revision: Long = 0,
     val elapsedMs: Long = 0,
     val hintUsed: Boolean = false,
+    /** Counted hint presses for this cell (FullCharacter and NextStroke share the budget). */
+    val strokeHintCount: Int = 0,
+    /** NextStroke hint budget exhausted: cell stays incorrect with a full red reveal. */
+    val strokeHintsExhausted: Boolean = false,
     val reference: ReferenceDrawing? = null,
     val referenceUnavailable: Boolean = false,
 ) {
     val isSatisfied: Boolean
         get() = status == EntryStatus.Correct || status == EntryStatus.Prefilled
+
+    /** Cell has a final Correct/Incorrect/Prefilled outcome (Next may unlock). */
+    val isSettled: Boolean
+        get() =
+            status == EntryStatus.Correct ||
+                status == EntryStatus.Incorrect ||
+                status == EntryStatus.Prefilled
 }
 
 data class PracticeState(
@@ -25,9 +36,21 @@ data class PracticeState(
     val elapsedMs: Long = 0,
     val result: PracticeResult? = null,
     val gestureActive: Boolean = false,
+    /** Reading spoiler opened once for this word; does not mark a kanji cell. */
+    val readingHintUsed: Boolean = false,
+    /**
+     * Word deadline hit: unsettled practice cells are Incorrect, input frozen, «Далее» unlocks;
+     * [result] is still null until submit.
+     */
+    val timedOut: Boolean = false,
 ) {
+    /** Every writable cell accepted. */
     val isComplete: Boolean
         get() = cells.all { it.isSatisfied }
+
+    /** Every cell is Correct, Incorrect, or Prefilled — «Далее» may finish the word. */
+    val isResolved: Boolean
+        get() = cells.all { it.isSettled }
 
     val selected: PracticeCell?
         get() = selectedIndex?.let(cells::get)
@@ -66,7 +89,11 @@ class HandwritingTraining(task: PracticeTask) {
             entries.addAll(refreshed)
         }
         state.cells.forEachIndexed { index, cell ->
-            if (cell.task.mode == EntryMode.User && cell.sample.strokeCount > 0) {
+            if (
+                cell.task.mode == EntryMode.User &&
+                    cell.sample.strokeCount > 0 &&
+                    !cell.strokeHintsExhausted
+            ) {
                 replace(
                     index,
                     cell.copy(status = EntryStatus.Editing, revision = cell.revision + 1),
@@ -79,7 +106,10 @@ class HandwritingTraining(task: PracticeTask) {
         if (state.result != null) emptyList()
         else
             state.cells
-                .filter { it.status == EntryStatus.Editing || it.status == EntryStatus.Incorrect }
+                .filter {
+                    !it.strokeHintsExhausted &&
+                        (it.status == EntryStatus.Editing || it.status == EntryStatus.Incorrect)
+                }
                 .map {
                     CheckRequest(
                         state.task.taskId,
@@ -95,6 +125,7 @@ class HandwritingTraining(task: PracticeTask) {
         val index = state.cells.indexOfFirst { it.task.occurrenceId == request.occurrenceId }
         val cell = state.cells.getOrNull(index) ?: return false
         if (cell.revision != request.revision || cell.sample !== request.sample) return false
+        if (cell.strokeHintsExhausted) return false
         replace(
             index,
             cell.copy(
@@ -116,7 +147,12 @@ class HandwritingTraining(task: PracticeTask) {
      */
     fun advanceTime(deltaMs: Long) {
         require(deltaMs >= 0)
-        if (state.result != null || (state.isComplete && !state.gestureActive)) return
+        if (
+            state.result != null ||
+                state.timedOut ||
+                (state.isComplete && !state.gestureActive)
+        )
+            return
         val remaining = state.task.timeLimitMs?.minus(state.elapsedMs) ?: Long.MAX_VALUE
         val delta = minOf(deltaMs, remaining)
         val selectedIndex = state.selectedIndex
@@ -130,16 +166,44 @@ class HandwritingTraining(task: PracticeTask) {
                     },
             )
         if (state.task.timeLimitMs != null && state.elapsedMs >= state.task.timeLimitMs!!) {
-            finish(AnswerStatus.TimedOut)
+            settleTimedOut()
         }
     }
 
-    fun submit() {
-        if (state.isComplete && !state.gestureActive)
-            finish(
-                if (state.cells.any { it.hintUsed }) AnswerStatus.Assisted
-                else AnswerStatus.Correct,
+    /**
+     * Freezes the word at the deadline: Empty/Editing practice cells become Incorrect so «Далее»
+     * unlocks; Correct/Incorrect/Prefilled stay. Opens the reading spoiler for scoring/UI.
+     * Does not emit [PracticeResult] until [submit].
+     */
+    private fun settleTimedOut() {
+        if (state.timedOut || state.result != null) return
+        state =
+            state.copy(
+                timedOut = true,
+                readingHintUsed = true,
+                gestureActive = false,
+                cells =
+                    state.cells.map { cell ->
+                        if (cell.task.mode != EntryMode.User || cell.isSettled) cell
+                        else cell.copy(status = EntryStatus.Incorrect)
+                    },
             )
+    }
+
+    fun submit() {
+        if (state.gestureActive || state.result != null || !state.isResolved) return
+        when {
+            state.timedOut -> finish(AnswerStatus.TimedOut)
+            state.isComplete -> {
+                val assisted =
+                    state.readingHintUsed ||
+                        state.cells.any {
+                            it.task.mode == EntryMode.User && it.strokeHintCount > 0
+                        }
+                finish(if (assisted) AnswerStatus.Assisted else AnswerStatus.Correct)
+            }
+            else -> finish(AnswerStatus.Skipped)
+        }
     }
 
     fun skip() = finish(AnswerStatus.Skipped)
@@ -161,17 +225,24 @@ class HandwritingTraining(task: PracticeTask) {
                                 it.status,
                                 it.elapsedMs,
                                 it.sample,
-                                it.hintUsed,
+                                it.hintUsed || it.strokeHintCount > 0,
+                                hintRequestCount = it.strokeHintCount,
                             )
                         },
                         state.elapsedMs,
+                        readingHintUsed = state.readingHintUsed,
                     ),
             )
     }
 
     internal fun edit(transform: (PracticeCell) -> PracticeCell) {
         val index = state.selectedIndex ?: return
-        if (state.result != null || state.cells[index].task.mode != EntryMode.User) return
+        if (
+            state.result != null ||
+                state.timedOut ||
+                state.cells[index].task.mode != EntryMode.User
+        )
+            return
         val current = state.cells[index]
         val entries = history.getValue(current.task.occurrenceId)
         entries.addLast(current)

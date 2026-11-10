@@ -19,21 +19,28 @@ import ru.mobui.kanji.domain.practice.CheckFailure
 import ru.mobui.kanji.domain.practice.CheckReport
 import ru.mobui.kanji.domain.practice.CheckRequest
 import ru.mobui.kanji.domain.practice.CheckVerdict
-import ru.mobui.kanji.domain.practice.HintAlgorithm
+import ru.mobui.kanji.domain.practice.HandwritingTraining
+import ru.mobui.kanji.domain.practice.HintMode
+import ru.mobui.kanji.domain.practice.HintOverlayStyle
+import ru.mobui.kanji.domain.practice.HintPlayback
 import ru.mobui.kanji.domain.practice.HintPresentation
 import ru.mobui.kanji.domain.practice.HintRequest
 import ru.mobui.kanji.domain.practice.KanjiChecker
 import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.KanjiReferenceSource
+import ru.mobui.kanji.domain.practice.EntryStatus
+import ru.mobui.kanji.domain.practice.PracticeCell
 import ru.mobui.kanji.domain.practice.PracticeResult
-import ru.mobui.kanji.domain.practice.HandwritingTraining
 import ru.mobui.kanji.domain.practice.PracticeState
 import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TraceReferenceHint
 import ru.mobui.kanji.domain.practice.addStroke
 import ru.mobui.kanji.domain.practice.clear
+import ru.mobui.kanji.domain.practice.exhaustStrokeHints
+import ru.mobui.kanji.domain.practice.hintAlgorithmFor
 import ru.mobui.kanji.domain.practice.nextUnsatisfiedUserIndex
-import ru.mobui.kanji.domain.practice.recordHintUsed
+import ru.mobui.kanji.domain.practice.recordReadingHint
+import ru.mobui.kanji.domain.practice.recordStrokeHint
 import ru.mobui.kanji.domain.practice.select
 import ru.mobui.kanji.domain.practice.setGestureActive
 import ru.mobui.kanji.domain.practice.setReference
@@ -46,6 +53,10 @@ data class PracticeUiState(
     val gestureActive: Boolean = false,
     val notice: PracticeNotice? = null,
     val hint: HintPresentation? = null,
+    val hintMode: HintMode = HintMode.FullCharacter,
+    val maxNextStrokeHints: Int = 3,
+    /** Word-level reading spoiler; once revealed it stays open for this task. */
+    val readingRevealed: Boolean = false,
     val debugFailures: List<CheckFailure> = emptyList(),
     val debugCompensation: CheckCompensation? = null,
     val debugEnabled: Boolean = false,
@@ -66,6 +77,9 @@ sealed interface PracticeAction {
 
     data object ToggleHint : PracticeAction
 
+    /** Tap on the spoiled reading; counts as one hint for the selected cell. */
+    data object RevealReading : PracticeAction
+
     data object Undo : PracticeAction
 
     data object Clear : PracticeAction
@@ -81,7 +95,10 @@ class PracticeViewModel(
     private val references: KanjiReferenceSource,
     private val checker: KanjiChecker,
     private val clock: () -> Long = SystemClock::elapsedRealtime,
-    private val hintAlgorithm: HintAlgorithm = TraceReferenceHint(),
+    private val hintMode: () -> HintMode = { HintMode.FullCharacter },
+    private val maxNextStrokeHints: () -> Int = { DEFAULT_MAX_NEXT_STROKE_HINTS },
+    private val fullHintDisplayMillis: () -> Int = { DEFAULT_FULL_HINT_DISPLAY_MILLIS },
+    private val autoAdvanceOnSuccess: () -> Boolean = { false },
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
     private var training = HandwritingTraining(task)
@@ -94,6 +111,7 @@ class PracticeViewModel(
     private var lastTick: Long? = null
     /** Last pad pulse while a gesture is active; used to clear a stuck gesture for MVP demos. */
     private var lastGesturePulse: Long? = null
+    private var fullHintHideJob: Job? = null
     private var screenActive = false
     private var resultDelivered = false
     private val coordinator = CheckCoordinator()
@@ -146,7 +164,12 @@ class PracticeViewModel(
         coordinator.clear()
         training = HandwritingTraining(task)
         mutableState.value =
-            PracticeUiState(training.state, debugEnabled = showCheckDiagnostics)
+            PracticeUiState(
+                training.state,
+                hintMode = hintMode(),
+                maxNextStrokeHints = maxNextStrokeHints(),
+                debugEnabled = showCheckDiagnostics,
+            )
         mutablePreview.value = null
         loadTaskReferences(task, references, viewModelScope) { id, drawing ->
             accountTime()
@@ -159,7 +182,8 @@ class PracticeViewModel(
     }
 
     fun onCheckerSettingsChanged() {
-        if (training.state.gestureActive || training.state.result != null) return
+        if (training.state.gestureActive || training.state.result != null || training.state.timedOut)
+            return
         cancelCheck()
         coordinator.clear()
         training.invalidateChecks()
@@ -173,48 +197,22 @@ class PracticeViewModel(
             publish()
             return
         }
+        // After the deadline: review cells (Select) or finish (Submit); edits stay frozen.
+        if (
+            training.state.timedOut &&
+                action !is PracticeAction.Submit &&
+                action !is PracticeAction.Select
+        ) {
+            publish()
+            return
+        }
         // UI actions must not commit or change cells under an unfinished gesture.
         if (training.state.gestureActive) return
         when (action) {
-            is PracticeAction.Select -> {
-                val previous = training.state.selectedIndex
-                training.select(action.index)
-                if (training.state.selectedIndex != previous)
-                    mutableState.value = mutableState.value.copy(hint = null)
-            }
-            PracticeAction.ToggleCompensatedDrawing -> {
-                if (
-                    !showCheckDiagnostics ||
-                        mutableState.value.debugReport?.compensatedDrawing == null
-                )
-                    return
-                mutableState.value =
-                    mutableState.value.copy(
-                        showCompensatedDrawing = !mutableState.value.showCompensatedDrawing,
-                    )
-            }
-            PracticeAction.ToggleHint -> {
-                if (mutableState.value.hint != null) {
-                    mutableState.value = mutableState.value.copy(hint = null)
-                } else {
-                    val cell = training.state.selected ?: return
-                    val hasReading = training.state.task.reading.isNotBlank()
-                    val reference = cell.reference
-                    val hint =
-                        reference?.let { hintAlgorithm.create(HintRequest(cell.sample, it)) }
-                            ?: if (hasReading) {
-                                HintPresentation(
-                                    ReferenceDrawing(emptyList()),
-                                    blocksInput = false,
-                                )
-                            } else {
-                                null
-                            }
-                    if (hint == null) return
-                    training.recordHintUsed()
-                    mutableState.value = mutableState.value.copy(hint = hint)
-                }
-            }
+            is PracticeAction.Select -> handleSelectAction(action)
+            PracticeAction.ToggleCompensatedDrawing -> handleToggleCompensatedDrawing()
+            PracticeAction.ToggleHint -> handleToggleHint()
+            PracticeAction.RevealReading -> handleRevealReading()
             PracticeAction.Undo -> {
                 cancelCheck()
                 training.undo()
@@ -230,41 +228,130 @@ class PracticeViewModel(
         scheduleCheck()
     }
 
+    private fun handleSelectAction(action: PracticeAction.Select) {
+        val previous = training.state.selectedIndex
+        training.select(action.index)
+        if (training.state.selectedIndex != previous) {
+            cancelFullHintHide()
+            mutableState.value =
+                mutableState.value.copy(hint = reviewHint(training.state.selected))
+        }
+    }
+
+    private fun handleToggleCompensatedDrawing() {
+        if (!showCheckDiagnostics || mutableState.value.debugReport?.compensatedDrawing == null) return
+        mutableState.value =
+            mutableState.value.copy(
+                showCompensatedDrawing = !mutableState.value.showCompensatedDrawing,
+            )
+    }
+
+    private fun handleRevealReading() {
+        if (mutableState.value.readingRevealed || training.state.task.reading.isBlank()) return
+        training.recordReadingHint()
+        mutableState.value = mutableState.value.copy(readingRevealed = true)
+    }
+
+    private fun handleToggleHint() {
+        val current = mutableState.value.hint
+        val mode = hintMode()
+        if (current != null) {
+            dismissOrRenewHint(current, mode)
+        } else {
+            activateHint(mode)
+        }
+    }
+
+    private fun dismissOrRenewHint(current: HintPresentation, mode: HintMode) {
+        if (current.style == HintOverlayStyle.Exhausted) return
+        // Full-character guide is momentary: retap only restarts the hide timer.
+        if (mode == HintMode.FullCharacter && current.style == HintOverlayStyle.Guide) {
+            scheduleFullHintHide()
+            return
+        }
+        cancelFullHintHide()
+        mutableState.value = mutableState.value.copy(hint = null)
+    }
+
+    private fun activateHint(mode: HintMode) {
+        val cell = training.state.selected ?: return
+        val reference = cell.reference ?: return
+        if (cell.strokeHintsExhausted) {
+            mutableState.value = mutableState.value.copy(hint = exhaustedHint(reference))
+            return
+        }
+        // Already correct: pale full reference only, never counts toward the budget.
+        if (cell.status == EntryStatus.Correct) {
+            val hint = TraceReferenceHint().create(HintRequest(cell.sample, reference)) ?: return
+            mutableState.value = mutableState.value.copy(hint = hint)
+            scheduleFullHintHide()
+            return
+        }
+        // Guide unavailable (e.g. every stroke already drawn in NextStroke).
+        if (mode == HintMode.NextStroke && hintAlgorithmFor(mode).create(HintRequest(cell.sample, reference)) == null) {
+            return
+        }
+        cancelCheck()
+        val count = training.recordStrokeHint()
+        if (count >= maxNextStrokeHints()) {
+            revealHintExhausted(cell.task.occurrenceId, reference)
+        } else {
+            val hint = hintAlgorithmFor(mode).create(HintRequest(cell.sample, reference)) ?: return
+            mutableState.value = mutableState.value.copy(hint = hint)
+            if (mode == HintMode.FullCharacter) scheduleFullHintHide()
+        }
+    }
+
     fun onPadEvent(event: PadEvent) {
         accountTime()
+        if (event is PadEvent.HintPlaybackFinished) {
+            if (mutableState.value.hint?.playback == HintPlayback.AnimateOnce) {
+                mutableState.value = mutableState.value.copy(hint = null)
+            }
+            return
+        }
+        if (training.state.result != null || training.state.timedOut) {
+            mutablePreview.value = null
+            lastGesturePulse = null
+            training.setGestureActive(false)
+            publish()
+            return
+        }
         if (mutableState.value.hint?.blocksInput == true) return
         val cell = training.state.selected
         when (event) {
-            is PadEvent.GesturePreview -> {
-                if (cell?.task?.occurrenceId != event.baseVersion.cellId) return
-                if (
-                    event.stroke != null &&
-                        (cell.revision != event.baseVersion.revision ||
-                            training.state.result != null)
-                )
-                    return
-                if (event.stroke == null && mutablePreview.value?.gestureId != event.gestureId)
-                    return
-                val wasActive = training.state.gestureActive
-                if (event.stroke != null && !wasActive) cancelCheck()
-                mutablePreview.value = event.takeIf { it.stroke != null }
-                if (event.stroke != null) lastGesturePulse = clock() else lastGesturePulse = null
-                training.setGestureActive(event.stroke != null)
-                if (wasActive != training.state.gestureActive) publish()
-                if (event.stroke == null) scheduleCheck()
-            }
-            is PadEvent.StrokeFinished -> {
-                cancelCheck()
-                lastGesturePulse = null
-                training.addStroke(
-                    event.baseVersion.cellId,
-                    event.baseVersion.revision,
-                    event.stroke,
-                )
-                publish()
-                if (!training.state.gestureActive) scheduleCheck()
-            }
+            PadEvent.HintPlaybackFinished -> Unit
+            is PadEvent.GesturePreview -> handleGesturePreview(event, cell)
+            is PadEvent.StrokeFinished -> handleStrokeFinished(event)
         }
+    }
+
+    private fun handleGesturePreview(event: PadEvent.GesturePreview, cell: PracticeCell?) {
+        if (cell?.task?.occurrenceId != event.baseVersion.cellId) return
+        if (
+            event.stroke != null &&
+                (cell.revision != event.baseVersion.revision || training.state.result != null)
+        )
+            return
+        if (event.stroke == null && mutablePreview.value?.gestureId != event.gestureId) return
+        val wasActive = training.state.gestureActive
+        if (event.stroke != null && !wasActive) cancelCheck()
+        mutablePreview.value = event.takeIf { it.stroke != null }
+        lastGesturePulse = if (event.stroke != null) clock() else null
+        training.setGestureActive(event.stroke != null)
+        if (wasActive != training.state.gestureActive) publish()
+        if (event.stroke == null) scheduleCheck()
+    }
+
+    private fun handleStrokeFinished(event: PadEvent.StrokeFinished) {
+        cancelCheck()
+        lastGesturePulse = null
+        training.addStroke(event.baseVersion.cellId, event.baseVersion.revision, event.stroke)
+        if (mutableState.value.hint?.playback == HintPlayback.AnimateOnce) {
+            mutableState.value = mutableState.value.copy(hint = null)
+        }
+        publish()
+        if (!training.state.gestureActive) scheduleCheck()
     }
 
     /** Synchronous delivery once per ViewModel lifetime; caller can deduplicate by taskId. */
@@ -275,16 +362,17 @@ class PracticeViewModel(
         onResult(result)
     }
 
+    private fun canScheduleCheck(): Boolean =
+        screenActive &&
+            training.state.result == null &&
+            !training.state.timedOut &&
+            !training.state.gestureActive &&
+            mutableState.value.hint?.blocksInput != true
+
     /** Coalesce strokes; a pause is a scheduling hint, never proof that a sign is finished. */
     private fun scheduleCheck() {
         cancelCheck()
-        if (
-            !screenActive ||
-                training.state.result != null ||
-                training.state.gestureActive ||
-                mutableState.value.hint?.blocksInput == true
-        )
-            return
+        if (!canScheduleCheck()) return
         val requests =
             training.checkRequests().filter {
                 coordinator.revisions[it.occurrenceId] != it.revision
@@ -314,19 +402,39 @@ class PracticeViewModel(
                             unavailable = u
                             incomplete = i
                             notice = n
-                            if (report.verdict == CheckVerdict.Correct) {
-                                advanceToNextUserCell(request.occurrenceId)
-                            }
+                            // Show Correct (green flash) before moving selection.
                             publish(notice)
+                            if (report.verdict == CheckVerdict.Correct) {
+                                delay(CORRECT_HOLD_MILLIS)
+                                if (generation != coordinator.generation) return@launch
+                                advanceToNextUserCell(request.occurrenceId)
+                                publish(notice)
+                                maybeAutoSubmitOnSuccess()
+                            }
                         }
                     }
                 } finally {
                     if (generation == coordinator.generation) {
                         mutableState.value = mutableState.value.copy(isChecking = false)
                         publish(notice)
+                        maybeAutoSubmitOnSuccess()
                     }
                 }
             }
+    }
+
+    /** Successful word only; timeout/skip still wait for «Далее». */
+    private fun maybeAutoSubmitOnSuccess() {
+        if (!autoAdvanceOnSuccess()) return
+        if (
+            training.state.result != null ||
+                training.state.timedOut ||
+                training.state.gestureActive ||
+                !training.state.isComplete
+        )
+            return
+        training.submit()
+        publish()
     }
 
     private fun cancelCheck() {
@@ -338,12 +446,70 @@ class PracticeViewModel(
      * After every enabled checker accepts the current sign, move to the next unfinished user cell.
      * Prefills are skipped; if none remain, selection stays so «Далее» can finish the word.
      */
+    private fun exhaustedHint(reference: ReferenceDrawing) =
+        HintPresentation(
+            overlay = reference,
+            blocksInput = true,
+            playback = HintPlayback.Static,
+            style = HintOverlayStyle.Exhausted,
+        )
+
+    /** Brush reference in the pad after timeout or exhausted hints; Correct cells keep their ink. */
+    private fun reviewHint(cell: PracticeCell?): HintPresentation? {
+        val selected = cell ?: return null
+        return when {
+            selected.strokeHintsExhausted -> selected.reference?.let(::exhaustedHint)
+            training.state.timedOut && selected.status == EntryStatus.Incorrect ->
+                selected.reference?.let(::exhaustedHint)
+            else -> null
+        }
+    }
+
+    private fun cancelFullHintHide() {
+        fullHintHideJob?.cancel()
+        fullHintHideJob = null
+    }
+
+    private fun scheduleFullHintHide() {
+        cancelFullHintHide()
+        val hold = fullHintDisplayMillis().toLong().coerceAtLeast(1L)
+        fullHintHideJob =
+            viewModelScope.launch {
+                delay(hold)
+                val hint = mutableState.value.hint ?: return@launch
+                if (
+                    hint.style == HintOverlayStyle.Guide &&
+                        hint.playback == HintPlayback.Static
+                ) {
+                    mutableState.value = mutableState.value.copy(hint = null)
+                }
+            }
+    }
+
+    private fun revealHintExhausted(occurrenceId: String, reference: ReferenceDrawing) {
+        cancelFullHintHide()
+        training.exhaustStrokeHints()
+        mutablePreview.value = null
+        mutableState.value = mutableState.value.copy(hint = exhaustedHint(reference))
+        publish()
+        viewModelScope.launch {
+            delay(HINT_EXHAUST_HOLD_MILLIS)
+            if (training.state.result != null) return@launch
+            if (training.state.selected?.task?.occurrenceId != occurrenceId) return@launch
+            accountTime()
+            advanceToNextUserCell(occurrenceId)
+            publish()
+        }
+    }
+
     private fun advanceToNextUserCell(occurrenceId: String) {
         val current = training.state.cells.indexOfFirst { it.task.occurrenceId == occurrenceId }
         if (current < 0 || training.state.selectedIndex != current) return
         val next = training.nextUnsatisfiedUserIndex(current) ?: return
         training.select(next)
-        mutableState.value = mutableState.value.copy(hint = null)
+        cancelFullHintHide()
+        mutableState.value =
+            mutableState.value.copy(hint = reviewHint(training.state.selected))
     }
 
     private fun accountTime() {
@@ -351,10 +517,18 @@ class PracticeViewModel(
         val now = clock()
         lastTick = now
         training.advanceTime((now - previous).coerceAtLeast(0))
-        if (training.state.result != null) {
+        if (training.state.result != null || training.state.timedOut) {
             mutablePreview.value = null
             lastGesturePulse = null
             training.setGestureActive(false)
+            if (training.state.timedOut) {
+                cancelFullHintHide()
+                mutableState.value =
+                    mutableState.value.copy(
+                        hint = reviewHint(training.state.selected),
+                        readingRevealed = true,
+                    )
+            }
         }
     }
 
@@ -388,7 +562,16 @@ class PracticeViewModel(
                 canUndo = training.canUndo(),
                 gestureActive = training.state.gestureActive,
                 notice = notice,
-                hint = mutableState.value.hint.takeIf { training.state.result == null },
+                hint =
+                    when {
+                        training.state.result != null -> null
+                        // Keep the brush reference while reviewing cells after the deadline.
+                        training.state.timedOut -> reviewHint(training.state.selected)
+                        else -> mutableState.value.hint
+                    },
+                hintMode = hintMode(),
+                maxNextStrokeHints = maxNextStrokeHints(),
+                readingRevealed = mutableState.value.readingRevealed,
                 debugReport = debugReport,
                 showCompensatedDrawing =
                     mutableState.value.showCompensatedDrawing &&
@@ -403,8 +586,14 @@ class PracticeViewModel(
     }
 }
 
+private const val DEFAULT_FULL_HINT_DISPLAY_MILLIS = 500
+private const val DEFAULT_MAX_NEXT_STROKE_HINTS = 3
 private const val TIMER_TICK_MILLIS = 250L
 private const val CHECK_DEBOUNCE_MILLIS = 350L
+/** Hold on the accepted cell so the green flash is visible before advancing. */
+private const val CORRECT_HOLD_MILLIS = 420L
+/** Hold on the red exhausted reveal before moving to the next cell. */
+private const val HINT_EXHAUST_HOLD_MILLIS = 520L
 /** Whole-provider budget so «Далее» cannot stay disabled for an MVP demo. */
 private const val CHECK_TIMEOUT_MILLIS = 8_000L
 /** No pad pulses while gestureActive — treat as stuck input. */

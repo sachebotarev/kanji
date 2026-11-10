@@ -37,6 +37,17 @@ data class RecognitionSettings(
     val strokeWritingEnabled: Boolean = true,
     val checkStrokeOrder: Boolean = false,
     val checkStrokeDirection: Boolean = false,
+    /** Character-guide mode on PRACTICE (full glyph vs next stroke). */
+    val hintMode: HintMode = HintMode.FullCharacter,
+    /** Max hint shows per character (any mode) before a full red fail reveal. */
+    val maxNextStrokeHints: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,
+    /** How long the full-character guide stays visible after a tap, in milliseconds. */
+    val fullHintDisplayMillis: Int = DEFAULT_FULL_HINT_DISPLAY_MILLIS,
+    /**
+     * When true, a fully accepted word (Correct/Assisted) advances to the next word without
+     * waiting for «Далее». Timeout and skip still require an explicit next action.
+     */
+    val autoAdvanceOnSuccess: Boolean = false,
     val enabledCompensations: Set<CompensationStage> = CompensationStage.entries.toSet(),
 ) {
     companion object {
@@ -79,6 +90,13 @@ data class RecognitionSettings(
                 connectionTolerancePercent = whole(connectionTolerancePercent),
                 protrusionTolerancePercent = whole(protrusionTolerancePercent),
                 lengthDifferenceTolerancePercent = whole(lengthDifferenceTolerancePercent),
+                maxNextStrokeHints =
+                    maxNextStrokeHints.coerceIn(MIN_NEXT_STROKE_HINTS, MAX_NEXT_STROKE_HINTS),
+                fullHintDisplayMillis =
+                    fullHintDisplayMillis.coerceIn(
+                        MIN_FULL_HINT_DISPLAY_MILLIS,
+                        MAX_FULL_HINT_DISPLAY_MILLIS,
+                    ),
             )
         // User controls have one source of truth: zero disables the correction.
         return rounded.copy(enabledCompensations = rounded.compensationsFromLimits())
@@ -142,6 +160,8 @@ data class RecognitionSettings(
         require(maxHorizontalStretchPercent.isFinite() && maxHorizontalStretchPercent >= 0f)
         require(maxVerticalStretchPercent.isFinite() && maxVerticalStretchPercent >= 0f)
         require(maxRotationDegrees.isFinite() && maxRotationDegrees in 0f..MAX_ANGLE_DEGREES)
+        require(maxNextStrokeHints in MIN_NEXT_STROKE_HINTS..MAX_NEXT_STROKE_HINTS)
+        require(fullHintDisplayMillis in MIN_FULL_HINT_DISPLAY_MILLIS..MAX_FULL_HINT_DISPLAY_MILLIS)
     }
 }
 
@@ -163,3 +183,9 @@ private const val MAX_ANGLE_DEGREES = 20f
 private const val MAX_JITTER_PERCENT = 5f
 private const val MIN_DISTANCE_TOLERANCE = 0.001f
 private const val MAX_DISTANCE_TOLERANCE = 0.15f
+internal const val DEFAULT_MAX_NEXT_STROKE_HINTS = 3
+internal const val MIN_NEXT_STROKE_HINTS = 1
+internal const val MAX_NEXT_STROKE_HINTS = 12
+internal const val DEFAULT_FULL_HINT_DISPLAY_MILLIS = 500
+internal const val MIN_FULL_HINT_DISPLAY_MILLIS = 200
+internal const val MAX_FULL_HINT_DISPLAY_MILLIS = 3000

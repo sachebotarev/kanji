@@ -2,9 +2,12 @@ package ru.mobui.kanji.feature.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -25,7 +28,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.core.designsystem.KanjiTheme
-import ru.mobui.kanji.feature.dashboard.widgets.ActivityDetailsDialog
 import ru.mobui.kanji.feature.dashboard.widgets.ActivityWidget
 import ru.mobui.kanji.feature.dashboard.widgets.DashboardIcon
 import ru.mobui.kanji.feature.dashboard.widgets.IllustratedIcon
@@ -33,7 +35,6 @@ import ru.mobui.kanji.feature.dashboard.widgets.LaunchTrainingWidget
 import ru.mobui.kanji.feature.dashboard.widgets.RecipeBookEntry
 import ru.mobui.kanji.feature.dashboard.widgets.UnfinishedTrainingDialog
 import ru.mobui.kanji.feature.dashboard.widgets.VocabularyWidget
-import ru.mobui.kanji.feature.dashboard.widgets.WordStatisticsDialog
 import ru.mobui.kanji.feature.dashboard.widgets.WordStatisticsWidget
 
 @Composable
@@ -49,6 +50,8 @@ fun DashboardScreen(
     onOpenCatalog: () -> Unit = {},
     onOpenDictionary: () -> Unit = {},
     onOpenReferences: () -> Unit = {},
+    onOpenWordStatistics: () -> Unit = {},
+    onOpenActivity: () -> Unit = {},
 ) {
     var unfinishedOpen by rememberSaveable { mutableStateOf(false) }
     if (unfinishedOpen && unfinished != null) {
@@ -65,11 +68,6 @@ fun DashboardScreen(
             onDismiss = { unfinishedOpen = false },
         )
     }
-    var activityOpen by rememberSaveable { mutableStateOf(false) }
-    if (activityOpen) ActivityDetailsDialog(state.activity, onDismiss = { activityOpen = false })
-    var statisticsOpen by rememberSaveable { mutableStateOf(false) }
-    if (statisticsOpen)
-        WordStatisticsDialog(state.statistics, onDismiss = { statisticsOpen = false })
     Scaffold(modifier.testTag("dashboard-screen")) { insets ->
         Column(
             Modifier.fillMaxSize()
@@ -93,13 +91,20 @@ fun DashboardScreen(
                     )
                 }
             }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
                 WordStatisticsWidget(
                     state.statistics,
-                    { statisticsOpen = true },
-                    Modifier.weight(1f),
+                    onOpenWordStatistics,
+                    Modifier.weight(1f).fillMaxHeight(),
                 )
-                ActivityWidget(state.activity, { activityOpen = true }, Modifier.weight(1f))
+                ActivityWidget(
+                    state.activity,
+                    onOpenActivity,
+                    Modifier.weight(1f).fillMaxHeight(),
+                )
             }
             LaunchTrainingWidget(
                 unfinished = unfinished != null,

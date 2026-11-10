@@ -33,13 +33,14 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             RecipeMaterialKanjiRow::class,
             RecipeMaterialWordsRow::class,
             RecipeMaterialTagsRow::class,
+            RecipeMaterialJlptRow::class,
             TrainingsRow::class,
             TrainingsRecipeTranslationsRow::class,
             TrainingTasksRow::class,
             TrainingTaskTranslationsRow::class,
             TrainingTaskSymbolsRow::class,
         ],
-    version = 7,
+    version = 10,
     exportSchema = true,
 )
 internal abstract class CatalogDatabase : RoomDatabase() {

@@ -1,5 +1,6 @@
 package ru.mobui.kanji.feature.dashboard.builder
 
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 
@@ -7,6 +8,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.Alignment
@@ -39,16 +41,21 @@ import ru.mobui.kanji.domain.catalog.MaterialType
 import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.name
 import ru.mobui.kanji.feature.dashboard.R
+import ru.mobui.kanji.feature.dashboard.recipeTaskMetricLabel
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.HorizontalDivider
@@ -58,14 +65,19 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.SwipeToDismissBox
+import androidx.compose.material3.SwipeToDismissBoxValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.draw.clip
 import ru.mobui.kanji.domain.catalog.CatalogSnapshot
 import ru.mobui.kanji.domain.catalog.DictionaryTag
 
@@ -112,6 +124,7 @@ private fun recipeSearchText(
 internal data class RecipeLibraryActions(
     val back: () -> Unit, val create: () -> Unit, val open: (String) -> Unit,
     val reorder: (List<String>) -> Unit,
+    val delete: (String) -> Unit,
     val query: (String) -> Unit, val retry: () -> Unit,
 )
 
@@ -119,13 +132,23 @@ internal data class RecipeLibraryActions(
 internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, language: String,
     actions: RecipeLibraryActions, modifier: Modifier = Modifier) {
     var searching by rememberSaveable { mutableStateOf(false) }
+    var pendingDeleteId by rememberSaveable { mutableStateOf<String?>(null) }
     val scroll = rememberLazyListState()
     val snapshot = state.snapshot
     val canDrag = query.isBlank() && !state.busy && !state.loading
     val reorder = rememberRecipeReorderState(scroll, state.recipes.map { it.id }, canDrag, actions.reorder)
     val dragId = reorder.draggedId
     val platformView = LocalView.current
-    val back = { if (dragId != null) platformView.cancelDragAndDrop() else if (!state.busy) actions.back() }
+    val back = {
+        if (dragId != null) {
+            platformView.cancelDragAndDrop()
+        } else if (searching) {
+            searching = false
+            actions.query("")
+        } else if (!state.busy) {
+            actions.back()
+        }
+    }
     BackHandler { back() }
     val typeLabels = mapOf(MaterialType.Book to stringResource(R.string.material_book_type),
         MaterialType.Dictionary to stringResource(R.string.material_dictionary_type),
@@ -163,28 +186,35 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
         }
     }) { padding ->
         Column(Modifier.padding(padding)) {
-            Row(Modifier.fillMaxWidth().heightIn(min = 68.dp).padding(horizontal = 12.dp, vertical = 4.dp),
+            Row(Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically) {
                 IconButton(back, Modifier.size(48.dp)) {
-                    Icon(painterResource(R.drawable.ic_recipe_back), stringResource(R.string.material_back))
+                    Icon(painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back), stringResource(R.string.material_back))
                 }
                 Text(
                     stringResource(R.string.library_title),
-                    Modifier.weight(1f),
+                    Modifier.weight(1f).padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-                val searchLabel = stringResource(R.string.library_search)
-                IconButton({ searching = !searching; if (!searching) actions.query("") },
-                    Modifier.testTag("library-search-toggle").semantics { contentDescription = searchLabel }) {
-                    Icon(androidx.compose.ui.res.painterResource(R.drawable.library_search), null)
-                }
+                KanjiSearchToggle(
+                    open = searching,
+                    onToggle = {
+                        searching = !searching
+                        if (!searching) actions.query("")
+                    },
+                    testTag = "library-search-toggle",
+                )
             }
-            if (searching) OutlinedTextField(query, actions.query, Modifier.fillMaxWidth().padding(horizontal = 16.dp).testTag("library-search"),
-                label = { Text(stringResource(R.string.library_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                trailingIcon = { TextButton({ actions.query("") }) { Text(stringResource(R.string.library_clear)) } },
-                colors = kanjiOutlinedTextFieldColors())
+            if (searching) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = actions.query,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.library_search),
+                autoFocus = true,
+                testTag = "library-search",
+            )
             if (state.error) Row {
                 Text(stringResource(R.string.recipe_load_failed), Modifier.weight(1f).padding(16.dp))
                 TextButton(actions.retry) { Text(stringResource(R.string.recipe_retry)) }
@@ -240,65 +270,103 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                     val above = stringResource(R.string.library_above)
                     val below = stringResource(R.string.library_below)
                     val open = stringResource(R.string.library_open, title)
+                    val remove = stringResource(R.string.dictionary_remove_recipe)
                     val index = ordered.indexOfFirst { it.id == recipe.id }
-                    Surface(
-                        Modifier
-                            .fillMaxWidth()
+                    val dismissState = rememberSwipeToDismissBoxState()
+                    LaunchedEffect(pendingDeleteId, recipe.id) {
+                        if (pendingDeleteId != recipe.id &&
+                            dismissState.settledValue != SwipeToDismissBoxValue.Settled
+                        ) {
+                            dismissState.reset()
+                        }
+                    }
+                    SwipeToDismissBox(
+                        state = dismissState,
+                        backgroundContent = {
+                            Box(
+                                Modifier
+                                    .fillMaxSize()
+                                    .clip(MaterialTheme.shapes.medium)
+                                    .background(MaterialTheme.colorScheme.errorContainer),
+                                contentAlignment = Alignment.CenterEnd,
+                            ) {
+                                Icon(
+                                    painterResource(R.drawable.recipe_remove),
+                                    contentDescription = null,
+                                    Modifier.padding(end = 24.dp).size(24.dp),
+                                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                                )
+                            }
+                        },
+                        modifier = Modifier
                             .animateItem()
-                            .testTag("library-${recipe.id}")
                             .zIndex(if (active) 1f else 0f)
                             .graphicsLayer {
                                 scaleX = scale
                                 scaleY = scale
                                 this.alpha = alpha
-                            }
-                            .recipeLibraryBody(
-                                reorder, recipe.id, canDrag, state.busy, platformView,
-                            ) { actions.open(recipe.id) }
-                            .semantics(mergeDescendants = true) {
-                                contentDescription = open
-                                onClick(label = open) {
-                                    if (!state.busy) actions.open(recipe.id)
-                                    true
-                                }
-                                customActions = if (!canDrag) emptyList() else buildList {
-                                    if (index > 0) add(CustomAccessibilityAction(above) { move(recipe.id, index - 1); true })
-                                    if (index < ordered.lastIndex) {
-                                        add(CustomAccessibilityAction(below) { move(recipe.id, index + 1); true })
-                                    }
-                                }
                             },
-                        shape = MaterialTheme.shapes.medium,
-                        color = MaterialTheme.colorScheme.surfaceContainer,
-                        shadowElevation = if (active) 8.dp else 0.dp,
+                        enableDismissFromStartToEnd = false,
+                        gesturesEnabled = !state.busy && dragId == null,
+                        onDismiss = {
+                            if (it == SwipeToDismissBoxValue.EndToStart) pendingDeleteId = recipe.id
+                        },
                     ) {
-                        Column(
-                            Modifier.padding(12.dp).fillMaxWidth(),
-                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        Surface(
+                            Modifier
+                                .fillMaxWidth()
+                                .testTag("library-${recipe.id}")
+                                .recipeLibraryBody(
+                                    reorder, recipe.id, canDrag, state.busy, platformView,
+                                ) { actions.open(recipe.id) }
+                                .semantics(mergeDescendants = true) {
+                                    contentDescription = open
+                                    onClick(label = open) {
+                                        if (!state.busy) actions.open(recipe.id)
+                                        true
+                                    }
+                                    customActions = buildList {
+                                        if (canDrag) {
+                                            if (index > 0) {
+                                                add(CustomAccessibilityAction(above) {
+                                                    move(recipe.id, index - 1); true
+                                                })
+                                            }
+                                            if (index < ordered.lastIndex) {
+                                                add(CustomAccessibilityAction(below) {
+                                                    move(recipe.id, index + 1); true
+                                                })
+                                            }
+                                        }
+                                        if (!state.busy) {
+                                            add(CustomAccessibilityAction(remove) {
+                                                pendingDeleteId = recipe.id
+                                                true
+                                            })
+                                        }
+                                    }
+                                },
+                            shape = MaterialTheme.shapes.medium,
+                            color = MaterialTheme.colorScheme.surfaceContainer,
+                            shadowElevation = if (active) 8.dp else 0.dp,
                         ) {
-                                Row(
-                                    Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            Box(
+                                Modifier.padding(12.dp).fillMaxWidth(),
+                            ) {
+                                Column(
+                                    Modifier.fillMaxWidth().padding(end = 26.dp),
+                                    verticalArrangement = Arrangement.spacedBy(6.dp),
                                 ) {
                                     Text(
                                         title,
-                                        Modifier.weight(1f).heightIn(min = 36.dp)
-                                            .testTag("library-title-${recipe.id}"),
+                                        Modifier.fillMaxWidth().testTag("library-title-${recipe.id}"),
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.onSurface,
                                     )
-                                    Icon(
-                                        painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down),
-                                        null,
-                                        Modifier.size(18.dp).rotate(-90f),
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    val chips = recipeMaterialTags(
+                                        recipe, snapshot, state.tags, language, typeLabels,
                                     )
-                                }
-                                val chips = recipeMaterialTags(
-                                    recipe, snapshot, state.tags, language, typeLabels,
-                                )
                                 FlowRow(
                                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                                     verticalArrangement = Arrangement.spacedBy(6.dp),
@@ -329,25 +397,70 @@ internal fun RecipeLibraryScreen(state: RecipeLibraryState, query: String, langu
                                         )
                                     }
                                 }
-                                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                                val tasks = recipe.taskCount?.let { pluralStringResource(R.plurals.library_task_count, it, it) }
-                                    ?: (state.counts[recipe.id] ?: 0).let { pluralStringResource(R.plurals.library_all_words, it, it) }
-                                val time = recipe.secondsPerWord?.let { stringResource(R.string.library_seconds, it) }
+                                HorizontalDivider(Modifier.padding(vertical = 2.dp), color = MaterialTheme.colorScheme.outlineVariant)
+                                val tasks =
+                                    recipeTaskMetricLabel(
+                                        recipe.taskCount,
+                                        state.counts[recipe.id] ?: 0,
+                                    )
+                                val time = recipe.secondsPerSymbol?.let { stringResource(R.string.library_seconds, it) }
                                     ?: stringResource(R.string.library_no_timer)
                                 if (LocalDensity.current.fontScale >= 1.3f) {
                                     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                                         LibraryMetric(tasks, R.drawable.library_words)
-                                        LibraryMetric(time, if (recipe.secondsPerWord == null) R.drawable.library_no_timer else R.drawable.library_timer)
+                                        LibraryMetric(time, if (recipe.secondsPerSymbol == null) R.drawable.library_no_timer else R.drawable.library_timer)
                                     }
                                 } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                                     LibraryMetric(tasks, R.drawable.library_words, Modifier.weight(1f))
-                                    LibraryMetric(time, if (recipe.secondsPerWord == null) R.drawable.library_no_timer else R.drawable.library_timer,
+                                    LibraryMetric(time, if (recipe.secondsPerSymbol == null) R.drawable.library_no_timer else R.drawable.library_timer,
                                         Modifier.weight(1f))
                                 }
+                            }
+                            Column(
+                                modifier = Modifier.align(Alignment.TopEnd).width(24.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
+                                    null,
+                                    Modifier.size(18.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                if (state.excellentRecipeIds.contains(recipe.id)) {
+                                    Image(
+                                        painter = painterResource(R.drawable.ic_paw_stamp),
+                                        contentDescription = stringResource(R.string.history_stamp_excellent),
+                                        modifier =
+                                            Modifier
+                                                .size(22.dp)
+                                                .rotate(-10f)
+                                                .testTag("recipe-stamp-${recipe.id}"),
+                                    )
+                                }
+                            }
                         }
                     }
                 }
             }
         }
+    }
+}
+    val pending = pendingDeleteId?.let { id -> state.recipes.firstOrNull { it.id == id } }
+    if (pending != null) {
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.library_delete_title),
+            message = "${recipeName(pending, language)}\n${stringResource(R.string.library_delete_message)}",
+            onConfirm = {
+                val id = pending.id
+                pendingDeleteId = null
+                actions.delete(id)
+            },
+            onDismiss = { pendingDeleteId = null },
+            confirmText = stringResource(R.string.dictionary_remove_recipe),
+            dismissText = stringResource(R.string.library_cancel),
+            confirmTag = "library-delete-confirm",
+            dismissTag = "library-delete-cancel",
+        )
     }
 }

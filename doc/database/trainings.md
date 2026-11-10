@@ -1,6 +1,6 @@
 # Тренировки: модель хранения выполнения
 
-Статус: **схема и host PRACTICE подключены**. Room v7 (`CatalogDatabase`); DDL — [trainings.sql](trainings.sql); экспорт — [7.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/7.json). Domain: `TrainingsRepository` в `:domain:practice`; реализация — `RoomTrainingsRepository` в `:data:catalogdb`. Очередь слов — `shuffledCycles` (`shuffled_cycles`) из рецепта; host пишет прогресс на старт / границу задания / interrupt / complete, без записи на каждый штрих (`TrainingPersistence` на IO). Resume UI и история тренировок — отдельные задачи. Миграций нет: невыпущенная база пересоздаётся.
+Статус: **схема и host PRACTICE подключены**. Room v9 (`CatalogDatabase`); DDL — [trainings.sql](trainings.sql); экспорт — [9.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/9.json). Domain: `TrainingsRepository` в `:domain:practice`; реализация — `RoomTrainingsRepository` в `:data:catalogdb`. Очередь слов — `shuffledCycles` (`shuffled_cycles`) из рецепта; host пишет прогресс на старт / границу задания / interrupt / complete, без записи на каждый штрих (`TrainingPersistence` на IO). Resume UI и история тренировок — отдельные задачи. Миграций нет: невыпущенная база пересоздаётся.
 
 Термины: [глоссарий](../glossary.md). Рецепт хранит конфигурацию ([recipes.md](recipes.md)); тренировка — конкретное выполнение. Экран одного задания: [practice-screen.md](../implementation/practice-screen.md). Проверки формы: [shape-checker.md](../implementation/shape-checker.md).
 
@@ -23,7 +23,7 @@ trainings
 - Старт новой тренировки в одной транзакции: текущую `in_progress` → `interrupted` с `ended_at`, затем insert новой.
 - Рукописный ввод — только колонка `writing_sample_json` на символе. Отдельных таблиц штрихов/точек нет.
 - Незавершённый жест не сохраняется.
-- Счётчик подсказки только на символе (`hint_request_count`). На задании поля помощи нет: статус `assisted` выводится, если у любого символа задания счётчик > 0.
+- Счётчик подсказки по знаку — на символе (`hint_request_count`). Раскрытие чтения слова — флаг `reading_hint_used` на задании. Статус `assisted`, если счётчик > 0 у practice-символа или открыто чтение.
 - Учебные тексты и названия рецепта копируются снимками с `language_tag`; русские значения — fallback при чтении.
 
 ## `trainings`
@@ -34,7 +34,7 @@ trainings
 | `recipe_id` | `TEXT` | FK → `recipes(id)` ON DELETE SET NULL; может стать NULL, если рецепт удалили. |
 | `recipe_revision` | `INTEGER` | Ревизия рецепта на старте. |
 | `task_count` | `INTEGER` | Снимок параметра рецепта (число заданий или NULL). |
-| `seconds_per_word` | `INTEGER` | Снимок таймера на слово в секундах или NULL. |
+| `seconds_per_symbol` | `INTEGER` | Снимок бюджета секунд на practice-символ или NULL; лимит слова = значение × число practice-символов. |
 | `status` | `TEXT` | `in_progress` \| `completed` \| `interrupted`. |
 | `started_at` | `INTEGER` | Epoch ms начала. |
 | `ended_at` | `INTEGER` | Epoch ms окончания; NULL только при `in_progress`. |
@@ -65,8 +65,9 @@ trainings
 | `started_at` | `INTEGER` | Начало работы над заданием или NULL. |
 | `ended_at` | `INTEGER` | Окончание или NULL. |
 | `elapsed_ms` | `INTEGER` | Накопленное время слова ≥ 0. |
+| `reading_hint_used` | `INTEGER` | `0/1`: раскрыт spoiler произношения на этом задании. |
 
-Терминальные статусы совпадают с доменным `AnswerStatus`; `pending` / `in_progress` нужны для возобновления. При `interrupted` у тренировки незакрытые задания остаются в последнем `pending` / `in_progress` (не авто-`skipped`).
+Терминальные статусы совпадают с доменным `AnswerStatus`; `pending` / `in_progress` нужны для возобновления. При `interrupted` у тренировки незакрытые задания остаются в последнем `pending` / `in_progress` (не авто-`skipped`). Оценка балла слова — [hint-scoring.md](../implementation/hint-scoring.md).
 
 ### `training_task_translations`
 
@@ -94,7 +95,7 @@ trainings
 | `kanji_id` | `INTEGER` | FK → `kanji(id)` ON DELETE SET NULL при наличии в реестре. |
 | `kanji_key` | `TEXT` | Ключ эталона/чекера (например `u56f3`). |
 | `status` | `TEXT` | `empty` \| `editing` \| `correct` \| `incorrect` \| `prefilled`. |
-| `hint_request_count` | `INTEGER` | Число запросов подсказки по символу ≥ 0; каждое включение +1, выключение не уменьшает. Единственное место хранения помощи. |
+| `hint_request_count` | `INTEGER` | Число **засчитанных** запросов подсказки по символу ≥ 0; каждое платное включение +1, выключение и свободный peek на `correct` не уменьшают/не увеличивают. |
 | `elapsed_ms` | `INTEGER` | Время на символ ≥ 0. |
 | `readability_verdict` | `TEXT` | Вердикт читаемости или NULL. |
 | `readability_glyph` | `TEXT` | Распознанный знак или NULL. |

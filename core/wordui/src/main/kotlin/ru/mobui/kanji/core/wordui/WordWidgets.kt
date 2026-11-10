@@ -270,28 +270,15 @@ fun WordSearch(
     onQuery: (String) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    OutlinedTextField(
-        query,
-        onQuery,
-        modifier.fillMaxWidth().semantics { contentDescription = label },
-        placeholder = { Text(label, style = MaterialTheme.typography.bodyMedium) },
-        singleLine = true,
-        leadingIcon = {
-            Icon(painterResource(R.drawable.selection_search), null, Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        },
-        trailingIcon = {
-            if (query.isNotEmpty())
-                TextButton({ onQuery("") }) { Text(stringResource(R.string.word_clear)) }
-        },
-        shape = MaterialTheme.inputShape,
-        colors =
-            kanjiOutlinedTextFieldColors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedBorderColor = Color.Transparent,
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-            ),
+    ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+        query = query,
+        onQuery = onQuery,
+        modifier = modifier,
+        placeholder = label,
+        autoFocus = false,
+        leadingIcon = true,
+        testTag = "word-search",
+        onClear = { onQuery("") },
     )
 }
 

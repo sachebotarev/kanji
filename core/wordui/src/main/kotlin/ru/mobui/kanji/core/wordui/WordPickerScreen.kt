@@ -76,7 +76,15 @@ fun WordPickerScreen(
             facetHeader = { title, up, search -> SymbolPickerHeader(title, up, search) })
         return
     }
-    backHandler(onBack)
+    val back = {
+        if (searchOpen) {
+            searchOpen = false
+            query = ""
+        } else {
+            onBack()
+        }
+    }
+    backHandler(back)
     // Normalizing the whole catalogue is independent of toggling a choice or changing the query.
     val searchIndex = remember(words, language) {
         words.associate { word -> word.id to listOfNotNull(word.written, word.reading, word.translation(language)).map(::normalizeWordSearch) }
@@ -92,12 +100,25 @@ fun WordPickerScreen(
             else stringResource(R.string.selection_choose, selected.count()), { onApply(selected) }, Modifier.testTag("word-picker-apply"))
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            SymbolPickerHeader(stringResource(R.string.word_picker_title), onBack, { searchOpen = !searchOpen },
-                backTag = "word-picker-back", searchTag = "word-picker-search-toggle")
-            if (searchOpen) OutlinedTextField(query, { query = it },
-                Modifier.fillMaxWidth().padding(horizontal = 18.dp).testTag("word-picker-search"),
-                label = { Text(stringResource(R.string.word_picker_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                colors = kanjiOutlinedTextFieldColors())
+            SymbolPickerHeader(
+                stringResource(R.string.word_picker_title),
+                back,
+                {
+                    searchOpen = !searchOpen
+                    if (!searchOpen) query = ""
+                },
+                searchOpen = searchOpen,
+                backTag = "word-picker-back",
+                searchTag = "word-picker-search-toggle",
+            )
+            if (searchOpen) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = { query = it },
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.word_picker_search),
+                autoFocus = true,
+                testTag = "word-picker-search",
+            )
             val chosenKanji = pool.filter { it.id in filter }
             val label = stringResource(R.string.word_picker_kanji) + if (chosenKanji.isEmpty()) "" else
                 " · " + chosenKanji.take(2).joinToString("、") { it.symbol } +

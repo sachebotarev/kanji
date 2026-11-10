@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.flowOf
 import ru.mobui.kanji.domain.catalog.CatalogRepository
 import ru.mobui.kanji.domain.catalog.CatalogSnapshot
 import ru.mobui.kanji.domain.catalog.DictionaryTag
@@ -24,6 +25,9 @@ import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.WordTagAssignment
+import ru.mobui.kanji.domain.practice.TrainingsRepository
+import ru.mobui.kanji.feature.dashboard.history.findExcellentRecipeIds
+import ru.mobui.kanji.feature.dashboard.history.isExcellent
 
 internal data class RecipeLibraryState(
     val recipes: List<Recipe> = emptyList(),
@@ -31,6 +35,7 @@ internal data class RecipeLibraryState(
     val tags: List<DictionaryTag> = emptyList(),
     val assignments: List<WordTagAssignment> = emptyList(),
     val counts: Map<String, Int> = emptyMap(),
+    val excellentRecipeIds: Set<String> = emptySet(),
     val loading: Boolean = true,
     val busy: Boolean = false,
     val error: Boolean = false,
@@ -41,6 +46,7 @@ internal class RecipeLibraryViewModel(
     private val catalog: CatalogRepository,
     private val personal: PersonalDictionaryRepository,
     private val recipesRepository: RecipesRepository,
+    private val trainingsRepository: TrainingsRepository? = null,
     private val compute: CoroutineDispatcher = Dispatchers.Default,
 ) : ViewModel() {
     private val mutable = MutableStateFlow(RecipeLibraryState())
@@ -55,9 +61,21 @@ internal class RecipeLibraryViewModel(
         mutable.update { it.copy(loading = it.snapshot == null, error = false) }
         observation = viewModelScope.launch {
             try {
-                combine(recipesRepository.observeRecipes(), recipesRepository.observeTags(), recipesRepository.observeWordTags(),
-                    personal.observeWords()) { recipes, tags, assignments, _ ->
-                    RecipeLibraryState(recipes = recipes, tags = tags, assignments = assignments)
+                val historyFlow = trainingsRepository?.observeHistory() ?: flowOf(emptyList())
+                combine(
+                    recipesRepository.observeRecipes(),
+                    recipesRepository.observeTags(),
+                    recipesRepository.observeWordTags(),
+                    personal.observeWords(),
+                    historyFlow,
+                ) { recipes, tags, assignments, _, history ->
+                    val excellentRecipeIds = findExcellentRecipeIds(recipes, history)
+                    RecipeLibraryState(
+                        recipes = recipes,
+                        tags = tags,
+                        assignments = assignments,
+                        excellentRecipeIds = excellentRecipeIds,
+                    )
                 }.collectLatest { loaded ->
                     val snapshot = catalog.load()
                     val counts = withContext(compute) {

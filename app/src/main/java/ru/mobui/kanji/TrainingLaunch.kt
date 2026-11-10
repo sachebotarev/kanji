@@ -4,8 +4,10 @@ import java.util.UUID
 import kotlin.random.Random
 import ru.mobui.kanji.domain.catalog.CatalogSnapshot
 import ru.mobui.kanji.domain.catalog.CatalogWord
+import ru.mobui.kanji.domain.catalog.JlptLevel
 import ru.mobui.kanji.domain.catalog.Recipe
 import ru.mobui.kanji.domain.catalog.WordTagAssignment
+import ru.mobui.kanji.domain.catalog.TrainingInputRules
 import ru.mobui.kanji.domain.catalog.recipeWords
 import ru.mobui.kanji.domain.catalog.translation
 import ru.mobui.kanji.domain.catalog.shuffledCycles
@@ -28,6 +30,7 @@ import ru.mobui.kanji.domain.practice.TrainingSymbolStatus
 import ru.mobui.kanji.domain.practice.TrainingTask
 import ru.mobui.kanji.domain.practice.TrainingTaskStatus
 import ru.mobui.kanji.domain.practice.TrainingTaskTranslation
+import ru.mobui.kanji.domain.practice.wordTimeLimitMs
 
 /** In-memory training run bound to a persisted [Training.id]. */
 internal data class ActiveTraining(
@@ -61,7 +64,8 @@ internal data class TrainingLaunch(
 
 /**
  * Builds practice tasks and a persistable [Training] with [shuffledCycles] word order.
- * Words without writable catalog kanji are skipped before selection sizing.
+ *
+ * Which cells need handwriting: [TrainingInputRules] (doc/implementation/training-input-rules.md).
  */
 internal fun launchTrainingFromRecipe(
     snapshot: CatalogSnapshot,
@@ -70,11 +74,12 @@ internal fun launchTrainingFromRecipe(
     nowMs: Long = System.currentTimeMillis(),
     random: Random = Random.Default,
 ): TrainingLaunch? {
-    // Pool → writable words only → shuffled_cycles(taskCount).
+    val chapterCaps = TrainingInputRules.bookChapterCaps(recipe)
+    val jlptCeiling = TrainingInputRules.jlptDifficultyCeiling(recipe)
     val pool =
         snapshot
             .recipeWords(recipe.materials, assignments)
-            .mapNotNull { it.toLaunchWord(snapshot) }
+            .mapNotNull { it.toLaunchWord(snapshot, chapterCaps, jlptCeiling) }
     if (pool.isEmpty()) return null
     val count = recipe.taskCount?.coerceAtLeast(1) ?: pool.size
     val ordered = shuffledLaunchWords(pool, count, random)
@@ -97,18 +102,28 @@ private data class LaunchCell(
     val kanjiKey: String,
 )
 
-private fun CatalogWord.toLaunchWord(snapshot: CatalogSnapshot): LaunchWord? {
+private fun CatalogWord.toLaunchWord(
+    snapshot: CatalogSnapshot,
+    bookChapterCaps: Map<Int, Int?>,
+    jlptCeiling: JlptLevel? = null,
+): LaunchWord? {
     val cells =
         buildList {
             written.codePoints().toArray().forEachIndexed { index, code ->
                 if (Character.isWhitespace(code)) return@forEachIndexed
                 val catalog = snapshot.kanjiById[code]
+                val mode =
+                    if (TrainingInputRules.requiresHandwriting(code, snapshot, bookChapterCaps, jlptCeiling)) {
+                        EntryMode.User
+                    } else {
+                        EntryMode.Prefilled
+                    }
                 add(
                     LaunchCell(
                         occurrenceId = "$id-$index",
                         codePoint = code,
                         glyph = String(Character.toChars(code)),
-                        mode = if (catalog != null) EntryMode.User else EntryMode.Prefilled,
+                        mode = mode,
                         script = scriptOf(code),
                         kanjiId = catalog?.id,
                         kanjiKey = "u${code.toString(APP_UNICODE_HEX_RADIX)}",
@@ -116,7 +131,7 @@ private fun CatalogWord.toLaunchWord(snapshot: CatalogSnapshot): LaunchWord? {
                 )
             }
         }
-    if (cells.none { it.mode == EntryMode.User }) return null
+    if (!TrainingInputRules.hasWritableCell(cells.map { it.mode == EntryMode.User })) return null
     val prompt = translation("ru")?.takeIf { it.isNotBlank() } ?: written
     return LaunchWord(this, cells, prompt)
 }
@@ -133,7 +148,6 @@ private fun buildLaunch(
     nowMs: Long,
 ): TrainingLaunch {
     val trainingId = UUID.randomUUID().toString()
-    val timeLimitMs = recipe.secondsPerWord?.let { it.toLong() * MILLIS_PER_SECOND }
     val practiceTasks = ArrayList<PracticeTask>(words.size)
     val trainingTasks = ArrayList<TrainingTask>(words.size)
     words.forEachIndexed { position, launch ->
@@ -142,13 +156,14 @@ private fun buildLaunch(
             launch.cells.map { cell ->
                 KanjiTask(cell.occurrenceId, KanjiId(cell.kanjiKey), cell.mode)
             }
+        val practiceCount = launch.cells.count { it.mode == EntryMode.User }
         practiceTasks +=
             PracticeTask(
                 taskId = taskId,
                 russianWord = launch.prompt,
                 kanji = kanjiTasks,
                 reading = launch.word.reading.trim(),
-                timeLimitMs = timeLimitMs,
+                timeLimitMs = wordTimeLimitMs(recipe.secondsPerSymbol, practiceCount),
             )
         trainingTasks +=
             TrainingTask(
@@ -191,7 +206,7 @@ private fun buildLaunch(
             recipeRevision = recipe.revision,
             recipeNames = recipe.names.map { TrainingRecipeName(it.languageTag, it.name) },
             taskCount = recipe.taskCount,
-            secondsPerWord = recipe.secondsPerWord,
+            secondsPerSymbol = recipe.secondsPerSymbol,
             status = TrainingStatus.InProgress,
             startedAt = nowMs,
             endedAt = null,
@@ -217,6 +232,7 @@ internal fun ActiveTraining.withTaskResult(result: PracticeResult, nowMs: Long):
                 startedAt = trainingTask.startedAt ?: training.startedAt,
                 endedAt = nowMs,
                 elapsedMs = result.elapsedMs,
+                readingHintUsed = result.readingHintUsed,
                 symbols =
                     trainingTask.symbols.map { symbol ->
                         val cell =
@@ -257,9 +273,10 @@ internal fun resumeActiveTraining(training: Training): ActiveTraining? {
                 it.status == TrainingTaskStatus.Pending || it.status == TrainingTaskStatus.InProgress
             }
             .takeIf { it >= 0 } ?: return null
-    val timeLimitMs = training.secondsPerWord?.let { it.toLong() * MILLIS_PER_SECOND }
     val practiceTasks =
         training.tasks.map { task ->
+            val practiceCount =
+                task.symbols.count { it.role == TrainingSymbolRole.Practice }
             PracticeTask(
                 taskId = task.id,
                 russianWord =
@@ -279,7 +296,7 @@ internal fun resumeActiveTraining(training: Training): ActiveTraining? {
                         )
                     },
                 reading = task.reading,
-                timeLimitMs = timeLimitMs,
+                timeLimitMs = wordTimeLimitMs(training.secondsPerSymbol, practiceCount),
             )
         }
     return ActiveTraining(training, practiceTasks, index)
@@ -295,7 +312,7 @@ private fun TrainingSymbol.fromKanjiResult(result: KanjiResult): TrainingSymbol 
                 EntryStatus.Incorrect -> TrainingSymbolStatus.Incorrect
                 EntryStatus.Prefilled -> TrainingSymbolStatus.Prefilled
             },
-        hintRequestCount = if (result.hintUsed) maxOf(hintRequestCount, 1) else hintRequestCount,
+        hintRequestCount = maxOf(hintRequestCount, result.hintRequestCount),
         elapsedMs = result.elapsedMs,
         writingSampleJson =
             if (result.mode == EntryMode.User && result.sample.strokeCount > 0) {
@@ -310,5 +327,3 @@ private fun scriptOf(codePoint: Int): TrainingSymbolScript =
         Character.UnicodeScript.HAN -> TrainingSymbolScript.Kanji
         else -> TrainingSymbolScript.Other
     }
-
-private const val MILLIS_PER_SECOND = 1000L

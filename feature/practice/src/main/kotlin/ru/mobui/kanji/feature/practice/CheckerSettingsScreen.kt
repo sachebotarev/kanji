@@ -34,6 +34,7 @@ import ru.mobui.kanji.core.writingpad.KanjiWritingPad
 import ru.mobui.kanji.core.writingpad.PadContent
 import ru.mobui.kanji.core.writingpad.PadUiState
 import ru.mobui.kanji.domain.practice.CheckVerdict
+import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 /** Stateless settings surface; host owns persistence, checker and navigation. */
@@ -60,6 +61,33 @@ fun CheckerSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 SettingsPreviewFailures(preview)
+                SettingsGroup(R.string.settings_group_hint) {
+                    HintModeRow(settings.hintMode) { change(settings.copy(hintMode = it)) }
+                    ParameterSlider(
+                        MaxNextStrokeHintsParameter,
+                        settings.maxNextStrokeHints.toFloat(),
+                    ) {
+                        change(settings.copy(maxNextStrokeHints = it.roundToInt()))
+                    }
+                    if (settings.hintMode == HintMode.FullCharacter) {
+                        ParameterSlider(
+                            FullHintDisplayParameter,
+                            settings.fullHintDisplayMillis.toFloat(),
+                        ) {
+                            change(settings.copy(fullHintDisplayMillis = it.roundToInt()))
+                        }
+                    }
+                }
+                SettingsGroup(R.string.settings_group_flow) {
+                    ToggleChoiceRow(
+                        R.string.setting_auto_advance,
+                        R.string.help_auto_advance,
+                        settings.autoAdvanceOnSuccess,
+                        "auto-advance",
+                    ) {
+                        change(settings.copy(autoAdvanceOnSuccess = it))
+                    }
+                }
                 ParameterGroup(R.string.settings_group_shape, ShapeParameters, settings, ::change)
                 ParameterGroup(
                     R.string.settings_group_compensations,
@@ -89,16 +117,24 @@ fun CheckerSettingsScreen(
 @Composable
 private fun SettingsHeader(onBack: () -> Unit, onReset: () -> Unit) {
     Row(
-        Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
         verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
     ) {
-        TextButton(onBack, Modifier.heightIn(min = 48.dp)) {
-            Text(stringResource(R.string.back))
+        androidx.compose.material3.IconButton(
+            onClick = onBack,
+            modifier = Modifier.size(48.dp).testTag("checker-settings-back"),
+        ) {
+            androidx.compose.material3.Icon(
+                painter = androidx.compose.ui.res.painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                contentDescription = stringResource(R.string.back),
+                modifier = Modifier.size(24.dp),
+            )
         }
         Text(
             stringResource(R.string.checker_settings_title),
-            Modifier.weight(1f),
+            Modifier.weight(1f).padding(horizontal = 8.dp),
             style = MaterialTheme.typography.headlineSmall,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Medium,
             color = MaterialTheme.colorScheme.onSurface,
         )
         TextButton(
@@ -271,6 +307,49 @@ private fun SettingsGroup(title: Int, content: @Composable () -> Unit) {
 }
 
 @Composable
+private fun HintModeRow(mode: HintMode, onChange: (HintMode) -> Unit) {
+    val title = stringResource(R.string.setting_hint_mode)
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        SettingHelp(R.string.setting_hint_mode, R.string.help_hint_mode, "hint-mode")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            for ((value, label) in
+                listOf(
+                    HintMode.FullCharacter to R.string.setting_hint_full_character,
+                    HintMode.NextStroke to R.string.setting_hint_next_stroke,
+                )) {
+                val active = value == mode
+                val text = stringResource(label)
+                OutlinedButton(
+                    onClick = { if (!active) onChange(value) },
+                    modifier =
+                        Modifier.weight(1f)
+                            .heightIn(min = 48.dp)
+                            .testTag(
+                                if (value == HintMode.FullCharacter) "hint-mode-full"
+                                else "hint-mode-next",
+                            )
+                            .semantics {
+                                selected = active
+                                contentDescription = "$title: $text"
+                            },
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor =
+                                if (active) MaterialTheme.colorScheme.secondaryContainer
+                                else Color.Transparent,
+                            contentColor =
+                                if (active) MaterialTheme.colorScheme.onSecondaryContainer
+                                else MaterialTheme.colorScheme.onSurface,
+                        ),
+                ) {
+                    Text(text)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun RuleChoiceRow(
     label: Int,
     help: Int,
@@ -279,13 +358,54 @@ private fun RuleChoiceRow(
     allowEnable: Boolean = true,
     onChange: (Boolean) -> Unit,
 ) {
+    BinaryChoiceRow(
+        label,
+        help,
+        checked,
+        tag,
+        stringResource(R.string.setting_rule_check),
+        stringResource(R.string.setting_rule_ignore),
+        allowEnable,
+        onChange,
+    )
+}
+
+@Composable
+private fun ToggleChoiceRow(
+    label: Int,
+    help: Int,
+    checked: Boolean,
+    tag: String,
+    onChange: (Boolean) -> Unit,
+) {
+    BinaryChoiceRow(
+        label,
+        help,
+        checked,
+        tag,
+        stringResource(R.string.setting_on),
+        stringResource(R.string.setting_off),
+        allowEnable = true,
+        onChange = onChange,
+    )
+}
+
+@Composable
+private fun BinaryChoiceRow(
+    label: Int,
+    help: Int,
+    checked: Boolean,
+    tag: String,
+    onLabel: String,
+    offLabel: String,
+    allowEnable: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
     val title = stringResource(label)
-    val check = stringResource(R.string.setting_rule_check)
-    val ignore = stringResource(R.string.setting_rule_ignore)
     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         SettingHelp(label, help, tag)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            for ((value, text) in listOf(true to check, false to ignore)) {
+            for ((value, text) in listOf(true to onLabel, false to offLabel)) {
                 val active = value == checked
                 OutlinedButton(
                     onClick = { if (!active) onChange(value) },
@@ -436,6 +556,29 @@ private val BudgetParameters =
                 settings.copy(maxCompensationBudgetPercent = value.takeIf { it > 0f })
             },
         ),
+    )
+
+private val MaxNextStrokeHintsParameter =
+    ParameterSpec(
+        R.string.setting_max_next_stroke_hints,
+        R.string.help_max_next_stroke_hints,
+        "max-next-stroke-hints",
+        1f..12f,
+        { it.maxNextStrokeHints.toFloat() },
+        { settings, value -> settings.copy(maxNextStrokeHints = value.roundToInt()) },
+        unit = R.string.setting_count_value,
+    )
+
+private val FullHintDisplayParameter =
+    ParameterSpec(
+        R.string.setting_full_hint_display,
+        R.string.help_full_hint_display,
+        "full-hint-display",
+        200f..3000f,
+        { it.fullHintDisplayMillis.toFloat() },
+        { settings, value -> settings.copy(fullHintDisplayMillis = value.roundToInt()) },
+        unit = R.string.setting_millis_value,
+        increment = 50f,
     )
 
 private val RuleParameters =

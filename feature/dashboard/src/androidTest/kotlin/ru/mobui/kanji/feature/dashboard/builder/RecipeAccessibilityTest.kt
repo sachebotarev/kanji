@@ -43,18 +43,18 @@ class RecipeAccessibilityTest {
         }
         val localized = context.createConfigurationContext(config)
         val recipe = Recipe("a", listOf(RecipeName("ru", "Tobira · глава 10")),
-            emptyList(), taskCount = 20, secondsPerWord = 30)
+            emptyList(), taskCount = 20, secondsPerSymbol = 30)
         compose.setContent {
             CompositionLocalProvider(LocalContext provides localized, LocalConfiguration provides config,
                 LocalDensity provides Density(context.resources.displayMetrics.density, scale)) {
                 KanjiTheme {
                     RecipeLibraryScreen(RecipeLibraryState(recipes = listOf(recipe), loading = false), "", "ru",
-                        RecipeLibraryActions({}, {}, {}, {}, {}, {}))
+                        RecipeLibraryActions({}, {}, {}, {}, {}, {}, {}))
                 }
             }
         }
         val tasks = compose.onNodeWithText("20 заданий", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
-        val timer = compose.onNodeWithText("30 с на слово", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
+        val timer = compose.onNodeWithText("30 с на символ", useUnmergedTree = true).fetchSemanticsNode().boundsInRoot
         if (scale == 1f) {
             assertEquals(tasks.top, timer.top, 1f)
             assertTrue(timer.left > tasks.right)
@@ -83,7 +83,7 @@ class RecipeAccessibilityTest {
                 KanjiTheme {
                     RecipeLibraryScreen(RecipeLibraryState(recipes = recipes, loading = false, busy = busy.value),
                         query.value, language, RecipeLibraryActions({}, {}, {},
-                            { moved = it }, { query.value = it }, {}))
+                            { moved = it }, {}, { query.value = it }, {}))
                 }
             }
         }
@@ -92,8 +92,11 @@ class RecipeAccessibilityTest {
         assertTrue(semantics[SemanticsProperties.Text].any { it.text == title })
         assertTrue(semantics.contains(SemanticsActions.OnClick))
         val actions = semantics[SemanticsActions.CustomActions]
-        assertEquals(if (language == "ru") listOf("Переместить выше", "Переместить ниже")
-            else listOf("Move up", "Move down"), actions.map { it.label })
+        assertEquals(
+            if (language == "ru") listOf("Переместить выше", "Переместить ниже", "Удалить")
+            else listOf("Move up", "Move down", "Delete"),
+            actions.map { it.label },
+        )
         card
             .assertContentDescriptionEquals(if (language == "ru") "Открыть рецепт «$title»" else "Open recipe “$title”")
             .assertHeightIsAtLeast(48.dp).assertWidthIsAtLeast(48.dp)
@@ -102,7 +105,10 @@ class RecipeAccessibilityTest {
         compose.runOnIdle { assertTrue(actions[0].action()) }
         assertEquals(listOf("b", "a", "c"), moved)
         compose.runOnIdle { query.value = title }
-        assertTrue(card.fetchSemanticsNode().config[SemanticsActions.CustomActions].isEmpty())
+        assertEquals(
+            listOf(if (language == "ru") "Удалить" else "Delete"),
+            card.fetchSemanticsNode().config[SemanticsActions.CustomActions].map { it.label },
+        )
         compose.runOnIdle { query.value = ""; busy.value = true }
         assertTrue(card.fetchSemanticsNode().config[SemanticsActions.CustomActions].isEmpty())
     }

@@ -25,6 +25,8 @@ internal data class TrainingAggregate(
     val tasks: List<TrainingTaskAggregate>,
 )
 
+internal data class CompletedTaskEndedRow(val endedAt: Long, val status: String)
+
 @Dao
 internal interface TrainingsDao {
     @Transaction
@@ -43,10 +45,28 @@ internal interface TrainingsDao {
     suspend fun inProgressIds(): List<String>
 
     @Query(
+        "SELECT ended_at AS endedAt, status FROM training_tasks " +
+            "WHERE status IN ('correct','assisted','skipped','timed_out') " +
+            "AND ended_at IS NOT NULL",
+    )
+    fun observeCompletedTasks(): Flow<List<CompletedTaskEndedRow>>
+
+    @Transaction
+    @Query(
+        "SELECT * FROM trainings WHERE status IN ('completed','interrupted','in_progress') " +
+            "ORDER BY CASE status WHEN 'in_progress' THEN 0 ELSE 1 END, " +
+            "COALESCE(ended_at, started_at) DESC, started_at DESC",
+    )
+    fun observeHistory(): Flow<List<TrainingAggregate>>
+
+    @Query(
         "UPDATE trainings SET status='interrupted', ended_at=:endedAt " +
             "WHERE status='in_progress'",
     )
     suspend fun interruptInProgress(endedAt: Long)
+
+    @Query("DELETE FROM trainings WHERE id=:id")
+    suspend fun deleteById(id: String)
 
     @Upsert suspend fun putTraining(row: TrainingsRow)
 

@@ -2,6 +2,7 @@ package ru.mobui.kanji.feature.dashboard.widgets
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,6 @@ internal fun DashboardCard(
         shape = RoundedCornerShape(24.dp),
         color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
-        Column(Modifier.padding(12.dp), content = content)
+        Column(Modifier.fillMaxHeight().padding(12.dp), content = content)
     }
 }

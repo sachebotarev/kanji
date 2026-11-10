@@ -1,6 +1,6 @@
 <resources>
     <string name="recipe_count_input">Количество заданий</string>
-    <string name="recipe_seconds_input">Секунды на слово</string>
+    <string name="recipe_seconds_input">Секунды на символ</string>
     <string name="recipe_new_title">Новый рецепт</string>
     <string name="recipe_edit_title">Изменить рецепт</string>
     <plurals name="recipe_available_words"><item quantity="one">Доступно: %d слово</item><item quantity="few">Доступно: %d слова</item><item quantity="many">Доступно: %d слов</item><item quantity="other">Доступно: %d слова</item></plurals>

@@ -7,8 +7,10 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.first
+import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 import ru.mobui.kanji.domain.practice.RecognitionSettingsRepository
 
@@ -81,6 +83,16 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
                 shapeEnabled = valueOrDefault(ShapeEnabled, defaults.shapeEnabled),
                 strokeWritingEnabled =
                     valueOrDefault(StrokeWritingEnabled, defaults.strokeWritingEnabled),
+                hintMode =
+                    this[HintModeKey]?.let { name ->
+                        HintMode.entries.firstOrNull { it.name == name }
+                    } ?: defaults.hintMode,
+                maxNextStrokeHints =
+                    valueOrDefault(MaxNextStrokeHints, defaults.maxNextStrokeHints),
+                fullHintDisplayMillis =
+                    valueOrDefault(FullHintDisplayMillis, defaults.fullHintDisplayMillis),
+                autoAdvanceOnSuccess =
+                    valueOrDefault(AutoAdvanceOnSuccess, defaults.autoAdvanceOnSuccess),
             )
             .roundedParameters()
 
@@ -107,6 +119,10 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
             values[ReadabilityEnabled] = value.readabilityEnabled
             values[ShapeEnabled] = value.shapeEnabled
             values[StrokeWritingEnabled] = value.strokeWritingEnabled
+            values[HintModeKey] = value.hintMode.name
+            values[MaxNextStrokeHints] = value.maxNextStrokeHints
+            values[FullHintDisplayMillis] = value.fullHintDisplayMillis
+            values[AutoAdvanceOnSuccess] = value.autoAdvanceOnSuccess
         }
     }
 
@@ -132,6 +148,10 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
         val ReadabilityEnabled = booleanPreferencesKey("readabilityEnabled")
         val ShapeEnabled = booleanPreferencesKey("shapeEnabled")
         val StrokeWritingEnabled = booleanPreferencesKey("strokeWritingEnabled")
+        val HintModeKey = stringPreferencesKey("hintMode")
+        val MaxNextStrokeHints = intPreferencesKey("maxNextStrokeHints")
+        val FullHintDisplayMillis = intPreferencesKey("fullHintDisplayMillis")
+        val AutoAdvanceOnSuccess = booleanPreferencesKey("autoAdvanceOnSuccess")
     }
 }
 

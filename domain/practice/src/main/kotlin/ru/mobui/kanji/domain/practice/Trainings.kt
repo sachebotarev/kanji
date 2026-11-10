@@ -85,6 +85,8 @@ data class TrainingTask(
     val startedAt: Long? = null,
     val endedAt: Long? = null,
     val elapsedMs: Long = 0,
+    /** Reading spoiler was opened during this attempt. */
+    val readingHintUsed: Boolean = false,
     val symbols: List<TrainingSymbol>,
 )
 
@@ -94,7 +96,7 @@ data class Training(
     val recipeRevision: Long? = null,
     val recipeNames: List<TrainingRecipeName>,
     val taskCount: Int? = null,
-    val secondsPerWord: Int? = null,
+    val secondsPerSymbol: Int? = null,
     val status: TrainingStatus,
     val startedAt: Long,
     val endedAt: Long? = null,
@@ -103,12 +105,27 @@ data class Training(
 
 class TrainingValidationException(message: String) : IllegalArgumentException(message)
 
+/** Terminal task snapshot for home statistics (`ended_at` + status key). */
+data class CompletedTrainingTask(val endedAt: Long, val statusKey: String)
+
 /**
  * Persistent trainings: at most one [TrainingStatus.InProgress]. Starting a new training
  * interrupts the previous in-progress row in the same transaction.
  */
 interface TrainingsRepository {
     fun observeInProgress(): Flow<Training?>
+
+    /**
+     * Terminal tasks (`correct`, `assisted`, `skipped`, `timed_out`) with epoch-ms `ended_at`.
+     * Empty when there is no completed work yet.
+     */
+    fun observeCompletedTasks(): Flow<List<CompletedTrainingTask>>
+
+    /**
+     * Trainings for footprints: in-progress first, then completed/interrupted by
+     * `ended_at` / `started_at` descending. Long in-progress runs stay visible here.
+     */
+    fun observeHistory(): Flow<List<Training>>
 
     suspend fun getInProgress(): Training?
 
@@ -120,6 +137,9 @@ interface TrainingsRepository {
     /** Replaces the aggregate for resume and progress updates. */
     suspend fun saveTraining(training: Training)
 
+    /** Deletes one training and cascaded tasks/symbols. Study materials stay. */
+    suspend fun deleteTraining(id: String)
+
     /** Deletes all trainings and cascaded tasks/symbols. */
     suspend fun clearHistory()
 }
@@ -129,7 +149,7 @@ fun Training.validatedForStart(): Training {
     require(status == TrainingStatus.InProgress && endedAt == null)
     require(startedAt > 0)
     require(taskCount == null || taskCount > 0)
-    require(secondsPerWord == null || secondsPerWord > 0)
+    require(secondsPerSymbol == null || secondsPerSymbol > 0)
     require(recipeRevision == null || recipeRevision > 0)
     require(tasks.isNotEmpty())
     require(tasks.map { it.position }.distinct().size == tasks.size)
@@ -145,7 +165,7 @@ fun Training.validatedForSave(): Training {
     require(id.isNotBlank())
     require(startedAt > 0)
     require(taskCount == null || taskCount > 0)
-    require(secondsPerWord == null || secondsPerWord > 0)
+    require(secondsPerSymbol == null || secondsPerSymbol > 0)
     require(recipeRevision == null || recipeRevision > 0)
     when (status) {
         TrainingStatus.InProgress -> require(endedAt == null)

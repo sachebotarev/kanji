@@ -23,6 +23,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -104,7 +105,11 @@ internal fun DictionaryTranslationsScreen(translations: List<WordTranslationDraf
                 OutlinedTextField(text, { text = it }, Modifier.fillMaxWidth().testTag("translation-text"),
                     label = { Text(stringResource(ru.mobui.kanji.core.wordui.R.string.word_translation)) }, shape = MaterialTheme.inputShape,
                     colors = kanjiOutlinedTextFieldColors())
-                if (existing != null) TextButton({ onRemove(index); editing = null }, Modifier.testTag("translation-delete")) {
+                if (existing != null) TextButton(
+                    onClick = { onRemove(index); editing = null },
+                    modifier = Modifier.testTag("translation-delete"),
+                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                ) {
                     Text(stringResource(R.string.dictionary_delete))
                 }
             } },

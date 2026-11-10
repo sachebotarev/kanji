@@ -15,6 +15,8 @@ import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
 import ru.mobui.kanji.feature.catalog.presentation.SearchState
 import ru.mobui.kanji.feature.catalog.presentation.SourceWordsPresentation
 
+import androidx.activity.compose.BackHandler
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -74,6 +76,7 @@ internal fun CatalogBrowseScreen(
     val tabs: (@Composable () -> Unit)? = source?.let {
         ({ SourceTabs(it.tab, it.request.chapter != null, actions.tab) })
     }
+    BackHandler(enabled = search.open) { actions.toggleSearch() }
     CatalogScaffold(
         title,
         actions.back,

@@ -74,7 +74,7 @@ internal fun MaterialEditorScreen(initial: RecipeMaterial, snapshot: CatalogSnap
                 MaterialType.Dictionary -> DictionaryMaterialEditorScreen(draft, snapshot, tags, assignments,
                     language, onApply, onBack, onWord, onManageTags, modifier, editing, selector)
                 MaterialType.Kanji -> KanjiMaterialEditorScreen(draft, snapshot.words, entries, byWord, language,
-                    onApply, onBack, onWord, modifier, editing, facets, selector)
+                    onApply, onBack, onWord, modifier, editing, facets, selector, snapshot.kanji)
                 MaterialType.Words -> WordMaterialEditorScreen(draft, snapshot.words, entries, byWord, language,
                     onApply, onBack, onWord, modifier, editing, facets, selector)
             }

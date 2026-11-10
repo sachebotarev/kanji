@@ -37,6 +37,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.Serializable
 import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
+import ru.mobui.kanji.domain.catalog.recipeWords
 import ru.mobui.kanji.domain.practice.KanjiId
 import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TrainingStatus
@@ -44,6 +45,7 @@ import ru.mobui.kanji.domain.practice.summarize
 import ru.mobui.kanji.feature.catalog.CatalogSection
 import ru.mobui.kanji.feature.dashboard.DashboardDemo
 import ru.mobui.kanji.feature.dashboard.DashboardScreen
+import ru.mobui.kanji.feature.dashboard.history.findExcellentRecipeIds
 import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
 import ru.mobui.kanji.feature.practice.PracticeRoute
 import ru.mobui.kanji.feature.practice.PracticeViewModel
@@ -66,7 +68,14 @@ import ru.mobui.kanji.feature.settings.SettingsScreen
 
 @Serializable private data object Dictionary
 
-@Serializable private data class RecipeBuilder(val openCreate: Boolean = false)
+@Serializable
+private data class RecipeBuilder(
+    val openCreate: Boolean = false,
+    /** After first save, start PRACTICE instead of returning to the recipe list. */
+    val launchAfterCreate: Boolean = false,
+)
+
+@Serializable private data class TrainingHistory(val period: String = "all")
 
 @Serializable private data object PracticeChecker
 
@@ -110,15 +119,11 @@ internal fun MainContent(
     val modelStatus by dependencies.japaneseModel.status.collectAsStateWithLifecycle()
     val modelError by dependencies.japaneseModel.error.collectAsStateWithLifecycle()
     if (modelError) {
-        AlertDialog(
-            onDismissRequest = dependencies.japaneseModel::dismissError,
-            title = { Text(stringResource(R.string.japanese_model_title)) },
-            text = { Text(stringResource(R.string.japanese_model_failed)) },
-            confirmButton = {
-                TextButton(onClick = dependencies.japaneseModel::dismissError) {
-                    Text(stringResource(R.string.close))
-                }
-            },
+        ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+            title = stringResource(R.string.japanese_model_title),
+            message = stringResource(R.string.japanese_model_failed),
+            onDismiss = dependencies.japaneseModel::dismissError,
+            buttonText = stringResource(R.string.close),
         )
     }
     val loaded by settingsModel.loaded.collectAsStateWithLifecycle()
@@ -199,7 +204,6 @@ internal fun MainContent(
             } else {
                 PracticePadDestination(
                     context,
-                    nav,
                     training,
                     onActiveTrainingChange = { activeTraining = it },
                     onPreview = { practicePreview = it },
@@ -248,9 +252,28 @@ internal fun MainContent(
         composable<RecipeBuilder>(
             deepLinks = listOf(navDeepLink<RecipeBuilder>(basePath = AppDeepLinks.RECIPES)),
         ) { entry ->
+            val route = entry.toRoute<RecipeBuilder>()
             RecipeBuilderDestination(
                 context,
-                openCreate = entry.toRoute<RecipeBuilder>().openCreate,
+                nav,
+                openCreate = route.openCreate,
+                launchAfterCreate = route.launchAfterCreate,
+                onBack = { nav.popOrDashboard() },
+                onActiveTrainingChange = {
+                    suppressPracticeResume = false
+                    activeTraining = it
+                },
+                trainingPersistence = trainingPersistence,
+            )
+        }
+        composable<TrainingHistory> { entry ->
+            val period =
+                ru.mobui.kanji.feature.dashboard.history.TrainingHistoryPeriod.fromKey(
+                    entry.toRoute<TrainingHistory>().period,
+                )
+            ru.mobui.kanji.feature.dashboard.history.TrainingHistoryRoute(
+                repository = context.dependencies.trainingsRepository,
+                initialPeriod = period,
                 onBack = { nav.popOrDashboard() },
             )
         }
@@ -365,6 +388,25 @@ private fun DashboardDestination(
         val personalCount by dictionarySummary.count.collectAsStateWithLifecycle()
         val unfinished by
             dependencies.trainingsRepository.observeInProgress().collectAsStateWithLifecycle(null)
+        val completedTasks by
+            dependencies.trainingsRepository
+                .observeCompletedTasks()
+                .collectAsStateWithLifecycle(emptyList())
+        val zone = java.time.ZoneId.systemDefault()
+        val activity =
+            remember(completedTasks) {
+                ru.mobui.kanji.feature.dashboard.activityOverviewFromEndedAt(
+                    completedTasks.map { it.endedAt },
+                    zone,
+                )
+            }
+        val statistics =
+            remember(completedTasks) {
+                ru.mobui.kanji.feature.dashboard.wordStatisticsForDay(
+                    completedTasks.map { it.endedAt to it.statusKey },
+                    zone,
+                )
+            }
         val scope = rememberCoroutineScope()
         val language = LocalConfiguration.current.preferredLanguageTag()
         val unfinishedSummary =
@@ -396,6 +438,8 @@ private fun DashboardDestination(
             }
         DashboardScreen(
             DashboardDemo.state.copy(
+                statistics = statistics,
+                activity = activity,
                 vocabulary = DashboardDemo.state.vocabulary.copy(personalTotal = personalCount),
             ),
             onStartTraining = { nav.navigate(TrainingPick) },
@@ -425,6 +469,12 @@ private fun DashboardDestination(
             onOpenCatalog = { nav.navigate(Catalog) },
             onOpenReferences = { nav.navigate(References) },
             onOpenDictionary = { nav.navigate(Dictionary) },
+            onOpenWordStatistics = {
+                nav.navigate(TrainingHistory(period = "today")) { launchSingleTop = true }
+            },
+            onOpenActivity = {
+                nav.navigate(TrainingHistory(period = "all")) { launchSingleTop = true }
+            },
         )
     }
 }
@@ -439,33 +489,41 @@ private fun TrainingPickDestination(
     with(context) {
         val recipes by
             dependencies.recipesRepository.observeRecipes().collectAsStateWithLifecycle(emptyList())
+        val assignments by
+            dependencies.recipesRepository
+                .observeWordTags()
+                .collectAsStateWithLifecycle(emptyList())
+        val history by
+            dependencies.trainingsRepository
+                .observeHistory()
+                .collectAsStateWithLifecycle(emptyList())
+        val excellentRecipeIds = remember(recipes, history) {
+            findExcellentRecipeIds(recipes, history)
+        }
+        var poolCounts by remember { mutableStateOf<Map<String, Int>>(emptyMap()) }
+        LaunchedEffect(recipes, assignments) {
+            val snapshot = withContext(Dispatchers.IO) { dependencies.catalog.load() }
+            poolCounts =
+                withContext(Dispatchers.Default) {
+                    recipes.associate { recipe ->
+                        recipe.id to
+                            snapshot
+                                .recipeWords(recipe.materials, assignments)
+                                .size
+                    }
+                }
+        }
         var query by rememberSaveable { mutableStateOf("") }
         var emptyLaunch by rememberSaveable { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val language = LocalConfiguration.current.preferredLanguageTag()
         if (emptyLaunch) {
-            AlertDialog(
-                onDismissRequest = { emptyLaunch = false },
-                modifier = Modifier.testTag("training-pick-no-tasks"),
-                title = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title,
-                        ),
-                    )
-                },
-                text = {
-                    Text(
-                        stringResource(
-                            ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body,
-                        ),
-                    )
-                },
-                confirmButton = {
-                    TextButton(onClick = { emptyLaunch = false }) {
-                        Text(stringResource(R.string.close))
-                    }
-                },
+            ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+                title = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title),
+                message = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body),
+                onDismiss = { emptyLaunch = false },
+                buttonText = stringResource(R.string.close),
+                testTag = "training-pick-no-tasks",
             )
         }
         ru.mobui.kanji.feature.dashboard.TrainingPickScreen(
@@ -475,6 +533,8 @@ private fun TrainingPickDestination(
             language = language,
             onBack = { nav.popOrDashboard() },
             onQuery = { query = it },
+            poolCounts = poolCounts,
+            excellentRecipeIds = excellentRecipeIds,
             onPick = { recipeId ->
                 scope.launch {
                     val launch = loadTrainingLaunch(dependencies, recipeId)
@@ -492,7 +552,9 @@ private fun TrainingPickDestination(
                     }
                 }
             },
-            onCreateFirstRecipe = { nav.navigate(RecipeBuilder(openCreate = true)) },
+            onCreateFirstRecipe = {
+                nav.navigate(RecipeBuilder(openCreate = true, launchAfterCreate = true))
+            },
         )
     }
 }
@@ -525,11 +587,26 @@ private suspend fun loadTrainingLaunch(
 @Composable
 private fun RecipeBuilderDestination(
     context: AppUiContext,
+    nav: NavHostController,
     openCreate: Boolean,
+    launchAfterCreate: Boolean,
     onBack: () -> Unit,
+    onActiveTrainingChange: (ActiveTraining?) -> Unit,
+    trainingPersistence: TrainingPersistence,
 ) {
     with(context) {
         val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
+        val scope = rememberCoroutineScope()
+        var emptyLaunch by rememberSaveable { mutableStateOf(false) }
+        if (emptyLaunch) {
+            ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+                title = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title),
+                message = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_body),
+                onDismiss = { emptyLaunch = false },
+                buttonText = stringResource(R.string.close),
+                testTag = "recipe-create-no-tasks",
+            )
+        }
         ru.mobui.kanji.feature.dashboard.builder.RecipeBuilderRoute(
             dependencies.catalog,
             dependencies.dictionary,
@@ -551,8 +628,31 @@ private fun RecipeBuilderDestination(
                         back,
                     )
                 },
+                onCreatedForLaunch = { recipeId ->
+                    scope.launch {
+                        val launch = loadTrainingLaunch(dependencies, recipeId)
+                        if (launch == null) {
+                            withContext(Dispatchers.Main.immediate) {
+                                emptyLaunch = true
+                                // Recipe exists: return to pick so the user can edit materials.
+                                nav.popBackStack()
+                            }
+                            return@launch
+                        }
+                        trainingPersistence.start(launch.active.training)
+                        withContext(Dispatchers.Main.immediate) {
+                            onActiveTrainingChange(launch.active)
+                            nav.navigate(Practice) {
+                                popUpTo(TrainingPick) { inclusive = true }
+                                launchSingleTop = true
+                            }
+                        }
+                    }
+                },
             ),
             openCreate = openCreate,
+            launchAfterCreate = launchAfterCreate,
+            trainingsRepository = dependencies.trainingsRepository,
         )
     }
 }
@@ -560,7 +660,6 @@ private fun RecipeBuilderDestination(
 @Composable
 private fun PracticePadDestination(
     context: AppUiContext,
-    nav: NavHostController,
     active: ActiveTraining,
     onActiveTrainingChange: (ActiveTraining?) -> Unit,
     onPreview: (ru.mobui.kanji.feature.practice.PracticeUiState) -> Unit,
@@ -569,7 +668,8 @@ private fun PracticePadDestination(
 ) {
     with(context) {
         val task = active.task
-        val scope = rememberCoroutineScope()
+        // Application scope: leave/pop must not cancel the in-progress save.
+        val persistence = dependencies.persistenceScope
         val practice: PracticeViewModel =
             viewModel(key = "${task.taskId}-${active.index}", factory = graph.factory(task))
         var leaving by remember(task.taskId, active.index) { mutableStateOf(false) }
@@ -577,9 +677,7 @@ private fun PracticePadDestination(
             if (!leaving) {
                 leaving = true
                 if (active.training.status == TrainingStatus.InProgress) {
-                    scope.launch {
-                        runCatching { trainingPersistence.save(active.training) }
-                    }
+                    trainingPersistence.saveAsync(active.training)
                 }
                 onLeave()
             }
@@ -598,7 +696,7 @@ private fun PracticePadDestination(
                 onResult = { practiceResult ->
                     if (!advancing && !leaving) {
                         advancing = true
-                        scope.launch {
+                        persistence.launch {
                             val updated =
                                 active.withTaskResult(
                                     practiceResult,
@@ -618,7 +716,6 @@ private fun PracticePadDestination(
                     }
                 },
                 onBack = leave,
-                settings = settings,
                 wordLabel = task.russianWord,
                 progressLabel =
                     stringResource(
@@ -626,16 +723,6 @@ private fun PracticePadDestination(
                         active.ordinal,
                         active.total,
                     ),
-                readabilityAvailable = modelReady,
-                onSettingsChanged = {
-                    settingsModel.update(it)
-                    practice.onCheckerSettingsChanged()
-                },
-                onResetSettings = {
-                    settingsModel.reset()
-                    practice.onCheckerSettingsChanged()
-                },
-                onOpenCheckerSettings = { nav.navigate(PracticeChecker) },
             )
         } else {
             BackHandler(enabled = !leaving) { leave() }

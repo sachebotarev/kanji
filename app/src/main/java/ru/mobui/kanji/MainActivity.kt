@@ -17,7 +17,6 @@ import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.data.kanjivg.BundledKanjiReferenceSource
 import ru.mobui.kanji.domain.practice.CombinedKanjiChecker
 import ru.mobui.kanji.domain.practice.PracticeTask
-import ru.mobui.kanji.domain.practice.TraceReferenceHint
 import ru.mobui.kanji.feature.practice.PracticeViewModel
 
 class MainActivity : ComponentActivity() {
@@ -77,7 +76,16 @@ class MainActivity : ComponentActivity() {
                             task,
                             source,
                             checker,
-                            hintAlgorithm = TraceReferenceHint(),
+                            hintMode = { settingsModel.settings.value.hintMode },
+                            maxNextStrokeHints = {
+                                settingsModel.settings.value.maxNextStrokeHints
+                            },
+                            fullHintDisplayMillis = {
+                                settingsModel.settings.value.fullHintDisplayMillis
+                            },
+                            autoAdvanceOnSuccess = {
+                                settingsModel.settings.value.autoAdvanceOnSuccess
+                            },
                             showCheckDiagnostics = BuildConfig.DEBUG,
                         ) as T
                     }

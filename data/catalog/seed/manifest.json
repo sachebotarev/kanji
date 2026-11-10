@@ -1,7 +1,7 @@
 {
   "format_version": 1,
   "schema_version": 1,
-  "content_version": 2,
+  "content_version": 3,
   "identity_registry_sha256": "9a9270ff43aea2755f2f1183d1e83af005337aa0277f8eba9fb764145753b32f",
   "schema_sha256": "625e0ae11756535938c52e56c09dbdd520cf5d87411166c206d7f484429b35bf",
   "inputs_sha256": {
@@ -12,11 +12,11 @@
   },
   "files": {
     "catalog.sqlite": {
-      "sha256": "3001e37e602e90da8511326b3f64990e2ee6154ad2c4517138e4852d4e7c372b",
+      "sha256": "e16146404f9f970280e590d1a7f3839b67734068f5fd9abe645fbafbfa6e9932",
       "bytes": 1511424
     },
     "catalog.json": {
-      "sha256": "cb1b099c072cac384451dd8e5d97c9acf8b38596c365809175654c05563ff6c6",
+      "sha256": "2c22530d973f6fcc3929c27584f591be3663cea29bbaf488a6095f24e893c54a",
       "bytes": 2402393
     }
   },

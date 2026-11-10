@@ -8,12 +8,13 @@ class TrainingGradeTest {
     fun excellentWhenMostlyCorrect() {
         val summary =
             training(
-                TrainingTaskStatus.Correct,
-                TrainingTaskStatus.Correct,
-                TrainingTaskStatus.Correct,
-                TrainingTaskStatus.Assisted,
+                task(TrainingTaskStatus.Correct),
+                task(TrainingTaskStatus.Correct),
+                task(TrainingTaskStatus.Correct),
+                task(TrainingTaskStatus.Assisted, hintCount = 1),
             ).summarize()
-        assertEquals(90, summary.percent)
+        // (1+1+1+2/3)/4 ≈ 91.67 → 92
+        assertEquals(92, summary.percent)
         assertEquals(TrainingGradeLevel.Excellent, summary.grade)
         assertEquals(3, summary.correctCount)
         assertEquals(1, summary.assistedCount)
@@ -24,14 +25,14 @@ class TrainingGradeTest {
     fun steadyInMiddleBand() {
         val summary =
             training(
-                TrainingTaskStatus.Correct,
-                TrainingTaskStatus.Correct,
-                TrainingTaskStatus.Assisted,
-                TrainingTaskStatus.Skipped,
-                TrainingTaskStatus.TimedOut,
+                task(TrainingTaskStatus.Correct),
+                task(TrainingTaskStatus.Correct),
+                task(TrainingTaskStatus.Assisted, hintCount = 1),
+                task(TrainingTaskStatus.Skipped),
+                task(TrainingTaskStatus.TimedOut),
             ).summarize()
-        // (1+1+0.6+0+0.25)/5 = 0.57 → 57%
-        assertEquals(57, summary.percent)
+        // (1+1+2/3+0+0.25)/5 ≈ 58.33 → 58
+        assertEquals(58, summary.percent)
         assertEquals(TrainingGradeLevel.Steady, summary.grade)
     }
 
@@ -39,22 +40,33 @@ class TrainingGradeTest {
     fun keepGoingWhenMostlyMissed() {
         val summary =
             training(
-                TrainingTaskStatus.Skipped,
-                TrainingTaskStatus.Skipped,
-                TrainingTaskStatus.TimedOut,
-                TrainingTaskStatus.Assisted,
+                task(TrainingTaskStatus.Skipped),
+                task(TrainingTaskStatus.Skipped),
+                task(TrainingTaskStatus.TimedOut),
+                task(TrainingTaskStatus.Assisted, hintCount = 1),
             ).summarize()
-        // (0+0+0.25+0.6)/4 = 0.2125 → 21%
-        assertEquals(21, summary.percent)
+        // (0+0+0.25+2/3)/4 ≈ 22.92 → 23
+        assertEquals(23, summary.percent)
         assertEquals(TrainingGradeLevel.KeepGoing, summary.grade)
         assertEquals(2, summary.skippedCount)
         assertEquals(1, summary.timedOutCount)
     }
 
     @Test
+    fun readingHintScalesAssistedWord() {
+        val summary =
+            training(
+                task(TrainingTaskStatus.Assisted, hintCount = 0, readingHint = true),
+            ).summarize()
+        // 1.0 × 0.85 → 85
+        assertEquals(85, summary.percent)
+        assertEquals(TrainingGradeLevel.Excellent, summary.grade)
+    }
+
+    @Test
     fun recipeNameFallsBackToRussian() {
         val training =
-            training(TrainingTaskStatus.Correct)
+            training(task(TrainingTaskStatus.Correct))
                 .copy(
                     recipeNames =
                         listOf(
@@ -66,45 +78,56 @@ class TrainingGradeTest {
         assertEquals("Smart mix", training.summarize("en").recipeName)
     }
 
-    private fun training(vararg statuses: TrainingTaskStatus): Training =
+    private fun task(
+        status: TrainingTaskStatus,
+        hintCount: Int = 0,
+        readingHint: Boolean = false,
+    ): TrainingTask =
+        TrainingTask(
+            id = "task",
+            position = 0,
+            wordId = null,
+            writtenForm = "字",
+            reading = "じ",
+            translations = listOf(TrainingTaskTranslation("ru", "знак")),
+            status = status,
+            startedAt = 1_000L,
+            endedAt = 1_500L,
+            elapsedMs = 1_000L,
+            readingHintUsed = readingHint,
+            symbols =
+                listOf(
+                    TrainingSymbol(
+                        id = "sym",
+                        position = 0,
+                        occurrenceId = "occ",
+                        role = TrainingSymbolRole.Practice,
+                        script = TrainingSymbolScript.Kanji,
+                        glyph = "字",
+                        kanjiId = null,
+                        kanjiKey = "u5b57",
+                        status =
+                            when (status) {
+                                TrainingTaskStatus.Skipped,
+                                TrainingTaskStatus.TimedOut -> TrainingSymbolStatus.Incorrect
+                                else -> TrainingSymbolStatus.Correct
+                            },
+                        hintRequestCount = hintCount,
+                    ),
+                ),
+        )
+
+    private fun training(vararg tasks: TrainingTask): Training =
         Training(
             id = "t1",
             recipeId = "r1",
             recipeRevision = 1,
             recipeNames = listOf(TrainingRecipeName("ru", "Умный микс")),
-            taskCount = statuses.size,
-            secondsPerWord = 60,
+            taskCount = tasks.size,
+            secondsPerSymbol = 60,
             status = TrainingStatus.Completed,
             startedAt = 1_000L,
             endedAt = 2_000L,
-            tasks =
-                statuses.mapIndexed { index, status ->
-                    TrainingTask(
-                        id = "task-$index",
-                        position = index,
-                        wordId = null,
-                        writtenForm = "字",
-                        reading = "じ",
-                        translations = listOf(TrainingTaskTranslation("ru", "знак")),
-                        status = status,
-                        startedAt = 1_000L,
-                        endedAt = 1_500L,
-                        elapsedMs = 1_000L * (index + 1),
-                        symbols =
-                            listOf(
-                                TrainingSymbol(
-                                    id = "sym-$index",
-                                    position = 0,
-                                    occurrenceId = "occ-$index",
-                                    role = TrainingSymbolRole.Practice,
-                                    script = TrainingSymbolScript.Kanji,
-                                    glyph = "字",
-                                    kanjiId = null,
-                                    kanjiKey = "u5b57",
-                                    status = TrainingSymbolStatus.Correct,
-                                ),
-                            ),
-                    )
-                },
+            tasks = tasks.mapIndexed { index, task -> task.copy(id = "task-$index", position = index) },
         )
 }

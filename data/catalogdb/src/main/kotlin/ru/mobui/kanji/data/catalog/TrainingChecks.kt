@@ -13,7 +13,7 @@ internal fun installTrainingChecks(db: SupportSQLiteDatabase) {
                     "length(trim(NEW.id))>0 AND NEW.status IN ('in_progress','completed','interrupted') AND " +
                         "(NEW.recipe_revision IS NULL OR NEW.recipe_revision>0) AND " +
                         "(NEW.task_count IS NULL OR NEW.task_count>0) AND " +
-                        "(NEW.seconds_per_word IS NULL OR NEW.seconds_per_word>0) AND " +
+                        "(NEW.seconds_per_symbol IS NULL OR NEW.seconds_per_symbol>0) AND " +
                         "((NEW.status='in_progress' AND NEW.ended_at IS NULL) OR " +
                         "(NEW.status IN ('completed','interrupted') AND NEW.ended_at IS NOT NULL))"
                     ),
@@ -24,7 +24,8 @@ internal fun installTrainingChecks(db: SupportSQLiteDatabase) {
                     "length(trim(NEW.id))>0 AND NEW.position>=0 AND " +
                         "length(trim(NEW.written_form))>0 AND length(trim(NEW.reading))>0 AND " +
                         "NEW.status IN ('pending','in_progress','correct','assisted','skipped','timed_out') AND " +
-                        "NEW.elapsed_ms>=0"
+                        "NEW.elapsed_ms>=0 AND " +
+                        "NEW.reading_hint_used IN (0, 1)"
                     ),
             "training_task_translations" to
                 "length(trim(NEW.language_tag))>0 AND length(trim(NEW.translation))>0",

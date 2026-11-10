@@ -1,5 +1,5 @@
 {
-  "revision": "approval-2026-11-07",
+  "revision": "approval-2026-11-07+home-history-draft",
   "approval": {
     "date": "2026-11-07",
     "features": [
@@ -62,17 +62,63 @@
         {
           "language_tag": "ru",
           "title": "Выбор рецепта",
-          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт»."
+          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт». Без строки «Нажми рецепт», без шевронов, со штампом мастера."
         },
         {
           "language_tag": "en",
           "title": "Choose recipe",
-          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”."
+          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”. No prompt line, no chevrons, master stamp included."
         }
       ],
       "feature": "home",
       "legacy_ids": [],
       "parent_id": "HOME"
+    },
+    {
+      "id": "HOME.02",
+      "module": "web",
+      "key": "training-history",
+      "route": "training-history",
+      "status": "unapproved",
+      "spec": "home/training-history.md",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Следы тренировок",
+          "changes": "Черновик: список тренировок по дням, поиск и фильтр периода; вход с HOME.W02 (сегодня) и HOME.W03 (все). Требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Training footprints",
+          "changes": "Draft: trainings grouped by day, search and period filter; entry from HOME.W02 (today) and HOME.W03 (all). Approval required."
+        }
+      ],
+      "feature": "home",
+      "legacy_ids": [],
+      "parent_id": "HOME"
+    },
+    {
+      "id": "HOME.02.01",
+      "module": "web",
+      "key": "training-history-detail",
+      "route": "training-history-detail",
+      "status": "unapproved",
+      "spec": "home/training-history.md",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Тренировка",
+          "changes": "Черновик: сводка тренировки и список слов со статусами. Не итог PRACTICE.01. Требует согласования."
+        },
+        {
+          "language_tag": "en",
+          "title": "Training",
+          "changes": "Draft: training summary and per-word statuses. Not PRACTICE.01 completion. Approval required."
+        }
+      ],
+      "feature": "home",
+      "legacy_ids": [],
+      "parent_id": "HOME.02"
     },
     {
       "id": "BOOKS",
@@ -958,12 +1004,12 @@
         {
           "language_tag": "ru",
           "title": "Тренировка",
-          "changes": "Согласовано 2026-11-07 (макет). Исполнение тренировок по рецепту — отдельный этап реализации."
+          "changes": "Макет приведён в соответствие Android: WordPrompt, ReadingSpoiler, полоса ячеек, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, панель действий."
         },
         {
           "language_tag": "en",
           "title": "Practice",
-          "changes": "Approved 2026-11-07 (design). Recipe-driven training execution remains a separate implementation stage."
+          "changes": "Prototype aligned with Android: WordPrompt, ReadingSpoiler, cell strip, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, action bar."
         }
       ],
       "feature": "practice",

@@ -1,5 +1,8 @@
 package ru.mobui.kanji.feature.dictionary
 
+import androidx.activity.compose.BackHandler
+import ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog
+import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
 import ru.mobui.kanji.core.wordui.WordDetailsActions
 
 import androidx.compose.foundation.Image
@@ -80,7 +83,11 @@ internal fun DictionaryHeader(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         IconButton(onBack, enabled = enabled, modifier = Modifier.size(48.dp).testTag("dictionary-back")) {
-            Icon(painterResource(R.drawable.word_back), stringResource(R.string.dictionary_back))
+            Icon(
+                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
+                stringResource(R.string.dictionary_back),
+                Modifier.size(24.dp),
+            )
         }
         Text(
             title,
@@ -150,6 +157,10 @@ internal fun DictionaryListScreen(
 ) {
     with(actions) {
     var searchOpen by rememberSaveable { mutableStateOf(state.query.isNotEmpty()) }
+    BackHandler(enabled = searchOpen) {
+        searchOpen = false
+        onQuery("")
+    }
     Scaffold(
         Modifier.testTag("dictionary-screen").background(MaterialTheme.colorScheme.background).safeDrawingPadding(),
         floatingActionButton = {
@@ -173,11 +184,17 @@ internal fun DictionaryListScreen(
     ) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
             DictionaryHeader(stringResource(R.string.dictionary_title), onBack, compact = true) {
-                IconButton({ searchOpen = !searchOpen; if (!searchOpen) onQuery("") },
-                    Modifier.size(48.dp).testTag("dictionary-search-toggle")) {
-                    Icon(painterResource(R.drawable.word_search),
-                        stringResource(if (searchOpen) R.string.dictionary_search_close else R.string.dictionary_search_toggle))
-                }
+                KanjiSearchToggle(
+                    open = searchOpen,
+                    onToggle = {
+                        searchOpen = !searchOpen
+                        if (!searchOpen) onQuery("")
+                    },
+                    testTag = "dictionary-search-toggle",
+                    contentDescription = stringResource(
+                        if (searchOpen) R.string.dictionary_search_close else R.string.dictionary_search_toggle,
+                    ),
+                )
             }
             if (state.loading || state.error) DictionaryStatus(state.loading, state.error, retry)
             else {
@@ -311,32 +328,21 @@ internal fun DictionaryWordScreen(
         }
     }
     }
-    if (confirmDelete && word?.isUserCreated == true)
-        AlertDialog(
-            onDismissRequest = { confirmDelete = false },
-            title = { Text(stringResource(R.string.dictionary_delete_title)) },
-            text = { Text(stringResource(R.string.dictionary_delete_text, word.written)) },
-            confirmButton = {
-                TextButton(
-                    {
-                        confirmDelete = false
-                        onDelete()
-                    },
-                    Modifier.testTag("confirm-delete-word"),
-                    enabled = !state.busy,
-                ) {
-                    Text(
-                        stringResource(R.string.dictionary_delete),
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
+    if (confirmDelete && word?.isUserCreated == true) {
+        KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.dictionary_delete_title),
+            message = stringResource(R.string.dictionary_delete_text, word.written),
+            onConfirm = {
+                confirmDelete = false
+                onDelete()
             },
-            dismissButton = {
-                TextButton({ confirmDelete = false }) {
-                    Text(stringResource(R.string.dictionary_cancel))
-                }
-            },
+            onDismiss = { confirmDelete = false },
+            confirmTag = "confirm-delete-word",
+            confirmText = stringResource(R.string.dictionary_delete),
+            dismissText = stringResource(R.string.dictionary_cancel),
+            enabled = !state.busy,
         )
+    }
 
     }
 }
@@ -431,8 +437,12 @@ private fun EditorNavigationRow(title: String, subtitle: String?, onClick: () ->
         containerColor = MaterialTheme.colorScheme.background,
         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp),
         trailing = {
-            Icon(painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down), null,
-                Modifier.size(20.dp).rotate(-90f), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(
+                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
+                null,
+                Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         })
 }
 
@@ -453,9 +463,9 @@ private fun EditorTagsRow(
         contentPadding = PaddingValues(horizontal = 4.dp, vertical = 12.dp),
         trailing = {
             Icon(
-                painterResource(ru.mobui.kanji.core.wordui.R.drawable.selection_chevron_down),
+                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_chevron_right),
                 null,
-                Modifier.size(20.dp).rotate(-90f),
+                Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },

@@ -56,12 +56,18 @@ internal fun recipeMaterialTagGroups(
     val andMorePattern = stringResource(R.string.material_chapters_and_more)
     val moreTagsPattern = stringResource(R.string.material_more)
     val kanjiPattern = stringResource(R.string.library_kanji)
+    val noJlpt = stringResource(ru.mobui.kanji.core.wordui.R.string.selection_no_jlpt)
     return recipe.materials.map { material ->
         buildMaterialTagGroup(
             material, snapshot, tags, language, typeLabels, chaptersWord,
             andMore = { andMorePattern.format(it) },
             moreTags = { moreTagsPattern.format(it) },
             kanjiLabel = { kanjiPattern.format(it) },
+            jlptLabel = { levels ->
+                levels.sortedDescending().joinToString(" · ") { level ->
+                    if (level < 0) noJlpt else "N$level"
+                }
+            },
         )
     }
 }
@@ -76,6 +82,9 @@ internal fun buildMaterialTagGroup(
     andMore: (Int) -> String,
     moreTags: (Int) -> String,
     kanjiLabel: (Int) -> String,
+    jlptLabel: (Set<Int>) -> String = { levels ->
+        levels.sortedDescending().joinToString(" · ") { level -> if (level < 0) "—" else "N$level" }
+    },
 ): List<Pair<String, MaterialType?>> = buildList {
     add(
         (material.sourceId?.let { snapshot?.sourceById?.get(it)?.title(language) }
@@ -83,6 +92,9 @@ internal fun buildMaterialTagGroup(
     )
     if (material.chapters.isNotEmpty()) {
         add(chapterTagLabel(material.chapters, chaptersWord, andMore) to null)
+    }
+    if (material.jlptLevels.isNotEmpty()) {
+        add(jlptLabel(material.jlptLevels) to MaterialType.Kanji)
     }
     if (material.kanjiIds.isNotEmpty()) {
         add(kanjiLabel(material.kanjiIds.size) to MaterialType.Kanji)

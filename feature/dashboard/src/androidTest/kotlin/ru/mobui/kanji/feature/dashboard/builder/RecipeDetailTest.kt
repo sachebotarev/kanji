@@ -27,7 +27,7 @@ class RecipeDetailTest {
         listOf(RecipeName("ru", "Луна")),
         listOf(material),
         taskCount = 20,
-        secondsPerWord = 30,
+        secondsPerSymbol = 30,
     )
 
     @Test
@@ -49,7 +49,11 @@ class RecipeDetailTest {
         compose.onNodeWithTag("recipe-detail-count").assertIsDisplayed()
         compose.onNodeWithText("20 заданий", substring = true).assertExists()
         compose.onNodeWithTag("recipe-detail-timer").assertIsDisplayed()
-        compose.onNodeWithText("30 с на слово").assertExists()
+        compose.onNodeWithText("30 с на символ").assertExists()
+        compose.onNodeWithTag("recipe-detail-timer-hint").assertDoesNotExist()
+        compose.onNodeWithTag("recipe-detail-timer-hint-toggle").assertIsDisplayed().performClick()
+        compose.onNodeWithTag("recipe-detail-timer-hint").assertIsDisplayed()
+        compose.onNodeWithText("Лимит слова = секунды × число символов для письма").assertExists()
         compose.onNodeWithTag("recipe-material-ma").assertIsDisplayed()
         compose.onNodeWithTag("material-viewer").assertDoesNotExist()
         compose.onNodeWithTag("recipe-detail-edit").performClick()

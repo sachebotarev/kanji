@@ -62,7 +62,7 @@ fun WordEditorForm(
 ) {
     Column(
         modifier.fillMaxSize().imePadding().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(19.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         WordInputField(
             WordInputState(

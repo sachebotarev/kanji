@@ -12,6 +12,10 @@ data class PadUiState(
     val content: PadContent = PadContent.Empty,
     val inputEnabled: Boolean = true,
     val overlay: ReferenceDrawing? = null,
+    /** When true, the pad draws [overlay] as a one-shot yellow stroke animation. */
+    val animateOverlay: Boolean = false,
+    /** When true with a static overlay, draw the guide in error red at full opacity. */
+    val overlayAsError: Boolean = false,
     val comparisonOverlay: ru.mobui.kanji.domain.handwriting.ComparisonDrawing? = null,
 )
 
@@ -37,4 +41,7 @@ sealed interface PadEvent {
         val gestureId: Long,
         val stroke: InkStroke?,
     ) : PadEvent
+
+    /** Fired after an animated overlay finishes drawing and fading out. */
+    data object HintPlaybackFinished : PadEvent
 }

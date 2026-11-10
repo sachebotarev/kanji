@@ -19,6 +19,7 @@ internal data class MaterialAggregate(
     @Relation(parentColumn = "id", entityColumn = "material_id") val kanji: List<RecipeMaterialKanjiRow>,
     @Relation(parentColumn = "id", entityColumn = "material_id") val words: List<RecipeMaterialWordsRow>,
     @Relation(parentColumn = "id", entityColumn = "material_id") val tags: List<RecipeMaterialTagsRow>,
+    @Relation(parentColumn = "id", entityColumn = "material_id") val jlpt: List<RecipeMaterialJlptRow>,
 )
 internal data class RecipeAggregate(
     @Embedded val recipe: RecipesRow,
@@ -62,4 +63,5 @@ internal interface RecipesDao {
     @Insert suspend fun insertKanji(rows: List<RecipeMaterialKanjiRow>)
     @Insert suspend fun insertWords(rows: List<RecipeMaterialWordsRow>)
     @Insert suspend fun insertTags(rows: List<RecipeMaterialTagsRow>)
+    @Insert suspend fun insertJlpt(rows: List<RecipeMaterialJlptRow>)
 }

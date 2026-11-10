@@ -93,7 +93,7 @@ internal fun CatalogScaffold(
                     ) {
                         IconButton(onBack, Modifier.testTag("catalog-back")) {
                             Icon(
-                                painterResource(R.drawable.catalog_back),
+                                painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                                 stringResource(R.string.catalog_back),
                                 Modifier.size(24.dp),
                             )
@@ -107,26 +107,17 @@ internal fun CatalogScaffold(
                             fontWeight = if (home) FontWeight.Normal else FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface,
                         )
-                        if (search != null)
-                            IconButton(
-                                search.toggle,
-                                Modifier.testTag("catalog-toggle-search")
-                                    .background(
-                                        MaterialTheme.colorScheme.surfaceContainer,
-                                        RoundedCornerShape(24.dp),
-                                    ),
-                            ) {
-                                Icon(
-                                    painterResource(
-                                        if (search.state.open) R.drawable.catalog_search_off
-                                        else R.drawable.catalog_search,
-                                    ),
-                                    stringResource(
-                                        if (search.state.open) R.string.catalog_close_search
-                                        else R.string.catalog_open_search,
-                                    ),
-                                )
-                            }
+                        if (search != null) {
+                            ru.mobui.kanji.core.designsystem.KanjiSearchToggle(
+                                open = search.state.open,
+                                onToggle = search.toggle,
+                                testTag = "catalog-toggle-search",
+                                contentDescription = stringResource(
+                                    if (search.state.open) R.string.catalog_close_search
+                                    else R.string.catalog_open_search,
+                                ),
+                            )
+                        }
                     }
                     if (subtitle.isNotEmpty())
                         Text(

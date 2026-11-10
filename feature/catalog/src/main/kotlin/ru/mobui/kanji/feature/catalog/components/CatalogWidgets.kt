@@ -308,57 +308,16 @@ internal fun CatalogSearch(
     inset: Boolean = true,
     numeric: Boolean = false,
 ) {
-    val focus = androidx.compose.runtime.remember { androidx.compose.ui.focus.FocusRequester() }
-    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
-    val focusManager = androidx.compose.ui.platform.LocalFocusManager.current
-    val focusRequested = androidx.compose.runtime.saveable.rememberSaveable {
-        androidx.compose.runtime.mutableStateOf(false)
-    }
-    androidx.compose.runtime.LaunchedEffect(Unit) {
-        if (!focusRequested.value) {
-            focusRequested.value = true
-            focus.requestFocus()
-            keyboard?.show()
-        }
-    }
-    OutlinedTextField(
-        query,
-        onQuery,
-        modifier
-            .then(if (inset) Modifier.padding(horizontal = 18.dp, vertical = 8.dp) else Modifier)
-            .fillMaxWidth()
-            .testTag("catalog-search")
-            .focusRequester(focus),
-        singleLine = true,
-        textStyle = MaterialTheme.typography.bodyMedium,
-        placeholder = { Text(label, style = MaterialTheme.typography.bodyMedium) },
-        leadingIcon = {
-            Icon(painterResource(R.drawable.catalog_search), null, Modifier.size(24.dp))
-        },
-        trailingIcon = {
-            if (query.isNotEmpty())
-                TextButton({ onQuery("") }) { Text(stringResource(R.string.catalog_clear_search)) }
-        },
-        keyboardOptions =
-            androidx.compose.foundation.text.KeyboardOptions(
-                keyboardType =
-                    if (numeric) androidx.compose.ui.text.input.KeyboardType.Number
-                    else androidx.compose.ui.text.input.KeyboardType.Text,
-                imeAction = androidx.compose.ui.text.input.ImeAction.Search,
-            ),
-        keyboardActions =
-            androidx.compose.foundation.text.KeyboardActions(onSearch = {
-                focusManager.clearFocus()
-                keyboard?.hide()
-            }),
-        shape = MaterialTheme.inputShape,
-        colors =
-            kanjiOutlinedTextFieldColors(
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                unfocusedBorderColor = androidx.compose.ui.graphics.Color.Transparent,
-                focusedBorderColor = MaterialTheme.colorScheme.outline,
-            ),
+    ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+        query = query,
+        onQuery = onQuery,
+        modifier = modifier.then(if (inset) Modifier.padding(horizontal = 18.dp, vertical = 8.dp) else Modifier),
+        placeholder = label,
+        autoFocus = true,
+        leadingIcon = true,
+        testTag = "catalog-search",
+        numeric = numeric,
+        onClear = { onQuery("") },
     )
 }
 
@@ -417,15 +376,11 @@ internal fun NumberingHelpButton(
         )
     }
     if (open.value) {
-        androidx.compose.material3.AlertDialog(
-            onDismissRequest = { open.value = false },
-            confirmButton = {
-                TextButton(onClick = { open.value = false }) {
-                    Text(stringResource(android.R.string.ok))
-                }
-            },
-            title = { Text(title) },
-            text = { Text(text, style = MaterialTheme.typography.bodyMedium) },
+        ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+            title = title,
+            message = text,
+            onDismiss = { open.value = false },
+            testTag = "catalog-help-dialog",
         )
     }
 }

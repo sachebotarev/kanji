@@ -7,6 +7,8 @@ import ru.mobui.kanji.feature.catalog.navigation.CatalogScaffold
 import ru.mobui.kanji.feature.catalog.presentation.CatalogLoad
 import ru.mobui.kanji.feature.catalog.presentation.SearchState
 
+import androidx.activity.compose.BackHandler
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import ru.mobui.kanji.domain.catalog.name
@@ -39,6 +41,7 @@ internal fun CatalogDetailScreen(
     val subtitle =
         listOfNotNull(kind.takeIf { entity != null }, data?.source?.title(language))
             .joinToString(" · ")
+    BackHandler(enabled = search.open) { actions.toggleSearch() }
     CatalogScaffold(
         entity ?: kind,
         actions.back,

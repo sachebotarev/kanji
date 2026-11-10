@@ -9,5 +9,6 @@
 | API | Область | Основание |
 | --- | --- | --- |
 | Material 3 `TopAppBarDefaults.enterAlwaysScrollBehavior`, `TopAppBarScrollBehavior` и необходимые для них типы состояния, `ExperimentalMaterial3Api` opt-in | Существующая скрываемая панель фильтров каталога в `:feature:catalog`, `CatalogScreen.kt` и `EnterAlwaysPanel` | 2 ноября 2026 года пользователь явно подтвердил ранее принятое решение использовать experimental в этом механизме |
+| Material 3 `TopAppBar`, `SwipeToDismissBox`, `SwipeToDismissBoxValue`, `rememberSwipeToDismissBoxState` и `ExperimentalMaterial3Api` opt-in | Экраны истории тренировок `HOME.02` и подробностей тренировки `HOME.02.01` в `:feature:dashboard` (`TrainingHistoryScreen.kt`, `TrainingDetailScreen.kt`) | 8 ноября 2026 года пользователь согласовал использование для верхней панели навигации и свайпа удаления тренировки в истории |
 
 Наличие opt-in в коде само по себе не является разрешением на добавление других experimental вызовов. При изменении статуса API в используемой версии библиотеки необходимо проверить возможность убрать ненужный opt-in.

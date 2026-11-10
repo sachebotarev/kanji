@@ -109,7 +109,7 @@ import ru.mobui.kanji.domain.practice.PracticeTask
 internal fun DebugDialog(state: PracticeUiState, onClose: () -> Unit) {
     val currentOnClose by rememberUpdatedState(onClose)
     Dialog(onDismissRequest = onClose) {
-        Surface(shape = RoundedCornerShape(20.dp), tonalElevation = 6.dp) {
+        Surface(shape = MaterialTheme.shapes.extraLarge, tonalElevation = 6.dp) {
             Column(
                 Modifier.fillMaxWidth()
                     .heightIn(max = 620.dp)

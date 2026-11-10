@@ -5,7 +5,7 @@ const recipeCopy={
   recipes:'Рецепты',recipeEditor:'Редактор рецепта',newRecipe:'Создать рецепт',editRecipe:'Изменить рецепт',recipeDetail:'Рецепт',viewRecipe:'Открыть рецепт',
   reorderPlans:'Изменить порядок',finishReorder:'Готово',reorderTitle:'Порядок рецептов',screenMenu:'Действия со списком',dragPlan:'Перетащить рецепт',moveUp:'Переместить выше',moveDown:'Переместить ниже',movedPlan:(name,n)=>`${name}: позиция ${n}`,
   personalDictionary:'Мой словарь',
-  selected:'Выбран',allWordsCount:n=>`Все ${t('wordCount')(n)}`,selectAction:'Выбрать',menuLabel:name=>`Действия: ${name}`,moreSources:(first,n)=>`${first} + ещё ${n}`,listHint:'Создайте или откройте',listCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'рецепт':new Intl.PluralRules('ru').select(n)==='few'?'рецепта':'рецептов'}`,kindWords:'Слова',kindBook:'Учебник',kindKanji:'Кандзи / JLPT',kindPersonal:'Мои слова',kindMixed:'Смешанная',createFab:'Создать',editFab:'Изменить',planDetails:'Подробнее',newShort:'Новый рецепт',perWord:n=>`${n} с на слово`,
+  selected:'Выбран',allWordsCount:n=>`Все ${t('wordCount')(n)}`,selectAction:'Выбрать',menuLabel:name=>`Действия: ${name}`,moreSources:(first,n)=>`${first} + ещё ${n}`,listHint:'Создайте или откройте',listCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'рецепт':new Intl.PluralRules('ru').select(n)==='few'?'рецепта':'рецептов'}`,kindWords:'Слова',kindBook:'Учебник',kindKanji:'Кандзи / JLPT',kindPersonal:'Мои слова',kindMixed:'Смешанная',createFab:'Создать',editFab:'Изменить',planDetails:'Подробнее',newShort:'Новый рецепт',perWord:n=>`${n} с на символ`,
   tasksLabel:'Заданий',timeLabel:'Таймер',poolLabel:'Слов',
   tagJlpt:n=>`Кандзи JLPT N${n}`,tagKanji:symbol=>`Кандзи ${symbol}`,tagEntry:form=>`Запись: ${form}`,tagUnion:'или',tagSourceNumber:n=>`Источник ${n}`,tagFrom:n=>`С главы ${n}`,tagTo:n=>`По главу ${n}`,
   moreRecipeTags:n=>`Ещё ${n}`,collapseRecipeSources:'Свернуть состав',
@@ -19,14 +19,15 @@ const recipeCopy={
   noWords:'По этим фильтрам слов нет. Измените условия.',add:'Добавить',apply:'Применить',remove:'Убрать',
   trainingSettings:'Параметры тренировки',
   wordsLimit:'Заданий за рецепт',timeLimit:'Время на одно слово',unlimited:'Без таймера',limited:'Ограничить',
-  count:'Количество заданий',seconds:'Секунд на слово',preview:'Итого',unique:'Уникальные слова в наборе',
+  count:'Количество заданий',seconds:'Секунд на символ',preview:'Итого',unique:'Уникальные слова в наборе',
   tasks:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'задание':new Intl.PluralRules('ru').select(n)==='few'?'задания':'заданий'}`,
   poolSize:'По числу слов',setCount:'Задать число',allWords:'Весь набор',secondsValue:n=>`${n} с`,
   available:n=>`Доступно: ${t('wordCount')(n)}`,tasksCount:n=>`Заданий: ${n}`,
   moreMaterials:n=>`Ещё материалов: ${n}`,lessMaterials:'Свернуть материалы',missingName:'Введите название',invalidLimits:'Укажите целое число больше нуля',needSource:'Добавьте материал',invalidRecipe:'Введите название и целые положительные ограничения.',
   saveRecipeShort:'Сохранить',materialRemoved:'Материал удалён',wordPool:'Слова в рецепте',saveRecipe:'Сохранить рецепт',selectRecipe:'Выбрать рецепт',
   deleteRecipe:'Удалить рецепт?',deleteHint:'Настройки рецепта будут удалены. Учебные материалы останутся.',
-  emptyRecipes:'Создайте свой первый рецепт',emptyRecipeHint:'Выберите материал и удобный темп.',
+  emptyRecipes:'Нет рецептов',emptyRecipeHint:'Создайте свой первый рецепт для тренировок.',
+  createFirstRecipe:'Создать первый рецепт',stampExcellent:'Отлично! Печать мастера',pickRecipe:'Выбор рецепта',pickRecipeHint:'Нажмите рецепт, чтобы начать тренировку',
   draftOnly:'Макет для согласования. Сохранение действует до перезагрузки страницы.',savedRecipe:'Рецепт сохранён',
   sourceCount:n=>`Источников: ${n}`,allCatalog:'Все слова',noActive:'Рецепт не выбран',addFirst:'Создать рецепт',
   previewNote:'Здесь показаны уникальные слова набора, а не порядок и повторы заданий.',
@@ -43,7 +44,7 @@ const recipeCopy={
   recipes:'Recipes',recipeEditor:'Recipe editor',newRecipe:'Create recipe',editRecipe:'Edit recipe',recipeDetail:'Recipe',viewRecipe:'Open recipe',
   reorderPlans:'Change order',finishReorder:'Done',reorderTitle:'Recipe order',screenMenu:'List actions',dragPlan:'Drag recipe',moveUp:'Move up',moveDown:'Move down',movedPlan:(name,n)=>`${name}: position ${n}`,
   personalDictionary:'My dictionary',
-  selected:'Selected',allWordsCount:n=>`All ${t('wordCount')(n)}`,selectAction:'Select',menuLabel:name=>`Actions: ${name}`,moreSources:(first,n)=>`${first} + ${n} more`,listHint:'Create or open',listCount:n=>`${n} ${n===1?'recipe':'recipes'}`,kindWords:'Words',kindBook:'Textbook',kindKanji:'Kanji / JLPT',kindPersonal:'My words',kindMixed:'Mixed',createFab:'Create',editFab:'Edit',planDetails:'Details',newShort:'New recipe',perWord:n=>`${n} sec per word`,
+  selected:'Selected',allWordsCount:n=>`All ${t('wordCount')(n)}`,selectAction:'Select',menuLabel:name=>`Actions: ${name}`,moreSources:(first,n)=>`${first} + ${n} more`,listHint:'Create or open',listCount:n=>`${n} ${n===1?'recipe':'recipes'}`,kindWords:'Words',kindBook:'Textbook',kindKanji:'Kanji / JLPT',kindPersonal:'My words',kindMixed:'Mixed',createFab:'Create',editFab:'Edit',planDetails:'Details',newShort:'New recipe',perWord:n=>`${n} sec per symbol`,
   tasksLabel:'Tasks',timeLabel:'Timer',poolLabel:'Pool',
   tagJlpt:n=>`Kanji JLPT N${n}`,tagKanji:symbol=>`Kanji ${symbol}`,tagEntry:form=>`Entry: ${form}`,tagUnion:'or',tagSourceNumber:n=>`Source ${n}`,tagFrom:n=>`From chapter ${n}`,tagTo:n=>`Through chapter ${n}`,
   moreRecipeTags:n=>`${n} more`,collapseRecipeSources:'Collapse content',
@@ -56,14 +57,15 @@ const recipeCopy={
   wordFilter:'Individual word',anyWord:'All matching words',searchWords:'Find a word, reading or translation',
   noWords:'No words match these filters. Change the conditions.',add:'Add',apply:'Apply',remove:'Remove',
   trainingSettings:'Training settings',
-  wordsLimit:'Tasks per recipe',timeLimit:'Time per word',unlimited:'No timer',limited:'Set limit',
-  count:'Task count',seconds:'Seconds per word',preview:'Summary',unique:'Unique words in the pool',
+  wordsLimit:'Tasks per recipe',timeLimit:'Time per symbol',unlimited:'No timer',limited:'Set limit',
+  count:'Task count',seconds:'Seconds per symbol',preview:'Summary',unique:'Unique words in the pool',
   tasks:n=>`${n} ${n===1?'task':'tasks'}`,poolSize:'Match word count',setCount:'Set count',allWords:'Entire pool',
   secondsValue:n=>`${n} s`,available:n=>`Available: ${t('wordCount')(n)}`,tasksCount:n=>`Tasks: ${n}`,
   moreMaterials:n=>`${n} more materials`,lessMaterials:'Collapse materials',missingName:'Enter a name',invalidLimits:'Enter a whole number greater than zero',needSource:'Add material',invalidRecipe:'Enter a name and positive whole-number limits.',
   saveRecipeShort:'Save',materialRemoved:'Material removed',wordPool:'Recipe words',saveRecipe:'Save recipe',selectRecipe:'Select recipe',
   deleteRecipe:'Delete recipe?',deleteHint:'The plan settings will be deleted. Study materials will remain.',
-  emptyRecipes:'Create your first recipe',emptyRecipeHint:'Choose study material and a comfortable pace.',
+  emptyRecipes:'No recipes',emptyRecipeHint:'Create your first training recipe.',
+  createFirstRecipe:'Create first recipe',stampExcellent:'Excellent! Master stamp',pickRecipe:'Choose recipe',pickRecipeHint:'Tap a recipe to start training',
   draftOnly:'Draft for review. Changes last until this page is reloaded.',savedRecipe:'Recipe saved',
   sourceCount:n=>`Sources: ${n}`,allCatalog:'All words',noActive:'No recipe selected',addFirst:'Create a recipe',
   previewNote:'These are the unique words in the pool, not the task order or repetitions.',
@@ -80,20 +82,22 @@ const recipeCopy={
 for(const lang of Object.keys(recipeCopy))Object.assign(copy[lang],recipeCopy[lang]);
 const TC=window.TEXTBOOK_CATALOG;
 const blankSource=()=>({book:null,from:null,to:null,jlpt:null,kanji:null,word:null});
+let excellentRecipeIds = new Set(['tobira-review', 'n5', 'bkb-all']);
+const pawStamp = (size=22) => (typeof window.pawStampIcon === 'function' ? window.pawStampIcon(size) : '');
 let recipes=[
- {id:'tobira10',translations:[{language_tag:'ru',name:'Tobira · глава 10'},{language_tag:'en',name:'Tobira · chapter 10'}],sources:[{...blankSource(),book:1,from:10,to:10}],selection_mode:'shuffled_cycles',task_count:20,seconds_per_word:30},
- {id:'tobira-review',translations:[{language_tag:'ru',name:'Tobira · повторение 1–10'},{language_tag:'en',name:'Tobira · review 1–10'}],sources:[{...blankSource(),book:1,from:1,to:10}],selection_mode:'shuffled_cycles',task_count:40,seconds_per_word:null},
- {id:'n5',translations:[{language_tag:'ru',name:'Слова с кандзи N5'},{language_tag:'en',name:'Words with N5 kanji'}],sources:[{...blankSource(),jlpt:5}],selection_mode:'shuffled_cycles',task_count:null,seconds_per_word:20}
+ {id:'tobira10',translations:[{language_tag:'ru',name:'Tobira · глава 10'},{language_tag:'en',name:'Tobira · chapter 10'}],sources:[{...blankSource(),book:1,from:10,to:10}],selection_mode:'shuffled_cycles',task_count:20,seconds_per_symbol:30},
+ {id:'tobira-review',translations:[{language_tag:'ru',name:'Tobira · повторение 1–10'},{language_tag:'en',name:'Tobira · review 1–10'}],sources:[{...blankSource(),book:1,from:1,to:10}],selection_mode:'shuffled_cycles',task_count:40,seconds_per_symbol:null},
+ {id:'n5',translations:[{language_tag:'ru',name:'Слова с кандзи N5'},{language_tag:'en',name:'Words with N5 kanji'}],sources:[{...blankSource(),jlpt:5}],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:20}
 ];
 // Demo recipes exercise real catalog sources and a long scrollable list.
 recipes.push(
- {id:'tobira-all',translations:[{language_tag:'ru',name:'Tobira целиком'},{language_tag:'en',name:'All of Tobira'}],sources:[{...blankSource(),book:1}],selection_mode:'shuffled_cycles',task_count:30,seconds_per_word:null},
- {id:'bkb-all',translations:[{language_tag:'ru',name:'Basic Kanji Book'},{language_tag:'en',name:'Basic Kanji Book'}],sources:[{...blankSource(),book:2}],selection_mode:'shuffled_cycles',task_count:25,seconds_per_word:30},
- {id:'bkb-three',translations:[{language_tag:'ru',name:'Basic Kanji Book · глава 3'},{language_tag:'en',name:'Basic Kanji Book · chapter 3'}],sources:[{...blankSource(),book:2,from:3,to:3}],selection_mode:'shuffled_cycles',task_count:10,seconds_per_word:45},
- {id:'my-words',translations:[{language_tag:'ru',name:'Мои слова без спешки'},{language_tag:'en',name:'My words, at my own pace'}],sources:[{...blankSource(),book:'personal'}],selection_mode:'shuffled_cycles',task_count:15,seconds_per_word:null},
- {id:'n4',translations:[{language_tag:'ru',name:'Следующий шаг · N4'},{language_tag:'en',name:'Next step · N4'}],sources:[{...blankSource(),jlpt:4}],selection_mode:'shuffled_cycles',task_count:null,seconds_per_word:20},
- {id:'mixed-review',translations:[{language_tag:'ru',name:'Повторение для чтения'},{language_tag:'en',name:'Reading review'}],sources:[{...blankSource(),book:1},{...blankSource(),book:2}],selection_mode:'random_with_replacement',task_count:40,seconds_per_word:30},
- {id:'sun-words',translations:[{language_tag:'ru',name:'Слова с кандзи 日'},{language_tag:'en',name:'Words containing 日'}],sources:[{...blankSource(),kanji:26085}],selection_mode:'shuffled_cycles',task_count:12,seconds_per_word:20}
+ {id:'tobira-all',translations:[{language_tag:'ru',name:'Tobira целиком'},{language_tag:'en',name:'All of Tobira'}],sources:[{...blankSource(),book:1}],selection_mode:'shuffled_cycles',task_count:30,seconds_per_symbol:null},
+ {id:'bkb-all',translations:[{language_tag:'ru',name:'Basic Kanji Book'},{language_tag:'en',name:'Basic Kanji Book'}],sources:[{...blankSource(),book:2}],selection_mode:'shuffled_cycles',task_count:25,seconds_per_symbol:30},
+ {id:'bkb-three',translations:[{language_tag:'ru',name:'Basic Kanji Book · глава 3'},{language_tag:'en',name:'Basic Kanji Book · chapter 3'}],sources:[{...blankSource(),book:2,from:3,to:3}],selection_mode:'shuffled_cycles',task_count:10,seconds_per_symbol:45},
+ {id:'my-words',translations:[{language_tag:'ru',name:'Мои слова без спешки'},{language_tag:'en',name:'My words, at my own pace'}],sources:[{...blankSource(),book:'personal'}],selection_mode:'shuffled_cycles',task_count:15,seconds_per_symbol:null},
+ {id:'n4',translations:[{language_tag:'ru',name:'Следующий шаг · N4'},{language_tag:'en',name:'Next step · N4'}],sources:[{...blankSource(),jlpt:4}],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:20},
+ {id:'mixed-review',translations:[{language_tag:'ru',name:'Повторение для чтения'},{language_tag:'en',name:'Reading review'}],sources:[{...blankSource(),book:1},{...blankSource(),book:2}],selection_mode:'random_with_replacement',task_count:40,seconds_per_symbol:30},
+ {id:'sun-words',translations:[{language_tag:'ru',name:'Слова с кандзи 日'},{language_tag:'en',name:'Words containing 日'}],sources:[{...blankSource(),kanji:26085}],selection_mode:'shuffled_cycles',task_count:12,seconds_per_symbol:20}
 );
 recipes.splice(1,0,{
  id:'many-sources',translations:[{language_tag:'ru',name:'Большое повторение'},{language_tag:'en',name:'Extended review'}],
@@ -103,7 +107,7 @@ recipes.splice(1,0,{
   {...blankSource(),book:2,from:1,to:3}, {...blankSource(),book:2,from:6,to:8},
   {...blankSource(),book:2,from:12,to:15}, {...blankSource(),book:2,from:20,to:25},
   {...blankSource(),book:2,from:30,to:35}, {...blankSource(),book:'personal'}
- ],selection_mode:'shuffled_cycles',task_count:60,seconds_per_word:30
+ ],selection_mode:'shuffled_cycles',task_count:60,seconds_per_symbol:30
 });
 let expandedEditorMaterials=false;
 let removedRecipeSource=null;
@@ -117,7 +121,7 @@ const planName=p=>p?.translations.find(x=>x.language_tag===locale)?.name||p?.tra
 const selectedRecipe=()=>recipes.find(p=>p.id===selectedRecipeId);
 function selectedRecipeName(){return selectedRecipe()?planName(selectedRecipe()):t('noActive');}
 function selectedRecipeSummary(){const p=selectedRecipe();return p?planSummary(p):t('addFirst');}
-function planSummary(p){return `${p.task_count===null?t('allWords'):t('tasks')(p.task_count)} · ${p.seconds_per_word===null?t('unlimited'):t('secondsValue')(p.seconds_per_word)}`;}
+function planSummary(p){return `${p.task_count===null?t('allWords'):t('tasks')(p.task_count)} · ${p.seconds_per_symbol===null?t('unlimited'):t('secondsValue')(p.seconds_per_symbol)}`;}
 
 function sourceWords(s){
  if(s.type==='kanji')s={type:'kanji',kanji:s.kanji,kanji_ids:s.kanji_ids,kanji_match:'any'};
@@ -144,6 +148,8 @@ function sourceWords(s){
  });
 }
 function planWords(p){return [...new Map(p.sources.flatMap(sourceWords).map(w=>[w.id,w])).values()];}
+window.selectedRecipe=selectedRecipe;
+window.planWords=planWords;
 
 function sourceLabel(s){
  const parts=[];
@@ -236,19 +242,39 @@ function recipeSourceTagsView(plan){
 
 function planCardView(p,mode='library'){
  const pick=mode==='pick';
+ const isMaster=excellentRecipeIds.has(p.id);
  const tasks=p.task_count===null?t('allWordsCount')(planWords(p).length):t('tasks')(p.task_count);
- const time=p.seconds_per_word===null?t('unlimited'):t('perWord')(p.seconds_per_word);
- const book=p.sources.length===1?p.sources[0].book:null;
- const kind=p.sources.length>1?'mixed':book==='personal'?'personal':typeof book==='number'?'book':p.sources.some(s=>s.kanji||s.jlpt)?'kanji':'words';
+ const time=p.seconds_per_symbol===null?t('unlimited'):t('perWord')(p.seconds_per_symbol);
  const cardAction=pick?'start':'view';
  const label=pick?t('launch'):t('viewRecipe');
- return `<article class="plan-card plan-card-plain ${pick?'plan-card-pick':''}" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_word!==null}" data-mode="${mode}">
+
+ if(pick){
+  return `<article class="plan-card plan-card-plain plan-card-pick" data-id="${p.id}" data-mode="pick">
+   <div class="plan-card-main" data-tr="start" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(label+': '+planName(p))}">
+    <div class="plan-pick-body">
+     <strong class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</strong>
+     <span class="plan-summary-line">${escapeHTML(tasks)} · ${escapeHTML(time)}</span>
+    </div>
+    ${isMaster?`<span class="plan-stamp" title="${t('stampExcellent')}">${pawStamp(24)}</span>`:''}
+   </div>
+  </article>`;
+ }
+
+ const book=p.sources.length===1?p.sources[0].book:null;
+ const kind=p.sources.length>1?'mixed':book==='personal'?'personal':typeof book==='number'?'book':p.sources.some(s=>s.kanji||s.jlpt)?'kanji':'words';
+ return `<article class="plan-card plan-card-plain" data-id="${p.id}" data-kind="${kind}" data-timed="${p.seconds_per_symbol!==null}" data-mode="${mode}">
   <div class="plan-card-main" data-tr="${cardAction}" data-id="${p.id}" role="button" tabindex="0" aria-label="${escapeHTML(label+': '+planName(p))}">
-   <span class="plan-title-row"><span class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</span></span>
-   <div class="plan-material">${recipeSourceTagsView(p)}</div>
-   <span class="plan-metrics"><span>${icon('word-stack')}${escapeHTML(tasks)}</span><span class="plan-time ${p.seconds_per_word===null?'':'is-timed'}">${icon(p.seconds_per_word===null?'no-timer':'timer')}${escapeHTML(time)}</span></span>
+   <div class="plan-card-content">
+    <span class="plan-title-row"><span class="plan-title" title="${escapeHTML(planName(p))}">${escapeHTML(planName(p))}</span></span>
+    <div class="plan-material">${recipeSourceTagsView(p)}</div>
+    <span class="plan-metrics"><span>${icon('word-stack')}${escapeHTML(tasks)}</span><span class="plan-time ${p.seconds_per_symbol===null?'':'is-timed'}">${icon(p.seconds_per_symbol===null?'no-timer':'timer')}${escapeHTML(time)}</span></span>
+   </div>
+   <div class="plan-card-end">
+    ${icon('chevron')}
+    ${isMaster?`<span class="plan-stamp" title="${t('stampExcellent')}">${pawStamp(22)}</span>`:''}
+   </div>
   </div>
-  ${pick?'':`<div class="plan-accessible-actions">${['move-up','move-down'].map((moveAction,index)=>`<button type="button" data-tr="${moveAction}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>`}
+  ${`<div class="plan-accessible-actions">${['move-up','move-down'].map((moveAction,index)=>`<button type="button" data-tr="${moveAction}" data-id="${p.id}" ${recipes.indexOf(p)===(index?recipes.length-1:0)?'disabled':''} aria-label="${escapeHTML(t(index?'moveDown':'moveUp')+': '+planName(p))}">${t(index?'moveDown':'moveUp')}</button>`).join('')}</div>`}
  </article>`;
 }
 const normalizeRecipeSearch=value=>value.normalize('NFKC').toLocaleLowerCase(locale).replaceAll('ё','е');
@@ -265,10 +291,10 @@ function recipeSearchCount(plans){
 }
 function recipeListItems(plans,mode='library'){
  if(!recipes.length){
-  if(mode==='pick')return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('pickEmptyHint'),false)}<button type="button" class="tonal-button" data-action="open-recipe-book">${t('openRecipeBook')}</button></div>`;
-  return `<div class="recipe-empty"><img src="../../assets/mascot/cat-crafting-cards.png" alt="">${emptyView(t('emptyRecipes'),t('emptyRecipeHint'),false)}</div>`;
+  if(mode==='pick')return `<div class="recipe-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('emptyRecipes')}</h3><p>${t('emptyRecipeHint')}</p><button type="button" class="tonal-button" data-tr="new">${t('createFirstRecipe')}</button></div>`;
+  return `<div class="recipe-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('emptyRecipes')}</h3><p>${t('emptyRecipeHint')}</p></div>`;
  }
- if(!plans.length)return `<div class="recipe-search-empty"><h3>${t('recipeNotFound')}</h3></div>`;
+ if(!plans.length)return `<div class="recipe-search-empty"><img src="../../assets/mascot/mascot_sticker_peek_empty_box.png" alt=""><h3>${t('recipeNotFound')}</h3><p>${t('recipeSearchHelp')}</p></div>`;
  return plans.map(p=>planCardView(p,mode)).join('');
 }
 // Reuse the catalog Material search and search_off artwork.
@@ -300,16 +326,14 @@ function recipesView(){
 function trainingPickView(){
  const plans=filteredRecipePlans();
  const searchToggle=`<button type="button" class="recipe-search-toggle" data-tr="search-toggle" aria-label="${t(recipeSearchOpen?'hideRecipeSearch':'findRecipe')}" aria-expanded="${recipeSearchOpen}"${recipeSearchOpen?' aria-controls="recipe-search"':''}>${recipeSearchIcons[recipeSearchOpen?'off':'search']}</button>`;
- const welcome=recipes.length?`<div class="recipe-welcome"><div><p>${t('pickRecipeHint')}</p><span id="recipe-list-count" role="status" aria-live="polite" aria-atomic="true">${recipeSearchCount(plans)}</span></div><img src="../../assets/mascot/cat-crafting-cards.png" alt="" aria-hidden="true"></div>`:'';
  return `<div class="recipe-list-screen training-pick-screen">${header(t('pickRecipe'),'home',searchToggle)}<div class="recipe-list-scroll" tabindex="0" role="region" aria-label="${t('pickRecipe')}">${recipeSearchControl()}<div class="recipe-content recipe-list-content">
-  ${welcome}
   <span class="plan-announcement" role="status" aria-live="polite" aria-atomic="true"></span>
   <div class="plans-list" id="recipe-results" role="list" aria-label="${t('pickRecipe')}">${recipeListItems(plans,'pick')}</div>
  </div></div></div>`;
 }
 function recipeDirty(){return recipeDraft&&JSON.stringify(recipeDraft)!==recipeOriginal;}
 function recipeLeave(next){showModal(t('unsaved'),`<p>${t('unsavedText')}</p>`,[{label:t('cancel'),fn:closeModal},{label:t('leaveUnsaved'),danger:true,fn:()=>{recipeDraft=null;go(next)}}]);}
-function initRecipe(id,next='recipe-editor'){recipeWordsOrigin='recipe-editor';expandedEditorMaterials=false;removedRecipeSource=null;const p=recipes.find(p=>p.id===id);recipeDraft=p?structuredClone(p):{id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_word:null};recipeOriginal=JSON.stringify(recipeDraft);showRecipeWords=false;if(next)go(next);}
+function initRecipe(id,next='recipe-editor'){recipeWordsOrigin='recipe-editor';expandedEditorMaterials=false;removedRecipeSource=null;const p=recipes.find(p=>p.id===id);recipeDraft=p?structuredClone(p):{id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null};recipeOriginal=JSON.stringify(recipeDraft);showRecipeWords=false;if(next)go(next);}
 
 
 function openRecipeDetail(id){viewingId=id;recipeDraft=null;go('recipe-detail');}
@@ -333,9 +357,9 @@ function recipeDetailView(){
  const ws=planWords(p);
  const menu=`<span class="dictionary-word-menu-wrap"><button type="button" class="icon-button" data-tr="detail-menu" data-id="${p.id}" aria-label="${escapeHTML(t('menuLabel')(planName(p)))}" aria-haspopup="menu">${icon('more')}</button></span>`;
  const materials=p.sources.map((s,i)=>`<div class="source-row"><div class="source-row-body"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></div></div>`).join('');
- return `<div class="recipe-editor-screen recipe-detail-screen">${header(t('recipeDetail'),'recipes',menu)}<div class="recipe-content recipe-source-content"><label class="field recipe-name-field"><span>${t('name')}</span><div class="recipe-detail-title" data-tr="detail-name">${escapeHTML(planName(p))}</div></label><section><h3>${t('materials')}</h3><div class="source-list">${materials}</div>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitView('task_count','wordsLimit',p.task_count,ws.length)+limitView('seconds_per_word','timeLimit',p.seconds_per_word))}</div><div class="recipe-editor-footer"><button type="button" class="recipe-save-fab" data-tr="edit" data-id="${p.id}">${icon('edit')}${t('editFab')}</button></div></div>`;
+ return `<div class="recipe-editor-screen recipe-detail-screen">${header(t('recipeDetail'),'recipes',menu)}<div class="recipe-content recipe-source-content"><label class="field recipe-name-field"><span>${t('name')}</span><div class="recipe-detail-title" data-tr="detail-name">${escapeHTML(planName(p))}</div></label><section><h3>${t('materials')}</h3><div class="source-list">${materials}</div>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitView('task_count','wordsLimit',p.task_count,ws.length)+limitView('seconds_per_symbol','timeLimit',p.seconds_per_symbol))}</div><div class="recipe-editor-footer"><button type="button" class="recipe-save-fab" data-tr="edit" data-id="${p.id}">${icon('edit')}${t('editFab')}</button></div></div>`;
 }
-function recipeEditorView(){if(!recipeDraft){recipeDraft={id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_word:null};recipeOriginal=JSON.stringify(recipeDraft);}const p=recipeDraft,ws=planWords(p);const localName=p.translations.find(x=>x.language_tag===locale)?.name||'';return `<div class="recipe-editor-screen">`+header(t(p.id?'editRecipe':'newRecipe'),'recipes')+`<form id="recipe-form" class="recipe-content" novalidate><label class="field recipe-name-field"><span>${t('name')}</span><span class="recipe-name-input"><input id="recipe-name" maxlength="120" value="${escapeHTML(localName)}" placeholder="${t('nameHint')}"><button type="button" class="recipe-name-clear" data-tr="name-clear" aria-label="${t('clearName')}" ${localName?'':'hidden'}>${icon('close')}</button></span></label><section><h3>${t('materials')}</h3>${removedRecipeSource?`<div class="recipe-remove-notice"><span role="status">${t('materialRemoved')}</span><button type="button" class="text-button" data-tr="source-undo">${t('undo')}</button></div>`:''}<div class="source-list">${p.sources.map((s,i)=>`<div class="source-row" ${i>=3&&!expandedEditorMaterials?'hidden':''}><button type="button" data-tr="source-edit" data-index="${i}"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></button><button type="button" data-tr="source-remove" data-index="${i}" aria-label="${t('remove')} ${escapeHTML(sourceLabel(s))}">${icon('trash')}</button></div>`).join('')}</div>${p.sources.length>3?`<button type="button" class="text-button" data-tr="materials-toggle" aria-expanded="${expandedEditorMaterials}">${expandedEditorMaterials?t('lessMaterials'):t('moreMaterials')(p.sources.length-3)}</button>`:''}<button type="button" class="tonal-button full-width" data-tr="source-add">${icon('plus')}${t('addSource')}</button>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitControl('task_count','wordsLimit','count',p.task_count)+limitControl('seconds_per_word','timeLimit','seconds',p.seconds_per_word))}</form><div class="recipe-editor-footer"><button class="recipe-save-fab" type="submit" form="recipe-form" aria-label="${t('saveRecipe')}"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4ZM7 5h9v4H7V5Zm10 14H7v-6h10v6Z"/></svg>${t('saveRecipeShort')}</button></div></div>`;}
+function recipeEditorView(){if(!recipeDraft){recipeDraft={id:null,translations:[{language_tag:locale,name:''}],sources:[],selection_mode:'shuffled_cycles',task_count:null,seconds_per_symbol:null};recipeOriginal=JSON.stringify(recipeDraft);}const p=recipeDraft,ws=planWords(p);const localName=p.translations.find(x=>x.language_tag===locale)?.name||'';return `<div class="recipe-editor-screen">`+header(t(p.id?'editRecipe':'newRecipe'),'recipes')+`<form id="recipe-form" class="recipe-content" novalidate><label class="field recipe-name-field"><span>${t('name')}</span><span class="recipe-name-input"><input id="recipe-name" maxlength="120" value="${escapeHTML(localName)}" placeholder="${t('nameHint')}"><button type="button" class="recipe-name-clear" data-tr="name-clear" aria-label="${t('clearName')}" ${localName?'':'hidden'}>${icon('close')}</button></span></label><section><h3>${t('materials')}</h3>${removedRecipeSource?`<div class="recipe-remove-notice"><span role="status">${t('materialRemoved')}</span><button type="button" class="text-button" data-tr="source-undo">${t('undo')}</button></div>`:''}<div class="source-list">${p.sources.map((s,i)=>`<div class="source-row" ${i>=3&&!expandedEditorMaterials?'hidden':''}><button type="button" data-tr="source-edit" data-index="${i}"><strong>${recipeMaterialLeading(s)}<span class="recipe-material-copy"><span class="recipe-material-title">${escapeHTML(recipeMaterialTitle(s))}</span><span class="editor-source-tags">${recipeSourceTags(s).filter(tag=>!['source','personal','scope'].includes(tag.kind)).map(tag=>`<span class="plan-source-tag" data-tag-kind="${tag.kind}">${escapeHTML(tag.label)}</span>`).join('')}</span></span></strong></button><button type="button" data-tr="source-remove" data-index="${i}" aria-label="${t('remove')} ${escapeHTML(sourceLabel(s))}">${icon('trash')}</button></div>`).join('')}</div>${p.sources.length>3?`<button type="button" class="text-button" data-tr="materials-toggle" aria-expanded="${expandedEditorMaterials}">${expandedEditorMaterials?t('lessMaterials'):t('moreMaterials')(p.sources.length-3)}</button>`:''}<button type="button" class="tonal-button full-width" data-tr="source-add">${icon('plus')}${t('addSource')}</button>${recipeWordsLink(ws.length)}</section>${recipeTrainingSettings(limitControl('task_count','wordsLimit','count',p.task_count)+limitControl('seconds_per_symbol','timeLimit','seconds',p.seconds_per_symbol))}</form><div class="recipe-editor-footer"><button class="recipe-save-fab" type="submit" form="recipe-form" aria-label="${t('saveRecipe')}"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M17 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V7l-4-4ZM7 5h9v4H7V5Zm10 14H7v-6h10v6Z"/></svg>${t('saveRecipeShort')}</button></div></div>`;}
 function recipeWordsView(){
  const viewedSource=recipes.find(x=>x.id===viewingId)?.sources?.[viewingSourceIndex];
  const ws=recipeWordsOrigin==='recipe-source'&&sourceDraft?sourceWords(sourceDraft)
@@ -368,9 +392,9 @@ function showRecipeFieldError(control,message){
 }
 function saveRecipe(){const p=recipeDraft;clearRecipeErrors();
  if(!p.translations.some(x=>x.name.trim()))showRecipeFieldError('#recipe-name',t('missingName'));
- for(const key of ['task_count','seconds_per_word'])if(p[key]!==null&&(!Number.isSafeInteger(p[key])||p[key]<1||p[key]>2147483647))showRecipeFieldError(`[data-limit="${key}"]`,t('invalidLimits'));
+ for(const key of ['task_count','seconds_per_symbol'])if(p[key]!==null&&(!Number.isSafeInteger(p[key])||p[key]<1||p[key]>2147483647))showRecipeFieldError(`[data-limit="${key}"]`,t('invalidLimits'));
  if(!p.sources.length||p.sources.some(s=>!sourceWords(s).length))showRecipeFieldError('[data-tr="source-add"]',t('needSource'));
- const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');openRecipeDetail(saved.id);}
+ const invalid=document.querySelector('[data-recipe-invalid]');if(invalid){closeModal();invalid.focus({preventScroll:true});(invalid.closest('.field')||invalid).scrollIntoView({block:'nearest'});return;}p.selection_mode='shuffled_cycles';p.translations=p.translations.filter(x=>x.name.trim()).map(x=>({...x,name:x.name.trim()}));if(!p.id)p.id=crypto.randomUUID();else excellentRecipeIds.delete(p.id);const saved=structuredClone(p);recipes=recipes.filter(x=>x.id!==p.id);recipes.push(saved);if(!selectedRecipeId)selectedRecipeId=p.id;recipeDraft=null;recipeMessage=t('savedRecipe');openRecipeDetail(saved.id);}
 
 document.addEventListener('click',e=>{
  const b=e.target.closest('[data-tr]');
@@ -421,6 +445,7 @@ document.addEventListener('click',e=>{
  if(a==='start'){
   if(Date.now()<suppressPlanClickUntil)return;
   selectedRecipeId=b.dataset.id;
+  if(typeof resetPracticeSession==='function')resetPracticeSession();
   go('practice');
  }
  if(a==='edit'){

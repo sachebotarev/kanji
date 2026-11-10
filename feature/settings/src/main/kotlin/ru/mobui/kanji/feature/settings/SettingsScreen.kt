@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.mobui.kanji.core.designsystem.KanjiTheme
@@ -46,18 +49,21 @@ fun SettingsScreen(
     Scaffold(modifier.testTag("settings-screen")) { insets ->
         Column(Modifier.fillMaxSize().padding(insets)) {
             Row(
-                Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+                Modifier.fillMaxWidth().heightIn(min = 64.dp).padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onBack, Modifier.testTag("settings-back")) {
                     Icon(
-                        painterResource(R.drawable.ic_back),
+                        painterResource(ru.mobui.kanji.core.designsystem.R.drawable.ic_arrow_back),
                         stringResource(R.string.settings_back),
+                        Modifier.size(24.dp),
                     )
                 }
                 Text(
                     stringResource(R.string.settings_title),
+                    Modifier.weight(1f).padding(horizontal = 8.dp),
                     style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
@@ -92,33 +98,19 @@ fun SettingsScreen(
         }
     }
     if (confirmClearHistory) {
-        AlertDialog(
-            onDismissRequest = { confirmClearHistory = false },
+        ru.mobui.kanji.core.designsystem.KanjiDeleteConfirmDialog(
+            title = stringResource(R.string.settings_clear_history_title),
+            message = stringResource(R.string.settings_clear_history_message),
+            onConfirm = {
+                confirmClearHistory = false
+                onClearTrainingHistory()
+            },
+            onDismiss = { confirmClearHistory = false },
+            confirmText = stringResource(R.string.settings_clear_history_confirm),
+            dismissText = stringResource(R.string.settings_cancel),
+            confirmTag = "clear-training-history-confirm",
+            dismissTag = "clear-training-history-cancel",
             modifier = Modifier.testTag("clear-training-history-dialog"),
-            title = { Text(stringResource(R.string.settings_clear_history_title)) },
-            text = { Text(stringResource(R.string.settings_clear_history_message)) },
-            confirmButton = {
-                TextButton(
-                    {
-                        confirmClearHistory = false
-                        onClearTrainingHistory()
-                    },
-                    Modifier.testTag("clear-training-history-confirm"),
-                ) {
-                    Text(
-                        stringResource(R.string.settings_clear_history_confirm),
-                        color = MaterialTheme.colorScheme.error,
-                    )
-                }
-            },
-            dismissButton = {
-                TextButton(
-                    { confirmClearHistory = false },
-                    Modifier.testTag("clear-training-history-cancel"),
-                ) {
-                    Text(stringResource(R.string.settings_cancel))
-                }
-            },
         )
     }
 }

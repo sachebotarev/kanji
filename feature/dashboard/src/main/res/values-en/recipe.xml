@@ -22,10 +22,12 @@
         <item quantity="one">Will be %d task</item>
         <item quantity="other">Will be %d tasks</item>
     </plurals>
-    <string name="recipe_seconds">Seconds per word</string>
+    <string name="recipe_seconds">Seconds per symbol</string>
     <string name="recipe_no_timer">No limit</string>
     <string name="recipe_timer">Limit time</string>
-    <string name="recipe_timer_hint">Applies to each word</string>
+    <string name="recipe_timer_hint">Word limit = seconds × writable symbols</string>
+    <string name="recipe_param_show_help">Show help: %1$s</string>
+    <string name="recipe_param_hide_help">Hide help: %1$s</string>
     <string name="recipe_number_error">Enter a positive whole number</string>
     <string name="recipe_open_material">Edit material “%1$s”</string>
     <string name="recipe_remove">Remove material</string>

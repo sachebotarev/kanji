@@ -22,13 +22,17 @@ data class TrainingSummary(
 )
 
 /**
- * Scores a completed training from terminal task statuses.
+ * Scores a completed training from terminal tasks.
  *
- * Weights: correct 1.0, assisted 0.6, timed_out 0.25, skipped 0.0.
- * Tiers: ≥85 excellent, ≥55 steady, else keep going. See training-grade.md.
+ * Continuous word points come from [TrainingTask.wordPoints] (hint-scoring.md). Tiers: ≥85
+ * excellent, ≥55 steady, else keep going.
  */
-fun Training.summarize(languageTag: String = "ru"): TrainingSummary {
+fun Training.summarize(
+    languageTag: String = "ru",
+    maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,
+): TrainingSummary {
     require(tasks.isNotEmpty())
+    require(maxHintsPerKanji > 0)
     var correct = 0
     var assisted = 0
     var skipped = 0
@@ -37,19 +41,11 @@ fun Training.summarize(languageTag: String = "ru"): TrainingSummary {
     var elapsed = 0L
     tasks.forEach { task ->
         elapsed += task.elapsedMs
+        points += task.wordPoints(maxHintsPerKanji)
         when (task.status) {
-            TrainingTaskStatus.Correct -> {
-                correct++
-                points += CORRECT_POINTS
-            }
-            TrainingTaskStatus.Assisted -> {
-                assisted++
-                points += ASSISTED_POINTS
-            }
-            TrainingTaskStatus.TimedOut -> {
-                timedOut++
-                points += TIMED_OUT_POINTS
-            }
+            TrainingTaskStatus.Correct -> correct++
+            TrainingTaskStatus.Assisted -> assisted++
+            TrainingTaskStatus.TimedOut -> timedOut++
             TrainingTaskStatus.Skipped -> skipped++
             TrainingTaskStatus.Pending,
             TrainingTaskStatus.InProgress ->
@@ -83,8 +79,5 @@ private fun Training.recipeName(languageTag: String): String {
         ?: ""
 }
 
-private const val CORRECT_POINTS = 1.0
-private const val ASSISTED_POINTS = 0.6
-private const val TIMED_OUT_POINTS = 0.25
 private const val EXCELLENT_MIN = 85
 private const val STEADY_MIN = 55

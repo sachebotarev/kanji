@@ -12,6 +12,7 @@ import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
+import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 class RecognitionSettingsPersistenceTest {
@@ -46,6 +47,10 @@ class RecognitionSettingsPersistenceTest {
                     readabilityEnabled = false,
                     shapeEnabled = false,
                     strokeWritingEnabled = false,
+                    hintMode = HintMode.NextStroke,
+                    maxNextStrokeHints = 5,
+                    fullHintDisplayMillis = 800,
+                    autoAdvanceOnSuccess = true,
                 )
                 .roundedParameters()
         try {

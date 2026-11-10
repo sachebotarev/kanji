@@ -1,5 +1,7 @@
 package ru.mobui.kanji.core.wordui
 
+import androidx.compose.runtime.CompositionLocalProvider
+import ru.mobui.kanji.core.designsystem.LocalSearchOpen
 import ru.mobui.kanji.core.designsystem.inputShape
 import ru.mobui.kanji.core.designsystem.kanjiOutlinedTextFieldColors
 
@@ -50,7 +52,16 @@ fun SymbolPickerScreen(entries: List<SymbolGridItem>, initialIds: Set<Int>, onAp
     var facetDraft by rememberSaveable { mutableStateOf(intArrayOf()) }
     val selections: Map<String, Set<Int>> = facets.associate { it.key to (facetValues.getIntArray(it.key) ?: intArrayOf()).toSet() }
     val activeFacet = facets.firstOrNull { it.key == facetKey }
-    val back = { if (activeFacet != null) facetKey = null else onBack() }
+    val back = {
+        if (searchOpen) {
+            searchOpen = false
+            query = ""
+        } else if (activeFacet != null) {
+            facetKey = null
+        } else {
+            onBack()
+        }
+    }
     backHandler(back)
     if (activeFacet != null) {
         key(activeFacet.key) {
@@ -73,10 +84,20 @@ fun SymbolPickerScreen(entries: List<SymbolGridItem>, initialIds: Set<Int>, onAp
             Modifier.testTag("symbol-picker-apply"), showCheck = true)
     }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding)) {
-            header { searchOpen = !searchOpen }
-            if (searchOpen) OutlinedTextField(query, { query = it }, Modifier.fillMaxWidth().padding(horizontal = 18.dp).testTag("symbol-picker-search"),
-                label = { Text(stringResource(R.string.selection_search)) }, shape = MaterialTheme.inputShape, singleLine = true,
-                colors = kanjiOutlinedTextFieldColors())
+            CompositionLocalProvider(LocalSearchOpen provides searchOpen) {
+                header {
+                    searchOpen = !searchOpen
+                    if (!searchOpen) query = ""
+                }
+            }
+            if (searchOpen) ru.mobui.kanji.core.designsystem.KanjiSearchBar(
+                query = query,
+                onQuery = { query = it },
+                modifier = Modifier.padding(horizontal = 18.dp, vertical = 4.dp),
+                placeholder = stringResource(R.string.selection_search),
+                autoFocus = true,
+                testTag = "symbol-picker-search",
+            )
             filters()
             FlowRow(Modifier.fillMaxWidth().padding(horizontal = 18.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 facets.forEach { facet ->

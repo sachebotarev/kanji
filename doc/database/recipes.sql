@@ -1,7 +1,7 @@
 -- Reference DDL for Recipe Builder tables implemented by Room CatalogDatabase entities/DAO.
 -- SQL contract test applies this after personal-dictionary.sql over exported v4.
 -- Not a migration: the unreleased Android database is replaced.
--- Training execution lives in trainings.sql / Room v7 CatalogDatabase.
+-- Training execution lives in trainings.sql / Room v9 CatalogDatabase.
 PRAGMA foreign_keys = ON;
 
 CREATE TABLE recipes (
@@ -10,7 +10,7 @@ CREATE TABLE recipes (
     is_active INTEGER NOT NULL DEFAULT 0 CHECK(is_active IN (0, 1)),
     task_count INTEGER CHECK(task_count IS NULL OR task_count > 0),
     selection_mode TEXT NOT NULL DEFAULT 'shuffled_cycles' CHECK(selection_mode = 'shuffled_cycles'),
-    seconds_per_word INTEGER CHECK(seconds_per_word IS NULL OR seconds_per_word > 0),
+    seconds_per_symbol INTEGER CHECK(seconds_per_symbol IS NULL OR seconds_per_symbol > 0),
     revision INTEGER NOT NULL DEFAULT 1 CHECK(revision > 0),
     is_archived INTEGER NOT NULL DEFAULT 0 CHECK(is_archived IN (0, 1)),
     created_at INTEGER NOT NULL,
@@ -104,3 +104,16 @@ BEGIN SELECT RAISE(ABORT, 'Tags require dictionary material'); END;
 CREATE TRIGGER recipe_materials_tags_update BEFORE UPDATE ON recipe_materials_tags
 WHEN NOT EXISTS (SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='dictionary')
 BEGIN SELECT RAISE(ABORT, 'Tags require dictionary material'); END;
+
+CREATE TABLE recipe_materials_jlpt (
+    material_id TEXT NOT NULL REFERENCES recipe_materials(id) ON DELETE CASCADE,
+    jlpt_level INTEGER NOT NULL,
+    PRIMARY KEY(material_id, jlpt_level),
+    CHECK (jlpt_level = -1 OR jlpt_level BETWEEN 1 AND 5)
+);
+CREATE TRIGGER recipe_materials_jlpt_insert BEFORE INSERT ON recipe_materials_jlpt
+WHEN NOT EXISTS (SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='kanji')
+BEGIN SELECT RAISE(ABORT, 'JLPT requires kanji material'); END;
+CREATE TRIGGER recipe_materials_jlpt_update BEFORE UPDATE ON recipe_materials_jlpt
+WHEN NOT EXISTS (SELECT 1 FROM recipe_materials WHERE id=NEW.material_id AND material_type='kanji')
+BEGIN SELECT RAISE(ABORT, 'JLPT requires kanji material'); END;

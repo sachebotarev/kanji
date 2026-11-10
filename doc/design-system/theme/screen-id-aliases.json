@@ -258,6 +258,16 @@
       "feature": "practice"
     },
     {
+      "old_id": "DLG-PRACTICE-INTERRUPT",
+      "id": "PRACTICE.D04",
+      "feature": "practice"
+    },
+    {
+      "old_id": "DLG-PRACTICE-SKIP",
+      "id": "PRACTICE.D03",
+      "feature": "practice"
+    },
+    {
       "old_id": "DLG-CHECK-HELP",
       "id": "SETTINGS.01.D01",
       "feature": "settings"
@@ -275,6 +285,16 @@
     {
       "old_id": "DLG-WORD-STATS",
       "id": "HOME.D02",
+      "feature": "home"
+    },
+    {
+      "old_id": "DLG-HISTORY-DELETE",
+      "id": "HOME.02.D01",
+      "feature": "home"
+    },
+    {
+      "old_id": "DLG-UNFINISHED-TRAINING",
+      "id": "HOME.D03",
       "feature": "home"
     },
     {

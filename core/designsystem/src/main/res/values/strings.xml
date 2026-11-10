@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="core_back">Назад</string>
+    <string name="core_clear">Очистить</string>
+    <string name="core_search">Поиск</string>
+    <string name="core_search_open">Поиск</string>
+    <string name="core_search_close">Закрыть поиск</string>
+    <string name="core_delete">Удалить</string>
+    <string name="core_close">Закрыть</string>
+    <string name="core_cancel">Отмена</string>
+    <string name="core_empty">Ничего не найдено</string>
+    <string name="core_empty_hint">Попробуйте изменить запрос или фильтры</string>
+</resources>

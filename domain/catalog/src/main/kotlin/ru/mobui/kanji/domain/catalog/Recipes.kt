@@ -34,6 +34,8 @@ data class RecipeMaterial(
     val kanjiIds: Set<Int> = emptySet(),
     val wordIds: Set<Int> = emptySet(),
     val tagIds: Set<Long> = emptySet(),
+    /** Exact JLPT numbers 1…5 and/or `-1` (no catalog level). Kanji material only. */
+    val jlptLevels: Set<Int> = emptySet(),
 )
 
 data class RecipeName(val languageTag: String, val name: String)
@@ -42,7 +44,7 @@ data class Recipe(
     val names: List<RecipeName>,
     val materials: List<RecipeMaterial>,
     val taskCount: Int? = null,
-    val secondsPerWord: Int? = null,
+    val secondsPerSymbol: Int? = null,
     val isActive: Boolean = false,
     val revision: Long = 1,
 )
@@ -83,7 +85,7 @@ fun TagDraft.validated(): TagDraft {
 fun Recipe.validated(): Recipe {
     require(id.isNotBlank() && revision > 0)
     require(taskCount == null || taskCount > 0)
-    require(secondsPerWord == null || secondsPerWord > 0)
+    require(secondsPerSymbol == null || secondsPerSymbol > 0)
     val normalized = names.map { RecipeName(validLanguage(it.languageTag), it.name.trim()) }
     require(normalized.isNotEmpty() && normalized.all { it.name.length in 1..120 })
     require(normalized.map { it.languageTag.lowercase(Locale.ROOT) }.distinct().size == normalized.size)
@@ -91,10 +93,12 @@ fun Recipe.validated(): Recipe {
     materials.forEach { material ->
         require(material.id.isNotBlank() && material.chapters.all { it > 0 })
         require(material.tagIds.all { it > 0 })
+        require(material.jlptLevels.all { it == -1 || it in 1..5 })
         require((material.type in setOf(MaterialType.Book, MaterialType.Dictionary)) == (material.sourceId != null))
         require(material.type == MaterialType.Book || material.chapters.isEmpty())
         require(material.type == MaterialType.Dictionary || material.tagIds.isEmpty())
         require(material.type == MaterialType.Words || material.wordIds.isEmpty())
+        require(material.type == MaterialType.Kanji || material.jlptLevels.isEmpty())
         require(material.type != MaterialType.Words || (material.kanjiIds.isEmpty() && material.wordIds.isNotEmpty()))
     }
     return copy(names = normalized)

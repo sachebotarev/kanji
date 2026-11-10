@@ -1,13 +1,5 @@
 package ru.mobui.kanji.feature.dashboard
 
-/** Presentation snapshots only. Real data sources will replace the demo fixture later. */
-data class WordStatistics(val learned: Int, val assisted: Int, val errors: Int) {
-    val total: Int
-        get() = learned + assisted + errors
-}
-
-data class ActivityOverview(val dailyCounts: List<Int>, val streakDays: Int)
-
 data class VocabularyOverview(
     val textbookCount: Int,
     val activeTextbooks: Int,
@@ -26,7 +18,7 @@ data class DashboardState(
 object DashboardDemo {
     val state =
         DashboardState(
-            WordStatistics(874, 249, 125),
+            WordStatistics(8, 2, 1),
             ActivityOverview(
                 listOf(
                     0,
@@ -73,6 +65,7 @@ object DashboardDemo {
                     3,
                 ),
                 7,
+                ActivityTone.KeepItUp,
             ),
             VocabularyOverview(12, 4, 156, 92, 18, 12),
         )
