@@ -653,6 +653,14 @@ private fun RecipeBuilderDestination(
             openCreate = openCreate,
             launchAfterCreate = launchAfterCreate,
             trainingsRepository = dependencies.trainingsRepository,
+            defaultStrokeHintMode = {
+                when (settingsModel.settings.value.hintMode) {
+                    ru.mobui.kanji.domain.practice.HintMode.NextStroke ->
+                        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke
+                    ru.mobui.kanji.domain.practice.HintMode.FullCharacter ->
+                        ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter
+                }
+            },
         )
     }
 }

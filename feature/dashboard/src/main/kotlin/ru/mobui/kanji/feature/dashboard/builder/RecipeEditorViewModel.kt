@@ -22,6 +22,7 @@ import ru.mobui.kanji.domain.catalog.DictionaryTag
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.Recipe
+import ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode
 import ru.mobui.kanji.domain.catalog.WordTagAssignment
 import ru.mobui.kanji.domain.catalog.validated
 
@@ -38,7 +39,8 @@ internal data class RecipeEditorState(
 internal class RecipeEditorViewModel(private val saved: SavedStateHandle, private val catalog: CatalogRepository,
     private val personal: PersonalDictionaryRepository, private val recipesRepository: RecipesRepository,
     private val recipeId: String?, private val copyFromId: String? = null,
-    private val copyName: (String) -> String = { it }) : ViewModel() {
+    private val copyName: (String) -> String = { it },
+    private val defaultStrokeHintMode: () -> RecipeStrokeHintMode = { RecipeStrokeHintMode.NextStroke }) : ViewModel() {
     private val id: String = recipeId ?: saved.get<String>("new-recipe-id")
         ?: UUID.randomUUID().toString().also { saved["new-recipe-id"] = it }
     private val mutable = MutableStateFlow(
@@ -70,7 +72,7 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
                                 .also { saved["copy-initial"] = recipeBundle(it) }
                         }
                 } else if (recipeId == null) {
-                    Recipe(id, emptyList(), emptyList())
+                    Recipe(id, emptyList(), emptyList(), strokeHintMode = defaultStrokeHintMode())
                 } else recipesRepository.observeRecipes().first().firstOrNull { it.id == recipeId }
                 currentCoroutineContext().ensureActive()
                 if (initial == null) {

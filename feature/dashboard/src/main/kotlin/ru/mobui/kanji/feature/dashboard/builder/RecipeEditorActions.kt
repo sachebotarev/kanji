@@ -6,4 +6,5 @@ class RecipeEditorActions(
     val onBack: () -> Unit,
     val onWord: (Int) -> Unit,
     val onManageTags: () -> Unit,
+    val onDelete: (() -> Unit)? = null,
 )

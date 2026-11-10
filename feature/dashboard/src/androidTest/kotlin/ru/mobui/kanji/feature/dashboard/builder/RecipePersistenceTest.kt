@@ -226,4 +226,47 @@ class RecipePersistenceTest {
         compose.waitUntil { exits == 1 }
         compose.runOnIdle { assertEquals("Черновик", recipesRepository.recipes.value.single().names.single().name) }
     }
+
+    @Test
+    fun bundlePreservesHintMode() {
+        val base = recipe.copy(
+            hintMode = ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation,
+            strokeHintMode = ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter,
+        )
+        val restored = recipeFromBundle(recipeBundle(base))
+        assertEquals(ru.mobui.kanji.domain.catalog.RecipeHintMode.Translation, restored.hintMode)
+        assertEquals(ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter, restored.strokeHintMode)
+
+        val noneMode = recipe.copy(
+            hintMode = ru.mobui.kanji.domain.catalog.RecipeHintMode.None,
+            strokeHintMode = ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke,
+        )
+        val restoredNone = recipeFromBundle(recipeBundle(noneMode))
+        assertEquals(ru.mobui.kanji.domain.catalog.RecipeHintMode.None, restoredNone.hintMode)
+        assertEquals(ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke, restoredNone.strokeHintMode)
+    }
+
+    @Test fun newRecipeAdoptsConfiguredDefaultStrokeHintMode() {
+        val personal = Personal()
+        val recipesRepository = Learning()
+        lateinit var model: RecipeEditorViewModel
+        compose.runOnIdle {
+            model = RecipeEditorViewModel(
+                SavedStateHandle(),
+                catalog,
+                personal,
+                recipesRepository,
+                recipeId = null,
+                defaultStrokeHintMode = { ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter },
+            )
+            ViewModelStore().also { it.put("editor", model); stores += it }
+        }
+        ready(model)
+        compose.runOnIdle {
+            assertEquals(
+                ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter,
+                model.state.value.initial?.strokeHintMode,
+            )
+        }
+    }
 }

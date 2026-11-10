@@ -117,6 +117,11 @@ internal class RoomTrainingsRepository(
                 training.recipeRevision,
                 training.taskCount,
                 training.secondsPerSymbol,
+                training.clueMode.key,
+                when (training.strokeHintMode) {
+                    ru.mobui.kanji.domain.practice.HintMode.NextStroke -> "next_stroke"
+                    ru.mobui.kanji.domain.practice.HintMode.FullCharacter -> "full_character"
+                },
                 training.status.key,
                 training.startedAt,
                 training.endedAt,
@@ -130,6 +135,10 @@ internal class RoomTrainingsRepository(
                 },
             )
         }
+        replaceTasks(training)
+    }
+
+    private suspend fun replaceTasks(training: Training) {
         dao.clearTasks(training.id)
         if (training.tasks.isNotEmpty()) {
             dao.insertTasks(
@@ -146,6 +155,7 @@ internal class RoomTrainingsRepository(
                         task.endedAt,
                         task.elapsedMs,
                         task.readingHintUsed,
+                        task.translationHintUsed,
                     )
                 },
             )
@@ -198,6 +208,8 @@ private fun TrainingAggregate.toDomain(): Training =
         recipeNames.map { TrainingRecipeName(it.languageTag, it.name) },
         training.taskCount,
         training.secondsPerSymbol,
+        ru.mobui.kanji.domain.practice.TaskClueMode.fromKey(training.hintMode),
+        ru.mobui.kanji.domain.practice.HintMode.fromKey(training.strokeHintMode),
         TrainingStatus.entries.single { it.key == training.status },
         training.startedAt,
         training.endedAt,
@@ -218,6 +230,7 @@ private fun TrainingAggregate.toDomain(): Training =
                     aggregate.task.endedAt,
                     aggregate.task.elapsedMs,
                     aggregate.task.readingHintUsed,
+                    aggregate.task.translationHintUsed,
                     aggregate.symbols
                         .sortedBy { it.position }
                         .map { symbol ->

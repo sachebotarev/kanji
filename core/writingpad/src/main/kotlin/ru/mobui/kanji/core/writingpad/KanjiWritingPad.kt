@@ -266,13 +266,14 @@ private fun DrawScope.drawPadContent(
     val side = size.minDimension - inset * 2
     if (overlay.animate) {
         val yellow = OVERLAY_ANIMATED_COLOR.copy(alpha = overlay.alpha)
-        paths.overlay.forEach { (path, start) ->
+        paths.overlay.forEachIndexed { index, (path, start) ->
+            val strokeProgress = if (index < paths.overlay.lastIndex) 1f else overlay.progress
             drawPartialInk(
                 path,
                 start,
                 yellow,
                 metrics.strokeWidth * OVERLAY_ANIMATE_WIDTH_FACTOR,
-                overlay.progress,
+                strokeProgress,
                 overlay.measure,
                 overlay.segment,
             )

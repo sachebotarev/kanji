@@ -493,7 +493,7 @@
   - **`RECIPE.W02.W02` — Поле запроса.** Ввод и очистка текста.
 - **`RECIPE.W03` — Вводный блок.** Текст, количество рецептов и кот.
 - **`RECIPE.W04` — Список рецептов.** Карточка адресуется по recipe_id. Макет HTML 2026-11-07: без радиокнопки выбранного рецепта.
-  - **`RECIPE.W04.W01` — Карточка рецепта.** Тап по телу открывает RECIPE.02. Долгое нажатие — системное перетаскивание. Свайп от конца к началу — удаление с подтверждением RECIPE.D02.
+  - **`RECIPE.W04.W01` — Карточка рецепта.** Тап по телу открывает редактирование RECIPE.01.01. Долгое нажатие — системное перетаскивание. Свайп от конца к началу — удаление с подтверждением RECIPE.D02.
     - **`RECIPE.W04.W01.W02` — Название.**
     - **`RECIPE.W04.W01.W03` — Материалы и фильтры.** Одна метка источника и текст «Ещё N» без раскрытия; высота карточек единообразна.
     - **`RECIPE.W04.W01.W04` — Количество и время.** Две колонки; при крупном шрифте переносятся. Иконки OnSurfaceVariant.
@@ -524,6 +524,8 @@
 - **`RECIPE.01.W05` — Слова в рецепте.** Общий уникальный пул, открывает RECIPE.01.03. Общий: `UI-NAV-ROW`.
 - **`RECIPE.01.W06` — Количество заданий.** Сегменты «По умолчанию/Указать» и положительное число.
 - **`RECIPE.01.W07` — Время на задание.** Сегменты без ограничения/указать и положительное число секунд.
+- **`RECIPE.01.W12` — Подсказка в задании.** Трехсегментный переключатель «Перевод», «Чтение», «Без подсказок» (по умолчанию — «Чтение как подсказка») и поясняющий текст.
+- **`RECIPE.01.W13` — Подсказка знака.** Двухсегментный переключатель «Следующая черта» (по умолчанию) и «Весь кандзи» с поясняющим текстом.
 - **`RECIPE.01.W08` — Ошибка поля.** Текст с декоративным значком ошибки. Общий: `UI-FIELD-ERROR`.
 - **`RECIPE.01.W09` — Сохранить.** Только успешная запись возвращает на RECIPE (список рецептов). Общий: `UI-APPLY`.
 - **`RECIPE.01.W10` — Подтверждение выхода.** Отмена или выход без сохранения — RECIPE.D01.
@@ -539,6 +541,7 @@
 - **`RECIPE.01.01.W01` — Панель заголовка.** Название экрана и возврат.
   - **`RECIPE.01.01.W01.W01` — Назад.** Возврат без неявного сохранения.
   - **`RECIPE.01.01.W01.W02` — Заголовок.** Локализованное название.
+  - **`RECIPE.01.01.W01.W03` — Меню.** Меню действий рецепта (удаление с подтверждением RECIPE.D02; перенесено из RECIPE.02.W01.W03).
 - **`RECIPE.01.01.W02` — Название.** Перевод названия на текущий язык; остальные переводы сохраняются.
 - **`RECIPE.01.01.W03` — Материалы.** Повторяемые элементы адресуются по material_id.
   - **`RECIPE.01.01.W03.W01` — Карточка материала.** Источник, условия и доступное число слов.
@@ -550,8 +553,10 @@
 - **`RECIPE.01.01.W05` — Слова в рецепте.** Общий уникальный пул, открывает RECIPE.01.03. Общий: `UI-NAV-ROW`.
 - **`RECIPE.01.01.W06` — Количество заданий.** Сегменты «По умолчанию/Указать» и положительное число.
 - **`RECIPE.01.01.W07` — Время на задание.** Сегменты без ограничения/указать и положительное число секунд.
+- **`RECIPE.01.01.W12` — Подсказка в задании.** Трехсегментный переключатель «Перевод», «Чтение», «Без подсказок» (по умолчанию — «Чтение как подсказка») и поясняющий текст. Зеркало RECIPE.01.W12.
+- **`RECIPE.01.01.W13` — Подсказка знака.** Двухсегментный переключатель «Следующая черта» (по умолчанию) и «Весь кандзи» с поясняющим текстом. Зеркало RECIPE.01.W13.
 - **`RECIPE.01.01.W08` — Ошибка поля.** Текст с декоративным значком ошибки. Общий: `UI-FIELD-ERROR`.
-- **`RECIPE.01.01.W09` — Сохранить.** Только успешная запись возвращает на RECIPE.02. Общий: `UI-APPLY`.
+- **`RECIPE.01.01.W09` — Сохранить.** Только успешная запись возвращает на RECIPE (список рецептов). Общий: `UI-APPLY`.
 - **`RECIPE.01.01.W10` — Подтверждение выхода.** Отмена или выход без сохранения — RECIPE.D01.
 - **`RECIPE.01.01.W11` — Состояние содержимого.** Взаимоисключающие варианты загрузки, ошибки и пустого результата. Общий: `UI-STATUS`.
   - **`RECIPE.01.01.W11.W01` — Загрузка.** Индикатор ожидания.
@@ -635,30 +640,6 @@
   - **`RECIPE.01.03.W03.W02` — Ошибка.** Сообщение и повторная загрузка.
   - **`RECIPE.01.03.W03.W03` — Пустой результат.** Маскот/пояснение, когда нет подходящих данных.
 
-#### RECIPE.02 — Рецепт
-
-Маршрут макета: `#recipe-builder/RECIPE.02`. Android: действующий экран/режим; HTML-макет ещё не согласован (`unapproved`). Структура как у RECIPE.01.01, только для просмотра.
-
-- **`RECIPE.02.W01` — Панель заголовка.** Название экрана и возврат.
-  - **`RECIPE.02.W01.W01` — Назад.** Возврат к RECIPE.
-  - **`RECIPE.02.W01.W02` — Заголовок.** Локализованное «Рецепт».
-  - **`RECIPE.02.W01.W03` — Меню.** Удаление с подтверждением RECIPE.D02.
-- **`RECIPE.02.W02` — Название.** Локализованное имя записи (только чтение).
-- **`RECIPE.02.W03` — Материалы.** Только чтение: общая тихая панель `surfaceContainerLow` без elevation; условия — обычный текст, не чипы.
-  - **`RECIPE.02.W03.W01` — Карточка материала.** Только чтение: без `surfaceContainer`/шеврона/тапа; строки разделены hairline, без вида кнопки.
-    - **`RECIPE.02.W03.W01.W01` — Источник.**
-    - **`RECIPE.02.W03.W01.W02` — Условия.**
-    - **`RECIPE.02.W03.W01.W03` — Число слов.**
-  - **`RECIPE.02.W03.W02` — Ещё/свернуть.** Раскрытие длинного списка.
-- **`RECIPE.02.W04` — Слова в рецепте.** Общий уникальный пул, открывает RECIPE.01.03. Общий: `UI-NAV-ROW`.
-- **`RECIPE.02.W05` — Количество заданий.** Компактная подпись итога без переключателей режима.
-- **`RECIPE.02.W06` — Время на задание.** Компактная подпись итога без переключателей режима; пояснение «лимит слова = секунды × символы» — по иконке подсказки, не постоянный текст.
-- **`RECIPE.02.W07` — Редактировать.** RECIPE.01.01. Общий: `UI-APPLY`.
-- **`RECIPE.02.W08` — Состояние содержимого.** Взаимоисключающие варианты загрузки, ошибки и пустого результата. Общий: `UI-STATUS`.
-  - **`RECIPE.02.W08.W01` — Загрузка.** Индикатор ожидания.
-  - **`RECIPE.02.W08.W02` — Ошибка.** Сообщение и повторная загрузка.
-  - **`RECIPE.02.W08.W03` — Пустой результат.** Маскот/пояснение, когда нет подходящих данных.
-
 #### RECIPE.D01 — Несохранённый рецепт
 
 Открывается из: `RECIPE.01`, `RECIPE.01.01`. Деструктивное подтверждение выхода без сохранения; сохранение только через FAB редактора.
@@ -669,7 +650,7 @@
 
 #### RECIPE.D02 — Удаление рецепта
 
-Открывается из: `RECIPE.02`, `RECIPE.W04.W01.W06`.
+Открывается из: `RECIPE.01.01.W01.W03`, `RECIPE.W04.W01.W06`.
 
 - **`RECIPE.D02.W01` — Название и предупреждение.**
 - **`RECIPE.D02.W02` — Отмена.**
@@ -904,7 +885,7 @@
   - **`PRACTICE.W01.W01` — Номер и прогресс.** (выведен как отдельный блок; счётчик снова в шапке `PRACTICE.W01`, не в `PRACTICE.W07`)
   - **`PRACTICE.W01.W02` — Таймер.**
   - **`PRACTICE.W01.W03` — Назад.** Открывает PRACTICE.D04; после подтверждения — на HOME с сохранением `in_progress`.
-- **`PRACTICE.W02` — Условие.** Перевод до 2 строк; при обрезке — inline «… ещё»; чтение под animated spoiler (тап = одна подсказка); эталон знака — кнопка в `PRACTICE.W07`.
+- **`PRACTICE.W02` — Условие.** В зависимости от рецепта скрывается перевод, чтение или ничего; скрытое поле открывается по тапу через animated spoiler как подсказка (с влиянием на результат); при режиме без подсказок оба поля открыты сразу и не влияют на процент результата; при обрезке перевода — inline «… ещё»; эталон знака — кнопка в `PRACTICE.W07`.
 - **`PRACTICE.W03` — Полоса кандзи.** Выбор активной ячейки; превью штрихов (при ошибке проверки — свой рисунок; эталон — только для пустой ячейки или исчерпанных подсказок).
 - **`PRACTICE.W04` — Поле письма.** Ввод текущего знака и наложения; режим подсказки из `SETTINGS.01` — полный эталон или жёлтая анимация следующей черты. Общий: `UI-WRITING-PAD`.
 - **`PRACTICE.W05` — Инструменты в нижней панели.** Три круглые иконки: отмена, очистка, подсказка (`PRACTICE.W07`).
@@ -1072,7 +1053,7 @@
 
 Источник: [`WordNavigationRow`](../core/wordui/src/main/kotlin/ru/mobui/kanji/core/wordui/WordWidgets.kt).
 
-Экземпляры: `SHARED.02.W07`, `DICT.02.W02.W04`, `DICT.02.W02.W05`, `DICT.02.01.W02.W04`, `DICT.02.01.W02.W05`, `RECIPE.01.W05`, `RECIPE.01.01.W05`, `RECIPE.02.W04`, `DICT.02.02.W02.W01`.
+Экземпляры: `SHARED.02.W07`, `DICT.02.W02.W04`, `DICT.02.W02.W05`, `DICT.02.01.W02.W04`, `DICT.02.01.W02.W05`, `RECIPE.01.W05`, `RECIPE.01.01.W05`, `DICT.02.02.W02.W01`.
 
 ### UI-TAG-CHIPS — Теги записи: цветная точка, имена и остаток
 
@@ -1120,7 +1101,7 @@
 
 Источник: [`SelectionApplyButton; локальные ExtendedFloatingActionButton`](../core/wordui/src/main/kotlin/ru/mobui/kanji/core/wordui/SelectionApplyButton.kt).
 
-Экземпляры: `SELECT.01.W05`, `SELECT.02.W05`, `SELECT.03.W05`, `SELECT.04.W05`, `SELECT.05.W05`, `DICT.W06`, `DICT.02.W03`, `DICT.02.01.W03`, `DICT.01.W09`, `RECIPE.W05`, `RECIPE.01.W09`, `RECIPE.01.01.W09`, `RECIPE.01.02.W10`, `RECIPE.01.02.01.W10`, `RECIPE.02.W07`, `SELECT.06.W06`, `SELECT.07.W06`, `DICT.02.02.W03`, `DICT.03.W05`, `DICT.04.W04`.
+Экземпляры: `SELECT.01.W05`, `SELECT.02.W05`, `SELECT.03.W05`, `SELECT.04.W05`, `SELECT.05.W05`, `DICT.W06`, `DICT.02.W03`, `DICT.02.01.W03`, `DICT.01.W09`, `RECIPE.W05`, `RECIPE.01.W09`, `RECIPE.01.01.W09`, `RECIPE.01.02.W10`, `RECIPE.01.02.01.W10`, `SELECT.06.W06`, `SELECT.07.W06`, `DICT.02.02.W03`, `DICT.03.W05`, `DICT.04.W04`.
 
 ### UI-WORD-FORM — Поля записи и слоты переводов/тегов
 
@@ -1198,14 +1179,14 @@
 
 Источник: [`CatalogStatus; DictionaryScreens.kt / RecipeEditorRoute.kt`](../feature/catalog/src/main/kotlin/ru/mobui/kanji/feature/catalog/components/CatalogStatus.kt).
 
-Экземпляры: `BOOKS.W04`, `REFS.W05`, `BOOKS.01.W04`, `BOOKS.01.01.W08`, `BOOKS.01.02.W07`, `BOOKS.01.03.W06`, `BOOKS.01.03.01.W06`, `SHARED.01.W06`, `SHARED.02.W08`, `SHARED.03.W05`, `SELECT.01.W06`, `SELECT.02.W06`, `SELECT.03.W06`, `REFS.01.W06`, `REFS.02.W05`, `SHARED.02.01.W05`, `SELECT.04.W06`, `SELECT.05.W06`, `DICT.W07`, `DICT.01.W06`, `DICT.02.W05`, `DICT.02.01.W05`, `RECIPE.W08`, `RECIPE.01.W11`, `RECIPE.01.01.W11`, `RECIPE.01.03.W03`, `RECIPE.02.W08`, `SELECT.06.W07`, `SELECT.07.W07`, `DICT.02.02.W04`, `DICT.03.W06`, `DICT.04.W05`.
+Экземпляры: `BOOKS.W04`, `REFS.W05`, `BOOKS.01.W04`, `BOOKS.01.01.W08`, `BOOKS.01.02.W07`, `BOOKS.01.03.W06`, `BOOKS.01.03.01.W06`, `SHARED.01.W06`, `SHARED.02.W08`, `SHARED.03.W05`, `SELECT.01.W06`, `SELECT.02.W06`, `SELECT.03.W06`, `REFS.01.W06`, `REFS.02.W05`, `SHARED.02.01.W05`, `SELECT.04.W06`, `SELECT.05.W06`, `DICT.W07`, `DICT.01.W06`, `DICT.02.W05`, `DICT.02.01.W05`, `RECIPE.W08`, `RECIPE.01.W11`, `RECIPE.01.01.W11`, `RECIPE.01.03.W03`, `SELECT.06.W07`, `SELECT.07.W07`, `DICT.02.02.W04`, `DICT.03.W06`, `DICT.04.W05`.
 
 ## Источники экранов и адаптеров
 
 - Главная: [DashboardScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/DashboardScreen.kt), [widgets](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/widgets).
 - Каталог: [CatalogRoute.kt](../feature/catalog/src/main/kotlin/ru/mobui/kanji/feature/catalog/CatalogRoute.kt), [browse](../feature/catalog/src/main/kotlin/ru/mobui/kanji/feature/catalog/browse), [detail](../feature/catalog/src/main/kotlin/ru/mobui/kanji/feature/catalog/detail), [filter](../feature/catalog/src/main/kotlin/ru/mobui/kanji/feature/catalog/filter). BOOKS.01 / BOOKS.01.01 / BOOKS.01.02 и BOOKS.01.03 / BOOKS.01.03.01 — разные вкладки одного семейства экранов, а не независимые реализации.
 - Словарь: [DictionaryScreens.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryScreens.kt), [DictionaryRoute.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryRoute.kt), [DictionaryTranslationsScreen.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryTranslationsScreen.kt), [DictionaryTagsRoute.kt](../feature/dictionary/src/main/kotlin/ru/mobui/kanji/feature/dictionary/DictionaryTagsRoute.kt). DICT.02 / DICT.02.01 используют один WordEditorScreen; SELECT.07 / DICT.04 — один TagPickerScreen в разных режимах. Управление тегами открывается также из материалов конструктора через app.
-- Конструктор: [RecipeBuilderRoute.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeBuilderRoute.kt), [RecipeLibraryScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeLibraryScreen.kt), [RecipeDetailScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeDetailScreen.kt), [RecipeEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeEditorScreen.kt), [MaterialEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/MaterialEditorScreen.kt). RECIPE.02 — RecipeDetailScreen (без отдельного просмотра материала); RECIPE.01 / RECIPE.01.01 — один RecipeEditorScreen; RECIPE.01.02 / RECIPE.01.02.01 — один MaterialEditorScreen и четыре формы. Предпросмотр слов материала также использует общий WordList/WordDetailsContent через app; смена источника не создаёт новый тип виджета.
+- Конструктор: [RecipeBuilderRoute.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeBuilderRoute.kt), [RecipeLibraryScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeLibraryScreen.kt), [RecipeEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeEditorScreen.kt), [MaterialEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/MaterialEditorScreen.kt). RECIPE.01 / RECIPE.01.01 — один RecipeEditorScreen (включает удаление существующего рецепта); RECIPE.01.02 / RECIPE.01.02.01 — один MaterialEditorScreen и четыре формы. Предпросмотр слов материала также использует общий WordList/WordDetailsContent через app; смена источника не создаёт новый тип виджета.
 - Общие выборы: [core/wordui](../core/wordui/src/main/kotlin/ru/mobui/kanji/core/wordui). SELECT.01 — ChapterPickerScreen (в том числе из материала конструктора); SELECT.02 / DICT.03 — SymbolPickerScreen; вложенные фасеты используют SymbolFacetScreen; SELECT.06 — WordPickerScreen (он тоже открывает вложенный SymbolPickerScreen). Изменение сетки/плитки/шапки действует и во вложенных выборах.
 - Практика: [PracticeScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreen.kt), [PracticeScreenContext.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreenContext.kt), [CheckerSettingsScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/CheckerSettingsScreen.kt), [TrainingCompleteScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/TrainingCompleteScreen.kt) (PRACTICE.01). Поле письма используется и в предпросмотре настроек проверки.
 - Настройки: [SettingsScreen.kt](../feature/settings/src/main/kotlin/ru/mobui/kanji/feature/settings/SettingsScreen.kt). Глобальная тема [KanjiTheme.kt](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/KanjiTheme.kt) влияет на все экраны; локальная правка цвета не должна подменять изменение всей темы.
@@ -1214,6 +1195,28 @@
 
 Прежние APP/CAT/DLG/EXT и `TRAIN*` ID заменены по согласованной [таблице](screen-id-migration.md) и зарезервированы как алиасы; их нельзя присваивать новым экранам.
 
+- **`RECIPE.02` — Рецепт (просмотр).** Выведен: просмотр рецептов исключён, нажатие на карточку сразу открывает редактирование RECIPE.01.01. Меню с удалением перенесено в RECIPE.01.01.W01.W03. Алиас: `TRAIN.02`.
+  - **`RECIPE.02.W01` — Панель заголовка.**
+    - **`RECIPE.02.W01.W01` — Назад.**
+    - **`RECIPE.02.W01.W02` — Заголовок.**
+    - **`RECIPE.02.W01.W03` — Меню.** Перенесено в `RECIPE.01.01.W01.W03`.
+  - **`RECIPE.02.W02` — Название.**
+  - **`RECIPE.02.W03` — Материалы.**
+    - **`RECIPE.02.W03.W01` — Карточка материала.**
+      - **`RECIPE.02.W03.W01.W01` — Источник.**
+      - **`RECIPE.02.W03.W01.W02` — Условия.**
+      - **`RECIPE.02.W03.W01.W03` — Число слов.**
+    - **`RECIPE.02.W03.W02` — Ещё/свернуть.**
+  - **`RECIPE.02.W04` — Слова в рецепте.**
+  - **`RECIPE.02.W05` — Количество заданий.**
+  - **`RECIPE.02.W06` — Время на задание.**
+  - **`RECIPE.02.W07` — Редактировать.**
+  - **`RECIPE.02.W08` — Состояние содержимого.**
+    - **`RECIPE.02.W08.W01` — Загрузка.**
+    - **`RECIPE.02.W08.W02` — Ошибка.**
+    - **`RECIPE.02.W08.W03` — Пустой результат.**
+  - **`RECIPE.02.W09` — Подсказка в задании.**
+  - **`RECIPE.02.W10` — Подсказка знака.**
 - **`PRACTICE.D03` — Подтверждение пропуска.** Ранее из «Далее» при незавершённом слове; «Далее» снова только после Correct/Incorrect по всем ячейкам, диалог не используется.
 - **`PRACTICE.D02` — Диагностика проверки.** Ранее из деталей показателя; в учебном PRACTICE больше не открывается. Алиас: `DLG-DEBUG`.
 - **`HOME.D01` — Подробности активности.** Заменён экраном `HOME.02` (вход с `HOME.W03`).

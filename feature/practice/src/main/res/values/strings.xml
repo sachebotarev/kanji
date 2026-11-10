@@ -49,6 +49,8 @@
     <string name="hint_next_stroke_active">Показывается следующая черта; нажмите, чтобы скрыть</string>
     <string name="reading_hidden">Произношение скрыто. Нажмите, чтобы открыть</string>
     <string name="reading_revealed">Произношение открыто</string>
+    <string name="prompt_hidden">Перевод скрыт. Нажмите, чтобы открыть</string>
+    <string name="prompt_revealed">Перевод открыт</string>
     <string name="debug_title">Отладка проверки</string>
     <string name="debug_close">Закрыть</string>
     <string name="debug_checking">Идёт проверка…</string>

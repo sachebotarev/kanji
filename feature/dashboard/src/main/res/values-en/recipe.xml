@@ -26,6 +26,25 @@
     <string name="recipe_no_timer">No limit</string>
     <string name="recipe_timer">Limit time</string>
     <string name="recipe_timer_hint">Word limit = seconds × writable symbols</string>
+    <string name="recipe_hints">Hint</string>
+    <string name="recipe_hints_title">Prompt hint</string>
+    <string name="recipe_hint_translation">Translation</string>
+    <string name="recipe_hint_reading">Reading</string>
+    <string name="recipe_hint_none">No hints</string>
+    <string name="recipe_hint_translation_description">Translation is hidden as a hint. Reading is shown</string>
+    <string name="recipe_hint_reading_description">Reading is hidden as a hint. Translation is shown</string>
+    <string name="recipe_hint_none_description">Both translation and reading are shown. No penalty to score</string>
+    <string name="recipe_detail_hint_translation">Translation as hint</string>
+    <string name="recipe_detail_hint_reading">Reading as hint</string>
+    <string name="recipe_detail_hint_none">No hints</string>
+    <string name="recipe_stroke_hints">Character hint</string>
+    <string name="recipe_stroke_hints_title">Character hint type</string>
+    <string name="recipe_stroke_hint_next_stroke">Next stroke</string>
+    <string name="recipe_stroke_hint_full_kanji">Full kanji</string>
+    <string name="recipe_stroke_hint_next_stroke_description">Drawn strokes are shown immediately while the next stroke is smoothly drawn</string>
+    <string name="recipe_stroke_hint_full_kanji_description">Pale reference of the full kanji under your ink</string>
+    <string name="recipe_detail_stroke_hint_next_stroke">Next stroke</string>
+    <string name="recipe_detail_stroke_hint_full_kanji">Full kanji</string>
     <string name="recipe_param_show_help">Show help: %1$s</string>
     <string name="recipe_param_hide_help">Hide help: %1$s</string>
     <string name="recipe_number_error">Enter a positive whole number</string>

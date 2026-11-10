@@ -66,7 +66,7 @@ class BuilderSchemaTest(unittest.TestCase):
         self.rejects("UPDATE recipes SET is_archived=1 WHERE id='t'")
         self.rejects("UPDATE recipes SET selection_mode='random_with_replacement' WHERE id='t'")
         self.rejects("UPDATE recipes SET task_count=0 WHERE id='t'")
-        self.rejects("UPDATE recipes SET seconds_per_word=0 WHERE id='t'")
+        self.rejects("UPDATE recipes SET seconds_per_symbol=0 WHERE id='t'")
         tables = {row[0] for row in self.db.execute("SELECT name FROM sqlite_master WHERE type='table'")}
         # Recipe DDL must not create training execution tables (see trainings.sql separately).
         self.assertFalse({'trainings', 'training_tasks', 'training_task_symbols'} & tables)

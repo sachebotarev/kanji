@@ -72,6 +72,12 @@ fun HandwritingTraining.recordReadingHint() {
     state = state.copy(readingHintUsed = true)
 }
 
+/** Opens the word translation spoiler; does not mark a kanji cell as helped. */
+fun HandwritingTraining.recordTranslationHint() {
+    if (state.result != null || state.timedOut || state.translationHintUsed) return
+    state = state.copy(translationHintUsed = true)
+}
+
 /** Counts one NextStroke hint press; returns the new count. */
 fun HandwritingTraining.recordStrokeHint(): Int {
     val index = state.selectedIndex ?: return 0

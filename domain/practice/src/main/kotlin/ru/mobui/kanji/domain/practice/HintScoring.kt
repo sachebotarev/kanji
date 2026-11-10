@@ -4,6 +4,8 @@ import kotlin.math.max
 
 /** Reading spoiler multiplies the kanji average; see doc/implementation/hint-scoring.md. */
 const val READING_HINT_FACTOR = 0.85
+/** Translation spoiler multiplies the kanji average; see doc/implementation/hint-scoring.md. */
+const val TRANSLATION_HINT_FACTOR = 0.85
 
 /**
  * Score of one practice symbol after the word is finished.
@@ -43,7 +45,8 @@ fun TrainingTask.wordPoints(maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINT
                         }
                         .average()
             val readingFactor = if (readingHintUsed) READING_HINT_FACTOR else 1.0
-            kanjiAvg * readingFactor
+            val translationFactor = if (translationHintUsed) TRANSLATION_HINT_FACTOR else 1.0
+            kanjiAvg * readingFactor * translationFactor
         }
         TrainingTaskStatus.Pending,
         TrainingTaskStatus.InProgress ->

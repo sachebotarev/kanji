@@ -133,7 +133,7 @@ internal fun ReadingSpoiler(
 }
 
 @Composable
-private fun SpoilerNoise(
+internal fun SpoilerNoise(
     progress: Float,
     revealed: Boolean,
     particleColor: Color,
@@ -266,8 +266,8 @@ private const val PARTICLE_COUNT = 1100
 private const val READING_SPOILER_SEED = 0x52EAD1A6
 private const val SPOILER_FRAME_COUNT = 8
 private const val SPOILER_FRAME_INTERVAL_MILLIS = 90L
-private const val REVEAL_DURATION_MILLIS = 380
-private const val SPOILER_VISIBILITY_THRESHOLD = 0.01f
+internal const val REVEAL_DURATION_MILLIS = 380
+internal const val SPOILER_VISIBILITY_THRESHOLD = 0.01f
 
 private const val PARTICLE_BASE_RADIUS = 0.9f
 private const val PARTICLE_RADIUS_SPREAD = 1.7f

@@ -59,7 +59,10 @@ internal class RoomRecipesRepository(
                         material.words.map { it.wordId }.toSet(),
                         material.tags.map { it.tagId }.toSet(),
                         material.jlpt.map { it.jlptLevel }.toSet())
-                }, row.recipe.taskCount, row.recipe.secondsPerSymbol, row.recipe.isActive,
+                }, row.recipe.taskCount, row.recipe.secondsPerSymbol,
+                ru.mobui.kanji.domain.catalog.RecipeHintMode.fromKey(row.recipe.hintMode),
+                ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.fromKey(row.recipe.strokeHintMode),
+                row.recipe.isActive,
                 row.recipe.revision)
         } }
     }
@@ -94,6 +97,8 @@ internal class RoomRecipesRepository(
             if (active) dao.deactivateAll()
             dao.putRecipe(RecipesRow(valid.id, previous?.position ?: ((rows.maxOfOrNull { it.position } ?: -1) + 1),
                 active, valid.taskCount, secondsPerSymbol = valid.secondsPerSymbol,
+                hintMode = valid.hintMode.key,
+                strokeHintMode = valid.strokeHintMode.key,
                 revision = (previous?.revision ?: 0) + 1, createdAt = previous?.createdAt ?: now, updatedAt = now))
             dao.clearNames(valid.id)
             dao.insertNames(valid.names.map { RecipesTranslationsRow(valid.id, it.languageTag, it.name) })

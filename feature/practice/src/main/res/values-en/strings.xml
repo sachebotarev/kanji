@@ -49,6 +49,8 @@
     <string name="hint_next_stroke_active">Showing the next stroke; tap to hide</string>
     <string name="reading_hidden">Pronunciation is hidden. Tap to reveal</string>
     <string name="reading_revealed">Pronunciation is revealed</string>
+    <string name="prompt_hidden">Translation is hidden. Tap to reveal</string>
+    <string name="prompt_revealed">Translation is revealed</string>
     <string name="debug_title">Check diagnostics</string>
     <string name="debug_close">Close</string>
     <string name="debug_checking">Checking…</string>

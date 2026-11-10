@@ -211,6 +211,47 @@ class HandwritingTrainingTest {
     }
 
     @Test
+    fun translationHintMarksWordAssistedWithoutCellHint() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.recordTranslationHint()
+        assertTrue(training.state.translationHintUsed)
+        assertFalse(training.state.selected!!.hintUsed)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertEquals(AnswerStatus.Assisted, result.status)
+        assertTrue(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
+        assertTrue(result.kanji.none { it.hintUsed })
+        assertTrue(result.kanji.none { it.hintRequestCount > 0 })
+    }
+
+    @Test
+    fun withoutHintsWordIsCorrectWithoutAssistance() {
+        val training = HandwritingTraining(task())
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        assertFalse(training.state.translationHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertEquals(AnswerStatus.Correct, result.status)
+        assertFalse(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
+    }
+
+    @Test
     fun skippedResultPreservesUnverifiedStrokesAndCannotBeChanged() {
         val training = HandwritingTraining(task())
         training.advanceTime(25)

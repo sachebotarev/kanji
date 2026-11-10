@@ -40,6 +40,7 @@ import ru.mobui.kanji.domain.practice.exhaustStrokeHints
 import ru.mobui.kanji.domain.practice.hintAlgorithmFor
 import ru.mobui.kanji.domain.practice.nextUnsatisfiedUserIndex
 import ru.mobui.kanji.domain.practice.recordReadingHint
+import ru.mobui.kanji.domain.practice.recordTranslationHint
 import ru.mobui.kanji.domain.practice.recordStrokeHint
 import ru.mobui.kanji.domain.practice.select
 import ru.mobui.kanji.domain.practice.setGestureActive
@@ -57,6 +58,8 @@ data class PracticeUiState(
     val maxNextStrokeHints: Int = 3,
     /** Word-level reading spoiler; once revealed it stays open for this task. */
     val readingRevealed: Boolean = false,
+    /** Word-level translation spoiler; once revealed it stays open for this task. */
+    val translationRevealed: Boolean = true,
     val debugFailures: List<CheckFailure> = emptyList(),
     val debugCompensation: CheckCompensation? = null,
     val debugEnabled: Boolean = false,
@@ -79,6 +82,9 @@ sealed interface PracticeAction {
 
     /** Tap on the spoiled reading; counts as one hint for the selected cell. */
     data object RevealReading : PracticeAction
+
+    /** Tap on the spoiled translation; counts as one hint for the task. */
+    data object RevealTranslation : PracticeAction
 
     data object Undo : PracticeAction
 
@@ -103,7 +109,14 @@ class PracticeViewModel(
 ) : ViewModel() {
     private var training = HandwritingTraining(task)
     private val mutableState =
-        MutableStateFlow(PracticeUiState(training.state, debugEnabled = showCheckDiagnostics))
+        MutableStateFlow(
+            PracticeUiState(
+                training.state,
+                readingRevealed = task.clueMode != ru.mobui.kanji.domain.practice.TaskClueMode.Reading,
+                translationRevealed = task.clueMode != ru.mobui.kanji.domain.practice.TaskClueMode.Translation,
+                debugEnabled = showCheckDiagnostics,
+            ),
+        )
     val uiState = mutableState.asStateFlow()
     private val mutablePreview = MutableStateFlow<PadEvent.GesturePreview?>(null)
     val preview = mutablePreview.asStateFlow()
@@ -213,6 +226,7 @@ class PracticeViewModel(
             PracticeAction.ToggleCompensatedDrawing -> handleToggleCompensatedDrawing()
             PracticeAction.ToggleHint -> handleToggleHint()
             PracticeAction.RevealReading -> handleRevealReading()
+            PracticeAction.RevealTranslation -> handleRevealTranslation()
             PracticeAction.Undo -> {
                 cancelCheck()
                 training.undo()
@@ -250,6 +264,12 @@ class PracticeViewModel(
         if (mutableState.value.readingRevealed || training.state.task.reading.isBlank()) return
         training.recordReadingHint()
         mutableState.value = mutableState.value.copy(readingRevealed = true)
+    }
+
+    private fun handleRevealTranslation() {
+        if (mutableState.value.translationRevealed || training.state.task.russianWord.isBlank()) return
+        training.recordTranslationHint()
+        mutableState.value = mutableState.value.copy(translationRevealed = true)
     }
 
     private fun handleToggleHint() {
@@ -527,6 +547,7 @@ class PracticeViewModel(
                     mutableState.value.copy(
                         hint = reviewHint(training.state.selected),
                         readingRevealed = true,
+                        translationRevealed = true,
                     )
             }
         }
@@ -572,6 +593,7 @@ class PracticeViewModel(
                 hintMode = hintMode(),
                 maxNextStrokeHints = maxNextStrokeHints(),
                 readingRevealed = mutableState.value.readingRevealed,
+                translationRevealed = mutableState.value.translationRevealed,
                 debugReport = debugReport,
                 showCompensatedDrawing =
                     mutableState.value.showCompensatedDrawing &&

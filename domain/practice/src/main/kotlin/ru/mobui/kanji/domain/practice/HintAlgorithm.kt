@@ -8,7 +8,14 @@ enum class HintMode {
     /** Pale full reference under the user's ink (toggle). */
     FullCharacter,
     /** Animate the next missing stroke once, then clear. */
-    NextStroke,
+    NextStroke;
+
+    companion object {
+        fun fromKey(key: String?): HintMode = when (key?.trim()?.lowercase()) {
+            "full_character", "full_kanji", "full" -> FullCharacter
+            else -> NextStroke
+        }
+    }
 }
 
 /** A strategy receives neutral geometry, never a KanjiVG asset or UI widget. */
@@ -53,8 +60,8 @@ class TraceReferenceHint : HintAlgorithm {
 }
 
 /**
- * Shows only the next reference stroke after the strokes the learner already drew. Unavailable when
- * every reference stroke already has a user stroke.
+ * Shows the reference strokes up to the next missing stroke. The strokes already drawn are shown
+ * immediately, and the next stroke is animated. Unavailable when every reference stroke already has a user stroke.
  */
 class NextStrokeHint : HintAlgorithm {
     override fun create(request: HintRequest): HintPresentation? {
@@ -62,7 +69,7 @@ class NextStrokeHint : HintAlgorithm {
         val strokes = request.reference.strokes
         if (next >= strokes.size) return null
         return HintPresentation(
-            overlay = ReferenceDrawing(listOf(strokes[next])),
+            overlay = ReferenceDrawing(strokes.take(next + 1)),
             blocksInput = false,
             playback = HintPlayback.AnimateOnce,
         )

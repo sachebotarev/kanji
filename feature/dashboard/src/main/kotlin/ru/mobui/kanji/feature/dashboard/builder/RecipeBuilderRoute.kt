@@ -19,13 +19,13 @@ import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.domain.catalog.CatalogRepository
+import ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.name
 import ru.mobui.kanji.domain.practice.TrainingsRepository
 
 @Serializable private object RecipeLibrary
-@Serializable private data class RecipeDetail(val id: String)
 @Serializable private data class RecipeEdit(val id: String? = null, val copyFromId: String? = null)
 @Serializable private data class RecipeWord(val id: Int)
 @Serializable private object RecipeTags
@@ -48,6 +48,7 @@ fun RecipeBuilderRoute(
     openCreate: Boolean = false,
     launchAfterCreate: Boolean = false,
     trainingsRepository: TrainingsRepository? = null,
+    defaultStrokeHintMode: () -> RecipeStrokeHintMode = { RecipeStrokeHintMode.NextStroke },
 ) {
     val nav = rememberNavController()
     val language = LocalConfiguration.current.preferredLanguageTag()
@@ -67,33 +68,14 @@ fun RecipeBuilderRoute(
             val state by model.state.collectAsStateWithLifecycle()
             val query by model.query.collectAsStateWithLifecycle()
             RecipeLibraryScreen(state, query, language, RecipeLibraryActions(
-                actions.onBack, { nav.navigate(RecipeEdit()) }, { nav.navigate(RecipeDetail(it)) },
+                actions.onBack, { nav.navigate(RecipeEdit()) }, { nav.navigate(RecipeEdit(it)) },
                 model::reorder, model::delete, model::query, model::retry))
-        }
-        composable<RecipeDetail> { entry ->
-            val id = entry.toRoute<RecipeDetail>().id
-            // Share the library ViewModel so detail does not load a second catalog copy.
-            val libraryOwner = remember(entry) { nav.getBackStackEntry(RecipeLibrary) }
-            val model = libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository, libraryOwner)
-            val state by model.state.collectAsStateWithLifecycle()
-            RecipeDetailScreen(
-                recipe = state.recipes.firstOrNull { it.id == id },
-                state = state,
-                language = language,
-                actions = RecipeDetailActions(
-                    back = { nav.popBackStack() },
-                    edit = { nav.navigate(RecipeEdit(id)) },
-                    delete = {
-                        model.delete(id)
-                        nav.popBackStack()
-                    },
-                    onWord = { nav.navigate(RecipeWord(it)) },
-                ),
-            )
         }
         composable<RecipeEdit> { entry ->
             val route = entry.toRoute<RecipeEdit>()
             val creating = route.id == null
+            val libraryOwner = remember(entry) { nav.getBackStackEntry(RecipeLibrary) }
+            val libraryModel = libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository, libraryOwner)
             RecipeEditorRoute(route.id, catalog, personal, recipesRepository,
                 RecipeEditorActions(
                     onSaved = { id ->
@@ -106,9 +88,16 @@ fun RecipeBuilderRoute(
                     },
                     onWord = { nav.navigate(RecipeWord(it)) },
                     onManageTags = { nav.navigate(RecipeTags) },
+                    onDelete = route.id?.let { id ->
+                        {
+                            libraryModel.delete(id)
+                            nav.popBackStack()
+                        }
+                    },
                 ),
                 language,
                 copyFromId = route.copyFromId,
+                defaultStrokeHintMode = defaultStrokeHintMode,
             )
         }
         composable<RecipeWord> { entry -> actions.wordContent(entry.toRoute<RecipeWord>().id) { nav.popBackStack() } }

@@ -34,6 +34,49 @@ class HintScoringTest {
         assertEquals((2.0 / 3.0 + 1.0) / 2.0 * 0.85, task.wordPoints(3), 1e-9)
     }
 
+    @Test
+    fun wordPointsAppliesTranslationFactor() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本",
+                reading = "にほん",
+                translations = listOf(TrainingTaskTranslation("ru", "Япония")),
+                status = TrainingTaskStatus.Assisted,
+                readingHintUsed = false,
+                translationHintUsed = true,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                    ),
+            )
+        // 1.0 × 0.85
+        assertEquals(0.85, task.wordPoints(3), 1e-9)
+    }
+
+    @Test
+    fun wordPointsWithoutHintsHasNoPenaltyOnResult() {
+        val task =
+            TrainingTask(
+                id = "t",
+                position = 0,
+                writtenForm = "日本",
+                reading = "にほん",
+                translations = listOf(TrainingTaskTranslation("ru", "Япония")),
+                status = TrainingTaskStatus.Correct,
+                readingHintUsed = false,
+                translationHintUsed = false,
+                symbols =
+                    listOf(
+                        symbol("0", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                        symbol("1", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
+                    ),
+            )
+        // avg(1, 1) × 1.0 × 1.0 = 1.0 (no penalty)
+        assertEquals(1.0, task.wordPoints(3), 1e-9)
+    }
+
     private fun symbol(
         id: String,
         role: TrainingSymbolRole,

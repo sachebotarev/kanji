@@ -87,6 +87,8 @@ data class TrainingTask(
     val elapsedMs: Long = 0,
     /** Reading spoiler was opened during this attempt. */
     val readingHintUsed: Boolean = false,
+    /** Translation spoiler was opened during this attempt. */
+    val translationHintUsed: Boolean = false,
     val symbols: List<TrainingSymbol>,
 )
 
@@ -97,6 +99,8 @@ data class Training(
     val recipeNames: List<TrainingRecipeName>,
     val taskCount: Int? = null,
     val secondsPerSymbol: Int? = null,
+    val clueMode: TaskClueMode = TaskClueMode.Reading,
+    val strokeHintMode: HintMode = HintMode.NextStroke,
     val status: TrainingStatus,
     val startedAt: Long,
     val endedAt: Long? = null,

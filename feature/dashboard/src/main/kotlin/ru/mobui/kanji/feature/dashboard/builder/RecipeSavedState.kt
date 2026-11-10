@@ -23,6 +23,8 @@ internal fun Bundle.toMaterial() = RecipeMaterial(requireNotNull(getString("id")
 internal fun recipeBundle(recipe: Recipe): Bundle = Bundle().apply {
     putString("id", recipe.id); putLong("revision", recipe.revision); putBoolean("active", recipe.isActive)
     recipe.taskCount?.let { putInt("tasks", it) }; recipe.secondsPerSymbol?.let { putInt("seconds", it) }
+    putString("hint_mode", recipe.hintMode.key)
+    putString("stroke_hint_mode", recipe.strokeHintMode.key)
     putStringArrayList("languages", ArrayList(recipe.names.map { it.languageTag }))
     putStringArrayList("names", ArrayList(recipe.names.map { it.name }))
     putInt("size", recipe.materials.size)
@@ -34,6 +36,8 @@ internal fun recipeFromBundle(bundle: Bundle): Recipe = Recipe(requireNotNull(bu
     (0 until bundle.getInt("size")).map { requireNotNull(bundle.getBundle("material-$it")).toMaterial() },
     if (bundle.containsKey("tasks")) bundle.getInt("tasks") else null,
     if (bundle.containsKey("seconds")) bundle.getInt("seconds") else null,
+    ru.mobui.kanji.domain.catalog.RecipeHintMode.fromKey(bundle.getString("hint_mode")),
+    ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.fromKey(bundle.getString("stroke_hint_mode")),
     bundle.getBoolean("active"), bundle.getLong("revision"))
 
 internal val RecipeSaver = Saver<Recipe, Bundle>(save = { recipeBundle(it) }, restore = ::recipeFromBundle)

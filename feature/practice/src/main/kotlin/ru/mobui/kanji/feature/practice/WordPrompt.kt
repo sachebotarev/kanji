@@ -1,5 +1,9 @@
 package ru.mobui.kanji.feature.practice
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -15,6 +19,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -23,9 +28,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -44,11 +57,39 @@ import androidx.compose.ui.window.Dialog
 /**
  * Practice translation: at most two lines. On overflow, Instagram-style inline «… ещё»
  * opens the full text in a dialog without taking an extra vertical row.
+ * When translation acts as a hint, it is initially covered by speckle spoiler.
  */
 @Composable
-internal fun WordPrompt(word: String, modifier: Modifier = Modifier) {
+internal fun WordPrompt(
+    word: String,
+    modifier: Modifier = Modifier,
+    revealed: Boolean = true,
+    enabled: Boolean = true,
+    onReveal: () -> Unit = {},
+) {
     var showFull by rememberSaveable(word) { mutableStateOf(false) }
     val moreLabel = stringResource(R.string.prompt_more)
+    val hiddenLabel = stringResource(R.string.prompt_hidden)
+    val haptics = LocalHapticFeedback.current
+    val particleColor = MaterialTheme.colorScheme.onSurface
+    val revealProgress = remember(word) { Animatable(if (revealed) 0f else 1f) }
+    LaunchedEffect(word, revealed) {
+        if (revealed) {
+            revealProgress.animateTo(0f, animationSpec = tween(durationMillis = REVEAL_DURATION_MILLIS))
+        } else {
+            revealProgress.snapTo(1f)
+        }
+    }
+    val progress = revealProgress.value
+    val canReveal = enabled && !revealed
+    val interactionSource = remember { MutableInteractionSource() }
+    val reveal = {
+        if (canReveal) {
+            haptics.performHapticFeedback(HapticFeedbackType.LongPress)
+            onReveal()
+        }
+    }
+
     val style =
         MaterialTheme.typography.headlineMedium.copy(
             fontWeight = FontWeight.SemiBold,
@@ -61,25 +102,56 @@ internal fun WordPrompt(word: String, modifier: Modifier = Modifier) {
         modifier
             .fillMaxWidth()
             .heightIn(min = minTwoLines)
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .testTag("word-prompt")
+            .then(
+                if (canReveal) {
+                    Modifier.clickable(
+                        interactionSource = interactionSource,
+                        indication = null,
+                        role = Role.Button,
+                        onClick = reveal,
+                    ).clearAndSetSemantics {
+                        contentDescription = hiddenLabel
+                        stateDescription = hiddenLabel
+                        role = Role.Button
+                        onClick(label = hiddenLabel) {
+                            reveal()
+                            true
+                        }
+                    }
+                } else {
+                    Modifier
+                },
+            ),
+        contentAlignment = Alignment.Center,
     ) {
         val maxWidthPx = constraints.maxWidth
         val collapsed =
             remember(word, moreLabel, maxWidthPx, style, linkColor, textMeasurer) {
                 collapsePrompt(word, moreLabel, maxWidthPx, style, linkColor, textMeasurer) {
-                    showFull = true
+                    if (revealed) showFull = true
                 }
             }
         Text(
             collapsed,
-            Modifier.fillMaxWidth().testTag("word-prompt"),
+            Modifier.fillMaxWidth(),
             style = style,
             textAlign = TextAlign.Center,
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 1f - progress),
             maxLines = 2,
             overflow = TextOverflow.Clip,
         )
+        if (progress > SPOILER_VISIBILITY_THRESHOLD) {
+            SpoilerNoise(
+                progress = progress,
+                revealed = revealed,
+                particleColor = particleColor,
+                modifier = Modifier.matchParentSize(),
+            )
+        }
     }
-    if (showFull) {
+    if (showFull && revealed) {
         Dialog(onDismissRequest = { showFull = false }) {
             Surface(
                 shape = MaterialTheme.shapes.extraLarge,

@@ -38,6 +38,8 @@ data class PracticeState(
     val gestureActive: Boolean = false,
     /** Reading spoiler opened once for this word; does not mark a kanji cell. */
     val readingHintUsed: Boolean = false,
+    /** Translation spoiler opened once for this word; does not mark a kanji cell. */
+    val translationHintUsed: Boolean = false,
     /**
      * Word deadline hit: unsettled practice cells are Incorrect, input frozen, «Далее» unlocks;
      * [result] is still null until submit.
@@ -181,6 +183,7 @@ class HandwritingTraining(task: PracticeTask) {
             state.copy(
                 timedOut = true,
                 readingHintUsed = true,
+                translationHintUsed = true,
                 gestureActive = false,
                 cells =
                     state.cells.map { cell ->
@@ -197,6 +200,7 @@ class HandwritingTraining(task: PracticeTask) {
             state.isComplete -> {
                 val assisted =
                     state.readingHintUsed ||
+                        state.translationHintUsed ||
                         state.cells.any {
                             it.task.mode == EntryMode.User && it.strokeHintCount > 0
                         }
@@ -231,6 +235,7 @@ class HandwritingTraining(task: PracticeTask) {
                         },
                         state.elapsedMs,
                         readingHintUsed = state.readingHintUsed,
+                        translationHintUsed = state.translationHintUsed,
                     ),
             )
     }

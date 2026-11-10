@@ -40,7 +40,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             TrainingTaskTranslationsRow::class,
             TrainingTaskSymbolsRow::class,
         ],
-    version = 10,
+    version = 12,
     exportSchema = true,
 )
 internal abstract class CatalogDatabase : RoomDatabase() {

@@ -668,17 +668,17 @@
       "module": "web",
       "key": "recipe-detail",
       "route": "recipe-detail",
-      "status": "approved",
+      "status": "retired",
       "translations": [
         {
           "language_tag": "ru",
           "title": "Рецепт",
-          "changes": "Согласовано 2026-11-07: просмотр рецепта без радиовыбора; редактирование через меню."
+          "changes": "Выведен: просмотр рецептов исключён, нажатие на карточку сразу открывает редактирование RECIPE.01.01. Меню с удалением перенесено в редактор."
         },
         {
           "language_tag": "en",
           "title": "Recipe",
-          "changes": "Approved 2026-11-07: read-only recipe view without radio selection; edit via menu."
+          "changes": "Retired: recipe view removed; tapping card opens RECIPE.01.01 editor directly. Deletion menu moved to editor."
         }
       ],
       "feature": "recipe-builder",

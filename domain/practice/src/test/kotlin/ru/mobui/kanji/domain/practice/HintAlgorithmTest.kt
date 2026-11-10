@@ -30,7 +30,7 @@ class HintAlgorithmTest {
     }
 
     @Test
-    fun nextStrokeReturnsOnlyTheFollowingReferenceStroke() {
+    fun nextStrokeReturnsReferenceStrokesUpToNextMissingStroke() {
         val sample =
             WritingSample(
                 listOf(
@@ -43,7 +43,7 @@ class HintAlgorithmTest {
         val hint =
             hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference))
         assertNotNull(hint)
-        assertEquals(listOf(strokeB), hint!!.overlay.strokes)
+        assertEquals(listOf(strokeA, strokeB), hint!!.overlay.strokes)
         assertEquals(HintPlayback.AnimateOnce, hint.playback)
         assertTrue(!hint.blocksInput)
     }

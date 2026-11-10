@@ -992,4 +992,49 @@ class PracticeScreenTest {
         compose.onNodeWithText("Пропустить").assertDoesNotExist()
         compose.onNodeWithText("Далее").assertIsDisplayed()
     }
+
+    @Test
+    fun translationClueModeHidesTranslationAndShowsReading() {
+        val translationTask = task.copy(clueMode = ru.mobui.kanji.domain.practice.TaskClueMode.Translation)
+        val vm =
+            PracticeViewModel(
+                translationTask,
+                references,
+                KanjiChecker { CheckVerdict.Incorrect },
+            )
+        compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
+        compose.onNodeWithTag("word-reading").assert(hasContentDescription("としょかん"))
+        compose
+            .onNodeWithTag("word-prompt")
+            .assert(hasContentDescription("Перевод скрыт. Нажмите, чтобы открыть"))
+            .performClick()
+        compose.runOnIdle {
+            assertTrue(vm.uiState.value.translationRevealed)
+            assertTrue(vm.uiState.value.practice.translationHintUsed)
+            assertFalse(vm.uiState.value.readingRevealed.not())
+            assertFalse(vm.uiState.value.practice.readingHintUsed)
+        }
+    }
+
+    @Test
+    fun noneClueModeShowsBothTranslationAndReadingDirectly() {
+        val noneTask = task.copy(clueMode = ru.mobui.kanji.domain.practice.TaskClueMode.None)
+        val vm =
+            PracticeViewModel(
+                noneTask,
+                references,
+                KanjiChecker { CheckVerdict.Incorrect },
+            )
+        compose.setContent { MaterialTheme { PracticeRoute(vm, {}, {}) } }
+        compose.waitUntil(5_000) { vm.uiState.value.practice.selected?.reference != null }
+        compose.onNodeWithTag("word-reading").assert(hasContentDescription("としょかん"))
+        compose.onNodeWithTag("word-prompt").assert(hasText("Библиотека"))
+        compose.runOnIdle {
+            assertTrue(vm.uiState.value.readingRevealed)
+            assertTrue(vm.uiState.value.translationRevealed)
+            assertFalse(vm.uiState.value.practice.readingHintUsed)
+            assertFalse(vm.uiState.value.practice.translationHintUsed)
+        }
+    }
 }

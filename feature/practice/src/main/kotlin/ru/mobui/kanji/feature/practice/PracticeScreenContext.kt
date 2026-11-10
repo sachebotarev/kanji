@@ -185,7 +185,13 @@ internal fun PracticeHeader(context: PracticeScreenContext) {
             Column(
                 Modifier.widthIn(max = 488.dp).fillMaxWidth().padding(horizontal = 24.dp),
             ) {
-                WordPrompt(word = wordLabel ?: practice.task.russianWord)
+                WordPrompt(
+                    word = wordLabel ?: practice.task.russianWord,
+                    revealed = state.translationRevealed,
+                    enabled = actionsEnabled,
+                ) {
+                    onAction(PracticeAction.RevealTranslation)
+                }
                 WordReading(
                     practice.task.reading,
                     revealed = state.readingRevealed,
