@@ -9,20 +9,19 @@
       "dictionary",
       "recipe-builder",
       "practice",
-      "shared"
-    ],
-    "excluded_features": [
+      "shared",
       "settings"
     ],
+    "excluded_features": [],
     "spec": "../../implementation/approved-ui-handoff.md",
     "translations": [
       {
         "language_tag": "ru",
-        "text": "Согласовано пользователем 2026-11-07 для всех экранов реестра, кроме SETTINGS и SETTINGS.01. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
+        "text": "Согласовано пользователем для всех экранов реестра. Готово к переносу по спецификации; статус дизайна не означает готовность Android."
       },
       {
         "language_tag": "en",
-        "text": "Approved by the user on 2026-11-07 for all registry screens except SETTINGS and SETTINGS.01. Ready for implementation against the specification; design approval does not imply Android completion."
+        "text": "Approved by the user for all registry screens. Ready for implementation against the specification; design approval does not imply Android completion."
       }
     ]
   },
@@ -1047,7 +1046,7 @@
       "module": "web",
       "key": "settings",
       "route": "settings",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",
@@ -1071,7 +1070,7 @@
       "module": "web",
       "key": "checker-settings",
       "route": "checker-settings",
-      "status": "unapproved",
+      "status": "approved",
       "translations": [
         {
           "language_tag": "ru",

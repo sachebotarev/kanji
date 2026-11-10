@@ -11,5 +11,3 @@
 | `textbook-cream.png` | нейтральный fallback → Android `catalog_book` |
 
 Масштаб отображения 48 × 48. Один PNG для обеих тем; адаптация — [illustration-style.md](../illustration-style.md).
-
-Запасные цвета (coral / ochre / plum / teal) — в [`../_spare/`](../_spare/README.md).

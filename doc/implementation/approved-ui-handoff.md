@@ -24,8 +24,6 @@
 
 HTML в `doc/design-system/prototypes/` — визуальный и поведенческий эталон. В Android — общие Compose-компоненты. Стабильные API, конструкторный DI, Clean Architecture, [локализация](localization.md). Experimental API — только с отдельным разрешением.
 
-Запасные неподключённые иконки: [`assets/_spare/`](../design-system/assets/_spare/README.md).
-
 ## Текущая визуальная проверка
 
 [Список и основной редактор](../verification/recipe-html-parity.md), [четыре корневые формы](../verification/material-html-parity.md) и [расширенный пакет селекторов/диалогов](../verification/constructor-html-parity.md) сопоставлены с HTML. Ограниченная матрица не считается приёмкой всех сочетаний. Функциональные тесты не заменяют последующую сверку с макетом. [Контракт и тесты конструктора](../verification/recipe-copy-parity.md).

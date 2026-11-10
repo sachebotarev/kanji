@@ -4,6 +4,5 @@
     {"file": "kanji-sage.png", "glyph": "林", "fill": "#48825F", "wired": "catalog_reference_kanji"},
     {"file": "radical-ochre.png", "glyph": "木", "fill": "#E8B446", "wired": "catalog_reference_radical"}
   ],
-  "spare_dir": "../_spare/",
   "transparent_background": true
 }

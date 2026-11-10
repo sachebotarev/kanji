@@ -32,8 +32,6 @@
 
 Иконка настроек — стикер шестерёнки с ушками `art_settings` / HTML `prototypes/web/assets/settings.png`.
 
-Запасные неподключённые варианты цветов каталога хранятся в [`assets/_spare/`](../../assets/_spare/README.md).
-
 ## Реализация
 
 DashboardScreen состоит из независимых виджетов. Число личных записей — из реального репозитория; `HOME.W02` (день) и `HOME.W03` (активность) — из завершённых заданий ([день](../../../implementation/home-word-stats.md), [активность](../../../implementation/home-activity.md)). Отдельные входы открывают учебники, справочники и личный словарь; [проверки маршрутов](../../../verification/library-sections-android.md).
