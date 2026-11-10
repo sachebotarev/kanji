@@ -33,11 +33,14 @@ class ShapeKanjiChecker(
             val config = configProvider()
             val matcher = ShapeMatcher(config)
             val started = System.nanoTime()
-            if (request.sample.strokeCount == 0)
-                return@withContext CheckReport(CheckVerdict.Incomplete)
             val reference =
                 references.load(request.kanjiId)
                     ?: return@withContext CheckReport(CheckVerdict.Unavailable)
+            if (request.sample.strokeCount == 0)
+                return@withContext CheckReport(
+                    CheckVerdict.Incomplete,
+                    listOf(CheckFailure.StrokeCount(0, reference.strokes.size)),
+                )
             val rules = ruleSource.rulesFor(request.kanjiId).takeIf { config.checkStrokeStructure }
             if (rules != null && rules.referenceStrokeCount != reference.strokes.size)
                 return@withContext CheckReport(
@@ -76,7 +79,24 @@ class ShapeKanjiChecker(
                 return@withContext report(
                     CheckVerdict.Incomplete,
                     score,
-                    score.compensation.failures,
+                    buildList {
+                        addAll(score.compensation.failures)
+                        addAll(score.strokeChecks.failures)
+                        add(
+                            CheckFailure.StrokeCount(
+                                request.sample.strokeCount,
+                                reference.strokes.size,
+                            ),
+                        )
+                        if (score.matchPercent < config.requiredMatchPercent) {
+                            add(
+                                CheckFailure.ShapeCoverage(
+                                    score.matchPercent,
+                                    config.requiredMatchPercent,
+                                ),
+                            )
+                        }
+                    },
                 )
             val failures = buildList {
                 addAll(score.compensation.failures)

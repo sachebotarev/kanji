@@ -6,7 +6,7 @@
     <string name="setting_auto_advance_kanji">Auto-advance to next kanji</string>
     <string name="help_auto_advance_kanji">Advance to the next character once the current one is correct.</string>
     <string name="setting_auto_advance">Auto-advance to next word</string>
-    <string name="help_auto_advance">Advance to the next word once all its characters are correct.</string>
+    <string name="help_auto_advance">Advance to the next word once all characters are correct or time expires.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
 

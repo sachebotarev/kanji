@@ -9,7 +9,10 @@
     <string name="tag_picker_all">All</string>
     <string name="tag_picker_clear">Clear selection</string>
     <string name="tag_picker_none">No tags yet</string>
+    <string name="tag_picker_empty_hint">Create the first tag to group words</string>
     <string name="tag_picker_no_results">No matching tags</string>
+    <string name="tag_picker_no_results_hint">Try changing the search query</string>
+    <string name="tag_picker_create_first">Create first tag</string>
     <string name="tag_picker_error">Could not save the tag. Check that its name is unique.</string>
     <string name="tag_picker_retry">Retry</string>
     <string name="tag_picker_more">More actions</string>

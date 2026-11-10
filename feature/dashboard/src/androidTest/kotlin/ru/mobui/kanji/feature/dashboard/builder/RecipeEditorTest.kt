@@ -229,13 +229,13 @@ class RecipeEditorTest {
                 RecipeEditorScreen(
                     initial = initial,
                     snapshot = snapshot,
-                    words = emptyList(),
                     tags = emptyList(),
-                    languageTag = "ru",
+                    assignments = emptyList(),
+                    language = "ru",
                     onSave = {},
                     onBack = {},
+                    onWord = {},
                     onManageTags = {},
-                    onOpenWords = {},
                     onDelete = { deleted = true }
                 )
             }
@@ -258,13 +258,13 @@ class RecipeEditorTest {
                 RecipeEditorScreen(
                     initial = blankRecipe,
                     snapshot = snapshot,
-                    words = emptyList(),
                     tags = emptyList(),
-                    languageTag = "ru",
+                    assignments = emptyList(),
+                    language = "ru",
                     onSave = {},
                     onBack = {},
+                    onWord = {},
                     onManageTags = {},
-                    onOpenWords = {},
                     onDelete = {}
                 )
             }

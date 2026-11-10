@@ -40,6 +40,8 @@ enum class HintPlayback {
     Static,
     /** Draw the overlay stroke once (UI animates), then the host clears the hint. */
     AnimateOnce,
+    /** Draw all strokes sequentially in accelerated tempo, hold for display time, then clear. */
+    AnimateAll,
 }
 
 enum class HintOverlayStyle {
@@ -74,17 +76,27 @@ class TraceReferenceHint : HintAlgorithm {
 
 /**
  * Shows the reference strokes up to the next missing stroke. The strokes already drawn are shown
- * immediately, and the next stroke is animated. Unavailable when every reference stroke already has a user stroke.
+ * immediately, and the next stroke is animated. When every reference stroke has already been drawn
+ * (and the sign is not correct), returns the full reference with [HintPlayback.AnimateAll] to animate
+ * drawing of the whole kanji in accelerated tempo.
  */
 class NextStrokeHint : HintAlgorithm {
     override fun create(request: HintRequest): HintPresentation? {
         val next = request.sample.strokeCount
         val strokes = request.reference.strokes
-        if (next >= strokes.size) return null
-        return HintPresentation(
-            overlay = ReferenceDrawing(strokes.take(next + 1)),
-            blocksInput = false,
-            playback = HintPlayback.AnimateOnce,
-        )
+        if (strokes.isEmpty()) return null
+        return if (next < strokes.size) {
+            HintPresentation(
+                overlay = ReferenceDrawing(strokes.take(next + 1)),
+                blocksInput = false,
+                playback = HintPlayback.AnimateOnce,
+            )
+        } else {
+            HintPresentation(
+                overlay = request.reference,
+                blocksInput = false,
+                playback = HintPlayback.AnimateAll,
+            )
+        }
     }
 }

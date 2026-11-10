@@ -100,21 +100,53 @@ class DigitalInkKanjiChecker : KanjiChecker, Closeable {
                             .build(),
                     )
                     .awaitResult()
-            val text = result.candidates.firstOrNull()?.text.orEmpty()
+            val candidateTexts = result.candidates.map { it.text }
+            val (verdict, recognized) = evaluateCandidates(candidateTexts, expected)
             CheckReport(
-                if (text == expected) CheckVerdict.Correct else CheckVerdict.Incorrect,
-                metrics = mapOf("recognizedText" to text),
+                verdict,
+                metrics =
+                    buildMap {
+                        put("recognizedText", recognized)
+                        if (candidateTexts.isNotEmpty()) {
+                            put(
+                                "candidates",
+                                candidateTexts.take(MAX_READABILITY_CANDIDATES).joinToString(", "),
+                            )
+                        }
+                    },
             )
         } ?: CheckReport(CheckVerdict.Unavailable)
     }
 }
 
-private suspend fun <T> Task<T>.awaitResult(): T = suspendCancellableCoroutine { continuation ->
-    addOnSuccessListener { continuation.resume(it) }
-    addOnFailureListener { continuation.resumeWithException(it) }
-    addOnCanceledListener { continuation.cancel() }
+internal fun evaluateCandidates(
+    candidates: List<String>,
+    expected: String,
+    maxCandidates: Int = MAX_READABILITY_CANDIDATES,
+): Pair<CheckVerdict, String> {
+    val top = candidates.take(maxCandidates).map { it.trim() }
+    val matched = top.contains(expected)
+    val recognized = if (matched) expected else top.firstOrNull().orEmpty()
+    val verdict = if (matched) CheckVerdict.Correct else CheckVerdict.Incorrect
+    return verdict to recognized
 }
 
+private suspend fun <T> Task<T>.awaitResult(): T = suspendCancellableCoroutine { continuation ->
+    addOnCompleteListener { task ->
+        if (!continuation.isActive) return@addOnCompleteListener
+        if (task.isSuccessful) {
+            continuation.resume(task.result)
+        } else if (task.isCanceled) {
+            continuation.cancel()
+        } else {
+            continuation.resumeWithException(
+                task.exception ?: IllegalStateException("Task failed without exception"),
+            )
+        }
+    }
+}
+
+private const val MAX_READABILITY_CANDIDATES = 3
 private const val MODEL_DOWNLOAD_TIMEOUT_MILLIS = 60_000L
 private const val UNICODE_HEX_RADIX = 16
 private const val RECOGNITION_TIMEOUT_MILLIS = 30_000L

@@ -13,6 +13,8 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import ru.mobui.kanji.domain.handwriting.ReferenceDrawing
+import ru.mobui.kanji.domain.handwriting.ReferencePoint
 
 class KanjiWritingPadTest {
     @get:Rule val compose = createComposeRule()
@@ -74,5 +76,74 @@ class KanjiWritingPadTest {
             up()
         }
         compose.runOnIdle { assertTrue(events.isEmpty()) }
+    }
+
+    @Test
+    fun twoFingerSingleTapEmitsUndoRequested() {
+        show()
+        compose.onNodeWithTag("pad").performTouchInput {
+            down(0, Offset(center.x - 30, center.y))
+            down(1, Offset(center.x + 30, center.y))
+            up(0)
+            up(1)
+        }
+        compose.waitUntil(5_000) { events.any { it is PadEvent.UndoRequested } }
+        assertTrue(events.none { it is PadEvent.StrokeFinished })
+        assertTrue(events.none { it is PadEvent.ClearRequested })
+    }
+
+    @Test
+    fun twoFingerDoubleTapEmitsClearRequested() {
+        show()
+        compose.onNodeWithTag("pad").performTouchInput {
+            down(0, Offset(center.x - 30, center.y))
+            down(1, Offset(center.x + 30, center.y))
+            up(0)
+            up(1)
+            advanceEventTime(80)
+            down(0, Offset(center.x - 30, center.y))
+            down(1, Offset(center.x + 30, center.y))
+            up(0)
+            up(1)
+        }
+        compose.waitUntil(5_000) { events.any { it is PadEvent.ClearRequested } }
+        assertTrue(events.none { it is PadEvent.StrokeFinished })
+        assertTrue(events.none { it is PadEvent.UndoRequested })
+    }
+
+    @Test
+    fun animateAllStrokesEmitsHintPlaybackFinishedAfterHold() {
+        val strokeA = listOf(ReferencePoint(0.1f, 0.1f), ReferencePoint(0.9f, 0.1f))
+        val strokeB = listOf(ReferencePoint(0.1f, 0.5f), ReferencePoint(0.9f, 0.5f))
+        val drawing = ReferenceDrawing(listOf(strokeA, strokeB))
+        compose.setContent {
+            MaterialTheme {
+                KanjiWritingPad(
+                    PadUiState(
+                        version,
+                        overlay = drawing,
+                        animateOverlay = true,
+                        animateAllStrokes = true,
+                        fullHintHoldMillis = 100L,
+                    ),
+                    events::add,
+                    Modifier.size(240.dp).testTag("pad"),
+                )
+            }
+        }
+        compose.waitUntil(5_000) { events.any { it is PadEvent.HintPlaybackFinished } }
+    }
+
+    @Test
+    fun longPressEmitsHintRequestedAndDoesNotCommitStroke() {
+        show()
+        compose.onNodeWithTag("pad").performTouchInput {
+            down(center)
+            advanceEventTime(600)
+            up()
+        }
+        compose.waitUntil(5_000) { events.any { it is PadEvent.HintRequested } }
+        assertTrue(events.none { it is PadEvent.StrokeFinished })
+        assertEquals(null, (events.last() as PadEvent.GesturePreview).stroke)
     }
 }

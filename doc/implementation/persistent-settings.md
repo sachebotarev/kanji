@@ -19,7 +19,7 @@
 4. **Калибровка формы кандзи (только в develop/debug сборках):** пункт входа на экран `CheckerSettingsScreen` (`SETTINGS.01`), где настраиваются геометрические допуски совпадения формы, компенсаций трансформаций, бюджета и особенностей структуры черт. В release-сборке карточка калибровки скрыта (`showCalibration = BuildConfig.DEBUG`).
 5. **Данные и память:** очистка истории тренировок с подтверждающим диалогом (`TrainingsRepository.clearHistory` на IO-потоке).
 
-Из PRACTICE экран калибровки `CheckerSettingsScreen` доступен в debug-режиме через `PracticeChecker` с live preview текущего задания; Back возвращает на pad. Параметры общие и сохраняются в DataStore.
+Настройки и калибровка проверок `CheckerSettingsScreen` (`SETTINGS.01`) открываются из `SETTINGS`. Параметры общие и сохраняются в DataStore.
 
 ## Проверки
 

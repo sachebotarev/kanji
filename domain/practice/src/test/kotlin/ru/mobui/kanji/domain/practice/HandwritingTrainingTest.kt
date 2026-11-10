@@ -114,6 +114,21 @@ class HandwritingTrainingTest {
     }
 
     @Test
+    fun advanceTimeStopsWhenAllCellsAreResolvedEvenIfSomeAreIncorrect() {
+        val training = HandwritingTraining(task(1000))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.exhaustStrokeHints()
+        assertTrue(training.state.isResolved)
+        assertFalse(training.state.isComplete)
+        training.advanceTime(50)
+        assertEquals(0L, training.state.elapsedMs)
+    }
+
+    @Test
     fun timeoutKeepsASpoilerTheLearnerAlreadyOpened() {
         val training = HandwritingTraining(task(100))
         training.recordTranslationHint()

@@ -1,6 +1,7 @@
 package ru.mobui.kanji.core.wordui
 
 import androidx.compose.runtime.CompositionLocalProvider
+import ru.mobui.kanji.core.designsystem.KanjiEmptyState
 import ru.mobui.kanji.core.designsystem.KanjiSearchToggle
 import ru.mobui.kanji.core.designsystem.LocalSearchOpen
 
@@ -51,7 +52,9 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
     onApply: () -> Unit, header: @Composable (() -> Unit) -> Unit,
     modifier: Modifier = Modifier, manage: Boolean = false, busy: Boolean = false,
     loading: Boolean = false, error: Boolean = false, onRetry: () -> Unit = {}, onEdit: (Long) -> Unit = {},
-    usageCounts: Map<Long, Int> = emptyMap(), onDelete: (Long) -> Unit = {}) {
+    usageCounts: Map<Long, Int> = emptyMap(), onDelete: (Long) -> Unit = {},
+    onCreate: (() -> Unit)? = null) {
+    val handleCreate = onCreate ?: if (manage) onApply else null
     var search by rememberSaveable { mutableStateOf(false) }
     var selectedOnly by rememberSaveable(manage) { mutableStateOf(false) }
     fun normalize(value: String) = Normalizer.normalize(value, Normalizer.Form.NFKC).lowercase(Locale.ROOT)
@@ -59,7 +62,7 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
     val shown = tags.filter { (!selectedOnly || manage || it.id in selectedIds) && normalize(it.name(language)).contains(needle) }
     Scaffold(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)
         .safeDrawingPadding().testTag("tag-picker"), floatingActionButton = {
-        if (!loading && !busy) SelectionApplyButton(stringResource(
+        if (!loading && !busy && tags.isNotEmpty()) SelectionApplyButton(stringResource(
             if (manage) R.string.tag_picker_create else if (selectedIds.isEmpty()) R.string.tag_picker_apply
             else R.string.tag_picker_choose, selectedIds.count()), onApply, Modifier.testTag("tags-apply"))
     }) { padding ->
@@ -72,7 +75,7 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
             }
             if (search) WordSearch(query, stringResource(R.string.tag_picker_search), onQuery,
                 Modifier.padding(horizontal = 18.dp).testTag("tags-search"))
-            if (!manage) FlowRow(Modifier.padding(horizontal = 8.dp)) {
+            if (!manage && tags.isNotEmpty()) FlowRow(Modifier.padding(horizontal = 8.dp)) {
                 TextButton({ selectedOnly = !selectedOnly }, enabled = !busy, modifier = Modifier.testTag("tags-selected-only")) {
                     Text(stringResource(if (selectedOnly) R.string.tag_picker_all else R.string.tag_picker_selected, selectedIds.count()))
                 }
@@ -85,16 +88,27 @@ fun TagPickerScreen(tags: List<DictionaryTag>, selectedIds: Set<Long>, language:
                 Text(stringResource(R.string.tag_picker_error), Modifier.padding(20.dp).testTag("tag-error"), color = MaterialTheme.colorScheme.error)
                 TextButton(onRetry) { Text(stringResource(R.string.tag_picker_retry)) }
             }
-            LazyColumn(Modifier.weight(1f), contentPadding = ru.mobui.kanji.core.designsystem.KanjiFormContentPadding,
-                verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                if (!loading && shown.isEmpty()) item {
-                    Text(stringResource(if (tags.isEmpty()) R.string.tag_picker_none else R.string.tag_picker_no_results))
-                }
-                items(shown, key = { it.id }) { tag ->
-                    TagChoiceRow(tag, language, !manage && tag.id in selectedIds,
-                        { if (manage) onEdit(tag.id) else onToggle(tag.id) }, enabled = !busy,
-                        subtitle = pluralStringResource(R.plurals.tag_picker_word_count, usageCounts[tag.id] ?: 0, usageCounts[tag.id] ?: 0),
-                        managing = manage, onDelete = if (manage) ({ onDelete(tag.id) }) else null)
+            if (!loading && shown.isEmpty()) {
+                val isCompletelyEmpty = tags.isEmpty()
+                val hasQuery = needle.isNotEmpty() || (selectedOnly && !manage)
+                KanjiEmptyState(
+                    modifier = Modifier.weight(1f).fillMaxWidth(),
+                    hasQuery = hasQuery,
+                    title = stringResource(if (isCompletelyEmpty) R.string.tag_picker_none else R.string.tag_picker_no_results),
+                    hint = stringResource(if (isCompletelyEmpty) R.string.tag_picker_empty_hint else R.string.tag_picker_no_results_hint),
+                    ctaText = if (isCompletelyEmpty && handleCreate != null) stringResource(R.string.tag_picker_create_first) else null,
+                    onCtaClick = if (isCompletelyEmpty) handleCreate else null,
+                    testTag = "tags-empty-state",
+                )
+            } else {
+                LazyColumn(Modifier.weight(1f), contentPadding = ru.mobui.kanji.core.designsystem.KanjiFormContentPadding,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    items(shown, key = { it.id }) { tag ->
+                        TagChoiceRow(tag, language, !manage && tag.id in selectedIds,
+                            { if (manage) onEdit(tag.id) else onToggle(tag.id) }, enabled = !busy,
+                            subtitle = pluralStringResource(R.plurals.tag_picker_word_count, usageCounts[tag.id] ?: 0, usageCounts[tag.id] ?: 0),
+                            managing = manage, onDelete = if (manage) ({ onDelete(tag.id) }) else null)
+                    }
                 }
             }
         }

@@ -77,8 +77,6 @@ private data class RecipeBuilder(
 
 @Serializable private data class TrainingHistory(val period: String = "all")
 
-@Serializable private data object PracticeChecker
-
 internal data class AppModels(
     val settingsModel: RecognitionSettingsViewModel,
     val dictionarySummary: DictionarySummaryViewModel,
@@ -136,18 +134,12 @@ internal fun MainContent(
     var activeTraining by remember { mutableStateOf<ActiveTraining?>(null) }
     // Exit transition still composes Practice after pop; block resume of in_progress there.
     var suppressPracticeResume by remember { mutableStateOf(false) }
-    var practicePreview by remember {
-        mutableStateOf<ru.mobui.kanji.feature.practice.PracticeUiState?>(null)
-    }
     val trainingPersistence =
         remember(dependencies) {
             TrainingPersistence(dependencies.trainingsRepository, dependencies.persistenceScope)
         }
     val savedSettings by settingsModel.settings.collectAsStateWithLifecycle()
     val modelReady = modelStatus == JapaneseModelStatus.Ready
-    LaunchedEffect(activeTraining) {
-        if (activeTraining == null) practicePreview = null
-    }
     val context = AppUiContext(dependencies, models, graph, modelStatus, savedSettings)
     HandleAppDeepLinks(nav)
     NavHost(nav, startDestination = Dashboard) {
@@ -197,7 +189,6 @@ internal fun MainContent(
                     context,
                     training,
                     onActiveTrainingChange = { activeTraining = it },
-                    onPreview = { practicePreview = it },
                     trainingPersistence = trainingPersistence,
                     onLeave = {
                         suppressPracticeResume = true
@@ -205,13 +196,6 @@ internal fun MainContent(
                         nav.popOrDashboard()
                     },
                 )
-            }
-        }
-        composable<PracticeChecker> {
-            if (activeTraining == null) {
-                LaunchedEffect(Unit) { nav.popBackStack() }
-            } else {
-                PracticeCheckerDestination(context, nav, practicePreview)
             }
         }
         composable<Settings>(
@@ -663,7 +647,6 @@ private fun PracticePadDestination(
     context: AppUiContext,
     active: ActiveTraining,
     onActiveTrainingChange: (ActiveTraining?) -> Unit,
-    onPreview: (ru.mobui.kanji.feature.practice.PracticeUiState) -> Unit,
     trainingPersistence: TrainingPersistence,
     onLeave: () -> Unit,
 ) {
@@ -687,7 +670,6 @@ private fun PracticePadDestination(
             practice.onCheckerSettingsChanged()
         }
         val state by practice.uiState.collectAsStateWithLifecycle()
-        LaunchedEffect(state) { onPreview(state) }
         val result = state.practice.result
         var resultReceived by rememberSaveable(task.taskId, active.index) { mutableStateOf(false) }
         var advancing by remember(task.taskId, active.index) { mutableStateOf(false) }
@@ -705,7 +687,8 @@ private fun PracticePadDestination(
                                 )
                             val saveResult =
                                 runCatching { trainingPersistence.save(updated.training) }
-                            saveResult.exceptionOrNull()?.let { error ->
+                            if (saveResult.isFailure) {
+                                val error = saveResult.exceptionOrNull()
                                 java.util.logging.Logger.getLogger("ru.mobui.kanji.PracticePad")
                                     .log(
                                         java.util.logging.Level.SEVERE,
@@ -718,7 +701,9 @@ private fun PracticePadDestination(
                                         R.string.training_save_failed_transient,
                                         android.widget.Toast.LENGTH_SHORT,
                                     ).show()
+                                    advancing = false
                                 }
+                                return@launch
                             }
                             withContext(Dispatchers.Main.immediate) {
                                 val next = updated.advance()
@@ -750,22 +735,5 @@ private fun PracticePadDestination(
                 onDone = leave,
             )
         }
-    }
-}
-
-@Composable
-private fun PracticeCheckerDestination(
-    context: AppUiContext,
-    nav: NavHostController,
-    preview: ru.mobui.kanji.feature.practice.PracticeUiState?,
-) {
-    with(context) {
-        CheckerSettingsScreen(
-            settings,
-            onChange = { settingsModel.update(it) },
-            onBack = { nav.popBackStack() },
-            onReset = { settingsModel.reset() },
-            preview = preview,
-        )
     }
 }

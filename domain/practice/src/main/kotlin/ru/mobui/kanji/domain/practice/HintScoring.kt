@@ -30,16 +30,17 @@ fun practiceSymbolPoints(status: TrainingSymbolStatus, hintRequestCount: Int, ma
 }
 
 /**
- * Continuous points for one terminal task. Skipped → 0, timed out → 0.25; correct/assisted use
- * the kanji average × reading factor.
+ * Continuous points for one terminal task. Calculates the practice symbol average
+ * (awarding partial credit for correctly answered symbols in timed out or skipped words)
+ * multiplied by reading and translation penalty factors if those spoilers were opened.
  */
 fun TrainingTask.wordPoints(maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINTS): Double {
     require(maxHintsPerKanji >= 0)
     return when (status) {
-        TrainingTaskStatus.Skipped -> 0.0
-        TrainingTaskStatus.TimedOut -> TIMED_OUT_WORD_POINTS
         TrainingTaskStatus.Correct,
-        TrainingTaskStatus.Assisted -> {
+        TrainingTaskStatus.Assisted,
+        TrainingTaskStatus.TimedOut,
+        TrainingTaskStatus.Skipped -> {
             val practice = symbols.filter { it.role == TrainingSymbolRole.Practice }
             val kanjiAvg =
                 if (practice.isEmpty()) 1.0
@@ -58,5 +59,3 @@ fun TrainingTask.wordPoints(maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINT
             error("Incomplete task $id status=${status.key}")
     }
 }
-
-private const val TIMED_OUT_WORD_POINTS = 0.25

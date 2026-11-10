@@ -73,7 +73,8 @@ internal fun DictionaryMaterialEditorScreen(initial: RecipeMaterial, snapshot: C
             kanjiIds = chosenKanji.intersect(words.flatMap { snapshot.literalKanji(it) }.map { it.id }.toSet()).toIntArray()
             invalid = false; up()
         }, header = { search -> TagPickerHeader(up, search, onManage = onManageTags) }, modifier = modifier,
-            usageCounts = byWord.values.flatMap { it }.groupingBy { it }.eachCount())
+            usageCounts = byWord.values.flatMap { it }.groupingBy { it }.eachCount(),
+            onCreate = onManageTags)
         return
     }
     if (page == "kanji") {

@@ -49,14 +49,18 @@ class HintAlgorithmTest {
     }
 
     @Test
-    fun nextStrokeUnavailableWhenEveryReferenceStrokeHasInk() {
+    fun nextStrokeWhenAllStrokesDrawnReturnsFullReferenceWithAnimateAll() {
         val sample =
             WritingSample(
                 List(3) {
                     InkStroke(listOf(InkPoint(0f, 0f, 0L), InkPoint(1f, 1f, 1L)), InkTool.Finger)
                 },
             )
-        assertNull(hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference)))
+        val hint = hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference))
+        assertNotNull(hint)
+        assertEquals(reference, hint!!.overlay)
+        assertEquals(HintPlayback.AnimateAll, hint.playback)
+        assertTrue(!hint.blocksInput)
     }
 
     @Test

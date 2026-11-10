@@ -3,7 +3,9 @@ package ru.mobui.kanji.feature.practice
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,6 +25,7 @@ import ru.mobui.kanji.domain.practice.CheckReport
 import ru.mobui.kanji.domain.practice.CheckVerdict
 import ru.mobui.kanji.domain.practice.EntryMode
 import ru.mobui.kanji.domain.practice.PracticeCell
+import ru.mobui.kanji.domain.practice.StrokeRuleRelation
 
 /** Learner-facing check summary for one indicator. No settings or debug entry points. */
 @Composable
@@ -33,7 +36,7 @@ internal fun CheckDetailsDialog(
     onClose: () -> Unit,
 ) {
     val result = report?.checks?.firstOrNull { it.kind == kind }
-    val failures = result?.failures.orEmpty()
+    val failures = result?.failures?.takeIf { it.isNotEmpty() } ?: report?.failures.orEmpty()
     val title =
         stringResource(
             when (kind) {
@@ -95,6 +98,18 @@ internal fun CheckDetailsDialog(
                         }
                     }
                     CheckKind.Shape -> {
+                        val actual = cell?.sample?.strokeCount ?: 0
+                        val expected = cell?.reference?.strokes?.size
+                        DetailRow(
+                            stringResource(R.string.check_quantity),
+                            expected?.let {
+                                stringResource(R.string.check_count_value, actual, it)
+                            } ?: actual.toString(),
+                            if (result?.verdict != null && expected != null) {
+                                if (actual == expected) CheckVerdict.Correct
+                                else CheckVerdict.Incorrect
+                            } else null,
+                        )
                         result?.matchPercent?.let {
                             DetailRow(
                                 stringResource(R.string.check_similarity),
@@ -112,6 +127,112 @@ internal fun CheckDetailsDialog(
                                     null
                                 },
                             )
+                        }
+                        val reasons = mutableListOf<String>()
+                        val strokeCountFailures = failures.filterIsInstance<CheckFailure.StrokeCount>()
+                        if (strokeCountFailures.isNotEmpty()) {
+                            strokeCountFailures.forEach { failure ->
+                                reasons +=
+                                    if (failure.actual < failure.expected) {
+                                        stringResource(
+                                            R.string.check_shape_incomplete_strokes,
+                                            failure.actual,
+                                            failure.expected,
+                                        )
+                                    } else {
+                                        stringResource(
+                                            R.string.check_shape_extra_strokes,
+                                            failure.actual,
+                                            failure.expected,
+                                        )
+                                    }
+                            }
+                        } else if (expected != null && actual != expected && result?.verdict != CheckVerdict.Correct) {
+                            reasons +=
+                                if (actual < expected) {
+                                    stringResource(R.string.check_shape_incomplete_strokes, actual, expected)
+                                } else {
+                                    stringResource(R.string.check_shape_extra_strokes, actual, expected)
+                                }
+                        }
+                        failures.filterIsInstance<CheckFailure.ShapeCoverage>().forEach { failure ->
+                            reasons +=
+                                stringResource(
+                                    R.string.check_shape_low_similarity,
+                                    failure.actualPercent.roundToInt(),
+                                    failure.requiredPercent.roundToInt(),
+                                )
+                        }
+                        failures.filterIsInstance<CheckFailure.MissingHooks>().forEach { failure ->
+                            val strokes = failure.referenceStrokes.joinToString(", ")
+                            reasons += stringResource(R.string.check_shape_missing_hook, strokes)
+                        }
+                        failures.filterIsInstance<CheckFailure.KanjiRules>().forEach { failure ->
+                            failure.violations.forEach { violation ->
+                                val resId =
+                                    when (violation.rule.relation) {
+                                        StrokeRuleRelation.Crosses -> R.string.check_shape_rule_crosses
+                                        StrokeRuleRelation.EndsAt -> R.string.check_shape_rule_ends_at
+                                        StrokeRuleRelation.ShorterThan -> R.string.check_shape_rule_shorter_than
+                                    }
+                                reasons +=
+                                    stringResource(
+                                        resId,
+                                        violation.rule.firstStroke,
+                                        violation.rule.secondStroke,
+                                    )
+                            }
+                        }
+                        var hasDistortion = false
+                        failures.filterIsInstance<CheckFailure.Budget>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_budget_exceeded)
+                        }
+                        failures.filterIsInstance<CheckFailure.Rotation>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_rotation_exceeded)
+                        }
+                        failures.filterIsInstance<CheckFailure.Shear>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_shear_exceeded)
+                        }
+                        failures.filterIsInstance<CheckFailure.Size>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_size_exceeded)
+                        }
+                        failures.filterIsInstance<CheckFailure.Stretch>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_stretch_exceeded)
+                        }
+                        failures.filterIsInstance<CheckFailure.Translation>().forEach {
+                            hasDistortion = true
+                            reasons += stringResource(R.string.check_shape_translation_exceeded)
+                        }
+                        if (!hasDistortion && report?.compensation?.budget?.hasError == true) {
+                            reasons += stringResource(R.string.check_shape_budget_exceeded)
+                        }
+                        if (reasons.isEmpty() && result?.verdict != null && result.verdict != CheckVerdict.Correct) {
+                            reasons += stringResource(R.string.check_shape_general_mismatch)
+                        }
+                        if (result?.verdict != CheckVerdict.Correct && reasons.isNotEmpty()) {
+                            Spacer(Modifier.height(8.dp))
+                            Text(
+                                stringResource(R.string.check_reasons_title),
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                            Column(
+                                Modifier.testTag("check-shape-reasons"),
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                reasons.distinct().forEach { reason ->
+                                    Text(
+                                        "• $reason",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.error,
+                                    )
+                                }
+                            }
                         }
                     }
                     CheckKind.StrokeWriting -> {

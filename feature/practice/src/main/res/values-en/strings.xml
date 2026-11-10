@@ -114,11 +114,11 @@
     <string name="settings_group_hint">Practice hint</string>
     <string name="settings_group_flow">Practice flow</string>
     <string name="setting_auto_advance">Auto-advance to next word</string>
-    <string name="help_auto_advance">When on, a successfully completed word opens the next one immediately. Timeout and skip still require tapping Next.</string>
+    <string name="help_auto_advance">When on, a successfully completed word or expired timer opens the next word immediately. Skip still requires tapping Next.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
     <string name="setting_max_next_stroke_hints">Hint limit before failure</string>
-    <string name="help_max_next_stroke_hints">Maximum hint requests per character (applies to all hint modes: next stroke and full kanji). Reaching the limit fails the character: for example, with a value of 3, you get 2 helpful hints, and the 3rd request marks the character incorrect and reveals it in red.</string>
+    <string name="help_max_next_stroke_hints">Maximum hint requests per character (applies to all hint modes: next stroke and full kanji). Exceeding the limit fails the character: for example, with a value of 3, you get 3 helpful hints, and the 4th request marks the character incorrect and reveals it in red.</string>
     <string name="setting_full_hint_display">Full-character display time</string>
     <string name="help_full_hint_display">How many milliseconds the full reference with stroke numbers stays on the pad after a tap. Then the hint hides itself; the button does not stay pressed.</string>
     <string name="setting_count_value">%1$d</string>
@@ -157,6 +157,21 @@
     <string name="check_not_evaluated">Not checked</string>
     <string name="check_violated">Incorrect</string>
     <string name="check_understood">Got it</string>
+    <string name="check_reasons_title">Reasons for mismatch</string>
+    <string name="check_shape_incomplete_strokes">Not all strokes are drawn (%1$d of %2$d)</string>
+    <string name="check_shape_extra_strokes">Extra strokes drawn (%1$d instead of %2$d)</string>
+    <string name="check_shape_low_similarity">Similarity %1$d%% is below required threshold (%2$d%%)</string>
+    <string name="check_shape_missing_hook">Missing hook in stroke %1$s</string>
+    <string name="check_shape_rule_crosses">Strokes %1$d and %2$d must cross</string>
+    <string name="check_shape_rule_ends_at">Stroke %1$d must end at stroke %2$d</string>
+    <string name="check_shape_rule_shorter_than">Stroke %1$d must be shorter than stroke %2$d</string>
+    <string name="check_shape_budget_exceeded">Permissible shape distortion exceeded</string>
+    <string name="check_shape_rotation_exceeded">Permissible character rotation exceeded</string>
+    <string name="check_shape_shear_exceeded">Permissible character shear exceeded</string>
+    <string name="check_shape_size_exceeded">Permissible size change exceeded</string>
+    <string name="check_shape_stretch_exceeded">Permissible proportion change exceeded</string>
+    <string name="check_shape_translation_exceeded">Permissible shift exceeded</string>
+    <string name="check_shape_general_mismatch">Character shape does not match reference</string>
     <string name="tool_undo">Undo</string>
     <string name="tool_clear">Clear</string>
     <string name="check_order_label">Order</string>
@@ -175,7 +190,7 @@
     <string name="help_shear">Allowed horizontal shear correction in degrees: parts at different heights move horizontally by different amounts. This corrects an italic-like slant, unlike rotating the entire glyph.\n\nHigher values allow stronger shear. 0 disables it. The correction counts toward the total budget; original strokes are preserved.</string>
     <string name="help_jitter" formatted="false">Maximum deviation permitted when simplifying small hand tremors. Measured as a percentage of the larger drawn glyph dimension, adjustable in 0.1% steps.\n\nHigher values can remove more small bends. 0 disables simplification. Stroke endpoints are preserved, and strokes with required hooks are protected. Removing points also consumes the total budget and does not change saved ink.</string>
     <string name="help_budget" formatted="false">Limits the combined amount of shape correction. Each correction costs its maximum point displacement as a percentage of the larger reference dimension; these costs are added. Smoothing uses the distance of removed points to the retained line.\n\nThis is not a sum of degrees or slider values. Higher budgets allow more combined correction. Costs of 10% and 8% total 18%. 0 removes only the combined limit; individual correction limits still apply.</string>
-    <string name="help_readability">Checks whether the Japanese language model recognizes the handwritten glyph as the requested kanji. Its first candidate must match exactly; the expected answer is not supplied as a hint.\n\nRecognition runs on device after downloading the model. Without it, enabling is unavailable: download it in general Settings first. Geometric sliders do not tune this model. Ignore excludes readability from the final check.</string>
+    <string name="help_readability">Checks whether the Japanese language model recognizes the handwritten glyph as the requested kanji. The character is verified against the model\'s top candidates (including homoglyphs such as kanji vs. katakana); the expected answer is not supplied as a hint.\n\nRecognition runs on device after downloading the model. Without it, enabling is unavailable: download it in general Settings first. Geometric sliders do not tune this model. Ignore excludes readability from the final check.</string>
     <string name="help_shape">Compares drawing geometry with the reference: line coverage, stroke count, required hooks and enabled dictionary features. Allowed corrections may be applied within their limits and budget.\n\nStroke order and drawing direction are checked separately. Coverage, correction, budget and dictionary controls apply to shape. Ignore excludes this check from the final result.</string>
     <string name="help_writing">Checks stroke sequence and the direction of movement along each stroke against the reference. Stroke count must also match. Order and direction are enabled together.\n\nThis is independent of readability and shape; geometric correction sliders do not tune it. Ignore excludes order and direction from the final check.</string>
     <string name="help_structure">Additional rules for a specific kanji: which strokes cross, which end against another stroke and which of two strokes must be shorter. Only relations listed in the dictionary for that glyph are checked.\n\nIgnore disables these rules and hides their tolerances. Stroke count and required hooks are still checked. A dictionary rule may override the general tolerance below. This setting belongs to the shape check.</string>

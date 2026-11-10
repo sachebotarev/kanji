@@ -144,6 +144,6 @@ flowchart TD
 
 ### 4.3. Навигация и состояние
 - Верхний уровень в `:app` — корневой type-safe `NavHost` (`AppDestinations.kt`) со стеком `navigate` / `popBackStack`.
-- Внутри фичей (каталог, словарь, конструктор рецептов) — nested `NavHost`; PRACTICE → checker settings — соседний маршрут корневого стека (`Practice` / `PracticeChecker`), не второй хост и не boolean-overlay.
+- Внутри фичей (каталог, словарь, конструктор рецептов) — nested `NavHost`; настройки проверок кандзи открываются через корневой маршрут `CheckerSettings` (`SETTINGS.01`), не второй хост и не boolean-overlay.
 - Состояния экранов переживают смену конфигурации и уничтожение процесса через `SavedStateHandle`; `ActiveTraining` остаётся in-memory с resume из Room на PRACTICE.
 - Deep links хабов: custom scheme `kanji://mobui/...` ([AppDeepLinks](../app/src/main/java/ru/mobui/kanji/AppDeepLinks.kt)); paging каталога и App Links отложены: [навигация и масштаб каталога](decisions/navigation-and-catalog-scale.md).

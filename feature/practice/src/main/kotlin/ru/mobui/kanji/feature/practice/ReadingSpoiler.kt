@@ -64,10 +64,12 @@ internal fun ReadingSpoiler(
     val haptics = LocalHapticFeedback.current
     val particleColor = MaterialTheme.colorScheme.onSurface
     // Snap closed on a new word; only animate when the learner opens the spoiler.
-    val revealProgress = remember(reading) { Animatable(1f) }
+    val revealProgress = remember(reading) { Animatable(if (revealed) 0f else 1f) }
     LaunchedEffect(reading, revealed) {
         if (revealed) {
-            revealProgress.animateTo(0f, animationSpec = tween(durationMillis = REVEAL_DURATION_MILLIS))
+            if (revealProgress.value > 0f) {
+                revealProgress.animateTo(0f, animationSpec = tween(durationMillis = REVEAL_DURATION_MILLIS))
+            }
         } else {
             revealProgress.snapTo(1f)
         }

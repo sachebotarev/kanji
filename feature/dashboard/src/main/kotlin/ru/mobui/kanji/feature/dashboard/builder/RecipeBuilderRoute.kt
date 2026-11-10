@@ -72,8 +72,14 @@ fun RecipeBuilderRoute(
         composable<RecipeEdit> { entry ->
             val route = entry.toRoute<RecipeEdit>()
             val creating = route.id == null
-            val libraryOwner = remember(entry) { nav.getBackStackEntry(RecipeLibrary) }
-            val libraryModel = libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository, libraryOwner)
+            val libraryOwner = remember(entry) {
+                runCatching { nav.getBackStackEntry(RecipeLibrary) }.getOrNull()
+            }
+            val libraryModel = if (route.id != null) {
+                libraryModel(catalog, personal, recipesRepository, "library", trainingsRepository, libraryOwner)
+            } else {
+                null
+            }
             RecipeEditorRoute(route.id, catalog, personal, recipesRepository,
                 RecipeEditorActions(
                     onSaved = { id ->
@@ -88,7 +94,7 @@ fun RecipeBuilderRoute(
                     onManageTags = { nav.navigate(RecipeTags) },
                     onDelete = route.id?.let { id ->
                         {
-                            libraryModel.delete(id)
+                            libraryModel?.delete(id)
                             nav.popBackStack()
                         }
                     },

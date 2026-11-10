@@ -196,7 +196,10 @@ internal fun PracticeFeedback(state: PracticeUiState) {
 
 @Composable
 internal fun PracticeActions(
-    enabled: Boolean,
+    actionsEnabled: Boolean,
+    isComplete: Boolean,
+    isResolved: Boolean = false,
+    isTimedOut: Boolean,
     checking: Boolean,
     undoEnabled: Boolean,
     clearEnabled: Boolean,
@@ -262,12 +265,26 @@ internal fun PracticeActions(
                 },
             onClick = { onAction(PracticeAction.ToggleHint) },
         )
+        val isNext = isResolved || isTimedOut
+        val isPositive = isComplete
         Button(
-            onClick = { onAction(PracticeAction.Submit) },
+            onClick = { onAction(if (isNext) PracticeAction.Submit else PracticeAction.Skip) },
             modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-            enabled = enabled && !checking,
+            enabled = actionsEnabled && !checking,
+            colors =
+                if (isPositive) {
+                    ButtonDefaults.buttonColors()
+                } else {
+                    ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    )
+                },
         ) {
-            Text(stringResource(R.string.next), maxLines = 1)
+            Text(
+                stringResource(if (isNext) R.string.next else R.string.skip),
+                maxLines = 1,
+            )
         }
     }
 }

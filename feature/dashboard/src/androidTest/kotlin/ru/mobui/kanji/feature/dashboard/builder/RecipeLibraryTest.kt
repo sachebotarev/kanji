@@ -353,4 +353,35 @@ class RecipeLibraryTest {
                 .config[SemanticsProperties.EditableText].text,
         )
     }
+
+    @Test fun openCreateForLaunchNavigatesDirectlyToEditorWithoutCrash() {
+        val repo = Learning(); repo.recipes.value = emptyList()
+        var createdId: String? = null
+        var backed = false
+        compose.setContent {
+            KanjiTheme {
+                RecipeBuilderRoute(
+                    catalog,
+                    personal,
+                    repo,
+                    RecipeBuilderActions(
+                        onBack = { backed = true },
+                        wordContent = { _, _ -> },
+                        tagContent = { _ -> },
+                        onCreatedForLaunch = { createdId = it },
+                    ),
+                    openCreate = true,
+                    launchAfterCreate = true,
+                )
+            }
+        }
+        ready("recipe-name")
+        compose.onNodeWithTag("recipe-name").performTextReplacement("Первый рецепт")
+        compose.onNodeWithTag("recipe-add").performScrollTo(); click("recipe-add")
+        click("material-type-words"); click("material-words")
+        click("word--1"); click("word-picker-apply"); click("material-apply"); click("recipe-save")
+        compose.waitUntil(5_000) { createdId != null }
+        assertTrue(createdId!!.isNotEmpty())
+        assertFalse(backed)
+    }
 }

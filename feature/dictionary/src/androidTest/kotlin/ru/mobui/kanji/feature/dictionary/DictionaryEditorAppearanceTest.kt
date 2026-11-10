@@ -20,13 +20,13 @@ import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.core.wordui.WordEditorActions
 import ru.mobui.kanji.domain.catalog.WordDraft
 import ru.mobui.kanji.domain.catalog.WordTranslationDraft
+import androidx.compose.ui.test.assertHeightIsAtLeast
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.fetchSemanticsNode
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.performTextReplacement
-import androidx.compose.ui.test.waitForIdle
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 

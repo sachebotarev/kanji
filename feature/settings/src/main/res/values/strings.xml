@@ -6,7 +6,7 @@
     <string name="setting_auto_advance_kanji">Автопереход к следующему кандзи</string>
     <string name="help_auto_advance_kanji">Переход к следующему знаку после верного написания текущего.</string>
     <string name="setting_auto_advance">Автопереход к следующему слову</string>
-    <string name="help_auto_advance">Переход к следующему слову, когда всё текущее слово решено верно.</string>
+    <string name="help_auto_advance">Переход к следующему слову после верного написания или по истечении таймера.</string>
     <string name="setting_on">Вкл</string>
     <string name="setting_off">Выкл</string>
 

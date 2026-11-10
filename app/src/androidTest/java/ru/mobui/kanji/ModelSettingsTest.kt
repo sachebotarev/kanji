@@ -26,12 +26,12 @@ class ModelSettingsTest {
                 SettingsScreen({}, {}, onClearTrainingHistory = { cleared++ })
             }
         }
-        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history").performScrollTo().performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertExists()
         compose.onNodeWithTag("clear-training-history-cancel").performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
         compose.runOnIdle { assertEquals(0, cleared) }
-        compose.onNodeWithTag("clear-training-history").performClick()
+        compose.onNodeWithTag("clear-training-history").performScrollTo().performClick()
         compose.onNodeWithTag("clear-training-history-confirm").performClick()
         compose.onNodeWithTag("clear-training-history-dialog").assertDoesNotExist()
         compose.runOnIdle { assertEquals(1, cleared) }

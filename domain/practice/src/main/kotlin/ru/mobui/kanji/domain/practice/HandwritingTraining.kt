@@ -152,7 +152,7 @@ class HandwritingTraining(task: PracticeTask) {
         if (
             state.result != null ||
                 state.timedOut ||
-                (state.isComplete && !state.gestureActive)
+                (state.isResolved && !state.gestureActive)
         )
             return
         val remaining = state.task.timeLimitMs?.minus(state.elapsedMs) ?: Long.MAX_VALUE
@@ -208,7 +208,7 @@ class HandwritingTraining(task: PracticeTask) {
         }
     }
 
-    fun skip() = finish(AnswerStatus.Skipped)
+    fun skip() = finish(if (state.timedOut) AnswerStatus.TimedOut else AnswerStatus.Skipped)
 
     private fun finish(status: AnswerStatus) {
         if (state.result != null) return

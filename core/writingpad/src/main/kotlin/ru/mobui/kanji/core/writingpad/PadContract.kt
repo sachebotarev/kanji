@@ -14,6 +14,10 @@ data class PadUiState(
     val overlay: ReferenceDrawing? = null,
     /** When true, the pad draws [overlay] as a one-shot yellow stroke animation. */
     val animateOverlay: Boolean = false,
+    /** When true with [animateOverlay], animates all strokes sequentially in accelerated tempo. */
+    val animateAllStrokes: Boolean = false,
+    /** Duration in milliseconds to hold the complete drawing before fading out. */
+    val fullHintHoldMillis: Long = 0L,
     /** When true with a static overlay, draw the guide in error red at full opacity. */
     val overlayAsError: Boolean = false,
     val comparisonOverlay: ru.mobui.kanji.domain.handwriting.ComparisonDrawing? = null,
@@ -44,4 +48,13 @@ sealed interface PadEvent {
 
     /** Fired after an animated overlay finishes drawing and fading out. */
     data object HintPlaybackFinished : PadEvent
+
+    /** Two-finger single tap: undo last stroke. */
+    data object UndoRequested : PadEvent
+
+    /** Two-finger double tap: clear entire input pad. */
+    data object ClearRequested : PadEvent
+
+    /** Long press on input area: trigger hint for current character. */
+    data object HintRequested : PadEvent
 }
