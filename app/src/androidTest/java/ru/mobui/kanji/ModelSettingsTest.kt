@@ -13,7 +13,6 @@ import org.junit.Rule
 import org.junit.Test
 import ru.mobui.kanji.core.designsystem.KanjiTheme
 import ru.mobui.kanji.domain.practice.RecognitionSettings
-import ru.mobui.kanji.feature.practice.CheckerSettingsScreen
 import ru.mobui.kanji.feature.settings.SettingsScreen
 
 class ModelSettingsTest {
@@ -74,11 +73,11 @@ class ModelSettingsTest {
             mutableStateOf(RecognitionSettings.touchInput().copy(readabilityEnabled = false))
         compose.setContent {
             KanjiTheme {
-                CheckerSettingsScreen(
-                    settings.value,
-                    { settings.value = it },
-                    {},
-                    {},
+                SettingsScreen(
+                    onBack = {},
+                    onOpenChecker = {},
+                    settings = settings.value,
+                    onChangeSettings = { settings.value = it },
                     readabilityAvailable = ready.value,
                 )
             }

@@ -19,7 +19,6 @@ import androidx.navigation.toRoute
 import kotlinx.serialization.Serializable
 import ru.mobui.kanji.core.designsystem.preferredLanguageTag
 import ru.mobui.kanji.domain.catalog.CatalogRepository
-import ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.name
@@ -48,7 +47,6 @@ fun RecipeBuilderRoute(
     openCreate: Boolean = false,
     launchAfterCreate: Boolean = false,
     trainingsRepository: TrainingsRepository? = null,
-    defaultStrokeHintMode: () -> RecipeStrokeHintMode = { RecipeStrokeHintMode.NextStroke },
 ) {
     val nav = rememberNavController()
     val language = LocalConfiguration.current.preferredLanguageTag()
@@ -97,7 +95,6 @@ fun RecipeBuilderRoute(
                 ),
                 language,
                 copyFromId = route.copyFromId,
-                defaultStrokeHintMode = defaultStrokeHintMode,
             )
         }
         composable<RecipeWord> { entry -> actions.wordContent(entry.toRoute<RecipeWord>().id) { nav.popBackStack() } }

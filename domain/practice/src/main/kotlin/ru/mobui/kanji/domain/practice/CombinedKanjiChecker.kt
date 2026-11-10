@@ -27,6 +27,7 @@ class CombinedKanjiChecker(
 ) : KanjiChecker {
     override suspend fun check(request: CheckRequest) = checkWithDetails(request).verdict
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun checkWithDetails(request: CheckRequest): CheckReport = coroutineScope {
         val config = settings()
         val providers =
@@ -46,7 +47,13 @@ class CombinedKanjiChecker(
                                     checker.checkWithDetails(request)
                                 } catch (cancelled: CancellationException) {
                                     throw cancelled
-                                } catch (_: Exception) {
+                                } catch (error: Exception) {
+                                    java.util.logging.Logger.getLogger(CHECKER_LOG)
+                                        .log(
+                                            java.util.logging.Level.WARNING,
+                                            "Checker $kind failed",
+                                            error,
+                                        )
                                     CheckReport(CheckVerdict.Unavailable)
                                 }
                     }
@@ -81,3 +88,5 @@ class CombinedKanjiChecker(
         )
     }
 }
+
+private const val CHECKER_LOG = "CombinedKanjiChecker"

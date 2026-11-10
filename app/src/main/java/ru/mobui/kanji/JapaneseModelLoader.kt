@@ -1,5 +1,7 @@
 package ru.mobui.kanji
 
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +25,7 @@ internal class JapaneseModelLoader(
     private val mutableError = MutableStateFlow(false)
     val error = mutableError.asStateFlow()
 
+    @Suppress("TooGenericExceptionCaught")
     fun load() {
         if (mutableStatus.value != JapaneseModelStatus.Missing) return
         mutableStatus.value = JapaneseModelStatus.Loading
@@ -36,7 +39,8 @@ internal class JapaneseModelLoader(
             } catch (cancelled: CancellationException) {
                 mutableStatus.value = JapaneseModelStatus.Missing
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Japanese model download failed", error)
                 mutableStatus.value = JapaneseModelStatus.Missing
                 mutableError.value = true
             }
@@ -46,4 +50,9 @@ internal class JapaneseModelLoader(
     fun dismissError() {
         mutableError.value = false
     }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.JapaneseModel")
+    }
 }
+

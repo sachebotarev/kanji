@@ -7,13 +7,26 @@ import ru.mobui.kanji.domain.handwriting.WritingSample
 enum class HintMode {
     /** Pale full reference under the user's ink (toggle). */
     FullCharacter,
-    /** Animate the next missing stroke once, then clear. */
+    /** Strokes up to the next missing one: earlier strokes at once, the next one animated. */
     NextStroke;
 
+    /** Value stored in `stroke_hint_mode`. */
+    val storageKey: String
+        get() =
+            when (this) {
+                FullCharacter -> "full_character"
+                NextStroke -> "next_stroke"
+            }
+
     companion object {
-        fun fromKey(key: String?): HintMode = when (key?.trim()?.lowercase()) {
-            "full_character", "full_kanji", "full" -> FullCharacter
-            else -> NextStroke
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): HintMode {
+            if (key == null) return NextStroke
+            return when (key.trim().lowercase()) {
+                "next_stroke" -> NextStroke
+                "full_character", "full", "full_kanji" -> FullCharacter
+                else -> NextStroke
+            }
         }
     }
 }

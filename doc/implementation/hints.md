@@ -1,12 +1,12 @@
 # Сменные алгоритмы подсказки
 
-`HintAlgorithm` — отдельный контракт в `:domain:practice`. Режим выбирается настройкой `RecognitionSettings.hintMode` (`FullCharacter` или `NextStroke`); `PracticeViewModel` берёт алгоритм через `hintAlgorithmFor(hintMode())`. UI-PAD не выбирает алгоритм и не знает KanjiVG.
+`HintAlgorithm` — отдельный контракт в `:domain:practice`. Режим знака берётся из рецепта (`Recipe.strokeHintMode`) и копируется в тренировку. `PracticeViewModel` выбирает алгоритм через `hintAlgorithmFor(hintMode())`, где `hintMode()` — режим текущего задания. UI-PAD не выбирает алгоритм и не знает KanjiVG.
 
 Вход `HintRequest`: текущий `WritingSample` и нейтральный `ReferenceDrawing`. Выход `HintPresentation?`: эталонный слой, `blocksInput`, `playback` (`Static` или `AnimateOnce`) и `style` (`Guide` или `Exhausted`); `null` означает, что подсказка недоступна.
 
 ## Режимы
 
-Режим и лимит задаются в настройках проверки (`CheckerSettingsScreen`, группа «Подсказка на практике») и сохраняются в DataStore.
+Режим знака задаётся в рецепте и сохраняется вместе с тренировкой. Лимит нажатий и длительность показа полного знака задаются в настройках проверки (`CheckerSettingsScreen`, группа «Подсказка на практике») и хранятся в DataStore. Поле `RecognitionSettings.hintMode` в хранилище остаётся, на тренировку не влияет.
 
 ### FullCharacter — полный знак
 
@@ -30,4 +30,4 @@
 
 ## Проверка
 
-JVM-тест домена проверяет режимы, счётчик и исчерпание. Persistence включает `hintMode` и `maxNextStrokeHints`.
+JVM-тест домена проверяет режимы, счётчик и исчерпание. В DataStore сохраняются лимит `maxNextStrokeHints` и длительность полного знака. Режим знака хранится в рецепте и в строке тренировки.

@@ -174,7 +174,7 @@ class HandwritingTraining(task: PracticeTask) {
 
     /**
      * Freezes the word at the deadline: Empty/Editing practice cells become Incorrect so «Далее»
-     * unlocks; Correct/Incorrect/Prefilled stay. Opens the reading spoiler for scoring/UI.
+     * unlocks; Correct/Incorrect/Prefilled stay. Does not mark text spoilers as used.
      * Does not emit [PracticeResult] until [submit].
      */
     private fun settleTimedOut() {
@@ -182,8 +182,6 @@ class HandwritingTraining(task: PracticeTask) {
         state =
             state.copy(
                 timedOut = true,
-                readingHintUsed = true,
-                translationHintUsed = true,
                 gestureActive = false,
                 cells =
                     state.cells.map { cell ->

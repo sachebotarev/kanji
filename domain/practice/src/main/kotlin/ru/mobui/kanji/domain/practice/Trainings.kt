@@ -105,6 +105,7 @@ data class Training(
     val startedAt: Long,
     val endedAt: Long? = null,
     val tasks: List<TrainingTask>,
+    val maxNextStrokeHints: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,
 )
 
 class TrainingValidationException(message: String) : IllegalArgumentException(message)

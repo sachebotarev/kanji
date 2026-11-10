@@ -34,7 +34,6 @@ import ru.mobui.kanji.core.writingpad.KanjiWritingPad
 import ru.mobui.kanji.core.writingpad.PadContent
 import ru.mobui.kanji.core.writingpad.PadUiState
 import ru.mobui.kanji.domain.practice.CheckVerdict
-import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 /** Stateless settings surface; host owns persistence, checker and navigation. */
@@ -46,7 +45,6 @@ fun CheckerSettingsScreen(
     onReset: () -> Unit,
     modifier: Modifier = Modifier,
     preview: PracticeUiState? = null,
-    readabilityAvailable: Boolean = true,
 ) {
     fun change(value: RecognitionSettings) = onChange(value.roundedParameters())
     Scaffold(modifier) { padding ->
@@ -61,33 +59,6 @@ fun CheckerSettingsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 SettingsPreviewFailures(preview)
-                SettingsGroup(R.string.settings_group_hint) {
-                    HintModeRow(settings.hintMode) { change(settings.copy(hintMode = it)) }
-                    ParameterSlider(
-                        MaxNextStrokeHintsParameter,
-                        settings.maxNextStrokeHints.toFloat(),
-                    ) {
-                        change(settings.copy(maxNextStrokeHints = it.roundToInt()))
-                    }
-                    if (settings.hintMode == HintMode.FullCharacter) {
-                        ParameterSlider(
-                            FullHintDisplayParameter,
-                            settings.fullHintDisplayMillis.toFloat(),
-                        ) {
-                            change(settings.copy(fullHintDisplayMillis = it.roundToInt()))
-                        }
-                    }
-                }
-                SettingsGroup(R.string.settings_group_flow) {
-                    ToggleChoiceRow(
-                        R.string.setting_auto_advance,
-                        R.string.help_auto_advance,
-                        settings.autoAdvanceOnSuccess,
-                        "auto-advance",
-                    ) {
-                        change(settings.copy(autoAdvanceOnSuccess = it))
-                    }
-                }
                 ParameterGroup(R.string.settings_group_shape, ShapeParameters, settings, ::change)
                 ParameterGroup(
                     R.string.settings_group_compensations,
@@ -96,7 +67,6 @@ fun CheckerSettingsScreen(
                     ::change,
                 )
                 ParameterGroup(R.string.settings_group_budget, BudgetParameters, settings, ::change)
-                EnabledChecks(settings, readabilityAvailable, ::change)
                 SettingsGroup(R.string.settings_group_rules) {
                     RuleChoiceRow(
                         R.string.setting_structure,
@@ -223,47 +193,6 @@ private fun SettingsPreviewFailures(preview: PracticeUiState?) {
         )
 }
 
-@Composable
-private fun EnabledChecks(
-    settings: RecognitionSettings,
-    available: Boolean,
-    change: (RecognitionSettings) -> Unit,
-) {
-    SettingsGroup(R.string.checks_testing) {
-        RuleChoiceRow(
-            R.string.check_readability,
-            R.string.help_readability,
-            settings.readabilityEnabled && available,
-            "enable-readability",
-            allowEnable = available,
-        ) {
-            change(settings.copy(readabilityEnabled = it))
-        }
-        if (!available)
-            Text(
-                stringResource(R.string.readability_model_required),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.testTag("readability-model-required"),
-            )
-        RuleChoiceRow(
-            R.string.check_shape,
-            R.string.help_shape,
-            settings.shapeEnabled,
-            "enable-shape",
-        ) {
-            change(settings.copy(shapeEnabled = it))
-        }
-        RuleChoiceRow(
-            R.string.check_writing,
-            R.string.help_writing,
-            settings.strokeWritingEnabled,
-            "enable-writing",
-        ) {
-            change(settings.copy(strokeWritingEnabled = it))
-        }
-    }
-}
 
 private data class ParameterSpec(
     val label: Int,
@@ -307,49 +236,6 @@ private fun SettingsGroup(title: Int, content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun HintModeRow(mode: HintMode, onChange: (HintMode) -> Unit) {
-    val title = stringResource(R.string.setting_hint_mode)
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        SettingHelp(R.string.setting_hint_mode, R.string.help_hint_mode, "hint-mode")
-        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            for ((value, label) in
-                listOf(
-                    HintMode.FullCharacter to R.string.setting_hint_full_character,
-                    HintMode.NextStroke to R.string.setting_hint_next_stroke,
-                )) {
-                val active = value == mode
-                val text = stringResource(label)
-                OutlinedButton(
-                    onClick = { if (!active) onChange(value) },
-                    modifier =
-                        Modifier.weight(1f)
-                            .heightIn(min = 48.dp)
-                            .testTag(
-                                if (value == HintMode.FullCharacter) "hint-mode-full"
-                                else "hint-mode-next",
-                            )
-                            .semantics {
-                                selected = active
-                                contentDescription = "$title: $text"
-                            },
-                    colors =
-                        ButtonDefaults.outlinedButtonColors(
-                            containerColor =
-                                if (active) MaterialTheme.colorScheme.secondaryContainer
-                                else Color.Transparent,
-                            contentColor =
-                                if (active) MaterialTheme.colorScheme.onSecondaryContainer
-                                else MaterialTheme.colorScheme.onSurface,
-                        ),
-                ) {
-                    Text(text)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun RuleChoiceRow(
     label: Int,
     help: Int,
@@ -370,25 +256,6 @@ private fun RuleChoiceRow(
     )
 }
 
-@Composable
-private fun ToggleChoiceRow(
-    label: Int,
-    help: Int,
-    checked: Boolean,
-    tag: String,
-    onChange: (Boolean) -> Unit,
-) {
-    BinaryChoiceRow(
-        label,
-        help,
-        checked,
-        tag,
-        stringResource(R.string.setting_on),
-        stringResource(R.string.setting_off),
-        allowEnable = true,
-        onChange = onChange,
-    )
-}
 
 @Composable
 private fun BinaryChoiceRow(
@@ -558,28 +425,6 @@ private val BudgetParameters =
         ),
     )
 
-private val MaxNextStrokeHintsParameter =
-    ParameterSpec(
-        R.string.setting_max_next_stroke_hints,
-        R.string.help_max_next_stroke_hints,
-        "max-next-stroke-hints",
-        1f..12f,
-        { it.maxNextStrokeHints.toFloat() },
-        { settings, value -> settings.copy(maxNextStrokeHints = value.roundToInt()) },
-        unit = R.string.setting_count_value,
-    )
-
-private val FullHintDisplayParameter =
-    ParameterSpec(
-        R.string.setting_full_hint_display,
-        R.string.help_full_hint_display,
-        "full-hint-display",
-        200f..3000f,
-        { it.fullHintDisplayMillis.toFloat() },
-        { settings, value -> settings.copy(fullHintDisplayMillis = value.roundToInt()) },
-        unit = R.string.setting_millis_value,
-        increment = 50f,
-    )
 
 private val RuleParameters =
     listOf(

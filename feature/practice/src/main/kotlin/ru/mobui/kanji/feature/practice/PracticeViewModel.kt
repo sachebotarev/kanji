@@ -1,6 +1,8 @@
 package ru.mobui.kanji.feature.practice
 
 import android.os.SystemClock
+import java.util.logging.Level
+import java.util.logging.Logger
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -621,6 +623,7 @@ private const val CHECK_TIMEOUT_MILLIS = 8_000L
 /** No pad pulses while gestureActive — treat as stuck input. */
 private const val GESTURE_STALE_MILLIS = 5_000L
 
+@Suppress("TooGenericExceptionCaught")
 private suspend fun executeCheck(
     checker: KanjiChecker,
     request: CheckRequest,
@@ -630,11 +633,13 @@ private suspend fun executeCheck(
             checker.checkWithDetails(request)
         } catch (cancelled: CancellationException) {
             throw cancelled
-        } catch (_: Exception) {
+        } catch (error: Exception) {
+            practiceLogger.log(Level.SEVERE, "Check failed for ${request.kanjiId.value}", error)
             CheckReport(CheckVerdict.Unavailable)
         }
     } ?: CheckReport(CheckVerdict.Unavailable)
 
+@Suppress("TooGenericExceptionCaught")
 private fun loadTaskReferences(
     task: PracticeTask,
     references: KanjiReferenceSource,
@@ -651,13 +656,16 @@ private fun loadTaskReferences(
                         references.load(id)
                     } catch (cancelled: CancellationException) {
                         throw cancelled
-                    } catch (_: Exception) {
+                    } catch (error: Exception) {
+                        practiceLogger.log(Level.SEVERE, "Reference failed for $id", error)
                         null
                     }
                 onLoaded(id, drawing)
             }
         }
 }
+
+private val practiceLogger = Logger.getLogger("ru.mobui.kanji.PracticeCheck")
 
 private class CheckCoordinator {
     var generation = 0L

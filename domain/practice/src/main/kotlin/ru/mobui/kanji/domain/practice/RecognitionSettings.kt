@@ -37,7 +37,9 @@ data class RecognitionSettings(
     val strokeWritingEnabled: Boolean = true,
     val checkStrokeOrder: Boolean = false,
     val checkStrokeDirection: Boolean = false,
-    /** Character-guide mode on PRACTICE (full glyph vs next stroke). */
+    /**
+     * Retained stored value. Practice takes the stroke-hint mode from the recipe, not from here.
+     */
     val hintMode: HintMode = HintMode.FullCharacter,
     /** Max hint shows per character (any mode) before a full red fail reveal. */
     val maxNextStrokeHints: Int = DEFAULT_MAX_NEXT_STROKE_HINTS,

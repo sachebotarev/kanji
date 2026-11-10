@@ -27,7 +27,6 @@ import ru.mobui.kanji.domain.catalog.CatalogRepository
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.feature.dashboard.R
-import ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode
 import androidx.compose.runtime.setValue
 
 /** Call inside a dedicated navigation entry: its ViewModelStore/SavedStateRegistry own one draft. */
@@ -41,14 +40,13 @@ fun RecipeEditorRoute(
     language: String = "ru",
     modifier: Modifier = Modifier,
     copyFromId: String? = null,
-    defaultStrokeHintMode: () -> RecipeStrokeHintMode = { RecipeStrokeHintMode.NextStroke },
 ) {
     val copyPattern = stringResource(R.string.library_copy_name)
     val model: RecipeEditorViewModel = viewModel(
         key = "recipe-editor-${recipeId ?: copyFromId?.let { "copy-$it" } ?: "new"}",
         factory = viewModelFactory {
             initializer { RecipeEditorViewModel(createSavedStateHandle(), catalog, personal, recipesRepository, recipeId,
-                copyFromId, { name -> copyPattern.format(name) }, defaultStrokeHintMode) }
+                copyFromId, { name -> copyPattern.format(name) }) }
         },
     )
     val state by model.state.collectAsStateWithLifecycle()

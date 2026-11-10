@@ -71,6 +71,7 @@ internal fun launchTrainingFromRecipe(
     snapshot: CatalogSnapshot,
     recipe: Recipe,
     assignments: List<WordTagAssignment>,
+    maxNextStrokeHints: Int = 3,
     nowMs: Long = System.currentTimeMillis(),
     random: Random = Random.Default,
 ): TrainingLaunch? {
@@ -83,7 +84,7 @@ internal fun launchTrainingFromRecipe(
     if (pool.isEmpty()) return null
     val count = recipe.taskCount?.coerceAtLeast(1) ?: pool.size
     val ordered = shuffledLaunchWords(pool, count, random)
-    return buildLaunch(recipe, ordered, nowMs)
+    return buildLaunch(recipe, ordered, maxNextStrokeHints, nowMs)
 }
 
 private data class LaunchWord(
@@ -158,6 +159,7 @@ private fun ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.toHintMode(): ru.
 private fun buildLaunch(
     recipe: Recipe,
     words: List<LaunchWord>,
+    maxNextStrokeHints: Int,
     nowMs: Long,
 ): TrainingLaunch {
     val clueMode = recipe.hintMode.toTaskClueMode()
@@ -226,6 +228,7 @@ private fun buildLaunch(
             secondsPerSymbol = recipe.secondsPerSymbol,
             clueMode = clueMode,
             strokeHintMode = strokeHintMode,
+            maxNextStrokeHints = maxNextStrokeHints,
             status = TrainingStatus.InProgress,
             startedAt = nowMs,
             endedAt = null,
@@ -317,6 +320,8 @@ internal fun resumeActiveTraining(training: Training): ActiveTraining? {
                     },
                 reading = task.reading,
                 timeLimitMs = wordTimeLimitMs(training.secondsPerSymbol, practiceCount),
+                clueMode = training.clueMode,
+                strokeHintMode = training.strokeHintMode,
             )
         }
     return ActiveTraining(training, practiceTasks, index)

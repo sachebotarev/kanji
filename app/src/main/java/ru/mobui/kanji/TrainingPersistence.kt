@@ -1,6 +1,7 @@
 package ru.mobui.kanji
 
-import android.util.Log
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -37,12 +38,12 @@ internal class TrainingPersistence(
         scope.launch {
             runCatching { save(training) }
                 .onFailure { error ->
-                    Log.e(TAG, "Failed to save training ${training.id}", error)
+                    logger.log(Level.SEVERE, "Failed to save training ${training.id}", error)
                 }
         }
     }
 
     private companion object {
-        const val TAG = "TrainingPersistence"
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.TrainingPersistence")
     }
 }

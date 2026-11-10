@@ -69,7 +69,7 @@
     <string name="debug_budget_error">Total compensation budget: %1$.2f%%; limit %2$.2f%%.</string>
     <string name="debug_shear">Shear compensation: %1$+.2f°</string>
     <string name="debug_shear_error">Shear: %1$+.2f°; limit %2$.2f°.</string>
-    <string name="checker_settings_title">Recognition settings</string>
+    <string name="checker_settings_title">Kanji shape calibration</string>
     <string name="checker_settings_reset">Reset</string>
     <string name="checker_settings_preview">Current drawing</string>
     <string name="checker_preview_correct">Accepted</string>
@@ -111,17 +111,13 @@
     <string name="debug_missing_hooks">Required hook missing from strokes: %1$s</string>
     <string name="setting_tenths_percent_value">%1$.1f%%</string>
     <string name="settings_group_hint">Practice hint</string>
-    <string name="setting_hint_mode">Hint mode</string>
-    <string name="setting_hint_full_character">Full character</string>
-    <string name="setting_hint_next_stroke">Next stroke</string>
-    <string name="help_hint_mode">Full character keeps a pale reference under your ink. Next stroke draws the next expected line once in yellow, then fades it away.</string>
     <string name="settings_group_flow">Practice flow</string>
     <string name="setting_auto_advance">Auto-advance to next word</string>
     <string name="help_auto_advance">When on, a successfully completed word opens the next one immediately. Timeout and skip still require tapping Next.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
     <string name="setting_max_next_stroke_hints">Max hints</string>
-    <string name="help_max_next_stroke_hints">How many times the hint can be shown for one character (full character or next stroke). Each show counts. When the limit is reached, the full character is drawn in red with stroke numbers and marked incorrect.</string>
+    <string name="help_max_next_stroke_hints">How many times the hint can be shown for one character. The recipe chooses full kanji or next stroke: strokes already drawn appear at once, and the next stroke is animated. Each show counts. When the limit is reached, the full character is drawn in red with stroke numbers and marked incorrect.</string>
     <string name="setting_full_hint_display">Full-character display time</string>
     <string name="help_full_hint_display">How many milliseconds the full reference with stroke numbers stays on the pad after a tap. Then the hint hides itself; the button does not stay pressed.</string>
     <string name="setting_count_value">%1$d</string>

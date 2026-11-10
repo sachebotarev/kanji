@@ -2,6 +2,8 @@ package ru.mobui.kanji.feature.catalog.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Job
@@ -33,6 +35,7 @@ internal abstract class CatalogStateViewModel<I, C>(
         context.value = language to revision
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         job?.cancel()
         job = viewModelScope.launch {
@@ -46,10 +49,15 @@ internal abstract class CatalogStateViewModel<I, C>(
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
-                } catch (_: Exception) {
+                } catch (error: Exception) {
+                    logger.log(Level.SEVERE, "Failed to load catalog", error)
                     mutable.value = CatalogLoad.Error
                 }
             }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.Catalog")
     }
 }

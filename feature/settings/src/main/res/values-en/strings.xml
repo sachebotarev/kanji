@@ -1,16 +1,49 @@
 <resources>
     <string name="settings_title">Settings</string>
     <string name="settings_back">Back</string>
-    <string name="settings_checker">Kanji checking</string>
-    <string name="settings_checker_detail">Accuracy, tolerances and rules</string>
+
+    <string name="settings_group_flow">Practice flow</string>
+    <string name="setting_auto_advance">Auto-advance to next word</string>
+    <string name="help_auto_advance">Automatically advance to the next word when the current kanji is written correctly</string>
+    <string name="setting_on">On</string>
+    <string name="setting_off">Off</string>
+
+    <string name="settings_group_hint">Hints</string>
+    <string name="setting_max_next_stroke_hints">Maximum hints</string>
+    <string name="help_max_next_stroke_hints">Number of next stroke hints available per character</string>
+    <string name="setting_count_value">%1$d</string>
+    <string name="setting_full_hint_display">Full hint display time</string>
+    <string name="help_full_hint_display">Duration of reference character display during hints or review</string>
+    <string name="setting_millis_value">%1$d ms</string>
+
+    <string name="settings_group_checkers">Verification modules</string>
+    <string name="check_readability">Readability</string>
+    <string name="help_readability">Handwriting recognition via ML Kit Japanese model</string>
+    <string name="readability_model_required">Japanese model download required</string>
+    <string name="check_writing">Stroke order and direction</string>
+    <string name="help_writing">Validates stroke sequence and drawing direction for every stroke</string>
+    <string name="check_shape">Character shape</string>
+    <string name="help_shape">Geometric comparison against vector reference strokes</string>
+
     <string name="settings_japanese_model">Japanese language model</string>
     <string name="settings_model_loaded">Downloaded</string>
     <string name="settings_model_loading">Downloading…</string>
     <string name="settings_model_missing">Not downloaded · Download</string>
+
+    <string name="settings_group_calibration">Kanji shape calibration</string>
+    <string name="settings_checker">Kanji shape calibration</string>
+    <string name="settings_checker_detail">Shape match thresholds, transform tolerances and compensations</string>
+
+    <string name="settings_group_data">Data and storage</string>
     <string name="settings_clear_history">Clear training history</string>
     <string name="settings_clear_history_detail">Delete all saved trainings</string>
     <string name="settings_clear_history_title">Clear history?</string>
     <string name="settings_clear_history_message">All saved trainings will be permanently deleted.</string>
     <string name="settings_clear_history_confirm">Clear</string>
     <string name="settings_cancel">Cancel</string>
+
+    <string name="help_expand">Show help: %1$s</string>
+    <string name="help_collapse">Hide help: %1$s</string>
+    <string name="help_expanded">Help expanded</string>
+    <string name="help_collapsed">Help collapsed</string>
 </resources>

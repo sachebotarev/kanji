@@ -71,7 +71,8 @@ class HandwritingTrainingTest {
         training.advanceTime(500)
         assertNull(training.state.result)
         assertTrue(training.state.timedOut)
-        assertTrue(training.state.readingHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        assertFalse(training.state.translationHintUsed)
         assertTrue(training.state.isResolved)
         assertEquals(100L, training.state.elapsedMs)
         assertEquals(
@@ -84,7 +85,8 @@ class HandwritingTrainingTest {
         training.submit()
         val result = requireNotNull(training.state.result)
         assertEquals(AnswerStatus.TimedOut, result.status)
-        assertTrue(result.readingHintUsed)
+        assertFalse(result.readingHintUsed)
+        assertFalse(result.translationHintUsed)
         assertEquals(100L, result.elapsedMs)
         assertEquals(
             listOf(EntryStatus.Incorrect, EntryStatus.Incorrect, EntryStatus.Prefilled),
@@ -109,6 +111,20 @@ class HandwritingTrainingTest {
         assertEquals(EntryStatus.Incorrect, training.state.cells[1].status)
         training.submit()
         assertEquals(AnswerStatus.TimedOut, training.state.result!!.status)
+    }
+
+    @Test
+    fun timeoutKeepsASpoilerTheLearnerAlreadyOpened() {
+        val training = HandwritingTraining(task(100))
+        training.recordTranslationHint()
+        training.advanceTime(100)
+        assertTrue(training.state.timedOut)
+        assertTrue(training.state.translationHintUsed)
+        assertFalse(training.state.readingHintUsed)
+        training.submit()
+        val result = requireNotNull(training.state.result)
+        assertTrue(result.translationHintUsed)
+        assertFalse(result.readingHintUsed)
     }
 
     @Test

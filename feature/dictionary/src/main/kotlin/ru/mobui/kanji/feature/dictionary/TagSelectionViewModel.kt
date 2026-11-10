@@ -3,6 +3,8 @@ package ru.mobui.kanji.feature.dictionary
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +31,7 @@ internal class TagSelectionViewModel(private val saved: SavedStateHandle,
     val state = mutable.asStateFlow()
     private var job: kotlinx.coroutines.Job? = null
     init { retry() }
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         job?.cancel()
         job = viewModelScope.launch {
@@ -44,7 +47,10 @@ internal class TagSelectionViewModel(private val saved: SavedStateHandle,
                 saved["selected"] = selected.toLongArray()
                 mutable.update { it.copy(tags = tags, selected = selected, usageCounts = counts, loading = false) }
             } } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { mutable.update { it.copy(loading = false, error = true) } }
+            catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to load tags", error)
+                mutable.update { it.copy(loading = false, error = true) }
+            }
         }
     }
     fun start(ids: Set<Long>, pending: List<TagDraft>) {
@@ -88,13 +94,21 @@ internal class TagSelectionViewModel(private val saved: SavedStateHandle,
     private fun nameKey(value: String) = android.icu.lang.UCharacter.foldCase(
         java.text.Normalizer.normalize(value.trim(), java.text.Normalizer.Form.NFKC), true)
 
+    @Suppress("TooGenericExceptionCaught")
     private fun operation(action: suspend () -> Unit) {
         if (mutable.value.busy) return
         mutable.update { it.copy(busy = true, error = false) }
         viewModelScope.launch {
             try { action(); mutable.update { it.copy(busy = false) } }
             catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) { mutable.update { it.copy(busy = false, error = true) } }
+            catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to save tags", error)
+                mutable.update { it.copy(busy = false, error = true) }
+            }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.DictionaryTags")
     }
 }

@@ -3,6 +3,8 @@ package ru.mobui.kanji.feature.dashboard.history
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,6 +57,7 @@ internal class TrainingHistoryViewModel(
 
     fun clearPeriod() = setPeriod(TrainingHistoryPeriod.All)
 
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         observation?.cancel()
         mutable.update { it.copy(loading = true, error = false) }
@@ -68,12 +71,14 @@ internal class TrainingHistoryViewModel(
                     }
                 } catch (cancelled: CancellationException) {
                     throw cancelled
-                } catch (_: Exception) {
+                } catch (error: Exception) {
+                    logger.log(Level.SEVERE, "Failed to observe history", error)
                     mutable.update { it.copy(loading = false, error = true) }
                 }
             }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun delete(id: String) {
         if (mutable.value.busy || mutable.value.loading) return
         mutable.update { it.copy(busy = true, error = false) }
@@ -82,7 +87,8 @@ internal class TrainingHistoryViewModel(
                 repository.deleteTraining(id)
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to delete training $id", error)
                 mutable.update { it.copy(error = true) }
             } finally {
                 mutable.update { it.copy(busy = false) }
@@ -93,6 +99,7 @@ internal class TrainingHistoryViewModel(
     suspend fun training(id: String): Training? = repository.getTraining(id)
 
     private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.TrainingHistory")
         const val QUERY_KEY = "history_query"
         const val PERIOD_KEY = "history_period"
     }

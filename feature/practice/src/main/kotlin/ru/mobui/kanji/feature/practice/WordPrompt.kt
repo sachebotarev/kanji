@@ -38,6 +38,7 @@ import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.onClick
 import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
@@ -70,6 +71,7 @@ internal fun WordPrompt(
     var showFull by rememberSaveable(word) { mutableStateOf(false) }
     val moreLabel = stringResource(R.string.prompt_more)
     val hiddenLabel = stringResource(R.string.prompt_hidden)
+    val revealedLabel = stringResource(R.string.prompt_revealed)
     val haptics = LocalHapticFeedback.current
     val particleColor = MaterialTheme.colorScheme.onSurface
     val revealProgress = remember(word) { Animatable(if (revealed) 0f else 1f) }
@@ -121,7 +123,9 @@ internal fun WordPrompt(
                         }
                     }
                 } else {
-                    Modifier
+                    Modifier.semantics {
+                        if (revealed) stateDescription = revealedLabel
+                    }
                 },
             ),
         contentAlignment = Alignment.Center,

@@ -55,8 +55,8 @@ class CheckerHelpTest {
             assertEquals(1, changes)
             assertEquals(80f, settings.value.requiredMatchPercent)
         }
-        compose.onNodeWithTag("help-toggle-enable-readability").performScrollTo().performClick()
-        compose.onNodeWithTag("help-content-enable-readability").assertExists()
+        compose.onNodeWithTag("help-toggle-check-structure").performScrollTo().performClick()
+        compose.onNodeWithTag("help-content-check-structure").assertExists()
         compose.runOnIdle { assertEquals(1, changes) }
     }
 }

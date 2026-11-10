@@ -246,7 +246,7 @@ class RecipePersistenceTest {
         assertEquals(ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke, restoredNone.strokeHintMode)
     }
 
-    @Test fun newRecipeAdoptsConfiguredDefaultStrokeHintMode() {
+    @Test fun newRecipeDefaultsStrokeHintToNextStroke() {
         val personal = Personal()
         val recipesRepository = Learning()
         lateinit var model: RecipeEditorViewModel
@@ -257,14 +257,13 @@ class RecipePersistenceTest {
                 personal,
                 recipesRepository,
                 recipeId = null,
-                defaultStrokeHintMode = { ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter },
             )
             ViewModelStore().also { it.put("editor", model); stores += it }
         }
         ready(model)
         compose.runOnIdle {
             assertEquals(
-                ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.FullCharacter,
+                ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode.NextStroke,
                 model.state.value.initial?.strokeHintMode,
             )
         }

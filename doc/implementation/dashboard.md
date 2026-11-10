@@ -10,7 +10,7 @@
 
 ## Состояние
 
-`DashboardState` объединяет `WordStatistics`, `ActivityOverview` и `VocabularyOverview`. Количество личных слов поступает из `PersonalDictionaryRepository`. `HOME.W02` и `HOME.W03` строятся из `TrainingsRepository.observeCompletedTasks()` — [активность](home-activity.md), [день](home-word-stats.md).
+`DashboardState` объединяет `WordStatistics`, `ActivityOverview` и `VocabularyOverview`. Живой экран берёт число личных слов из `PersonalDictionaryRepository`. Кольцо `HOME.W02` и сетка `HOME.W03` строятся из `TrainingsRepository.observeCompletedTasks()` — [активность](home-activity.md), [день](home-word-stats.md). `DashboardDemo` используется только в превью Compose. Карточка словаря на живом экране не подставляет демонстрационные 12 учебников и 156 слов: показаны переходы и фактическое число личных слов.
 
 `RecipeOverview` — представление конфигурации, не запущенная тренировка:
 

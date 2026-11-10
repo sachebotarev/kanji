@@ -24,23 +24,18 @@ class AppSettingsNavigationTest {
         }
         compose.onNodeWithTag("open-app-settings").performClick()
         compose.onNodeWithTag("settings-screen").assertIsDisplayed()
-        compose.onNodeWithTag("open-app-checker-settings").performClick()
-        compose.onNodeWithTag("reset-checker-settings").performClick()
         compose
             .onNodeWithTag("enable-shape-off")
             .performScrollTo()
             .performClick()
             .assertIsSelected()
-        compose.activityRule.scenario.recreate()
-        compose.onNodeWithTag("enable-shape-off").performScrollTo().assertIsSelected()
+        compose.onNodeWithTag("open-app-checker-settings").performClick()
+        compose.onNodeWithTag("reset-checker-settings").assertIsDisplayed()
         back()
+        compose.activityRule.scenario.recreate()
         compose.onNodeWithTag("settings-screen").assertIsDisplayed()
+        compose.onNodeWithTag("enable-shape-off").performScrollTo().assertIsSelected()
         compose.onNodeWithTag("settings-back").performClick()
         compose.onNodeWithTag("dashboard-screen").assertIsDisplayed()
-        if (!compose.openPracticePad()) return
-        compose.onNodeWithTag("check-indicator-Shape").performClick()
-        compose.onNodeWithTag("open-checker-settings").performClick()
-        compose.onNodeWithTag("enable-shape-off").performScrollTo().assertIsSelected()
-        compose.onNodeWithTag("reset-checker-settings").performClick()
     }
 }

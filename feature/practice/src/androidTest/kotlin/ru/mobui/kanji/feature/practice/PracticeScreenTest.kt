@@ -904,7 +904,7 @@ class PracticeScreenTest {
             vm.setActive(true)
             assertNull(vm.uiState.value.practice.result)
             assertTrue(vm.uiState.value.practice.timedOut)
-            assertTrue(vm.uiState.value.practice.readingHintUsed)
+            assertFalse(vm.uiState.value.practice.readingHintUsed)
             assertTrue(vm.uiState.value.readingRevealed)
             assertTrue(vm.uiState.value.practice.isResolved)
             assertEquals(5_000L, vm.uiState.value.practice.elapsedMs)
@@ -930,7 +930,7 @@ class PracticeScreenTest {
         compose.runOnIdle {
             assertEquals(1, deliveries)
             assertEquals(AnswerStatus.TimedOut, result!!.status)
-            assertTrue(result!!.readingHintUsed)
+            assertFalse(result!!.readingHintUsed)
             assertEquals(5_000L, result!!.elapsedMs)
         }
         compose.runOnIdle {

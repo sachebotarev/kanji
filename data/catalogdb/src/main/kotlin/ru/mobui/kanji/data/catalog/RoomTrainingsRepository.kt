@@ -118,10 +118,7 @@ internal class RoomTrainingsRepository(
                 training.taskCount,
                 training.secondsPerSymbol,
                 training.clueMode.key,
-                when (training.strokeHintMode) {
-                    ru.mobui.kanji.domain.practice.HintMode.NextStroke -> "next_stroke"
-                    ru.mobui.kanji.domain.practice.HintMode.FullCharacter -> "full_character"
-                },
+                training.strokeHintMode.storageKey,
                 training.status.key,
                 training.startedAt,
                 training.endedAt,

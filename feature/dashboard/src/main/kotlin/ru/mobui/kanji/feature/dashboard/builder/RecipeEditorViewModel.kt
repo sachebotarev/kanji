@@ -5,6 +5,8 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import java.util.UUID
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +24,6 @@ import ru.mobui.kanji.domain.catalog.DictionaryTag
 import ru.mobui.kanji.domain.catalog.RecipesRepository
 import ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
 import ru.mobui.kanji.domain.catalog.Recipe
-import ru.mobui.kanji.domain.catalog.RecipeStrokeHintMode
 import ru.mobui.kanji.domain.catalog.WordTagAssignment
 import ru.mobui.kanji.domain.catalog.validated
 
@@ -39,8 +40,7 @@ internal data class RecipeEditorState(
 internal class RecipeEditorViewModel(private val saved: SavedStateHandle, private val catalog: CatalogRepository,
     private val personal: PersonalDictionaryRepository, private val recipesRepository: RecipesRepository,
     private val recipeId: String?, private val copyFromId: String? = null,
-    private val copyName: (String) -> String = { it },
-    private val defaultStrokeHintMode: () -> RecipeStrokeHintMode = { RecipeStrokeHintMode.NextStroke }) : ViewModel() {
+    private val copyName: (String) -> String = { it }) : ViewModel() {
     private val id: String = recipeId ?: saved.get<String>("new-recipe-id")
         ?: UUID.randomUUID().toString().also { saved["new-recipe-id"] = it }
     private val mutable = MutableStateFlow(
@@ -56,6 +56,7 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
         if (!mutable.value.completed) retry()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         if (mutable.value.completed || mutable.value.saving) return
         loading?.cancel()
@@ -72,7 +73,7 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
                                 .also { saved["copy-initial"] = recipeBundle(it) }
                         }
                 } else if (recipeId == null) {
-                    Recipe(id, emptyList(), emptyList(), strokeHintMode = defaultStrokeHintMode())
+                    Recipe(id, emptyList(), emptyList())
                 } else recipesRepository.observeRecipes().first().firstOrNull { it.id == recipeId }
                 currentCoroutineContext().ensureActive()
                 if (initial == null) {
@@ -89,13 +90,15 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
                             assignments = assignments, loading = false, loadError = null) }
                     }
             } catch (cancelled: CancellationException) { throw cancelled }
-            catch (_: Exception) {
+            catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to load recipe $id", error)
                 currentCoroutineContext().ensureActive()
                 mutable.update { it.copy(loading = false, loadError = RecipeLoadError.Unavailable) }
             }
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun save(recipe: Recipe) {
         val current = mutable.value
         if (current.saving || current.completed) return
@@ -110,7 +113,14 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
             } catch (cancelled: CancellationException) {
                 mutable.update { it.copy(saving = false) }
                 throw cancelled
-            } catch (_: Exception) { mutable.update { it.copy(saving = false, writeError = true) } }
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to save recipe ${recipe.id}", error)
+                mutable.update { it.copy(saving = false, writeError = true) }
+            }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.RecipeEditor")
     }
 }

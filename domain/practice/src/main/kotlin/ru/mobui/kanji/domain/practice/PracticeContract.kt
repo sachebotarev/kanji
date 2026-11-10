@@ -28,8 +28,16 @@ enum class TaskClueMode(val key: String) {
     None("none");
 
     companion object {
-        fun fromKey(key: String?): TaskClueMode =
-            entries.firstOrNull { it.key == key } ?: Reading
+        /** Null or unknown keeps the training default. */
+        fun fromKey(key: String?): TaskClueMode {
+            if (key == null) return Reading
+            return when (key.trim().lowercase()) {
+                "translation" -> Translation
+                "reading" -> Reading
+                "none" -> None
+                else -> Reading
+            }
+        }
     }
 }
 

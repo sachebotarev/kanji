@@ -44,8 +44,16 @@ enum class RecipeHintMode(val key: String) {
     None("none");
 
     companion object {
-        fun fromKey(key: String?): RecipeHintMode =
-            entries.firstOrNull { it.key == key } ?: Reading
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): RecipeHintMode {
+            if (key == null) return Reading
+            return when (key.trim().lowercase()) {
+                "translation" -> Translation
+                "reading" -> Reading
+                "none" -> None
+                else -> Reading
+            }
+        }
     }
 }
 
@@ -54,8 +62,15 @@ enum class RecipeStrokeHintMode(val key: String) {
     FullCharacter("full_character");
 
     companion object {
-        fun fromKey(key: String?): RecipeStrokeHintMode =
-            entries.firstOrNull { it.key == key } ?: NextStroke
+        /** Null or unknown keeps the recipe default. */
+        fun fromKey(key: String?): RecipeStrokeHintMode {
+            if (key == null) return NextStroke
+            return when (key.trim().lowercase()) {
+                "next_stroke" -> NextStroke
+                "full_character", "full", "full_kanji" -> FullCharacter
+                else -> NextStroke
+            }
+        }
     }
 }
 

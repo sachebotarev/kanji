@@ -41,18 +41,22 @@ class RecipesTest {
         assertEquals(RecipeHintMode.Translation, withTranslation.hintMode)
         val withNone = recipe.copy(hintMode = RecipeHintMode.None)
         assertEquals(RecipeHintMode.None, withNone.hintMode)
+        assertEquals(RecipeHintMode.Reading, RecipeHintMode.fromKey(null))
         assertEquals(RecipeHintMode.Reading, RecipeHintMode.fromKey("unknown"))
-        assertEquals(RecipeHintMode.Translation, RecipeHintMode.fromKey("translation"))
-        assertEquals(RecipeHintMode.None, RecipeHintMode.fromKey("none"))
+        assertEquals(RecipeHintMode.Translation, RecipeHintMode.fromKey(" translation "))
+        assertEquals(RecipeHintMode.None, RecipeHintMode.fromKey("NONE"))
     }
 
     @Test fun recipeDefaultStrokeHintModeIsNextStrokeAndSupportsFullCharacter() {
         assertEquals(RecipeStrokeHintMode.NextStroke, recipe.strokeHintMode)
         val withFull = recipe.copy(strokeHintMode = RecipeStrokeHintMode.FullCharacter)
         assertEquals(RecipeStrokeHintMode.FullCharacter, withFull.strokeHintMode)
+        assertEquals(RecipeStrokeHintMode.NextStroke, RecipeStrokeHintMode.fromKey(null))
         assertEquals(RecipeStrokeHintMode.NextStroke, RecipeStrokeHintMode.fromKey("unknown"))
-        assertEquals(RecipeStrokeHintMode.NextStroke, RecipeStrokeHintMode.fromKey("next_stroke"))
-        assertEquals(RecipeStrokeHintMode.FullCharacter, RecipeStrokeHintMode.fromKey("full_character"))
+        assertEquals(RecipeStrokeHintMode.NextStroke, RecipeStrokeHintMode.fromKey(" next_stroke "))
+        assertEquals(RecipeStrokeHintMode.FullCharacter, RecipeStrokeHintMode.fromKey("FULL_CHARACTER"))
+        assertEquals(RecipeStrokeHintMode.FullCharacter, RecipeStrokeHintMode.fromKey("full"))
+        assertEquals(RecipeStrokeHintMode.FullCharacter, RecipeStrokeHintMode.fromKey("full_kanji"))
     }
     @Test fun tagTranslationsStayExtensibleAndRejectDuplicateLocales() {
         assertEquals("pt-BR", TagDraft(TagColor.Neutral, listOf(TagTranslation("pt-br", " Viagem "))).validated().translations.single().languageTag)

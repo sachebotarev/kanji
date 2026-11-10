@@ -78,6 +78,14 @@ class TrainingGradeTest {
         assertEquals("Smart mix", training.summarize("en").recipeName)
     }
 
+    @Test
+    fun summarizeUsesMaxNextStrokeHintsFromTraining() {
+        val t = training(task(TrainingTaskStatus.Assisted, hintCount = 1)).copy(maxNextStrokeHints = 2)
+        val summary = t.summarize()
+        assertEquals(50, summary.percent)
+        assertEquals(TrainingGradeLevel.KeepGoing, summary.grade)
+    }
+
     private fun task(
         status: TrainingTaskStatus,
         hintCount: Int = 0,

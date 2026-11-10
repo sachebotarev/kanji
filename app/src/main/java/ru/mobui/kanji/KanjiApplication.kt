@@ -1,6 +1,11 @@
 package ru.mobui.kanji
 
 import android.app.Application
+import android.util.Log
+import java.util.logging.Handler
+import java.util.logging.Level
+import java.util.logging.LogRecord
+import java.util.logging.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -21,6 +26,7 @@ class KanjiApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        bridgeAppLogs()
         japaneseModel.load()
     }
 
@@ -43,4 +49,33 @@ class KanjiApplication : Application() {
     val recognitionSettings: RecognitionSettingsRepository by lazy {
         DataStoreRecognitionSettingsRepository(this)
     }
+}
+
+/** Routes java.util.logging output from app, domain and feature components to android.util.Log. */
+private fun bridgeAppLogs() {
+    val handler = AppLogHandler()
+    for (name in listOf("ru.mobui.kanji", "CombinedKanjiChecker")) {
+        val logger = Logger.getLogger(name)
+        logger.useParentHandlers = false
+        if (logger.handlers.none { it is AppLogHandler }) logger.addHandler(handler)
+    }
+}
+
+private class AppLogHandler : Handler() {
+    override fun publish(record: LogRecord) {
+        if (!isLoggable(record)) return
+        val priority = when {
+            record.level.intValue() >= Level.SEVERE.intValue() -> Log.ERROR
+            record.level.intValue() >= Level.WARNING.intValue() -> Log.WARN
+            record.level.intValue() >= Level.INFO.intValue() -> Log.INFO
+            else -> Log.DEBUG
+        }
+        val tag = record.loggerName?.substringAfterLast('.') ?: "KanjiApp"
+        Log.println(priority, tag, record.message.orEmpty())
+        record.thrown?.let { Log.println(priority, tag, Log.getStackTraceString(it)) }
+    }
+
+    override fun flush() = Unit
+
+    override fun close() = Unit
 }

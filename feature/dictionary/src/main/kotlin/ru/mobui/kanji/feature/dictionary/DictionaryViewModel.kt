@@ -3,6 +3,8 @@ package ru.mobui.kanji.feature.dictionary
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.util.logging.Level
+import java.util.logging.Logger
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -90,6 +92,7 @@ internal class DictionaryViewModel(
         mutable.update { it.copy(query = value) }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         observation?.cancel()
         observation = viewModelScope.launch {
@@ -109,7 +112,8 @@ internal class DictionaryViewModel(
                 }
             } catch (cancelled: CancellationException) {
                 throw cancelled
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to load dictionary", error)
                 mutable.update { it.copy(loading = false, error = true) }
             }
         }
@@ -130,6 +134,7 @@ internal class DictionaryViewModel(
         mutable.update { it.copy(operationError = null, storageError = false, deletedId = null) }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun delete(id: Int) {
         if (mutable.value.busy) return
         mutable.update { it.copy(busy = true, operationError = null, storageError = false) }
@@ -142,10 +147,15 @@ internal class DictionaryViewModel(
                 throw cancelled
             } catch (failure: DictionaryException) {
                 mutable.update { it.copy(busy = false, operationError = failure.failure) }
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Dictionary write failed", error)
                 mutable.update { it.copy(busy = false, storageError = true) }
             }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.Dictionary")
     }
 }
 
@@ -192,6 +202,7 @@ internal class WordEditorViewModel(
         retry()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun retry() {
         if (mutable.value.busy) return
         loadJob?.cancel()
@@ -242,7 +253,8 @@ internal class WordEditorViewModel(
                 throw cancelled
             } catch (failure: DictionaryException) {
                 mutable.update { it.copy(loading = false, failure = failure.failure) }
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Failed to load word", error)
                 mutable.update { it.copy(loading = false, loadError = true) }
             }
         }
@@ -305,6 +317,7 @@ internal class WordEditorViewModel(
         )
     }
 
+    @Suppress("TooGenericExceptionCaught")
     fun save() {
         if (mutable.value.busy || mutable.value.loading || mutable.value.original == null) return
         val draft = mutable.value.draft
@@ -324,10 +337,15 @@ internal class WordEditorViewModel(
                 throw cancelled
             } catch (failure: DictionaryException) {
                 mutable.update { it.copy(busy = false, failure = failure.failure) }
-            } catch (_: Exception) {
+            } catch (error: Exception) {
+                logger.log(Level.SEVERE, "Dictionary write failed", error)
                 mutable.update { it.copy(busy = false, storageError = true) }
             }
         }
+    }
+
+    private companion object {
+        val logger: Logger = Logger.getLogger("ru.mobui.kanji.Dictionary")
     }
 }
 

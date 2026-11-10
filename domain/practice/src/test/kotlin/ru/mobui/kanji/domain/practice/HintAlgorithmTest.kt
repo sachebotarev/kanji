@@ -58,4 +58,20 @@ class HintAlgorithmTest {
             )
         assertNull(hintAlgorithmFor(HintMode.NextStroke).create(HintRequest(sample, reference)))
     }
+
+    @Test
+    fun fromKeyIsResilientWithFallbackAndAliases() {
+        assertEquals(HintMode.NextStroke, HintMode.fromKey(null))
+        assertEquals(HintMode.NextStroke, HintMode.fromKey("unknown"))
+        assertEquals(HintMode.NextStroke, HintMode.fromKey(" next_stroke "))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("FULL_CHARACTER"))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("full"))
+        assertEquals(HintMode.FullCharacter, HintMode.fromKey("full_kanji"))
+
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(null))
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey("unknown"))
+        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(" reading "))
+        assertEquals(TaskClueMode.Translation, TaskClueMode.fromKey("TRANSLATION"))
+        assertEquals(TaskClueMode.None, TaskClueMode.fromKey("none"))
+    }
 }
