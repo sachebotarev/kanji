@@ -8,7 +8,7 @@
 - [Экранные контракты](../design-system/05-screens/catalog/README.md).
 - [Токены](../design-system/03-foundations/README.md), [компоненты](../design-system/04-components/README.md), [UX](../design-system/02-ux/README.md).
 - [Архитектура](../architecture.md), [presentation каталога](../decisions/catalog-presentation.md), [локализация](localization.md).
-- [Хранение](catalog.md), [содержимое](../imports/main-content/README.md), [последние нативные проверки](../verification/catalog/refactor-2026-11-02/README.md).
+- [Хранение](catalog.md), [содержимое](../imports/main-content/README.md), [последние нативные проверки](../releases/1.0.0.md).
 
 ## Модули и ответственность
 
@@ -54,6 +54,6 @@
 
 ## Проверка и согласование
 
-Проверки текущего переноса описаны в [отчёте Material-реализации](../verification/catalog/material-implementation.md). Предыдущие нативные тесты и снимки — в [отчёте рефакторинга](../verification/catalog/refactor-2026-11-02/README.md). HTML-проверки подтверждают соответствие содержимого и маршрутов макета, но не доказывают работу IME, TalkBack и восстановления процесса.
+Проверки текущего переноса описаны в [отчёте Material-реализации](../verification/catalog/material-implementation.md). Предыдущие нативные тесты и снимки — в [отчёте рефакторинга](../releases/1.0.0.md). HTML-проверки подтверждают соответствие содержимого и маршрутов макета, но не доказывают работу IME, TalkBack и восстановления процесса.
 
 Все 17 экранов обновлённого дизайна согласованы пользователем 2026-11-03, включая наследуемые состояния по правилам реестра. Исходные изображения предыдущей редакции остаются материалом сравнения. Границы выполненных технических проверок определяются отчётами, а не статусом дизайна.

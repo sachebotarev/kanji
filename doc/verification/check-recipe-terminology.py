@@ -19,8 +19,8 @@ for module in ('app', 'core', 'domain', 'data', 'feature'):
         found = re.findall(r'\b(?:' + '|'.join(OLD_TYPES) + r')\b', path.read_text())
         if found:
             errors.append(f'{path.relative_to(ROOT)}: {found}')
-schema = json.loads((ROOT / 'data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/7.json').read_text())['database']
-assert schema['version'] == 7
+schema = json.loads((ROOT / 'data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/1.json').read_text())['database']
+assert schema['version'] == 1
 entities = {entity['tableName']: entity for entity in schema['entities']}
 required = {'recipes', 'recipes_translations', 'recipe_materials'} | {
     f'recipe_materials_{suffix}' for suffix in ('chapters', 'kanji', 'words', 'tags')
@@ -44,4 +44,4 @@ for locale in ('values', 'values-en'):
     assert not any('session' in key for key in strings if key)
 if errors:
     raise SystemExit('\n'.join(errors))
-print(f'OK: Recipe domain, Room v7/{len(entities)} tables, material FKs, trainings, RU/EN recipe/training terms')
+print(f'OK: Recipe domain, Room 1/{len(entities)} tables, material FKs, trainings, RU/EN recipe/training terms')

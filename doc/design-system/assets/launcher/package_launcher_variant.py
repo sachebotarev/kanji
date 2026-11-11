@@ -8,12 +8,12 @@ from PIL import Image, ImageDraw, ImageChops, ImageOps
 ROOT = Path(__file__).resolve().parents[4]
 DESIGN = Path(__file__).resolve().parent
 parser = argparse.ArgumentParser(description=__doc__)
-parser.add_argument("variant", choices=("cat",))
+parser.add_argument("variant", choices=("cat", "jade", "dark"))
 args = parser.parse_args()
-NAME = "cat-v2"
+NAME = {"cat": "cat-v2", "jade": "cat-jade-v3", "dark": "cat-dark-v4"}[args.variant]
 OUTPUT = DESIGN / "generated" / args.variant
 RES = OUTPUT / "res"
-BACKGROUND = "#A9D9CA"
+BACKGROUND = {"cat": "#A9D9CA", "jade": "#D6E8DC", "dark": "#0E1510"}[args.variant]
 
 def build():
     (RES / "drawable-nodpi").mkdir(parents=True, exist_ok=True)
@@ -23,12 +23,12 @@ def build():
     radius = max(math.hypot(x - cx, y - cy)
                  for y in range(subject.height) for x in range(subject.width)
                  if subject.getpixel((x, y))[3] > 16)
-    scale = (142 if args.variant == "cat" else 130) / radius
+    scale = 142 / radius
     subject = subject.resize((round(subject.width * scale), round(subject.height * scale)), Image.Resampling.LANCZOS)
     foreground = Image.new("RGBA", (432, 432))
     # Align the cat's face/body axis rather than the asymmetric hooked tail bounds.
     x = (432 - subject.width) // 2
-    if args.variant == "cat":
+    if args.variant in ("cat", "jade", "dark"):
         alpha = subject.getchannel("A")
         masses = [sum(alpha.getpixel((column, row)) for row in range(subject.height))
                   for column in range(subject.width)]

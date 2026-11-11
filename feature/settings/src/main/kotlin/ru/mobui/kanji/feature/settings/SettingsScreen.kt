@@ -28,6 +28,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,8 +65,11 @@ fun SettingsScreen(
     modelLoaded: Boolean = false,
     modelLoading: Boolean = false,
     onDownloadModel: () -> Unit = {},
-    onClearTrainingHistory: () -> Unit = {},
+    onClearTrainingHistory: suspend () -> Boolean = { true },
 ) {
+    val operationScope = rememberCoroutineScope()
+    var clearing by remember { mutableStateOf(false) }
+    var clearError by remember { mutableStateOf(false) }
     var confirmClearHistory by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(modifier.testTag("settings-screen")) { insets ->
@@ -234,7 +239,7 @@ fun SettingsScreen(
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     KanjiSectionTitle(stringResource(R.string.settings_group_data))
                     ClearTrainingHistoryEntry(
-                        onClick = { confirmClearHistory = true },
+                        onClick = { clearError = false; confirmClearHistory = true },
                         Modifier.fillMaxWidth(),
                     )
                 }
@@ -245,12 +250,20 @@ fun SettingsScreen(
     if (confirmClearHistory) {
         KanjiDeleteConfirmDialog(
             title = stringResource(R.string.settings_clear_history_title),
-            message = stringResource(R.string.settings_clear_history_message),
+            message = stringResource(if (clearError) R.string.settings_clear_history_failed else R.string.settings_clear_history_message),
             onConfirm = {
-                confirmClearHistory = false
-                onClearTrainingHistory()
+                if (!clearing) {
+                    clearing = true
+                    operationScope.launch {
+                        try {
+                            val success = onClearTrainingHistory()
+                            clearError = !success
+                            if (success) confirmClearHistory = false
+                        } finally { clearing = false }
+                    }
+                }
             },
-            onDismiss = { confirmClearHistory = false },
+            onDismiss = { clearError = false; confirmClearHistory = false },
             confirmText = stringResource(R.string.settings_clear_history_confirm),
             dismissText = stringResource(R.string.settings_cancel),
             confirmTag = "clear-training-history-confirm",

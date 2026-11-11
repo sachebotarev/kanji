@@ -115,6 +115,8 @@ enum class CheckVerdict {
 
 /** Main-safe implementation supplied by the caller. No recognition is done by UI widgets. */
 sealed interface CheckFailure {
+    data object StrokeCorrespondence : CheckFailure
+
     data class KanjiRules(val violations: List<KanjiRuleViolation>) : CheckFailure
 
     data class RuleConfiguration(val expectedStrokeCount: Int, val actualStrokeCount: Int) :

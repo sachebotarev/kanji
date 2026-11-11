@@ -138,14 +138,15 @@ internal class CatalogInstaller(
             dao.sources().filter { it.id > 0 && it.sourceType != "personal" }.map { it.id }
         dao.clearLinks(oldSourceIds)
         dao.clearPlacements(oldSourceIds)
-        dao.putRadicals(parseRadicals(root))
+        val radicals = parseRadicals(root)
+        radicals.map { it.id }.chunked(SQL_ID_BATCH_SIZE).forEach { dao.clearRadicalTranslations(it) }
+        words.map { it.id }.chunked(SQL_ID_BATCH_SIZE).forEach { dao.clearWordsTranslations(it) }
+        sources.map { it.id }.chunked(SQL_ID_BATCH_SIZE).forEach { dao.clearSourcesTranslations(it) }
+        kanji.map { it.id }.chunked(SQL_ID_BATCH_SIZE).forEach { dao.clearKanjiTranslations(it) }
+        dao.putRadicals(radicals)
         dao.putRadicalsTranslations(parseRadicalsTranslations(root))
         dao.putKanji(kanji)
         kanji.map { it.id }.chunked(SQL_ID_BATCH_SIZE).forEach { dao.clearReadings(it) }
-        parseKanjiTranslations(root)
-            .map { it.kanjiId to it.languageTag }
-            .distinct()
-            .forEach { (id, language) -> dao.clearMeanings(id, language) }
         dao.putKanjiTranslations(parseKanjiTranslations(root))
         dao.putKanjiReadings(parseKanjiReadings(root))
         dao.putWords(words)

@@ -1,6 +1,6 @@
 # Тренировки: модель хранения выполнения
 
-Статус: **схема и host PRACTICE подключены**. Room v9 (`CatalogDatabase`); DDL — [trainings.sql](trainings.sql); экспорт — [9.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/9.json). Domain: `TrainingsRepository` в `:domain:practice`; реализация — `RoomTrainingsRepository` в `:data:catalogdb`. Очередь слов — `shuffledCycles` (`shuffled_cycles`) из рецепта; host пишет прогресс на старт / границу задания / interrupt / complete, без записи на каждый штрих (`TrainingPersistence` на IO). Resume UI и история тренировок — отдельные задачи. Миграций нет: невыпущенная база пересоздаётся.
+Статус: **схема и host PRACTICE подключены**. Room 1 (`CatalogDatabase`); DDL — [trainings.sql](trainings.sql); экспорт — [1.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/1.json). Domain: `TrainingsRepository` в `:domain:practice`; реализация — `RoomTrainingsRepository` в `:data:catalogdb`. Очередь слов — `shuffledCycles` (`shuffled_cycles`) из рецепта; host пишет прогресс на старт / границу задания / interrupt / complete, без записи на каждый штрих (`TrainingPersistence` на IO). Resume UI и история тренировок — отдельные задачи. Все последующие изменения требуют миграций с сохранением данных.
 
 Термины: [глоссарий](../glossary.md). Рецепт хранит конфигурацию ([recipes.md](recipes.md)); тренировка — конкретное выполнение. Экран одного задания: [practice-screen.md](../implementation/practice-screen.md). Проверки формы: [shape-checker.md](../implementation/shape-checker.md).
 
@@ -140,6 +140,6 @@ trainings
 
 ## Границы этапа
 
-Room-хранилище, генератор очереди (`shuffled_cycles`) и персистентный host PRACTICE подключены. Очистка всей истории — `TrainingsRepository.clearHistory` из настроек (SETTINGS.W04 / SETTINGS.D01). UI списка истории и resume после убийства процесса — отдельные задачи. Справочный `python3 doc/database/test_builder_schema.py` проверяет DDL рецептов без таблиц тренировок; Room-проверки — инструментальные тесты `TrainingsStorageTest`.
+Room-хранилище, генератор очереди (`shuffled_cycles`) и персистентный host PRACTICE подключены. Очистка всей истории — `TrainingsRepository.clearHistory` из настроек (SETTINGS.W04 / SETTINGS.D01). Список истории и восстановление подключены; Room-проверки — инструментальные тесты `TrainingsStorageTest`.
 
-Схема 13: миграция 12→13 сохраняет таблицы и данные, обновляет ограничения вердиктов и восстанавливает частичные индексы после проверки схемы Room. [Решение](../decisions/shape-soft-acceptance.md).
+Исходная схема 1 содержит ограничения вердиктов и частичные индексы; будущие изменения требуют миграций. [Решение](../decisions/shape-soft-acceptance.md).

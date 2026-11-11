@@ -170,7 +170,6 @@ fun PracticeScreen(
         PracticeDetails(context, openCheck!!, { openCheck = null })
     }
     if (openHintDetails && !state.gestureActive) {
-        val cell = selected
         val used = state.practice.totalHintCount
         val max = state.maxNextStrokeHints
         val exhausted = (max in 1..used) || state.practice.cells.any { it.strokeHintsExhausted }
@@ -223,6 +222,7 @@ internal fun PracticeFeedback(state: PracticeUiState) {
         when {
             state.notice == PracticeNotice.CheckerUnavailable -> R.string.checker_unavailable
             state.practice.cells.any { it.referenceUnavailable } -> R.string.reference_unavailable
+            state.notice == PracticeNotice.Incomplete -> R.string.check_incomplete
             else -> null
         }
     notice?.let {

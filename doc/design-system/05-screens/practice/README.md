@@ -38,7 +38,7 @@
 
 ## Контракты и проверки
 
-[Компоненты UI-*](../../04-components/practice.md), [контракт задания и результата](../../../implementation/practice-screen.md), [оценка тренировки](../../../implementation/training-grade.md), [поле](../../../implementation/ui-pad.md), [подсказка](../../../implementation/hints.md), [таймер](../../../implementation/task-timer.md), [снимки](../../01-audit/captures/2026-11-01/index.html).
+[Компоненты UI-*](../../04-components/practice.md), [контракт задания и результата](../../../implementation/practice-screen.md), [оценка тренировки](../../../implementation/training-grade.md), [поле](../../../implementation/ui-pad.md), [подсказка](../../../implementation/hints.md), [таймер](../../../implementation/task-timer.md), [снимки](../../../releases/1.0.0.md).
 
 ## Компактная обратная связь PRACTICE
 

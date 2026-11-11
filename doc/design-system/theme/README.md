@@ -28,7 +28,7 @@ npm run build --prefix doc/design-system/theme
 
 Нативные текстовые, поисковые, числовые и многострочные поля, включая диалоги, используют `shape = MaterialTheme.inputShape` из `core:designsystem`. Макеты используют общий токен в `material-components.css`. Чекбоксы, радиокнопки, слайдеры и выбор цвета не получают форму текстового поля. Локальные числовые радиусы полей не добавлять.
 
-Проверка синхронизации и всех нативных вызовов: `python3 doc/verification/check-input-shapes.py`. [Проверки и кадры](../../verification/input-shapes.md).
+Проверка синхронизации и всех нативных вызовов: `python3 doc/verification/check-input-shapes.py`. [Проверки и кадры](../../releases/1.0.0.md).
 
 ## Изменить статусы
 
@@ -42,7 +42,7 @@ npm run build --prefix doc/design-system/theme
 
 Тональные палитры HCT строятся официальной библиотекой `@material/material-color-utilities` 0.4.0. Нейтральные палитры выводятся из hue Primary; chroma задаётся `neutral_chroma` / `neutral_variant_chroma`. Тон `primary-container` можно смягчить через `primary_container_tones` (light/dark), не меняя key colors. Базовые light-цвета primary/secondary/tertiary/error совпадают с выбранными key colors; остальные тона вычисляются. После `npm run build` синхронизировать `KanjiTheme.kt` с `material-theme.json`. Если при ручной настройке пара текста и заливки теряет контраст, редактор показывает предупреждение. Он не выдаёт любой произвольный цвет за гарантированно доступный.
 
-Пакет 0.4.0 имеет некорректный extensionless import в неиспользуемом dynamic-color entrypoint; импортированы непосредственно официальные `TonalPalette`, `Hct` и string utilities. Локальная сборка через esbuild 0.28.2 не меняет зависимости Android. Лицензия Apache-2.0 включена в `material-colors.js.LEGAL.txt`. Проверки и снимки — [отчёт](../../verification/material-theme/README.md).
+Пакет 0.4.0 имеет некорректный extensionless import в неиспользуемом dynamic-color entrypoint; импортированы непосредственно официальные `TonalPalette`, `Hct` и string utilities. Локальная сборка через esbuild 0.28.2 не меняет зависимости Android. Лицензия Apache-2.0 включена в `material-colors.js.LEGAL.txt`. Проверки и снимки — [отчёт](../../releases/1.0.0.md).
 
 ## Единая навигация
 

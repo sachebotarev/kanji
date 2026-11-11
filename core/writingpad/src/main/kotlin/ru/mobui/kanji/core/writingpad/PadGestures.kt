@@ -60,17 +60,7 @@ internal suspend fun PointerInputScope.capturePadGestures(
     val touchSlop = viewConfiguration.touchSlop
     val doubleTapTimeout = viewConfiguration.doubleTapTimeoutMillis
     val longPressTimeout = viewConfiguration.longPressTimeoutMillis
-    var lastTwoFingerTapTime = 0L
-    var pendingUndoJob: Job? = null
-
-    fun flushPendingUndo() {
-        if (pendingUndoJob?.isActive == true) {
-            pendingUndoJob?.cancel()
-            pendingUndoJob = null
-            lastTwoFingerTapTime = 0L
-            publish(PadEvent.UndoRequested)
-        }
-    }
+    val taps = TwoFingerTaps(this, doubleTapTimeout, publish)
 
     try {
         awaitEachGesture {
@@ -87,23 +77,7 @@ internal suspend fun PointerInputScope.capturePadGestures(
                 initialPressed.forEach { it.consume() }
                 val isTap = trackTwoFingerTap(bounds, touchSlop)
                 if (isTap) {
-                    val now = SystemClock.uptimeMillis()
-                    if (lastTwoFingerTapTime > 0L && (now - lastTwoFingerTapTime) <= doubleTapTimeout) {
-                        pendingUndoJob?.cancel()
-                        pendingUndoJob = null
-                        lastTwoFingerTapTime = 0L
-                        publish(PadEvent.ClearRequested)
-                    } else {
-                        lastTwoFingerTapTime = now
-                        pendingUndoJob?.cancel()
-                        pendingUndoJob = launch {
-                            delay(doubleTapTimeout)
-                            if (lastTwoFingerTapTime == now) {
-                                lastTwoFingerTapTime = 0L
-                                publish(PadEvent.UndoRequested)
-                            }
-                        }
-                    }
+                    taps.accept()
                 }
                 return@awaitEachGesture
             }
@@ -128,28 +102,12 @@ internal suspend fun PointerInputScope.capturePadGestures(
                         bounds = bounds,
                         touchSlop = touchSlop,
                         publish = publish,
-                        flushPendingUndo = ::flushPendingUndo,
+                        flushPendingUndo = taps::flush,
                         cancelLongPress = { longPressJob.cancel() },
                         isLongPressTriggered = { longPressTriggered },
                     )
                 if (result == StrokeResult.TwoFingerTap) {
-                    val now = SystemClock.uptimeMillis()
-                    if (lastTwoFingerTapTime > 0L && (now - lastTwoFingerTapTime) <= doubleTapTimeout) {
-                        pendingUndoJob?.cancel()
-                        pendingUndoJob = null
-                        lastTwoFingerTapTime = 0L
-                        publish(PadEvent.ClearRequested)
-                    } else {
-                        lastTwoFingerTapTime = now
-                        pendingUndoJob?.cancel()
-                        pendingUndoJob = launch {
-                            delay(doubleTapTimeout)
-                            if (lastTwoFingerTapTime == now) {
-                                lastTwoFingerTapTime = 0L
-                                publish(PadEvent.UndoRequested)
-                            }
-                        }
-                    }
+                    taps.accept()
                 }
             } finally {
                 longPressJob.cancel()
@@ -158,7 +116,44 @@ internal suspend fun PointerInputScope.capturePadGestures(
             }
         }
     } finally {
-        flushPendingUndo()
+        taps.flush()
+    }
+}
+
+private class TwoFingerTaps(
+    private val scope: kotlinx.coroutines.CoroutineScope,
+    private val timeout: Long,
+    private val publish: (PadEvent) -> Unit,
+) {
+    private var lastTap = 0L
+    private var pending: Job? = null
+
+    fun flush() {
+        if (pending?.isActive == true) {
+            pending?.cancel()
+            pending = null
+            lastTap = 0L
+            publish(PadEvent.UndoRequested)
+        }
+    }
+
+    fun accept() {
+        val now = SystemClock.uptimeMillis()
+        pending?.cancel()
+        if (lastTap > 0L && now - lastTap <= timeout) {
+            pending = null
+            lastTap = 0L
+            publish(PadEvent.ClearRequested)
+        } else {
+            lastTap = now
+            pending = scope.launch {
+                delay(timeout)
+                if (lastTap == now) {
+                    lastTap = 0L
+                    publish(PadEvent.UndoRequested)
+                }
+            }
+        }
     }
 }
 
@@ -306,16 +301,12 @@ private suspend fun AwaitPointerEventScope.trackTwoFingerTap(
             return false
         }
         for (change in changes) {
-            if (change.id == p0Id) {
-                val dx = change.position.x - p0Start.x
-                val dy = change.position.y - p0Start.y
-                if (dx * dx + dy * dy > maxSlopSq) return false
+            val start = when (change.id) {
+                p0Id -> p0Start
+                p1Id -> p1Start
+                else -> null
             }
-            if (change.id == p1Id) {
-                val dx = change.position.x - p1Start.x
-                val dy = change.position.y - p1Start.y
-                if (dx * dx + dy * dy > maxSlopSq) return false
-            }
+            if (start != null && (change.position - start).getDistanceSquared() > maxSlopSq) return false
             change.consume()
         }
         if (changes.none { it.pressed }) {

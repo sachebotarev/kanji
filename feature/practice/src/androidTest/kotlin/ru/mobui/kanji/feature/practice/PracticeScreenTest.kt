@@ -1037,6 +1037,12 @@ class PracticeScreenTest {
                 result = it
             }
             assertEquals(1, deliveries)
+            vm.retryResultDelivery()
+            vm.deliverResult { deliveries++ }
+            assertEquals(2, deliveries)
+            vm.acknowledgeResult()
+            vm.deliverResult { deliveries++ }
+            assertEquals(2, deliveries)
         }
     }
 
@@ -1318,7 +1324,9 @@ class PracticeScreenTest {
                     CheckVerdict.Correct,
                     checks = listOf(
                         ru.mobui.kanji.domain.practice.IndividualCheckResult(CheckKind.Readability, CheckVerdict.Correct),
-                        ru.mobui.kanji.domain.practice.IndividualCheckResult(CheckKind.Shape, CheckVerdict.Correct, matchPercent = 75f, acceptedWithPenalty = true),
+                        ru.mobui.kanji.domain.practice.IndividualCheckResult(
+                            CheckKind.Shape, CheckVerdict.Correct, matchPercent = 75f, acceptedWithPenalty = true,
+                        ),
                         ru.mobui.kanji.domain.practice.IndividualCheckResult(CheckKind.StrokeWriting, CheckVerdict.Correct),
                     ),
                     acceptedWithPenalty = true,

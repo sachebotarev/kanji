@@ -34,7 +34,7 @@
 
 ## Реализация
 
-DashboardScreen состоит из независимых виджетов. Число личных записей — из реального репозитория; `HOME.W02` (день) и `HOME.W03` (активность) — из завершённых заданий ([день](../../../implementation/home-word-stats.md), [активность](../../../implementation/home-activity.md)). Отдельные входы открывают учебники, справочники и личный словарь; [проверки маршрутов](../../../verification/library-sections-android.md).
+DashboardScreen состоит из независимых виджетов. Число личных записей — из реального репозитория; `HOME.W02` (день) и `HOME.W03` (активность) — из завершённых заданий ([день](../../../implementation/home-word-stats.md), [активность](../../../implementation/home-activity.md)). Отдельные входы открывают учебники, справочники и личный словарь; [проверки маршрутов](../../../releases/1.0.0.md).
 
 Android: запуск и рецепты тренировок разделены; `HOME.01` и `HOME.D03` подключены; empty-state выбора ведёт в создание рецепта.
 
@@ -42,8 +42,8 @@ Android: запуск и рецепты тренировок разделены;
 
 Визуальный эталон — текущий HTML-макет и согласованные PNG. Переносить по спецификации.
 
-[HTML](../../prototypes/web/index.html#home), [выбор рецепта](../../prototypes/web/index.html#training-pick), [история](../../prototypes/web/index.html#training-history), [снимок empty-state](../../01-audit/captures/training-pick-empty-2026-11-07.png).
+[HTML](../../prototypes/web/index.html#home), [выбор рецепта](../../prototypes/web/index.html#training-pick), [история](../../prototypes/web/index.html#training-history), [снимок empty-state](../../../releases/1.0.0.md).
 
 ## Ограничения
 
-`HOME.W02` и `HOME.W03` на реальных заданиях на главной; экран истории пока только HTML-черновик. Тон HOME: рецепты и словари остаются разными паттернами контейнеров; выравнивание — через тему (`material-jade-tone-unify-2026-11-07`). Снимок: [`home-tone-after-2026-11-07.png`](../../01-audit/captures/home-tone-after-2026-11-07.png).
+`HOME.W02` и `HOME.W03` на реальных заданиях на главной; экран истории пока только HTML-черновик. Тон HOME: рецепты и словари остаются разными паттернами контейнеров; выравнивание — через тему (`material-jade-tone-unify-2026-11-07`). Снимок: [`home-tone-after-2026-11-07.png`](../../../releases/1.0.0.md).

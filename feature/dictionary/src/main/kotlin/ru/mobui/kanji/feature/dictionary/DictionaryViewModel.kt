@@ -98,11 +98,11 @@ internal class DictionaryViewModel(
         observation = viewModelScope.launch {
             mutable.update { it.copy(loading = true, error = false) }
             try {
-                val snapshot = catalog.load()
                 kotlinx.coroutines.flow.combine(repository.observeWords(), recipesRepository.observeTags(), recipesRepository.observeWordTags()) { words, tags,
                     assignments ->
                     Triple(words, tags, assignments.associate { it.wordId to it.tagIds })
                 }.collect { (words, tags, assignments) ->
+                    val snapshot = catalog.load()
                     val ids = mutable.value.tagIds.intersect(tags.map { it.id }.toSet())
                     val kanji = mutable.value.kanjiIds.intersect(words.flatMap { snapshot.literalKanji(it) }.map { it.id }.toSet())
                     saved["tag-filter"] = ids.toLongArray()

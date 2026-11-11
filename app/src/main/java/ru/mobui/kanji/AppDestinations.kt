@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.core.util.Consumer
+import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -84,7 +85,7 @@ internal data class AppModels(
 
 internal data class DemoPracticeGraph(
     val source: BundledKanjiReferenceSource,
-    val factory: (PracticeTask) -> ViewModelProvider.Factory,
+    val factory: (PracticeTask, Int) -> ViewModelProvider.Factory,
 )
 
 internal class AppUiContext(
@@ -126,22 +127,60 @@ internal fun MainContent(
     }
     val loaded by settingsModel.loaded.collectAsStateWithLifecycle()
     val storageError by settingsModel.storageError.collectAsStateWithLifecycle()
-    if (!loaded || storageError) {
+    if (!loaded) {
         SettingsStorageStatus(storageError, settingsModel::retryStorage)
         return
     }
+    if (storageError) {
+        ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+            title = stringResource(R.string.settings_storage_write_title),
+            message = stringResource(R.string.settings_storage_write_body),
+            onDismiss = settingsModel::retryStorage,
+            buttonText = stringResource(R.string.settings_storage_retry),
+        )
+    }
     val nav = rememberNavController()
-    var activeTraining by remember { mutableStateOf<ActiveTraining?>(null) }
-    // Exit transition still composes Practice after pop; block resume of in_progress there.
-    var suppressPracticeResume by remember { mutableStateOf(false) }
+    var persistedTrainingId by rememberSaveable { mutableStateOf<String?>(null) }
     val trainingPersistence =
         remember(dependencies) {
-            TrainingPersistence(dependencies.trainingsRepository, dependencies.persistenceScope)
+            dependencies.trainingPersistence
         }
+    val session: TrainingSessionViewModel = viewModel(factory = androidx.lifecycle.viewmodel.viewModelFactory {
+        initializer { TrainingSessionViewModel(trainingPersistence, dependencies.persistenceScope) }
+    })
+    val sessionState by session.state.collectAsStateWithLifecycle()
+    val activeTraining = sessionState.active
+    val suppressPracticeResume = sessionState.suppressResume
     val savedSettings by settingsModel.settings.collectAsStateWithLifecycle()
     val modelReady = modelStatus == JapaneseModelStatus.Ready
     val context = AppUiContext(dependencies, models, graph, modelStatus, savedSettings)
-    HandleAppDeepLinks(nav)
+    HandleAppDeepLinks { intent ->
+        if (intent.action == Intent.ACTION_VIEW && intent.data?.toString()?.substringBefore('?')?.trimEnd('/') in hubLinks) {
+            session.requestHubLink(requireNotNull(intent.data).toString())
+        }
+    }
+    val hubLink = sessionState.pendingHubLink
+    LaunchedEffect(hubLink, activeTraining) {
+        if (hubLink != null && activeTraining == null) {
+            nav.openHubLink(Intent(Intent.ACTION_VIEW, android.net.Uri.parse(hubLink)))
+            session.cancelHubLink()
+            persistedTrainingId = null
+        }
+    }
+    var linkNoticeDismissed by rememberSaveable(hubLink) { mutableStateOf(false) }
+    if (hubLink != null && activeTraining != null && !linkNoticeDismissed && !sessionState.saveFailed) {
+        AlertDialog(
+            onDismissRequest = { linkNoticeDismissed = true },
+            title = { Text(stringResource(R.string.hub_link_pending_title)) },
+            text = { Text(stringResource(R.string.hub_link_pending_body)) },
+            confirmButton = { TextButton(onClick = { linkNoticeDismissed = true }) {
+                Text(stringResource(R.string.hub_link_continue))
+            } },
+            dismissButton = { TextButton(onClick = session::cancelHubLink) {
+                Text(stringResource(R.string.hub_link_cancel))
+            } },
+        )
+    }
     NavHost(nav, startDestination = Dashboard) {
         composable<Dashboard>(
             deepLinks = listOf(navDeepLink<Dashboard>(basePath = AppDeepLinks.HOME)),
@@ -150,8 +189,8 @@ internal fun MainContent(
                 context,
                 nav,
                 onActiveTrainingChange = {
-                    suppressPracticeResume = false
-                    activeTraining = it
+                    persistedTrainingId = it?.training?.id
+                    session.activate(it)
                 },
             )
         }
@@ -162,8 +201,8 @@ internal fun MainContent(
                 context,
                 nav,
                 onActiveTrainingChange = {
-                    suppressPracticeResume = false
-                    activeTraining = it
+                    persistedTrainingId = it?.training?.id
+                    session.activate(it)
                 },
                 trainingPersistence = trainingPersistence,
             )
@@ -172,27 +211,32 @@ internal fun MainContent(
             val training = activeTraining
             if (training == null) {
                 // Route may survive recreate while in-memory ActiveTraining does not —
-                // restore the sole in_progress run so practice survives rotation.
+                // Read Room only for process restoration; configuration changes retain session state.
                 LaunchedEffect(suppressPracticeResume) {
                     // Exit transition still composes this destination after leave();
                     // do not resume the in_progress row we intentionally kept for HOME.
                     if (suppressPracticeResume) return@LaunchedEffect
+                    val token = session.restorationToken()
                     val resumed =
-                        runCatching { context.dependencies.trainingsRepository.getInProgress() }
-                            .getOrNull()
+                        runCatching {
+                            persistedTrainingId?.let { context.dependencies.trainingsRepository.getTraining(it) }
+                                ?: context.dependencies.trainingsRepository.getInProgress()
+                        }
+                            .getOrElse { error ->
+                                if (error is kotlinx.coroutines.CancellationException) throw error
+                                null
+                            }
                             ?.let(::resumeActiveTraining)
-                    if (resumed != null) activeTraining = resumed
-                    else nav.popOrDashboard()
+                    if (session.restore(token, resumed) && resumed == null) nav.popOrDashboard()
                 }
             } else {
                 PracticePadDestination(
                     context,
                     training,
-                    onActiveTrainingChange = { activeTraining = it },
+                    session = session,
                     trainingPersistence = trainingPersistence,
                     onLeave = {
-                        suppressPracticeResume = true
-                        activeTraining = null
+                        session.leave()
                         nav.popOrDashboard()
                     },
                 )
@@ -235,8 +279,8 @@ internal fun MainContent(
                 launchAfterCreate = route.launchAfterCreate,
                 onBack = { nav.popOrDashboard() },
                 onActiveTrainingChange = {
-                    suppressPracticeResume = false
-                    activeTraining = it
+                    persistedTrainingId = it?.training?.id
+                    session.activate(it)
                 },
                 trainingPersistence = trainingPersistence,
             )
@@ -255,19 +299,44 @@ internal fun MainContent(
     }
 }
 
+private val hubLinks = setOf(AppDeepLinks.HOME, AppDeepLinks.TRAINING_PICK, AppDeepLinks.SETTINGS,
+    AppDeepLinks.CHECKER_SETTINGS, AppDeepLinks.CATALOG, AppDeepLinks.REFERENCES, AppDeepLinks.DICTIONARY, AppDeepLinks.RECIPES)
+
+private fun NavHostController.openHubLink(intent: Intent) {
+    if (intent.action != Intent.ACTION_VIEW) return
+    val route = when (intent.data?.toString()?.substringBefore('?')?.trimEnd('/')) {
+        AppDeepLinks.HOME -> Dashboard
+        AppDeepLinks.TRAINING_PICK -> TrainingPick
+        AppDeepLinks.SETTINGS -> Settings
+        AppDeepLinks.CHECKER_SETTINGS -> CheckerSettings
+        AppDeepLinks.CATALOG -> Catalog
+        AppDeepLinks.REFERENCES -> References
+        AppDeepLinks.DICTIONARY -> Dictionary
+        AppDeepLinks.RECIPES -> RecipeBuilder(
+            openCreate = intent.data?.getBooleanQueryParameter("openCreate", false) == true,
+        )
+        else -> return
+    }
+    navigate(route) {
+        popUpTo(Dashboard) { inclusive = route == Dashboard }
+        launchSingleTop = true
+    }
+}
+
 /** Cold-start and warm VIEW intents for [AppDeepLinks]; skips re-entry after rotation. */
 @Composable
-private fun HandleAppDeepLinks(nav: NavHostController) {
+private fun HandleAppDeepLinks(onLink: (Intent) -> Unit) {
     val activity = LocalActivity.current as? ComponentActivity ?: return
     var coldStartHandled by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(nav, activity) {
+    val currentOnLink by androidx.compose.runtime.rememberUpdatedState(onLink)
+    LaunchedEffect(activity) {
         if (!coldStartHandled) {
             coldStartHandled = true
-            nav.handleDeepLink(activity.intent)
+            currentOnLink(activity.intent)
         }
     }
-    DisposableEffect(nav, activity) {
-        val listener = Consumer<Intent> { intent -> nav.handleDeepLink(intent) }
+    DisposableEffect(activity) {
+        val listener = Consumer<Intent> { intent -> currentOnLink(intent) }
         activity.addOnNewIntentListener(listener)
         onDispose { activity.removeOnNewIntentListener(listener) }
     }
@@ -336,13 +405,11 @@ private fun SettingsDestination(context: AppUiContext, nav: NavHostController) {
             modelLoading = modelStatus == JapaneseModelStatus.Loading,
             onDownloadModel = dependencies.japaneseModel::load,
             onClearTrainingHistory = {
-                dependencies.persistenceScope.launch(Dispatchers.IO) {
-                    runCatching { dependencies.trainingsRepository.clearHistory() }
-                        .onFailure { error ->
-                            java.util.logging.Logger.getLogger("ru.mobui.kanji.TrainingHistory")
-                                .log(java.util.logging.Level.SEVERE, "Failed to clear history", error)
-                        }
-                }
+                try {
+                    dependencies.trainingPersistence.clearHistory()
+                    true
+                } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                catch (_: Exception) { false }
             },
         )
     }
@@ -499,6 +566,7 @@ private fun TrainingPickDestination(
         }
         var query by rememberSaveable { mutableStateOf("") }
         var emptyLaunch by rememberSaveable { mutableStateOf(false) }
+        var launching by remember { mutableStateOf(false) }
         val scope = rememberCoroutineScope()
         val language = LocalConfiguration.current.preferredLanguageTag()
         if (emptyLaunch) {
@@ -520,19 +588,30 @@ private fun TrainingPickDestination(
             poolCounts = poolCounts,
             excellentRecipeIds = excellentRecipeIds,
             onPick = { recipeId ->
-                scope.launch {
-                    val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
-                    if (launch == null) {
-                        withContext(Dispatchers.Main.immediate) { emptyLaunch = true }
-                        return@launch
-                    }
-                    trainingPersistence.start(launch.active.training)
-                    withContext(Dispatchers.Main.immediate) {
-                        onActiveTrainingChange(launch.active)
-                        nav.navigate(Practice) {
-                            popUpTo(TrainingPick) { inclusive = true }
-                            launchSingleTop = true
-                        }
+                if (!launching) {
+                    launching = true
+                    scope.launch {
+                        var started = false
+                        try {
+                            val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
+                            if (launch == null) {
+                                withContext(Dispatchers.Main.immediate) { emptyLaunch = true }
+                                return@launch
+                            }
+                            trainingPersistence.start(launch.active.training)
+                            withContext(Dispatchers.Main.immediate) {
+                                started = true
+                                onActiveTrainingChange(launch.active)
+                                nav.navigate(Practice) {
+                                    popUpTo(Dashboard) { inclusive = false }
+                                    launchSingleTop = true
+                                }
+                            }
+                        } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                        catch (_: Exception) {
+                            android.widget.Toast.makeText(dependencies, R.string.training_save_failed_transient,
+                                android.widget.Toast.LENGTH_LONG).show()
+                        } finally { if (!started) launching = false }
                     }
                 }
             },
@@ -546,7 +625,7 @@ private fun TrainingPickDestination(
 private suspend fun interruptInProgress(dependencies: KanjiApplication) {
     val training = dependencies.trainingsRepository.getInProgress() ?: return
     val now = System.currentTimeMillis()
-    dependencies.trainingsRepository.saveTraining(
+    dependencies.trainingPersistence.save(
         training.copy(
             status = TrainingStatus.Interrupted,
             endedAt = now,
@@ -583,6 +662,7 @@ private fun RecipeBuilderDestination(
         val revision by dependencies.catalogRevision.collectAsStateWithLifecycle()
         val scope = rememberCoroutineScope()
         var emptyLaunch by rememberSaveable { mutableStateOf(false) }
+        var launching by remember { mutableStateOf(false) }
         if (emptyLaunch) {
             ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
                 title = stringResource(ru.mobui.kanji.feature.dashboard.R.string.training_pick_no_tasks_title),
@@ -614,23 +694,34 @@ private fun RecipeBuilderDestination(
                     )
                 },
                 onCreatedForLaunch = { recipeId ->
-                    scope.launch {
-                        val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
-                        if (launch == null) {
-                            withContext(Dispatchers.Main.immediate) {
-                                emptyLaunch = true
-                                // Recipe exists: return to pick so the user can edit materials.
-                                nav.popBackStack()
-                            }
-                            return@launch
-                        }
-                        trainingPersistence.start(launch.active.training)
-                        withContext(Dispatchers.Main.immediate) {
-                            onActiveTrainingChange(launch.active)
-                            nav.navigate(Practice) {
-                                popUpTo(TrainingPick) { inclusive = true }
-                                launchSingleTop = true
-                            }
+                    if (!launching) {
+                        launching = true
+                        scope.launch {
+                            var started = false
+                            try {
+                                val launch = loadTrainingLaunch(dependencies, recipeId, settings.maxNextStrokeHints)
+                                if (launch == null) {
+                                    withContext(Dispatchers.Main.immediate) {
+                                        emptyLaunch = true
+                                        // Recipe exists: return to pick so the user can edit materials.
+                                        nav.popBackStack()
+                                    }
+                                    return@launch
+                                }
+                                trainingPersistence.start(launch.active.training)
+                                withContext(Dispatchers.Main.immediate) {
+                                    started = true
+                                    onActiveTrainingChange(launch.active)
+                                    nav.navigate(Practice) {
+                                        popUpTo(Dashboard) { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            } catch (cancelled: kotlinx.coroutines.CancellationException) { throw cancelled }
+                            catch (_: Exception) {
+                                android.widget.Toast.makeText(dependencies, R.string.training_save_failed_transient,
+                                    android.widget.Toast.LENGTH_LONG).show()
+                            } finally { if (!started) launching = false }
                         }
                     }
                 },
@@ -646,19 +737,19 @@ private fun RecipeBuilderDestination(
 private fun PracticePadDestination(
     context: AppUiContext,
     active: ActiveTraining,
-    onActiveTrainingChange: (ActiveTraining?) -> Unit,
+    session: TrainingSessionViewModel,
     trainingPersistence: TrainingPersistence,
     onLeave: () -> Unit,
 ) {
     with(context) {
         val task = active.task
-        // Application scope: leave/pop must not cancel the in-progress save.
-        val persistence = dependencies.persistenceScope
+        val sessionState by session.state.collectAsStateWithLifecycle()
         val practice: PracticeViewModel =
-            viewModel(key = "${task.taskId}-${active.index}", factory = graph.factory(task))
+            viewModel(key = "${task.taskId}-${active.index}", factory = graph.factory(task, active.training.maxNextStrokeHints))
         var leaving by remember(task.taskId, active.index) { mutableStateOf(false) }
         val leave: () -> Unit = {
-            if (!leaving) {
+            if (!leaving && !sessionState.saving &&
+                (active.training.status == TrainingStatus.Completed || practice.uiState.value.practice.result == null)) {
                 leaving = true
                 if (active.training.status == TrainingStatus.InProgress) {
                     trainingPersistence.saveAsync(active.training)
@@ -666,58 +757,18 @@ private fun PracticePadDestination(
                 onLeave()
             }
         }
-        LaunchedEffect(settings, modelStatus, task.taskId, active.index) {
-            practice.onCheckerSettingsChanged()
-        }
-        val state by practice.uiState.collectAsStateWithLifecycle()
-        val result = state.practice.result
-        var resultReceived by rememberSaveable(task.taskId, active.index) { mutableStateOf(false) }
-        var advancing by remember(task.taskId, active.index) { mutableStateOf(false) }
-        if (result == null || !resultReceived) {
+        if (active.training.status != TrainingStatus.Completed) {
+            if (sessionState.saveFailed) {
+                ru.mobui.kanji.core.designsystem.KanjiInfoDialog(
+                    title = stringResource(R.string.training_save_error_title),
+                    message = stringResource(R.string.training_save_error_body),
+                    onDismiss = session::retry,
+                    buttonText = stringResource(ru.mobui.kanji.feature.dashboard.R.string.recipe_retry),
+                )
+            }
             PracticeRoute(
                 practice,
-                onResult = { practiceResult ->
-                    if (!advancing && !leaving) {
-                        advancing = true
-                        persistence.launch {
-                            val updated =
-                                active.withTaskResult(
-                                    practiceResult,
-                                    System.currentTimeMillis(),
-                                )
-                            val saveResult =
-                                runCatching { trainingPersistence.save(updated.training) }
-                            if (saveResult.isFailure) {
-                                val error = saveResult.exceptionOrNull()
-                                java.util.logging.Logger.getLogger("ru.mobui.kanji.PracticePad")
-                                    .log(
-                                        java.util.logging.Level.SEVERE,
-                                        "Failed to persist task result for training=${updated.training.id} task=${task.taskId}",
-                                        error,
-                                    )
-                                withContext(Dispatchers.Main.immediate) {
-                                    android.widget.Toast.makeText(
-                                        dependencies,
-                                        R.string.training_save_failed_transient,
-                                        android.widget.Toast.LENGTH_SHORT,
-                                    ).show()
-                                    advancing = false
-                                }
-                                return@launch
-                            }
-                            withContext(Dispatchers.Main.immediate) {
-                                val next = updated.advance()
-                                if (next != null) {
-                                    onActiveTrainingChange(next)
-                                } else {
-                                    onActiveTrainingChange(updated)
-                                    resultReceived = true
-                                    advancing = false
-                                }
-                            }
-                        }
-                    }
-                },
+                onResult = { result -> session.submit(result, practice::acknowledgeResult) },
                 onBack = leave,
                 wordLabel = task.russianWord,
                 progressLabel =

@@ -132,6 +132,7 @@ internal constructor(
                         if (old.isArchived == 1)
                             throw DictionaryException(DictionaryFailure.Missing)
                         dao.clearPersonalLinks(id)
+                        database.recipesDao().clearWordTags(id)
                         // Archive instead of breaking references held by other sources or future
                         // statistics.
                         dao.archiveManual(id)

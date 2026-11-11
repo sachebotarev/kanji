@@ -45,7 +45,9 @@ class StrokeWritingChecker(
                 )
             val assignment =
                 correspondence.assign(actual, expected)
-                    ?: return@withContext CheckReport(CheckVerdict.Incorrect)
+                    ?: return@withContext CheckReport(
+                        CheckVerdict.Incorrect, listOf(CheckFailure.StrokeCorrespondence),
+                    )
             val checks =
                 StrokeWritingEvaluator()
                     .check(

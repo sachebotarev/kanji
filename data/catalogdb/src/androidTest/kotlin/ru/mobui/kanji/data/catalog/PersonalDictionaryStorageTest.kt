@@ -83,6 +83,12 @@ class PersonalDictionaryStorageTest {
             db = CatalogDatabase.open(context, name)
             repository = RoomCatalogRepository(db, instrumentation.context.assets, Dispatchers.IO)
             assertEquals(id, repository.observeWords().first().single().id)
+            val tags = RoomRecipesRepository(db, { repository.load(); Unit }, Dispatchers.IO)
+            val tag = tags.saveTag(null, ru.mobui.kanji.domain.catalog.TagDraft(
+                ru.mobui.kanji.domain.catalog.TagColor.Blue,
+                listOf(ru.mobui.kanji.domain.catalog.TagTranslation("ru", "Проверка")),
+            ))
+            tags.assignTags(id, setOf(tag))
             repository.deleteWord(id)
             assertEquals(1L, repository.revision.value)
             assertNull(repository.load().wordById[id])
@@ -93,6 +99,7 @@ class PersonalDictionaryStorageTest {
                 repository.saveWord(null, edited),
             ) // Re-adding restores the same identity.
             assertEquals(1, repository.observeWords().first().size)
+            assertTrue(tags.observeWordTags().first().none { it.wordId == id && it.tagIds.isNotEmpty() })
         } finally {
             db.close()
             context.deleteDatabase(name)

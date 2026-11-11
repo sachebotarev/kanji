@@ -1,12 +1,12 @@
 # Конструктор рецептов: целевая модель хранения
 
-Статус: доменные модели, Room entities/DAO, транзакционный репозиторий рецептов и Compose-конструктор подключены. [Согласованная спецификация](../design-system/05-screens/recipe-builder.md), [контракт реализации](../implementation/approved-ui-handoff.md). SQL ниже описывает ограничения; актуальный экспорт Room — [9.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/9.json). Миграций нет: невыпущенная база пересоздаётся при смене версии, старые пользовательские данные не сохраняются.
+Статус: доменные модели, Room entities/DAO, транзакционный репозиторий рецептов и Compose-конструктор подключены. [Согласованная спецификация](../design-system/05-screens/recipe-builder.md), [контракт реализации](../implementation/approved-ui-handoff.md). SQL ниже описывает ограничения; актуальный экспорт Room — [1.json](../../data/catalogdb/schemas/ru.mobui.kanji.data.catalog.CatalogDatabase/1.json). Все последующие изменения схемы выполняются миграциями с сохранением пользовательских данных.
 
-`task_count` и `seconds_per_symbol` — сохранённые параметры рецепта, не исполнение. Выполнение хранится в [trainings.md](trainings.md) (Room v9, `TrainingsRepository`).
+`task_count` и `seconds_per_symbol` — сохранённые параметры рецепта, не исполнение. Выполнение хранится в [trainings.md](trainings.md) (Room 1, `TrainingsRepository`).
 
 ## Схема и порядок установки
 
-1. Существующие таблицы каталога/личных слов Room v4.
+1. Существующие таблицы каталога/личных слов Room 1.
 2. [Теги личного словаря](personal-dictionary.sql).
 3. [Рецепты и материалы](recipes.sql).
 

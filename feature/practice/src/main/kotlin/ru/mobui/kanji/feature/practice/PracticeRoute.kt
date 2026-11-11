@@ -33,6 +33,7 @@ fun PracticeRoute(
     onBack: () -> Unit,
     wordLabel: String? = null,
     progressLabel: String? = null,
+    resultDeliveryAttempt: Int = 0,
     isFirstWord: Boolean =
         progressLabel?.let {
             val trimmed = it.trim()
@@ -58,7 +59,7 @@ fun PracticeRoute(
             viewModel.setActive(false)
         }
     }
-    LaunchedEffect(state.practice.result) { viewModel.deliverResult(onResult) }
+    LaunchedEffect(state.practice.result, resultDeliveryAttempt) { viewModel.deliverResult(onResult) }
     PracticeScreen(
         state,
         viewModel::onAction,

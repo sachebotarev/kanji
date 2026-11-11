@@ -12,6 +12,7 @@ import ru.mobui.kanji.domain.practice.StrokeRuleRelation
 @Composable
 internal fun checkFailureText(failure: CheckFailure): String =
     when (failure) {
+        CheckFailure.StrokeCorrespondence -> stringResource(R.string.check_stroke_correspondence)
         is CheckFailure.KanjiRules ->
             failure.violations
                 .map { violation ->

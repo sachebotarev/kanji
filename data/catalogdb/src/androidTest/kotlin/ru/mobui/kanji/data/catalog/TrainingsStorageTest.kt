@@ -107,24 +107,15 @@ class TrainingsStorageTest {
                 symbols = task.symbols.mapIndexed { index, symbol -> symbol.copy(
                     status = TrainingSymbolStatus.Correct,
                     hintRequestCount = if (index == 0) 1 else 0,
-                    shapeVerdict = if (index == 0) ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty else ru.mobui.kanji.domain.practice.StoredCheckVerdict.Correct,
+                    shapeVerdict = if (index == 0)
+                        ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty
+                    else ru.mobui.kanji.domain.practice.StoredCheckVerdict.Correct,
                 ) },
             ) },
         )
         trainings.saveTraining(completed)
         val sql = db.openHelper.writableDatabase
         val sourceWordCount = sql.query("SELECT count(*) FROM source_words").use { it.moveToFirst(); it.getInt(0) }
-        // Simulate an existing installation with the previous shape-verdict guards.
-        for (action in listOf("insert", "update")) {
-            val trigger = "check_training_task_symbols_$action"
-            val oldDefinition = sql.query("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='$trigger'").use { cursor ->
-                check(cursor.moveToFirst())
-                cursor.getString(0).replace(",\'accepted_with_penalty\'", "")
-            }
-            sql.execSQL("DROP TRIGGER $trigger")
-            sql.execSQL(oldDefinition)
-        }
-        sql.execSQL("PRAGMA user_version=12")
         val name = db.openHelper.databaseName!!
         db.close()
         val reopened = CatalogDatabase.open(instrumentation.targetContext, name)
@@ -133,10 +124,13 @@ class TrainingsStorageTest {
                 .trainingsRepository.getTraining(base.id)!!
             assertEquals(ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty, loaded.tasks.single().symbols.first().shapeVerdict)
             assertEquals(82, loaded.summarize().percent)
-            assertEquals(13, reopened.openHelper.writableDatabase.version)
-            assertEquals(sourceWordCount, reopened.openHelper.writableDatabase.query("SELECT count(*) FROM source_words").use { it.moveToFirst(); it.getInt(0) })
+            assertEquals(1, reopened.openHelper.writableDatabase.version)
+            assertEquals(sourceWordCount,
+                reopened.openHelper.writableDatabase.query("SELECT count(*) FROM source_words")
+                    .use { it.moveToFirst(); it.getInt(0) })
             assertEquals(4, reopened.openHelper.writableDatabase.query(
-                "SELECT name FROM sqlite_master WHERE type='index' AND name IN ('source_words_with_kanji','source_words_without_kanji','idx_recipes_active','idx_trainings_one_in_progress')",
+                "SELECT name FROM sqlite_master WHERE type='index' AND name IN ('source_words_with_kanji','source_words_without_kanji'," +
+                    "'idx_recipes_active','idx_trainings_one_in_progress')",
             ).use { it.count })
             reopened.openHelper.writableDatabase.execSQL(
                 "UPDATE training_task_symbols SET shape_verdict='accepted_with_penalty' WHERE id='soft-shape-s0'",
@@ -153,10 +147,10 @@ class TrainingsStorageTest {
     }
 
     @Test
-    fun schemaIncludesTrainingTablesOnVersion13() = storage { db, catalog ->
+    fun schemaIncludesTrainingTablesOnVersion1() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(13, sql.version)
+        assertEquals(1, sql.version)
         val tables =
             sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                 buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
@@ -184,13 +178,7 @@ class TrainingsStorageTest {
     @Test
     fun startInterruptsPreviousAndPersistsAggregate() = storage { db, catalog ->
         catalog.load()
-        val word = catalog.saveWord(null,
-            ru.mobui.kanji.domain.catalog.WordDraft(
-                "日本",
-                "にほん",
-                listOf(ru.mobui.kanji.domain.catalog.WordTranslationDraft("ru", "Япония")),
-            ),
-        )
+        val word = catalog.load().wordById.values.first { it.written == "日本" && it.reading == "にほん" }.id
         val trainings = catalog.trainingsRepository
         trainings.startTraining(training("first", word).copy(strokeHintMode = HintMode.FullCharacter))
         val firstStarted = trainings.getInProgress()!!

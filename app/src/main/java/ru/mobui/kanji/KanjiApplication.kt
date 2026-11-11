@@ -46,6 +46,8 @@ class KanjiApplication : Application() {
     val dictionary: ru.mobui.kanji.domain.catalog.PersonalDictionaryRepository
         get() = wordStorage
 
+    internal val trainingPersistence by lazy { TrainingPersistence(trainingsRepository, persistenceScope) }
+
     val recognitionSettings: RecognitionSettingsRepository by lazy {
         DataStoreRecognitionSettingsRepository(this)
     }

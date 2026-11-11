@@ -1,11 +1,9 @@
 package ru.mobui.kanji.data.catalog
 
-import android.database.sqlite.SQLiteDatabase
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.json.JSONObject
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -48,7 +46,7 @@ class RecipesStorageTest {
     @Test fun schemaUsesRecipeAndMaterialNamesWithoutLegacyConfigurationTables() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(13, sql.version)
+        assertEquals(1, sql.version)
         val tables = sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
             buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }
         }
@@ -147,31 +145,15 @@ class RecipesStorageTest {
         rejected { sql.execSQL("UPDATE recipes SET task_count=0 WHERE id='one'") }
     }
 
-    @Test fun oldVersionIsReplacedWithoutMigrationAndChecksSurviveReopen() = runBlocking {
+    @Test fun baselineChecksSurviveReopen() = runBlocking {
         val context = instrumentation.targetContext
-        val name = "replace-v4-${System.nanoTime()}.db"
-        // Create the actual exported v4 schema, not an artificial version-number-only database.
-        val schema = instrumentation.context.assets.open("ru.mobui.kanji.data.catalog.CatalogDatabase/4.json")
-            .bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
-        val path = context.getDatabasePath(name)
-        path.parentFile?.mkdirs()
-        SQLiteDatabase.openOrCreateDatabase(path, null).use { old ->
-            val entities = schema.getJSONArray("entities")
-            for (index in 0 until entities.length()) {
-                val entity = entities.getJSONObject(index)
-                old.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", entity.getString("tableName")))
-            }
-            old.execSQL("CREATE TABLE old_marker(value TEXT)")
-            old.execSQL("INSERT INTO old_marker VALUES('discard')")
-            old.version = 4
-        }
+        val name = "baseline-${System.nanoTime()}.db"
         try {
             repeat(2) {
                 val db = CatalogDatabase.open(context, name)
                 try {
                     val sql = db.openHelper.writableDatabase
-                    assertEquals(13, sql.version)
-                    assertEquals(0, sql.query("SELECT name FROM sqlite_master WHERE name='old_marker'").use { it.count })
+                    assertEquals(1, sql.version)
                     rejected { sql.execSQL("INSERT INTO dictionary_tags(color,position,created_at,updated_at) VALUES('invalid',0,0,0)") }
                     RoomCatalogRepository(db, instrumentation.context.assets, Dispatchers.IO).load()
                 } finally { db.close() }

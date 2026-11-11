@@ -289,13 +289,13 @@ internal fun ActiveTraining.interrupted(nowMs: Long): ActiveTraining =
  * ink is not restored (fresh pad on the current word).
  */
 internal fun resumeActiveTraining(training: Training): ActiveTraining? {
-    if (training.status != TrainingStatus.InProgress || training.tasks.isEmpty()) return null
+    if (training.status !in setOf(TrainingStatus.InProgress, TrainingStatus.Completed) || training.tasks.isEmpty()) return null
     val index =
         training.tasks
             .indexOfFirst {
                 it.status == TrainingTaskStatus.Pending || it.status == TrainingTaskStatus.InProgress
             }
-            .takeIf { it >= 0 } ?: return null
+            .takeIf { it >= 0 } ?: if (training.status == TrainingStatus.Completed) training.tasks.lastIndex else return null
     val practiceTasks =
         training.tasks.map { task ->
             val practiceCount =
@@ -313,7 +313,7 @@ internal fun resumeActiveTraining(training: Training): ActiveTraining? {
                     task.symbols.map { symbol ->
                         KanjiTask(
                             symbol.occurrenceId,
-                            KanjiId(symbol.kanjiKey ?: "u0"),
+                            KanjiId(symbol.kanjiKey ?: "u${symbol.glyph.codePointAt(0).toString(APP_UNICODE_HEX_RADIX)}"),
                             if (symbol.role == TrainingSymbolRole.Practice) EntryMode.User
                             else EntryMode.Prefilled,
                         )

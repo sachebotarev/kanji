@@ -21,4 +21,12 @@ CC BY-SA 3.0 · https://creativecommons.org/licenses/by-sa/3.0/</string>
     <string name="settings_storage_error">Не удалось прочитать или сохранить настройки</string>
     <string name="settings_storage_retry">Повторить</string>
     <string name="training_save_failed_transient">Не удалось сохранить прогресс тренировки</string>
+    <string name="settings_storage_write_title">Настройки не сохранены</string>
+    <string name="settings_storage_write_body">Не удалось записать изменения. Повторите сохранение.</string>
+    <string name="training_save_error_title">Ответ не сохранён</string>
+    <string name="training_save_error_body">Не удалось записать результат задания. Повторите сохранение, чтобы продолжить.</string>
+    <string name="hub_link_pending_title">Переход по ссылке</string>
+    <string name="hub_link_pending_body">Завершите текущее слово. Ссылка откроется после успешного сохранения ответа.</string>
+    <string name="hub_link_continue">Продолжить слово</string>
+    <string name="hub_link_cancel">Отменить переход</string>
 </resources>
