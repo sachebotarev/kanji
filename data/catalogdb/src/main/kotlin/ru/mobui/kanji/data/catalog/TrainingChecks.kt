@@ -2,8 +2,8 @@ package ru.mobui.kanji.data.catalog
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-/** Frozen v13 guard definitions, shared by fresh creation and the 12→13 migration. */
-internal fun installTrainingChecksV13(db: SupportSQLiteDatabase) {
+/** Baseline schema 1 guards; future changes require an explicit migration. */
+internal fun installTrainingChecksV1(db: SupportSQLiteDatabase) {
     val verdict =
         "IN ('correct','incorrect','incomplete','unavailable')"
     val checks =

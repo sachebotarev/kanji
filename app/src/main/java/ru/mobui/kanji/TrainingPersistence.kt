@@ -22,22 +22,23 @@ internal class TrainingPersistence(
     private val mutex = Mutex()
 
     suspend fun start(training: Training) {
-        withContext(Dispatchers.IO) {
-            mutex.withLock { repository.startTraining(training) }
-        }
+        mutex.withLock { withContext(Dispatchers.IO) { repository.startTraining(training) } }
     }
 
     /** Awaited boundary save for MVP reliability (task complete / leave). */
     suspend fun save(training: Training) {
-        withContext(Dispatchers.IO) {
-            mutex.withLock { repository.saveTraining(training) }
-        }
+        mutex.withLock { withContext(Dispatchers.IO) { repository.saveTraining(training) } }
+    }
+
+    suspend fun clearHistory() {
+        mutex.withLock { withContext(Dispatchers.IO) { repository.clearHistory() } }
     }
 
     fun saveAsync(training: Training) {
         scope.launch {
             runCatching { save(training) }
                 .onFailure { error ->
+                    if (error is kotlinx.coroutines.CancellationException) throw error
                     logger.log(Level.SEVERE, "Failed to save training ${training.id}", error)
                 }
         }

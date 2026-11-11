@@ -64,13 +64,14 @@ class MainActivity : ComponentActivity() {
         settingsModel: RecognitionSettingsViewModel,
     ): DemoPracticeGraph {
         val source = BundledKanjiReferenceSource(assets, Dispatchers.IO)
-        val checker = createChecker(dependencies, settingsModel, source)
         return DemoPracticeGraph(
             source = source,
-            factory = { task ->
+            factory = { task, hintLimit ->
                 object : ViewModelProvider.Factory {
                     override fun <T : ViewModel> create(modelClass: Class<T>): T {
                         require(modelClass.isAssignableFrom(PracticeViewModel::class.java))
+                        val wordSettings = settingsModel.settings.value
+                        val checker = createChecker(dependencies, settingsModel, source)
                         @Suppress("UNCHECKED_CAST")
                         return PracticeViewModel(
                             task,
@@ -78,22 +79,22 @@ class MainActivity : ComponentActivity() {
                             checker,
                             hintMode = { task.strokeHintMode },
                             maxNextStrokeHints = {
-                                settingsModel.settings.value.maxNextStrokeHints
+                                hintLimit
                             },
                             fullHintDisplayMillis = {
-                                settingsModel.settings.value.fullHintDisplayMillis
+                                wordSettings.fullHintDisplayMillis
                             },
                             autoAdvanceKanjiOnSuccess = {
-                                settingsModel.settings.value.autoAdvanceKanjiOnSuccess
+                                wordSettings.autoAdvanceKanjiOnSuccess
                             },
                             autoAdvanceOnSuccess = {
-                                settingsModel.settings.value.autoAdvanceOnSuccess
+                                wordSettings.autoAdvanceOnSuccess
                             },
                             gesturesOnlyMode = {
-                                settingsModel.settings.value.gesturesOnlyMode
+                                wordSettings.gesturesOnlyMode
                             },
                             showPadGestureHints = {
-                                settingsModel.settings.value.showPadGestureHints
+                                wordSettings.showPadGestureHints
                             },
                             showCheckDiagnostics = BuildConfig.DEBUG,
                         ) as T
@@ -108,6 +109,10 @@ class MainActivity : ComponentActivity() {
         settingsModel: RecognitionSettingsViewModel,
         source: BundledKanjiReferenceSource,
     ): CombinedKanjiChecker {
+        val wordSettings = settingsModel.settings.value.copy(
+            readabilityEnabled = settingsModel.settings.value.readabilityEnabled &&
+                dependencies.japaneseModel.status.value == JapaneseModelStatus.Ready,
+        )
         val readability = dependencies.readability
         val shape =
             ShapeKanjiChecker(
@@ -115,7 +120,7 @@ class MainActivity : ComponentActivity() {
                 Dispatchers.Default,
                 diagnosticsEnabled = BuildConfig.DEBUG,
                 configProvider = {
-                    settingsModel.settings.value.copy(
+                    wordSettings.copy(
                         checkStrokeOrder = false,
                         checkStrokeDirection = false,
                     )
@@ -126,16 +131,7 @@ class MainActivity : ComponentActivity() {
             readability,
             shape = { shape },
             writing = writing,
-            settings = {
-                settingsModel.settings.value.let {
-                    it.copy(
-                        readabilityEnabled =
-                            it.readabilityEnabled &&
-                                dependencies.japaneseModel.status.value ==
-                                    JapaneseModelStatus.Ready,
-                    )
-                }
-            },
+            settings = { wordSettings },
         )
     }
 }

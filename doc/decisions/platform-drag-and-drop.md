@@ -24,4 +24,4 @@
 
 ## Статус
 
-Реализовано в `RecipeReorderState.kt` и списке рецептов. Собственный pointer detector удалён. На Pixel 10 Pro Android 17 проверены реальные системные drag sessions, отмена, исключённые элементы управления и автопрокрутка вниз/вверх за пределы исходного viewport. Полный dashboard: 59 тестов без ошибок. [Отчёт и границы проверки](../verification/recipe-library-android.md). Синтетический Compose gesture сам по себе не считается доказательством работы Android drag session; тест использует Android UiAutomation.
+Реализовано в `RecipeReorderState.kt` и списке рецептов. Собственный pointer detector удалён. На Pixel 10 Pro Android 17 проверены реальные системные drag sessions, отмена, исключённые элементы управления и автопрокрутка вниз/вверх за пределы исходного viewport. Полный dashboard: 59 тестов без ошибок. [Отчёт и границы проверки](../releases/1.0.0.md). Синтетический Compose gesture сам по себе не считается доказательством работы Android drag session; тест использует Android UiAutomation.

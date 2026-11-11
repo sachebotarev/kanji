@@ -35,6 +35,6 @@ UI — Roboto; японский учебный текст — Noto Sans CJK JP �
 
 Область касания минимум 48 CSS px в макете; Android будет использовать dp, типографику — sp. Поля основного списка — 20, карточек — 16, промежутки — 8/12/16/24. Сетка меняет число колонок с учётом ширины и масштаба. Фокус виден; disabled не имитирует доступное действие; reduced motion отключает необязательное движение. Состояния hover/focus/pressed и disabled задаются общей конфигурацией и компонентами.
 
-Статичные [маскоты](../assets/mascot/README.md) сохраняют узнаваемость в обеих темах. Нативные IME, Back, TalkBack, физика Compose и системная клавиатура проверяются на отдельном этапе реализации. [Проверки HTML](../../verification/material-theme/README.md).
+Статичные [маскоты](../assets/mascot/README.md) сохраняют узнаваемость в обеих темах. Нативные IME, Back, TalkBack, физика Compose и системная клавиатура проверяются на отдельном этапе реализации. [Проверки HTML](../../releases/1.0.0.md).
 
 Основание: [цветовые роли Material 3](https://m3.material.io/styles/color/the-color-system), [типографика](https://m3.material.io/styles/typography/applying-type), [Material Color Utilities](https://github.com/material-foundation/material-color-utilities).

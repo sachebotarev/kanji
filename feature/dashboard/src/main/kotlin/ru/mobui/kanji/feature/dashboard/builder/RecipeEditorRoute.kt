@@ -53,7 +53,10 @@ fun RecipeEditorRoute(
     val savedCallback by rememberUpdatedState(actions.onSaved)
     LaunchedEffect(state.completed, state.completedId) {
         val id = state.completedId
-        if (state.completed && id != null) savedCallback(id)
+        if (state.completed && id != null) {
+            savedCallback(id)
+            model.acknowledgeSaved()
+        }
     }
     BackHandler(onBack = actions.onBack)
     val initial = state.initial

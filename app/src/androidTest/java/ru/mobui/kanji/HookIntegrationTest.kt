@@ -211,7 +211,6 @@ private val PreviouslyRejectedHookGlyphs = listOf(
                 "064da",
                 "064e2",
                 "0651c",
-                "066dc",
                 "066e6",
                 "0671b",
                 "068ad",

@@ -21,4 +21,12 @@ CC BY-SA 3.0 · https://creativecommons.org/licenses/by-sa/3.0/</string>
     <string name="settings_storage_error">Could not read or save settings</string>
     <string name="settings_storage_retry">Retry</string>
     <string name="training_save_failed_transient">Could not save training progress</string>
+    <string name="settings_storage_write_title">Settings not saved</string>
+    <string name="settings_storage_write_body">Could not write your changes. Try saving again.</string>
+    <string name="training_save_error_title">Answer not saved</string>
+    <string name="training_save_error_body">Could not save the task result. Try again to continue.</string>
+    <string name="hub_link_pending_title">Link waiting</string>
+    <string name="hub_link_pending_body">Finish the current word. The link will open after your answer is saved.</string>
+    <string name="hub_link_continue">Continue word</string>
+    <string name="hub_link_cancel">Cancel navigation</string>
 </resources>

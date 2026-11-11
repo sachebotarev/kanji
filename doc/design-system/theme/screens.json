@@ -1,5 +1,5 @@
 {
-  "revision": "approval-2026-11-07+home-history-draft",
+  "revision": "approval-2026-11-07+home-history-draft + review-2026-11-11",
   "approval": {
     "date": "2026-11-07",
     "features": [
@@ -61,12 +61,12 @@
         {
           "language_tag": "ru",
           "title": "Выбор рецепта",
-          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт». Без строки «Нажми рецепт», без шевронов, со штампом мастера."
+          "changes": "Согласовано 2026-11-07: выбор рецепта тапом; пустой список — empty-state с CTA «Создать первый рецепт». Без строки «Нажми рецепт», без шевронов, со штампом мастера. Android: исправлены сохранение/повтор и устойчивость состояния; детали в doc/releases/1.0.0.md. HTML не моделирует ошибки хранилища."
         },
         {
           "language_tag": "en",
           "title": "Choose recipe",
-          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”. No prompt line, no chevrons, master stamp included."
+          "changes": "Approved 2026-11-07: tap a recipe to start; empty list is an empty-state with “Create first recipe”. No prompt line, no chevrons, master stamp included. Android persistence/retry and state handling updated; HTML does not simulate storage errors."
         }
       ],
       "feature": "home",
@@ -547,12 +547,12 @@
         {
           "language_tag": "ru",
           "title": "Новый рецепт",
-          "changes": "Единая тема Material 3. Новый вариант требует согласования."
+          "changes": "Единая тема Material 3. Новый вариант требует согласования. Android: исправлены сохранение/повтор и устойчивость состояния; детали в doc/releases/1.0.0.md. HTML не моделирует ошибки хранилища."
         },
         {
           "language_tag": "en",
           "title": "New recipe",
-          "changes": "Unified Material 3 theme. The new design requires approval."
+          "changes": "Unified Material 3 theme. The new design requires approval. Android persistence/retry and state handling updated; HTML does not simulate storage errors."
         }
       ],
       "feature": "recipe-builder",
@@ -1003,12 +1003,12 @@
         {
           "language_tag": "ru",
           "title": "Тренировка",
-          "changes": "Расход помощи 0/3…3/3, зелёный/жёлтый/красный показатель и «Далее». Форма: мягкое принятие при недоборе меньше настраиваемого допуска (по умолчанию 10 п.п.), штраф 20%; Знак и Черты строгие. Android реализован; HTML демонстрирует состояния. Цифры помощи равны остальным показателям; подсказки не блокируют автопереход, автопереход приостанавливается только при исправляемом штрафе формы."
+          "changes": "Расход помощи 0/3…3/3, зелёный/жёлтый/красный показатель и «Далее». Форма: мягкое принятие при недоборе меньше настраиваемого допуска (по умолчанию 10 п.п.), штраф 20%; Знак и Черты строгие. Android реализован; HTML демонстрирует состояния. Цифры помощи равны остальным показателям; подсказки не блокируют автопереход, автопереход приостанавливается только при исправляемом штрафе формы. Android: исправлены сохранение/повтор и устойчивость состояния; детали в doc/releases/1.0.0.md. HTML не моделирует ошибки хранилища. Состояние тренировки/записи переживает смену конфигурации в Activity ViewModel; повторный вход не сбрасывает принятые клетки."
         },
         {
           "language_tag": "en",
           "title": "Practice",
-          "changes": "Hints used 0/3…3/3, green/amber/red indicator and Next. Shape: soft acceptance within the configured margin (default 10 percentage points) below threshold with a 20% penalty; recognition and strokes remain strict. Implemented on Android; HTML demonstrates states. Hint digits match the other indicators; any score penalty blocks automatic character and task progression."
+          "changes": "Hints used 0/3…3/3, green/amber/red indicator and Next. Shape: soft acceptance within the configured margin (default 10 percentage points) below threshold with a 20% penalty; recognition and strokes remain strict. Implemented on Android; HTML demonstrates states. Hint digits match the other indicators; any score penalty blocks automatic character and task progression. Android persistence/retry and state handling updated; HTML does not simulate storage errors. Activity ViewModel retains training/write state across configuration changes; re-entry does not invalidate accepted cells."
         }
       ],
       "feature": "practice",
@@ -1027,7 +1027,7 @@
         {
           "language_tag": "ru",
           "title": "Итог тренировки",
-          "changes": "Согласовано 2026-11-07 (макет итога). Хранение/статистика результатов — отдельный этап."
+          "changes": "Согласовано 2026-11-07 (макет итога). Android восстанавливает сохранённый итог Completed по ID тренировки; проверка убийства процесса на устройстве не выполнена."
         },
         {
           "language_tag": "en",
@@ -1051,12 +1051,12 @@
         {
           "language_tag": "ru",
           "title": "Настройки",
-          "changes": "Разделение настроек: ход тренировки, подсказки, модули проверки (ML Kit), калибровка формы кандзи (только develop), очистка истории."
+          "changes": "Разделение настроек: ход тренировки, подсказки, модули проверки (ML Kit), калибровка формы кандзи (только develop), очистка истории. Android: исправлены сохранение/повтор и устойчивость состояния; детали в doc/releases/1.0.0.md. HTML не моделирует ошибки хранилища."
         },
         {
           "language_tag": "en",
           "title": "Settings",
-          "changes": "Separation of settings: training flow, hints, check modules (ML Kit), kanji shape calibration (develop-only), clear history."
+          "changes": "Separation of settings: training flow, hints, check modules (ML Kit), kanji shape calibration (develop-only), clear history. Android persistence/retry and state handling updated; HTML does not simulate storage errors."
         }
       ],
       "feature": "settings",
@@ -1088,6 +1088,50 @@
         "APP-11"
       ],
       "parent_id": "SETTINGS"
+    },
+    {
+      "id": "PRACTICE.D05",
+      "module": "web",
+      "key": "practice-save-error",
+      "route": "practice",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Ошибка сохранения ответа",
+          "changes": "Android: повтор записи ответа без повторного применения; HTML не моделирует это состояние. Сквозная проверка отказа диска не выполнена. Состояние тренировки/записи переживает смену конфигурации в Activity ViewModel; повторный вход не сбрасывает принятые клетки."
+        },
+        {
+          "language_tag": "en",
+          "title": "Answer save error",
+          "changes": "Android retries persistence without applying the answer twice. HTML does not model this state; disk failure E2E remains unverified. Activity ViewModel retains training/write state across configuration changes; re-entry does not invalidate accepted cells."
+        }
+      ],
+      "feature": "practice",
+      "legacy_ids": [],
+      "parent_id": "PRACTICE"
+    },
+    {
+      "id": "PRACTICE.D06",
+      "module": "web",
+      "key": "practice-hub-link-pending",
+      "route": "practice",
+      "status": "unapproved",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Ожидание перехода по ссылке",
+          "changes": "Android ждёт записи ответа перед переходом; можно отменить ссылку. HTML не моделирует состояние."
+        },
+        {
+          "language_tag": "en",
+          "title": "Link waiting",
+          "changes": "Android waits for answer persistence before navigation; the link can be cancelled. Not simulated in HTML."
+        }
+      ],
+      "feature": "practice",
+      "parent_id": "PRACTICE",
+      "legacy_ids": []
     }
   ],
   "features": [

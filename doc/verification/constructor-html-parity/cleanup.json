@@ -1,9 +1,0 @@
-{
-  "recipe_fixture_removed_from_library": true,
-  "tag_fixture_deleted": true,
-  "cleanup": "UI only; no clear-data or SQL writes",
-  "font_scale": "1.0",
-  "night": "Night mode: no",
-  "locales": "Locales for ru.mobui.kanji for user 0 are [en]",
-  "phone_apk_install": "Success; install -r without clear-data"
-}

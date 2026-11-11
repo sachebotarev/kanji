@@ -12,7 +12,7 @@
 - После согласованных миграций 2026-11-05 и 2026-11-06 (`TRAIN`→`RECIPE`) ID постоянны: не перенумеровывать при перестановке; новые элементы получают свободный ID. Старые префиксы виджетов переводятся по таблице экранов. Список/секция → карточка/строка → части; list-level действия (ещё, undo, FAB, статус) остаются на уровне секции. Эталон: `BOOKS.W03.W01`, `DICT.W05.W01`. При удалении сохранять запись в разделе «Выведенные ID», при разделении — старый ID с указателем на новые.
 - При изменении UI обновлять иерархию, описание, источник и список повторных применений **в том же изменении**. Сходство внешнего вида не доказывает общую реализацию. Карта не заменяет спецификации и не объявляет макет реализованным.
 - Структурная проверка: `python3 doc/verification/check-project-map.py` — уникальность ID, родители, охват реестра экранов и локальные ссылки. Проверка не доказывает полноту визуальных состояний или соответствие макету.
-- BOOKS/REFS/DICT сопоставлены с HTML в RU/EN, двух темах и при шрифте 100%/150%; [кадры, 67 регрессионных тестов и границы](verification/roots-html-parity.md). Это проверка трёх корней, не всех вложенных экранов. Настройки не менять по ошибочному HTML-значку.
+- BOOKS/REFS/DICT сопоставлены с HTML в RU/EN, двух темах и при шрифте 100%/150%; [кадры, 67 регрессионных тестов и границы](releases/1.0.0.md). Это проверка трёх корней, не всех вложенных экранов. Настройки не менять по ошибочному HTML-значку.
 
 ## Устройство проекта
 
@@ -895,12 +895,20 @@
 
 #### PRACTICE.01 — Итог тренировки
 
-Открывается из: `PRACTICE` после завершения всех заданий. Макет: `#practice/PRACTICE.01`. Алгоритм оценки: [training-grade.md](implementation/training-grade.md), баллы слова — [hint-scoring.md](implementation/hint-scoring.md).
+Открывается из: `PRACTICE` после завершения всех заданий; Android восстанавливает итог Completed по сохранённому ID тренировки. Макет: `#practice/PRACTICE.01`. Алгоритм оценки: [training-grade.md](implementation/training-grade.md), баллы слова — [hint-scoring.md](implementation/hint-scoring.md).
 
 - **`PRACTICE.01.W01` — Маскот.** Три варианта по оценке: отлично / хорошо / ещё потренируемся.
 - **`PRACTICE.01.W02` — Оценка.** Текстовый уровень и процент.
 - **`PRACTICE.01.W03` — Краткая статистика.** Верно, с подсказкой, пропуск, по времени, суммарное время; название рецепта.
 - **`PRACTICE.01.W04` — На главную.** Закрывает итог без interrupt уже завершённой тренировки. 
+
+#### PRACTICE.D06 — Ожидание перехода по внешней ссылке
+
+Android: `AppDestinations.kt`, `TrainingSessionViewModel.kt`. Ссылка ждёт завершения слова и успешной записи; можно продолжить слово либо отменить переход. Общий AlertDialog не изменён. Влияние: PRACTICE и переходы к хабам; HTML это состояние не моделирует. [Проверка](releases/1.0.0.md).
+
+#### PRACTICE.D05 — Ошибка сохранения ответа
+
+Android: `AppDestinations.kt`, `PracticeRoute.kt`, `PracticeViewModel.kt`; `KanjiInfoDialog` предлагает повтор. Подтверждение доставки происходит после записи; повтор не применяет ответ дважды. ActiveTraining, запись и ошибка принадлежат Activity-scoped `TrainingSessionViewModel` и переживают пересоздание Activity; вход в PRACTICE не инвалидирует принятые клетки. Выход до сохранения ответа заблокирован. HTML это состояние не моделирует; проверка смерти процесса во время ошибки не выполнена. Влияние: только PRACTICE, общий диалог не изменён.
 
 #### PRACTICE.D01 — Детали проверки
 
@@ -947,7 +955,7 @@
   - **`SETTINGS.W02.W01` — Карточка перехода к калибровке.** Иконка чекера, название «Калибровка формы кандзи», подпись «Пороги совпадения формы, допуски трансформаций и компенсаций» и шеврон перехода в `SETTINGS.01` (фон `surfaceContainer` без обводки, в едином стиле приложения).
 - **`SETTINGS.W04` — Данные и память.** Секция управления сохранёнными тренировками.
   - **`SETTINGS.W04.W01` — Карточка очистки истории тренировок.** Название «Очистить историю тренировок», подпись «Удалить все сохранённые тренировки»; открывает подтверждающий диалог `SETTINGS.D01` (фон `surfaceContainer` без обводки, иконка удаления `ic_delete_history` и заголовок цвета `error`, спокойный фон с негативной спецификой для деструктивного действия).
-- **`SETTINGS.W03` — Состояние хранения настроек.** Экран ошибки/повтора при сбое сохранения или чтения Preferences DataStore (`SettingsStorageStatus`).
+- **`SETTINGS.W03` — Состояние хранения настроек.** Первичное чтение блокирует вход (`SettingsStorageStatus`); ошибка записи показывается поверх NavHost, включая SETTINGS.01, с повтором без удаления NavHost и чернил PRACTICE.
 
 #### SETTINGS.D01 — Подтверждение очистки истории
 
@@ -955,7 +963,7 @@
 
 - **`SETTINGS.D01.W01` — Пояснение.** Предупреждение о необратимом удалении всех сохранённых тренировок и статистики слов («Очистить историю?», `KanjiDeleteConfirmDialog`).
 - **`SETTINGS.D01.W02` — Отмена.** Закрывает диалог без изменений.
-- **`SETTINGS.D01.W03` — Очистить.** Подтверждает удаление всех строк тренировок через `TrainingsRepository.clearHistory` на IO.
+- **`SETTINGS.D01.W03` — Очистить.** Подтверждает удаление всех строк тренировок через `TrainingsRepository.clearHistory` на IO. При ошибке диалог остаётся с сообщением и повтором; повторный запрос во время записи блокируется.
 
 #### SETTINGS.01 — Калибровка формы кандзи
 
@@ -1015,7 +1023,7 @@
 
 Источник: [`MaterialTheme.inputShape`](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/InputShape.kt), [параметр темы](design-system/theme/theme-source.json) `component_shape.text_field`. Единственное редактируемое значение — 16; генератор синхронизирует Android dimension и CSS макета. Не задавать радиус в экранных реализациях.
 
-Область влияния: все текстовые, поисковые, числовые и многострочные поля, в том числе `UI-SEARCH`, `UI-WORD-FORM`, параметры RECIPE и диалоги переводов/тегов DICT. Меняется форма рамки, не валидация и не состояние. Радиокнопки, чекбоксы, слайдеры, карточки и кнопки не затрагиваются. [Проверка и кадры](verification/input-shapes.md).
+Область влияния: все текстовые, поисковые, числовые и многострочные поля, в том числе `UI-SEARCH`, `UI-WORD-FORM`, параметры RECIPE и диалоги переводов/тегов DICT. Меняется форма рамки, не валидация и не состояние. Радиокнопки, чекбоксы, слайдеры, карточки и кнопки не затрагиваются. [Проверка и кадры](releases/1.0.0.md).
 
 ### UI-SEARCH — Семейство поиска, НЕ единая реализация: WordSearch, CatalogSearch и поля общих селекторов
 
@@ -1205,7 +1213,7 @@
 - Конструктор: [RecipeBuilderRoute.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeBuilderRoute.kt), [RecipeLibraryScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeLibraryScreen.kt), [RecipeEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/RecipeEditorScreen.kt), [MaterialEditorScreen.kt](../feature/dashboard/src/main/kotlin/ru/mobui/kanji/feature/dashboard/builder/MaterialEditorScreen.kt). RECIPE.01 / RECIPE.01.01 — один RecipeEditorScreen (включает удаление существующего рецепта); RECIPE.01.02 / RECIPE.01.02.01 — один MaterialEditorScreen и четыре формы. Предпросмотр слов материала также использует общий WordList/WordDetailsContent через app; смена источника не создаёт новый тип виджета.
 - Общие выборы: [core/wordui](../core/wordui/src/main/kotlin/ru/mobui/kanji/core/wordui). SELECT.01 — ChapterPickerScreen (в том числе из материала конструктора); SELECT.02 / DICT.03 — SymbolPickerScreen; вложенные фасеты используют SymbolFacetScreen; SELECT.06 — WordPickerScreen (он тоже открывает вложенный SymbolPickerScreen). Изменение сетки/плитки/шапки действует и во вложенных выборах.
 - Практика: [PracticeScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreen.kt), [PracticeScreenContext.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreenContext.kt), [CheckerSettingsScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/CheckerSettingsScreen.kt), [TrainingCompleteScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/TrainingCompleteScreen.kt) (PRACTICE.01). Поле письма используется и в предпросмотре настроек проверки.
-- Настройки: [SettingsScreen.kt](../feature/settings/src/main/kotlin/ru/mobui/kanji/feature/settings/SettingsScreen.kt). Глобальная тема [KanjiTheme.kt](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/KanjiTheme.kt) влияет на все экраны; локальная правка цвета не должна подменять изменение всей темы.
+- Настройки: [SettingsScreen.kt](../feature/settings/src/main/kotlin/ru/mobui/kanji/feature/settings/SettingsScreen.kt). Системное стартовое окно (не отдельный Compose-экран) следует системной теме через `app/src/main/res/values/themes.xml` и `values-night/themes.xml`; фон совпадает с KanjiTheme, см. [проверку](releases/1.0.0.md). Глобальная тема [KanjiTheme.kt](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/KanjiTheme.kt) влияет на все экраны; локальная правка цвета не должна подменять изменение всей темы.
 
 ## Выведенные ID
 

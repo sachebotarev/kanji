@@ -3,7 +3,7 @@ package ru.mobui.kanji
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import java.io.IOException
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,9 +40,11 @@ class RecognitionSettingsViewModel(
     }
 
     fun retryStorage() {
+        mutableStorageError.value = false
         if (!mutableLoaded.value) load() else persist(mutableSettings.value)
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun load() {
         viewModelScope.launch {
             try {
@@ -52,12 +54,15 @@ class RecognitionSettingsViewModel(
                     repository.save(mutableSettings.value)
                 mutableStorageError.value = false
                 mutableLoaded.value = true
-            } catch (_: IOException) {
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
                 mutableStorageError.value = true
             }
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun persist(value: RecognitionSettings) {
         pendingWrites++
         mutableSaving.value = true
@@ -66,7 +71,9 @@ class RecognitionSettingsViewModel(
             try {
                 writes.withLock { repository.save(value) }
                 mutableStorageError.value = false
-            } catch (_: IOException) {
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
                 mutableStorageError.value = true
             } finally {
                 pendingWrites--

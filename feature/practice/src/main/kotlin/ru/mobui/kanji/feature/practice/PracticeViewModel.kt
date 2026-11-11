@@ -140,6 +140,7 @@ class PracticeViewModel(
     private var fullHintHideJob: Job? = null
     private var screenActive = false
     private var resultDelivered = false
+    private var resultDeliveryInFlight = false
     private val coordinator = CheckCoordinator()
 
     init {
@@ -187,6 +188,7 @@ class PracticeViewModel(
         lastTick = null
         lastGesturePulse = null
         resultDelivered = false
+        resultDeliveryInFlight = false
         coordinator.clear()
         training = HandwritingTraining(task)
         mutableState.value =
@@ -395,12 +397,19 @@ class PracticeViewModel(
         if (!training.state.gestureActive) scheduleCheck()
     }
 
-    /** Synchronous delivery once per ViewModel lifetime; caller can deduplicate by taskId. */
+    /** Dispatch once until the host acknowledges persistence or explicitly requests retry. */
     fun deliverResult(onResult: (PracticeResult) -> Unit) {
         val result = training.state.result ?: return
-        if (resultDelivered) return
-        resultDelivered = true
+        if (resultDelivered || resultDeliveryInFlight) return
+        resultDeliveryInFlight = true
         onResult(result)
+    }
+
+    fun retryResultDelivery() { resultDeliveryInFlight = false }
+
+    fun acknowledgeResult() {
+        resultDelivered = true
+        resultDeliveryInFlight = false
     }
 
     private fun canScheduleCheck(): Boolean =
@@ -637,7 +646,6 @@ private const val CHECK_DEBOUNCE_MILLIS = 350L
 /** Hold on the accepted cell so the green flash is visible before advancing. */
 private const val CORRECT_HOLD_MILLIS = 420L
 /** Hold on the red exhausted reveal before moving to the next cell. */
-private const val HINT_EXHAUST_HOLD_MILLIS = 520L
 /** Whole-provider budget so «Далее» cannot stay disabled for an MVP demo. */
 private const val CHECK_TIMEOUT_MILLIS = 8_000L
 /** No pad pulses while gestureActive — treat as stuck input. */

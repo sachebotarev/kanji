@@ -1,6 +1,6 @@
 # Основной дизайн-макет
 
-Экраны этого модуля согласованы 2026-11-07, **кроме** настроек (`SETTINGS` / `SETTINGS.01`). Канонические статусы — `../../theme/screens.json`. [Проверки конструктора](../../../verification/recipe-builder/README.md), [контракт переноса](../../../implementation/approved-ui-handoff.md). Общая Material 3 тема применяется ко всем экранам модуля.
+Экраны этого модуля согласованы 2026-11-07, **кроме** настроек (`SETTINGS` / `SETTINGS.01`). Канонические статусы — `../../theme/screens.json`. [Проверки конструктора](../../../releases/1.0.0.md), [контракт переноса](../../../implementation/approved-ui-handoff.md). Общая Material 3 тема применяется ко всем экранам модуля.
 
 ## Открыть
 
@@ -28,4 +28,4 @@
 
 ## Проверки
 
-[Общая проверка и 56 снимков](../../../verification/material-theme/README.md), [сценарии конструктора](../../../verification/recipe-builder/README.md), [каталог](../textbooks/README.md). CSS px не равны физическим пикселям Android. Нативные IME, Back, TalkBack и жизненный цикл не проверяются HTML.
+[Общая проверка и 56 снимков](../../../releases/1.0.0.md), [сценарии конструктора](../../../releases/1.0.0.md), [каталог](../textbooks/README.md). CSS px не равны физическим пикселям Android. Нативные IME, Back, TalkBack и жизненный цикл не проверяются HTML.

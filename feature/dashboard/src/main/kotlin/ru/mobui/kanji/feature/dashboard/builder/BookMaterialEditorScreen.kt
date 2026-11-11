@@ -184,7 +184,7 @@ internal fun BookMaterialEditorScreen(
                                     ),
                                 ),
                             )
-                            if (invalid && source != null) MaterialFieldError(errorMessage, Modifier.testTag("material-error"))
+                            if (invalid) MaterialFieldError(errorMessage, Modifier.testTag("material-error"))
                             if (pool.isEmpty()) MaterialEmptyWords()
                             if (pool.isNotEmpty()) {
                                 MaterialWordsPreviewLink(pool.count(), { page = "preview" }, Modifier.testTag("material-preview"))

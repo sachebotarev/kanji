@@ -1,7 +1,9 @@
 package ru.mobui.kanji.domain.practice
 
 import kotlinx.coroutines.runBlocking
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Test
 import ru.mobui.kanji.domain.handwriting.WritingSample
 
@@ -48,7 +50,9 @@ class ShapeAcceptanceTest {
 
     @Test
     fun otherFailuresAndUnfinishedInputCannotBeSoftAccepted() {
-        assertFalse(shape(75f).copy(failures = listOf(CheckFailure.ShapeCoverage(75f, 80f), CheckFailure.StrokeCount(1, 2))).withShapeTolerance().acceptedWithPenalty)
+        assertFalse(shape(75f).copy(
+            failures = listOf(CheckFailure.ShapeCoverage(75f, 80f), CheckFailure.StrokeCount(1, 2)),
+        ).withShapeTolerance().acceptedWithPenalty)
         assertEquals(CheckVerdict.Incomplete, shape(75f).copy(verdict = CheckVerdict.Incomplete).withShapeTolerance().verdict)
         assertFalse(CheckReport(CheckVerdict.Correct).withShapeTolerance().acceptedWithPenalty)
         assertFalse(CheckReport(CheckVerdict.Incorrect).withShapeTolerance().acceptedWithPenalty)

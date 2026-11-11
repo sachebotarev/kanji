@@ -19,6 +19,7 @@ class BundledReferencesTest {
         assertEquals(required, KanjiVgStrokeFeatures.hookRequirement("㇚"))
         assertEquals(required, KanjiVgStrokeFeatures.hookRequirement("㇚a/㇆"))
         assertEquals(optional, KanjiVgStrokeFeatures.hookRequirement("㇚/㇑"))
+        assertEquals(optional, KanjiVgStrokeFeatures.hookRequirement("㇕/㇆"))
         assertEquals(plain, KanjiVgStrokeFeatures.hookRequirement("㇔/㇀"))
         assertEquals(unknown, KanjiVgStrokeFeatures.hookRequirement(null))
         assertEquals(unknown, KanjiVgStrokeFeatures.hookRequirement("㇚/６"))

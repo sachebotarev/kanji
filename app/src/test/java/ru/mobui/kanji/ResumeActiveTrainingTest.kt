@@ -56,5 +56,12 @@ class ResumeActiveTrainingTest {
         assertEquals(TaskClueMode.None, resumed.task.clueMode)
         assertEquals(HintMode.FullCharacter, resumed.task.strokeHintMode)
         assertEquals(5, resumed.training.maxNextStrokeHints)
+        val completed = training.copy(status = TrainingStatus.Completed,
+            tasks = training.tasks.map { it.copy(status = TrainingTaskStatus.Correct) })
+        assertEquals(TrainingStatus.Completed, requireNotNull(resumeActiveTraining(completed)).training.status)
+        val legacy = training.copy(tasks = training.tasks.map { task ->
+            task.copy(symbols = task.symbols.map { it.copy(kanjiKey = null) })
+        })
+        assertEquals("u65e5", requireNotNull(resumeActiveTraining(legacy)).task.kanji.single().kanjiId.value)
     }
 }

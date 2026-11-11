@@ -241,4 +241,5 @@
     <string name="setting_shape_soft_margin">Soft acceptance margin</string>
     <string name="help_shape_soft_margin" formatted="false">Allowed shortfall below the similarity threshold, in percentage points. A strictly smaller shortfall with no other errors is accepted with a 20% score penalty. Zero disables soft acceptance.</string>
     <string name="setting_percentage_points_value">%1$d pp</string>
+    <string name="check_stroke_correspondence">Could not match the written strokes to the reference.</string>
 </resources>

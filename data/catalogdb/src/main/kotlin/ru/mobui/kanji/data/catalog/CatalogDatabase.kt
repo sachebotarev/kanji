@@ -3,7 +3,6 @@ package ru.mobui.kanji.data.catalog
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
-import androidx.room.migration.Migration
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -41,7 +40,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             TrainingTaskTranslationsRow::class,
             TrainingTaskSymbolsRow::class,
         ],
-    version = 13,
+    version = 1,
     exportSchema = true,
 )
 internal abstract class CatalogDatabase : RoomDatabase() {
@@ -65,7 +64,7 @@ internal abstract class CatalogDatabase : RoomDatabase() {
         private fun installStaticChecks(context: Context, db: SupportSQLiteDatabase) {
             installOriginChecks(db)
             installRecipeChecks(db)
-            installTrainingChecksV13(db)
+            installTrainingChecksV1(db)
             context.assets.open("catalog-checks.sql").bufferedReader().useLines { lines ->
                 lines.filter { it.isNotBlank() }.forEach {
                     db.execSQL(it.replace("CREATE TRIGGER ", "CREATE TRIGGER IF NOT EXISTS "))
@@ -83,17 +82,6 @@ internal abstract class CatalogDatabase : RoomDatabase() {
 
         fun open(context: Context, name: String = "kanji.db"): CatalogDatabase =
             Room.databaseBuilder(context.applicationContext, CatalogDatabase::class.java, name)
-                .addMigrations(object : Migration(12, 13) {
-                    override fun migrate(db: SupportSQLiteDatabase) {
-                        db.execSQL("DROP INDEX IF EXISTS source_words_with_kanji")
-                        db.execSQL("DROP INDEX IF EXISTS source_words_without_kanji")
-                        db.execSQL("DROP INDEX IF EXISTS idx_trainings_one_in_progress")
-                        db.execSQL("DROP INDEX IF EXISTS idx_recipes_active")
-                        installTrainingChecksV13(db)
-                    }
-                })
-                // Earlier unsupported pre-release schemas retain the existing replacement policy.
-                .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {

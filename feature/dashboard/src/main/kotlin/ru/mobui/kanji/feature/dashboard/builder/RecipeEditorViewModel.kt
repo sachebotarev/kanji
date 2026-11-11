@@ -120,6 +120,12 @@ internal class RecipeEditorViewModel(private val saved: SavedStateHandle, privat
         }
     }
 
+    fun acknowledgeSaved() {
+        saved["completed"] = false
+        saved["completed-id"] = null
+        mutable.update { it.copy(completed = false, completedId = null) }
+    }
+
     private companion object {
         val logger: Logger = Logger.getLogger("ru.mobui.kanji.RecipeEditor")
     }

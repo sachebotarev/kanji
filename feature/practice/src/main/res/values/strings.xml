@@ -241,4 +241,5 @@
     <string name="setting_shape_soft_margin">Допуск мягкого принятия</string>
     <string name="help_shape_soft_margin" formatted="false">Допустимый недобор до порога сходства, в процентных пунктах. Если недобор строго меньше этого значения и других ошибок нет, форма принимается со штрафом 20%. Ноль отключает мягкое принятие.</string>
     <string name="setting_percentage_points_value">%1$d п.п.</string>
+    <string name="check_stroke_correspondence">Не удалось сопоставить написанные штрихи с эталоном.</string>
 </resources>
