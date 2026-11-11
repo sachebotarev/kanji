@@ -726,6 +726,7 @@ private fun PracticePadDestination(
                         active.ordinal,
                         active.total,
                     ),
+                isFirstWord = active.ordinal == 1,
             )
         } else {
             val language = LocalConfiguration.current.preferredLanguageTag()

@@ -2,7 +2,7 @@
 const $ = selector => document.querySelector(selector);
 const escapeHTML = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const copy = {
-  ru: {app:'Кандзи дэс нэ',home:'Главная',practice:'Тренировка',dictionary:'Мой словарь',word:'Слово',editor:'Новое слово',edit:'Редактирование',catalog:'Учебники',book:'Учебник',chapter:'Глава',back:'Назад',settings:'Настройки',traces:'Следы тренировок',streak:'7 дней подряд',current:'Выбранный рецепт',choose:'Выбрать',mix:'Умный микс',longName:'Кандзи из первых глав учебника и слова для повторения',config:'10 слов · 1 мин на слово',notYet:'Ещё не тренировались',launch:'Ня! Начнём?',newTraining:'Новая тренировка',dictionaries:'Словари / 単語',catalogLabel:'Каталог',catalogDesc:'Учебники, кандзи и ключи',wordsCount:'156 слов',search:'Слово, чтение или перевод',addWord:'Добавить слово',empty:'Здесь будут твои слова',emptyHint:'Добавь первое — и словарь начнёт расти.',noResults:'Пока ничего не нашлось',retryHint:'Попробуй другое слово или чтение.',loading:'Загружаем словарь',loadError:'Не удалось открыть словарь',retry:'Повторить',written:'Написание',reading:'Чтение',translations:'Переводы',translation:'Перевод',addTranslation:'Добавить перевод',save:'Сохранить',create:'Добавить в словарь',cancel:'Отмена',delete:'Удалить',deleteTitle:'Удалить слово?',deleteText:'Эта запись исчезнет из твоего словаря.',unsaved:'Сбросить изменения?',unsavedText:'Все внесённые правки будут потеряны.',leaveUnsaved:'Выйти',discard:'Не сохранять',keepEditing:'Продолжить редактирование',required:'Заполни написание, чтение и хотя бы один перевод.',duplicateLanguage:'Для каждого перевода выбери отдельный язык.',duplicateWord:'Запись с таким написанием и чтением уже есть.',language:'Язык перевода',russian:'Русский',english:'Английский',otherLanguage:'Другой язык…',languageTag:'Код языка, например de или pt-BR',languageError:'Введи корректный код языка.',removeTranslation:'Удалить перевод',personalOrigin:'Добавлено тобой',translationMissing:'Перевод пока не добавлен',kanji:'Кандзи',words:'Слова',radicals:'Ключи',origin:'Источник',hint:'Подсказка',undo:'Отменить',clear:'Очистить',skip:'Пропустить',next:'Далее',readability:'Читаемость',shape:'Форма',strokes:'Черты',pending:'Пока —',correct:'Верно',incorrect:'Исправь',editing:'Продолжай',assisted:'С подсказкой',unavailable:'Недоступно',checkUnavailable:'Проверка сейчас недоступна. Рисунок сохранён.',prompt:'Электроэнцефалография',hintPrompt:'Обведи знак по подсказке',wordPosition:'Слово 1 из 10',result:'Задание завершено',skipped:'Задание пропущено',resultHint:'Можно вернуться на главную.',close:'Закрыть',recipeOptions:'Выбрать рецепт',practiceLabel:'Практика',bookDesc:'Учебник кандзи',chapterOne:'Глава 1',chapterTwo:'Глава 2',chapterThree:'Глава 3',chapterFour:'Глава 4',catalogSearch:'Найти учебник',info:'Подробнее',chapterContents:'Содержание главы',strokeCount:'Количество штрихов',studyKanji:'Знак из учебного материала',statTitle:'Следы занятий',statInfo:'Здесь собираются твои занятия: самостоятельно, с подсказкой и с исправлениями.',activityInfo:'Каждая клетка — день, когда ты занимался. Продолжим сегодня?',modelInfo:'Настройки проверки и загрузка модели доступны в приложении Android.',bookInfo:'Главы и учебные записи показаны для обсуждения структуры.',chooseHint:'10 слов · без спешки',summary:'Результат',saved:'Сохранено',wordCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'слово':new Intl.PluralRules('ru').select(n)==='few'?'слова':'слов'}`},
+  ru: {app:'Кандзи дэс нэ',home:'Главная',practice:'Тренировка',dictionary:'Мой словарь',word:'Слово',editor:'Новое слово',edit:'Редактирование',catalog:'Учебники',book:'Учебник',chapter:'Глава',back:'Назад',settings:'Настройки',traces:'Следы тренировок',streak:'7 дней подряд',current:'Выбранный рецепт',choose:'Выбрать',mix:'Умный микс',longName:'Кандзи из первых глав учебника и слова для повторения',config:'10 слов · 1 мин на слово',notYet:'Ещё не тренировались',launch:'Ня! Начнём?',newTraining:'Новая тренировка',dictionaries:'Словари / 単語',catalogLabel:'Каталог',catalogDesc:'Учебники, кандзи и ключи',wordsCount:'156 слов',search:'Слово, чтение или перевод',addWord:'Добавить слово',empty:'Здесь будут твои слова',emptyHint:'Добавь первое — и словарь начнёт расти.',noResults:'Пока ничего не нашлось',retryHint:'Попробуй другое слово или чтение.',loading:'Загружаем словарь',loadError:'Не удалось открыть словарь',retry:'Повторить',written:'Написание',reading:'Чтение',translations:'Переводы',translation:'Перевод',addTranslation:'Добавить перевод',save:'Сохранить',create:'Добавить в словарь',cancel:'Отмена',delete:'Удалить',deleteTitle:'Удалить слово?',deleteText:'Эта запись исчезнет из твоего словаря.',unsaved:'Сбросить изменения?',unsavedText:'Все внесённые правки будут потеряны.',leaveUnsaved:'Выйти',discard:'Не сохранять',keepEditing:'Продолжить редактирование',required:'Заполни написание, чтение и хотя бы один перевод.',duplicateLanguage:'Для каждого перевода выбери отдельный язык.',duplicateWord:'Запись с таким написанием и чтением уже есть.',language:'Язык перевода',russian:'Русский',english:'Английский',otherLanguage:'Другой язык…',languageTag:'Код языка, например de или pt-BR',languageError:'Введи корректный код языка.',removeTranslation:'Удалить перевод',personalOrigin:'Добавлено тобой',translationMissing:'Перевод пока не добавлен',kanji:'Кандзи',words:'Слова',radicals:'Ключи',origin:'Источник',hint:'Помощь',undo:'Отменить',clear:'Очистить',skip:'Пропустить',next:'Далее',readability:'Знак',shape:'Форма',strokes:'Черты',pending:'Пока —',correct:'Верно',incorrect:'Исправь',editing:'Продолжай',assisted:'С подсказкой',unavailable:'Недоступно',checkUnavailable:'Проверка сейчас недоступна. Рисунок сохранён.',prompt:'Электроэнцефалография',hintPrompt:'Обведи знак по подсказке',wordPosition:'Слово 1 из 10',result:'Задание завершено',skipped:'Задание пропущено',resultHint:'Можно вернуться на главную.',close:'Закрыть',recipeOptions:'Выбрать рецепт',practiceLabel:'Практика',bookDesc:'Учебник кандзи',chapterOne:'Глава 1',chapterTwo:'Глава 2',chapterThree:'Глава 3',chapterFour:'Глава 4',catalogSearch:'Найти учебник',info:'Подробнее',chapterContents:'Содержание главы',strokeCount:'Количество штрихов',studyKanji:'Знак из учебного материала',statTitle:'Следы занятий',statInfo:'Здесь собираются твои занятия: самостоятельно, с подсказкой и с исправлениями.',activityInfo:'Каждая клетка — день, когда ты занимался. Продолжим сегодня?',modelInfo:'Настройки проверки и загрузка модели доступны в приложении Android.',bookInfo:'Главы и учебные записи показаны для обсуждения структуры.',chooseHint:'10 слов · без спешки',summary:'Результат',saved:'Сохранено',wordCount:n=>`${n} ${new Intl.PluralRules('ru').select(n)==='one'?'слово':new Intl.PluralRules('ru').select(n)==='few'?'слова':'слов'}`},
   en: {app:'Kanji Desu Ne',home:'Home',practice:'Training',dictionary:'My dictionary',word:'Word',editor:'New word',edit:'Edit word',catalog:'Textbooks',book:'Textbook',chapter:'Chapter',back:'Back',settings:'Settings',traces:'Training footprints',streak:'7-day streak',current:'Selected recipe',choose:'Choose',mix:'Smart mix',longName:'Kanji from the first textbook chapters and words to review',config:'10 words · 1 min per word',notYet:'No trainings yet',launch:'Meow! Ready?',newTraining:'New training',dictionaries:'Dictionaries / 単語',catalogLabel:'Catalog',catalogDesc:'Textbooks, kanji and radicals',wordsCount:'156 words',search:'Word, reading or translation',addWord:'Add word',empty:'Your words will live here',emptyHint:'Add the first one to start your collection.',noResults:'No words found',retryHint:'Try another word or reading.',loading:'Loading dictionary',loadError:'Could not open dictionary',retry:'Try again',written:'Written form',reading:'Reading',translations:'Translations',translation:'Translation',addTranslation:'Add translation',save:'Save',create:'Add to dictionary',cancel:'Cancel',delete:'Delete',deleteTitle:'Delete word?',deleteText:'This entry will be removed from your dictionary.',unsaved:'Discard changes?',unsavedText:'All edits will be lost.',leaveUnsaved:'Leave',discard:'Discard',keepEditing:'Keep editing',required:'Enter the written form, reading and at least one translation.',duplicateLanguage:'Choose a different language for each translation.',duplicateWord:'An entry with this written form and reading already exists.',language:'Translation language',russian:'Russian',english:'English',otherLanguage:'Another language…',languageTag:'Language tag, e.g. de or pt-BR',languageError:'Enter a valid language tag.',removeTranslation:'Remove translation',personalOrigin:'Added by you',translationMissing:'No translation yet',kanji:'Kanji',words:'Words',radicals:'Radicals',origin:'Source',hint:'Hint',undo:'Undo',clear:'Clear',skip:'Skip',next:'Next',readability:'Reading',shape:'Shape',strokes:'Strokes',pending:'Not yet',correct:'Correct',incorrect:'Try again',editing:'Keep going',assisted:'With a hint',unavailable:'Unavailable',checkUnavailable:'Checking is unavailable. Your drawing is kept.',prompt:'Electroencephalography',hintPrompt:'Trace the character',wordPosition:'Word 1 of 10',result:'Task complete',skipped:'Task skipped',resultHint:'You can return to the home screen.',close:'Close',recipeOptions:'Choose recipe',practiceLabel:'Practice',bookDesc:'Kanji textbook',chapterOne:'Chapter 1',chapterTwo:'Chapter 2',chapterThree:'Chapter 3',chapterFour:'Chapter 4',catalogSearch:'Find a textbook',info:'Details',chapterContents:'Chapter contents',strokeCount:'Stroke count',studyKanji:'Character from the learning material',statTitle:'Training footprints',statInfo:'Your practice comes together here: on your own, with hints and with corrections.',activityInfo:'Each square is a day you practised. Shall we continue today?',modelInfo:'Checker settings and model download are available in the Android app.',bookInfo:'Chapters and sample entries illustrate the proposed structure.',chooseHint:'10 words · at your own pace',summary:'Result',saved:'Saved',wordCount:n=>`${n} ${n===1?'word':'words'}`}
 };
 let locale='ru';
@@ -37,7 +37,7 @@ Object.assign(copy.ru,{
  trainingPick:'Выбор рецепта',
  stampExcellent:'Отлично! Печать мастера',
  continueLaunch:'Продолжим?',
- wordProgress:(n,m)=>`Слово ${n} из ${m}`,
+ wordProgress:(n,m)=>`Задание ${n} из ${m}`,
  startNewTraining:'Начать новую',
  abandonTraining:'Начать новую тренировку?',
  abandonTrainingText:'Незавершённая тренировка будет прервана. Прогресс по ней сохранится как прерванный.',
@@ -54,8 +54,9 @@ Object.assign(copy.ru,{
  reading_hidden:'Произношение скрыто',
  reading_revealed:'Произношение открыто',
  checks_testing:'Проверки (тестирование)',
- check_readability:'Читаемость',
+ check_readability:'Знак',
  check_shape:'Форма',
+ shape_soft_state:'Форма принята со штрафом',
  check_writing_short:'Черты',
  check_passed:'Пройдена',
  check_failed:'Требуется исправление',
@@ -96,7 +97,7 @@ Object.assign(copy.en,{
  trainingPick:'Choose recipe',
  stampExcellent:'Excellent! Master stamp',
  continueLaunch:'Continue?',
- wordProgress:(n,m)=>`Word ${n} of ${m}`,
+ wordProgress:(n,m)=>`Task ${n} of ${m}`,
  startNewTraining:'Start new',
  abandonTraining:'Start a new training?',
  abandonTrainingText:'The unfinished training will be interrupted. Its progress stays as interrupted.',
@@ -115,6 +116,7 @@ Object.assign(copy.en,{
  checks_testing:'Checks (testing)',
  check_readability:'Reading',
  check_shape:'Shape',
+ shape_soft_state:'Shape accepted with a penalty',
  check_writing_short:'Strokes',
  check_passed:'Passed',
  check_failed:'Needs correction',
@@ -141,6 +143,7 @@ const sampleWords=[
  {id:-5,written:'山',reading:'やま',translations:[{language_tag:'ru',text:'гора'},{language_tag:'en',text:'mountain'}],personal:false}
 ];
 let words=[...structuredClone(sampleWords.filter(w=>!w.personal)),...PersonalWords.read()],selectedId=-1,wordSource='dictionary',query='',catalogQuery='',bookId=0,chapterId=1,chapterTab='kanji',recipeName=null;
+let practiceHintUses = {};
 let draft=null,draftOriginal='',editingId=null,lastEditorScreen='dictionary',practiceState='empty',practiceCompleteGrade='excellent',homeTraining='idle',hint=false,selectedCell=0;
 let readingRevealed=false;
 let practiceWordIndex=0;
@@ -249,8 +252,9 @@ function openPromptFullDialog(){
 }
 function openCheckDetails(kind){
  const k=currentPracticeKanji();
- const isCorrect=['correct','assisted'].includes(practiceState);
+ const isCorrect=['correct','assisted','soft-shape'].includes(practiceState);
  const isIncorrect=practiceState==='incorrect';
+ const isSoft=practiceState==='soft-shape'&&kind==='shape';
  let title='',status=isCorrect?t('check_passed'):isIncorrect?t('check_failed'):t('check_pending'),rows=[];
  if(kind==='readability'){
   title=t('check_readability');
@@ -261,7 +265,7 @@ function openCheckDetails(kind){
  } else if(kind==='shape'){
   title=t('check_shape');
   rows=[
-   {label:t('check_similarity'),val:isCorrect?'96%':isIncorrect?'68%':'—'},
+   {label:t('check_similarity'),val:isSoft?'75%':isCorrect?'96%':isIncorrect?'68%':'—'},
    {label:t('check_compensation'),val:isCorrect?'8%':isIncorrect?'14%':'0%'}
   ];
  } else {
@@ -273,7 +277,8 @@ function openCheckDetails(kind){
    {label:t('check_order'),val:isCorrect?(locale==='ru'?'Соблюдён':'Complied'):(locale==='ru'?'Ожидает проверки':'Pending')}
   ];
  }
- const body=`<p style="font-weight:600;margin:0 0 12px;color:${isCorrect?'var(--primary)':isIncorrect?'var(--error)':'var(--muted)'}">${escapeHTML(status)}</p><div style="display:grid;gap:10px;font-size:14px">${rows.map(r=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${escapeHTML(r.label)}</span><strong>${escapeHTML(r.val)}</strong></div>`).join('')}</div>`;
+ if(isSoft){status=locale==='ru'?'Принято со штрафом':'Accepted with a penalty';rows.push({label:locale==='ru'?'Штраф за форму':'Shape penalty',val:'20%'});}
+ const body=`<p style="font-weight:600;margin:0 0 12px;color:${isSoft?'#a18b51':isCorrect?'var(--primary)':isIncorrect?'var(--error)':'var(--muted)'}">${escapeHTML(status)}</p><div style="display:grid;gap:10px;font-size:14px">${rows.map(r=>`<div style="display:flex;justify-content:space-between;gap:8px"><span>${escapeHTML(r.label)}</span><strong>${escapeHTML(r.val)}</strong></div>`).join('')}</div>`;
  showModal(title,body,[{label:t('check_understood'),primary:true,fn:closeModal}]);
 }
 let modalClose=null;
@@ -281,7 +286,7 @@ let selectedWordOrigin=null;
 let screen='home';
 const screens=['dictionary-kanji','dictionary-translations','dictionary-tags','material-filter','recipe-words','recipe-source','recipe-material-view','settings','checker-settings','recipes','recipe-detail','recipe-editor','training-pick','home','practice','practice-complete','dictionary','word','editor','catalog','book','chapter'];
 const names={'dictionary-kanji':'kanji','dictionary-translations':'otherTranslations','dictionary-tags':'dictionaryTags','material-filter':'materials','recipe-words':'wordPool','recipe-source':'addSource','recipe-material-view':'materialType',settings:'settings','checker-settings':'checkerSettings',recipes:'recipes','recipe-detail':'recipeDetail','recipe-editor':'recipeEditor','training-pick':'trainingPick',home:'home',practice:'practice','practice-complete':'practiceComplete',dictionary:'dictionary',word:'word',editor:'editor',catalog:'catalog',book:'book',chapter:'chapter'};
-const captions={home:'Черновик: книга рецептов отдельно; незавершённая — статус на кнопке и диалог. HOME.W02/W03 открывают следы тренировок (HOME.02).',practice:'Практика: приведено в соответствие Android (WordPrompt с диалогом перевода, ReadingSpoiler со скрытием чтения, полоса ячеек с миниатюрами, показатели проверки с диалогом деталей PRACTICE.D01, круглые инструменты и диалог прерывания PRACTICE.D04).','practice-complete':'Итог тренировки: процент, три уровня оценки и маскот. Состояния оценки переключаются слева; расчёт — training-grade.md.','training-pick':'Черновик: выбор рецепта перед стартом тренировки. Тап по карточке открывает PRACTICE. Требует согласования.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
+const captions={home:'Черновик: книга рецептов отдельно; незавершённая — статус на кнопке и диалог. HOME.W02/W03 открывают следы тренировок (HOME.02).',practice:'Тренировка: HTML демонстрирует основные состояния; жестовый режим и автоматические переходы проверяются в Android. Компоненты (WordPrompt с диалогом перевода, ReadingSpoiler со скрытием чтения, полоса ячеек с миниатюрами, показатели проверки с диалогом деталей PRACTICE.D01, круглые инструменты и диалог прерывания PRACTICE.D04).','practice-complete':'Итог тренировки: процент, три уровня оценки и маскот. Состояния оценки переключаются слева; расчёт — training-grade.md.','training-pick':'Черновик: выбор рецепта перед стартом тренировки. Тап по карточке открывает PRACTICE. Требует согласования.',dictionary:'Черновик модуля словаря. Работают поиск, открытие, создание и редактирование записей. Можно переключить пустое состояние, загрузку и ошибку.',word:'Просмотр записи. Японское написание, чтение и переводы разделены по ролям. Записи из каталога доступны для просмотра; пользовательские — для изменения.',editor:'Редактор слов, выражений и предложений. Переводы хранятся по language_tag. Сохранение и подтверждение выхода работают в памяти прототипа.',catalog:'Предложение каталога: учебник как точка входа к главам. Главы и кандзи взяты из базы приложения; для каждой главы показаны первые восемь слов. Обложки условные.',book:'Реальные главы и счётчики из базы приложения. Работают вкладки глав, кандзи и слов. Прогресс обучения не придуман.',chapter:'Кандзи и слова связаны с главами по базе приложения. Все кандзи главы и первые восемь слов; значения счётчиков относятся к полной базе.'};
 const wordById=()=>words.find(w=>w.id===selectedId)||window.CATALOG_DATA.flatMap(b=>b.chapters.flatMap(c=>c.words)).find(w=>w.id===selectedId)||words[0];
 function translation(word){return word.translations.find(x=>x.language_tag===locale)?.text||word.translations.find(x=>x.language_tag==='ru')?.text||t('translationMissing');}
 function openCatalogRoute(route){PersonalWords.write(words,dictionaryTags);if(parent!==window){parent.postMessage({type:'kanji-viewer-navigate',module:'catalog',route},location.origin);return;}location.href='../textbooks/#'+route;}
@@ -313,7 +318,7 @@ function render(){
  $('#screen-nav').innerHTML=screens.map((id,i)=>`<a class="nav-link ${id===screen?'active':''}" href="#${id}" ${id===screen?'aria-current="page"':''}><span class="nav-number">${String(i+1).padStart(2,'0')}</span>${escapeHTML(t(names[id]))}</a>`).join('');
  $('#screen-title').textContent=t(screen==='editor'&&editingId?'edit':names[screen]);$('#screen-caption').textContent=captions[screen];
  $('#model-state-label').hidden=screen!=='settings';
- $('#practice-state-label').hidden=screen!=='practice';$('#practice-complete-grade-label').hidden=screen!=='practice-complete';$('#dictionary-state-label').hidden=screen!=='dictionary';
+ $('#practice-state-label').hidden=screen!=='practice';const softOption=document.querySelector('#practice-state option[value="soft-shape"]');if(softOption)softOption.textContent=t('shape_soft_state');$('#practice-complete-grade-label').hidden=screen!=='practice-complete';$('#dictionary-state-label').hidden=screen!=='dictionary';
  $('#home-state-label').hidden=screen!=='home';
  if(screen==='home'){const homeState=$('#home-state');if(homeState)homeState.value=homeTraining;}
  const views={'dictionary-kanji':()=>dictionaryKanjiView(),'dictionary-translations':()=>dictionaryTranslationsView(),'dictionary-tags':()=>dictionaryTagsView(),'material-filter':renderMaterialFilter,'recipe-words':recipeWordsView,'recipe-source':sourcePicker,'recipe-material-view':recipeMaterialView,settings:settingsView,'checker-settings':checkerSettingsView,recipes:recipesView,'recipe-detail':recipeDetailView,'recipe-editor':recipeEditorView,'training-pick':trainingPickView,'training-history':trainingHistoryView,'training-history-detail':trainingHistoryDetailView,home:homeView,practice:practiceView,'practice-complete':practiceCompleteView,dictionary:dictionaryView,word:wordView,editor:editorView,catalog:catalogView,book:bookView,chapter:chapterView};
@@ -371,22 +376,34 @@ function practiceView(){
  const wordsList=currentPracticeWords();
  const word=currentPracticeWord();
  const k=currentPracticeKanji();
- const isComplete=['correct','assisted'].includes(practiceState),isError=practiceState==='incorrect';
+ const isComplete=['correct','assisted','soft-shape'].includes(practiceState),isError=practiceState==='incorrect';
  const totalWords=wordsList.length,wordNum=practiceWordIndex+1;
  const progressText=t('wordProgress')(wordNum,totalWords);
  const promptText=word.translation;
  const isLong=$('#long-text')?.checked||promptText.length>55;
  const readabilityVal=isComplete?`○ ${k.char}`:isError?'× —':'—';
- const shapeVal=isComplete?'96%':isError?'68%':'—';
+ const isSoft=practiceState==='soft-shape';
+ const shapeVal=isSoft?'75%':isComplete?'96%':isError?'68%':'—';
  const strokeTarget=k.strokes||10;
  const drawnStrokes=strokes[selectedCell]?.length||(isComplete?strokeTarget:0);
  const strokesVal=isComplete?String(strokeTarget):drawnStrokes?String(drawnStrokes):'0';
- const feedbackText=practiceState==='unavailable'?t('checkUnavailable'):hint?t('hintPrompt'):isError?t('incorrect'):isComplete?t('correct'):'';
+ const feedbackText=practiceState==='unavailable'?t('checkUnavailable'):'';
  const canUndo=Boolean(strokes[selectedCell]?.length);
  const canClear=Boolean(strokes[selectedCell]?.length);
  const canSubmit=isComplete;
+ const wordHeaderHints=readingRevealed?1:0;
+ const hintMax=typeof flowSettings==='undefined'?3:flowSettings.maxHints;
+ const strokeHints=Object.entries(practiceHintUses).filter(([k])=>k.startsWith(`${practiceWordIndex}:`)).reduce((a,[,v])=>a+v,0);
+ const hintUsed=strokeHints+wordHeaderHints;
+ const hintsRemaining=Math.max(0,hintMax-hintUsed);
+ const acceptedStyle=practiceState==='assisted'||isSoft?'assisted':'success';
+ const hintValue=`${hintUsed}/${hintMax}`;
+ const hintTone=hintUsed>0?(hintMax>0&&hintUsed>=hintMax?'error':'assisted'):isComplete?'success':'';
+ const anyHintUsed=hintUsed>0;
+ const anyBudgetSpent=hintMax>0&&hintUsed>=hintMax;
+ const nextTone=anyBudgetSpent?'negative':anyHintUsed||practiceState==='assisted'||isSoft?'assisted':'success';
 
- return `<div class="practice"><header class="appbar practice-appbar"><button type="button" class="icon-button" data-action="practice-back" aria-label="${t('back')}">${icon('back')}</button><h2 class="practice-title">${t('practice_title')} <span class="practice-progress-num">${escapeHTML(progressText)}</span></h2><span class="practice-timer" aria-label="${t('statTime')}">${icon('timer','timer-icon')}<span class="timer-digits">0:45</span></span></header><div class="practice-content"><div class="practice-prompt-wrap"><h3 class="practice-prompt"><span>${escapeHTML(promptText)}</span>${isLong?`<button type="button" class="prompt-more" data-action="prompt-more">… ${t('prompt_more')}</button>`:''}</h3></div><div class="reading-spoiler ${readingRevealed?'':'hidden'}" data-action="reading-spoiler" role="button" tabindex="0" aria-label="${readingRevealed?t('reading_revealed'):t('reading_hidden')}"><span class="reading-spoiler-text" lang="ja">${escapeHTML(word.reading)}</span><div class="reading-spoiler-grain" aria-hidden="true"></div></div><div class="practice-strip" aria-label="${t('kanji')}">${word.kanji.map((cellItem,i)=>{const isSelected=selectedCell===i,isPrefilled=cellItem.prefilled,isCellCorrect=isComplete,isCellError=isError&&isSelected;const statusCls=isPrefilled?'prefilled':isCellCorrect?'correct':isCellError?'incorrect':isSelected?'selected':'';let content='';if(isPrefilled){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}else if(strokes[i]?.length){content=svgThumb(strokes[i]);}else if(isCellCorrect||(isCellError&&!strokes[i]?.length)){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}return `<div class="practice-cell-wrap ${isSelected?'selected':''}"><button type="button" class="kanji-cell ${statusCls}" ${isPrefilled?'disabled':''} data-action="cell:${i}" aria-label="${locale==='ru'?'Знак':'Character'} ${i+1}" aria-pressed="${isSelected}">${content}</button><span class="cell-underline" aria-hidden="true"></span></div>`;}).join('')}</div><div class="practice-divider" aria-hidden="true"></div><div class="practice-checkers" aria-label="${t('checks_testing')}"><button type="button" class="practice-checker-card" data-action="check:readability"><span class="practice-checker-label">${t('check_readability')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${readabilityVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:shape"><span class="practice-checker-label">${t('check_shape')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${shapeVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:strokes"><span class="practice-checker-label">${t('check_writing_short')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${strokesVal}</strong></button></div><div class="drawing-wrap"><svg class="drawing-grid" viewBox="0 0 320 320" aria-hidden="true"><path d="M160 0v320M0 160h320"/><path class="diagonal" d="m0 0 320 320M320 0 0 320"/></svg>${(hint||isComplete)&&k.svg?`<img class="hint-reference ${isComplete?'sample-answer':''}" src="assets/${k.svg}.svg" alt="" onerror="this.style.display='none'">`:''}<canvas id="ink" aria-label="${locale==='ru'?'Поле для письма. Рисуйте мышью или пальцем.':'Drawing pad. Use a pointer or touch.'}"></canvas></div>${feedbackText?`<p class="practice-feedback ${isError?'error':''}" aria-live="polite">${escapeHTML(feedbackText)}</p>`:''}</div><div class="practice-bottom-bar"><button type="button" class="practice-round-tool" data-action="undo" ${canUndo?'':'disabled'} aria-label="${t('undo')}">${icon('undo')}</button><button type="button" class="practice-round-tool" data-action="clear" ${canClear?'':'disabled'} aria-label="${t('clear')}">${icon('trash')}</button><button type="button" class="practice-round-tool ${hint?'active':''}" data-action="hint" aria-pressed="${hint}" aria-label="${t('hint')}">${icon('hint')}</button><button type="button" class="practice-submit-btn" data-action="practice-submit" ${canSubmit?'':'disabled'}>${t('next')}</button></div></div>`;
+ return `<div class="practice"><header class="appbar practice-appbar"><button type="button" class="icon-button" data-action="practice-back" aria-label="${t('back')}">${icon('back')}</button><h2 class="practice-title">${escapeHTML(progressText)}</h2><span class="practice-timer" aria-label="${t('statTime')}">${icon('timer','timer-icon')}<span class="timer-digits">0:45</span></span></header><div class="practice-content"><div class="practice-prompt-wrap"><h3 class="practice-prompt"><span>${escapeHTML(promptText)}</span>${isLong?`<button type="button" class="prompt-more" data-action="prompt-more">… ${t('prompt_more')}</button>`:''}</h3></div><div class="reading-spoiler ${readingRevealed?'':'hidden'}" data-action="reading-spoiler" role="button" tabindex="0" aria-label="${readingRevealed?t('reading_revealed'):t('reading_hidden')}"><span class="reading-spoiler-text" lang="ja">${escapeHTML(word.reading)}</span><div class="reading-spoiler-grain" aria-hidden="true"></div></div><div class="practice-strip" aria-label="${t('kanji')}">${word.kanji.map((cellItem,i)=>{const isSelected=selectedCell===i,isPrefilled=cellItem.prefilled,isCellCorrect=isComplete,isCellError=isError&&isSelected;const statusCls=isPrefilled?'prefilled':isCellCorrect?(practiceState==='assisted'||isSoft?`correct ${acceptedStyle}`:'correct'):isCellError?'incorrect':isSelected?'selected':'';let content='';if(isPrefilled){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}else if(strokes[i]?.length){content=svgThumb(strokes[i]);}else if(isCellCorrect||(isCellError&&!strokes[i]?.length)){content=`<span class="cell-glyph" lang="ja">${escapeHTML(cellItem.char)}</span>`;}return `<div class="practice-cell-wrap ${isSelected?'selected':''}"><button type="button" class="kanji-cell ${statusCls}" ${isPrefilled?'disabled':''} data-action="cell:${i}" aria-label="${locale==='ru'?'Знак':'Character'} ${i+1}" aria-pressed="${isSelected}">${content}</button><span class="cell-underline" aria-hidden="true"></span></div>`;}).join('')}</div><div class="practice-divider" aria-hidden="true"></div><div class="practice-checkers" aria-label="${t('checks_testing')}"><button type="button" class="practice-checker-card" data-action="check:readability"><span class="practice-checker-label">${t('check_readability')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${readabilityVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:shape"><span class="practice-checker-label">${t('check_shape')}</span><strong class="practice-checker-val ${isSoft?'assisted':isComplete?'success':isError?'error':''}">${shapeVal}</strong></button><button type="button" class="practice-checker-card" data-action="check:strokes"><span class="practice-checker-label">${t('check_writing_short')}</span><strong class="practice-checker-val ${isComplete?'success':isError?'error':''}">${strokesVal}</strong></button><button type="button" class="practice-checker-card" data-action="hint-info"><span class="practice-checker-label">${t('hint')}</span><strong class="practice-checker-val hint-usage ${hintTone}">${hintValue}</strong></button></div><div class="drawing-wrap"><svg class="drawing-grid" viewBox="0 0 320 320" aria-hidden="true"><path d="M160 0v320M0 160h320"/><path class="diagonal" d="m0 0 320 320M320 0 0 320"/></svg>${(hint||isComplete)&&k.svg?`<img class="hint-reference ${isComplete?'sample-answer':''}" src="assets/${k.svg}.svg" alt="" onerror="this.style.display='none'">`:''}<canvas id="ink" aria-label="${locale==='ru'?'Поле для письма. Рисуйте мышью или пальцем.':'Drawing pad. Use a pointer or touch.'}"></canvas></div>${feedbackText?`<p class="practice-feedback ${isError?'error':''}" aria-live="polite">${escapeHTML(feedbackText)}</p>`:''}</div><div class="practice-bottom-bar"><button type="button" class="practice-round-tool" data-action="undo" ${canUndo?'':'disabled'} aria-label="${t('undo')}">${icon('undo')}</button><button type="button" class="practice-round-tool" data-action="clear" ${canClear?'':'disabled'} aria-label="${t('clear')}">${icon('trash')}</button><button type="button" class="practice-round-tool ${hint?'active':''}" data-action="hint" ${hintsRemaining===0?'disabled':''} aria-pressed="${hint}" aria-label="${t('hint')}">${icon('hint')}</button><button type="button" class="practice-submit-btn ${canSubmit?nextTone:'skip'}" data-action="practice-submit">${t(canSubmit?'next':'skip')}</button></div></div>`;
 }
 function practiceCompleteDemo(grade){
  const demos={
@@ -456,8 +473,34 @@ document.addEventListener('click',e=>{
  else if(action==='remove-translation'){draft.translations.splice(Number(value),1);render();}
  else if(action==='practice-back')openPracticeInterruptDialog();
  else if(action==='prompt-more')openPromptFullDialog();
- else if(action==='reading-spoiler'){readingRevealed=!readingRevealed;render();}
- else if(action==='hint'){hint=!hint;render();}
+ else if(action==='reading-spoiler'){readingRevealed=true;render();}
+ else if(action==='hint-info'){
+  const max=typeof flowSettings==='undefined'?3:flowSettings.maxHints;
+  const wordHeaderHints=readingRevealed?1:0;
+  const strokeHints=Object.entries(practiceHintUses).filter(([k])=>k.startsWith(`${practiceWordIndex}:`)).reduce((a,[,v])=>a+v,0);
+  const used=strokeHints+wordHeaderHints;
+  const remaining=Math.max(0,max-used),score=Math.round(100*Math.pow(0.8,used)*(practiceState==='soft-shape'?0.8:1));
+  let explanation='';
+  if(max===0){
+   explanation=locale==='ru'?'Помощь отключена в настройках.':'Hints are disabled in settings.';
+  } else if(used===0&&practiceState!=='soft-shape'){
+   explanation=locale==='ru'?'Каждая подсказка снижает оценку за знак на 20%.':'Each hint reduces the character score by 20%.';
+  } else {
+   const reasons=[];
+   if(used>0)reasons.push(locale==='ru'?`Подсказки: использовано ${used} (–20% за каждую)`:`Hints: ${used} used (–20% each)`);
+   if(practiceState==='soft-shape')reasons.push(locale==='ru'?'Форма принята с неточностями (–20%)':'Shape accepted with inaccuracies (–20%)');
+   explanation=`<strong>${locale==='ru'?'Причины снижения оценки:':'Reasons for score reduction:'}</strong><ul style="margin:4px 0 0 16px;padding:0">${reasons.map(r=>`<li>${escapeHTML(r)}</li>`).join('')}</ul>`;
+  }
+  showModal(t('hint'),`<p>${locale==='ru'?'Осталось':'Remaining'}: ${remaining} / ${max}</p><p>${locale==='ru'?'Оценка за знак при верном ответе':'Character score for a correct answer'}: ${score}%</p><div style="font-size:14px;color:var(--muted)">${explanation}</div>`,[{label:t('close'),fn:closeModal}]);
+ }
+ else if(action==='hint'){
+  const key=`${practiceWordIndex}:${selectedCell}`,max=typeof flowSettings==='undefined'?3:flowSettings.maxHints;
+  const wordHeaderHints=readingRevealed?1:0;
+  const strokeHints=Object.entries(practiceHintUses).filter(([k])=>k.startsWith(`${practiceWordIndex}:`)).reduce((a,[,v])=>a+v,0);
+  if(strokeHints+wordHeaderHints>=max)return;
+  if(!hint&&!['correct','assisted','soft-shape'].includes(practiceState))practiceHintUses[key]=(practiceHintUses[key]||0)+1;
+  hint=!hint;render();
+ }
  else if(action==='undo'){if(strokes[selectedCell]?.length){strokes[selectedCell].pop();practiceState=strokes[selectedCell].length?'editing':'empty';const sel=$('#practice-state');if(sel)sel.value=practiceState;render();}}
  else if(action==='clear'){strokes[selectedCell]=[];practiceState='empty';const sel=$('#practice-state');if(sel)sel.value=practiceState;render();}
  else if(action==='cell'){selectedCell=Number(value);render();}
@@ -466,6 +509,7 @@ document.addEventListener('click',e=>{
   const wordsList=currentPracticeWords();
   if(practiceWordIndex<wordsList.length-1){
    practiceWordIndex++;
+   practiceHintUses={};
    selectedCell=0;
    readingRevealed=false;
    hint=false;

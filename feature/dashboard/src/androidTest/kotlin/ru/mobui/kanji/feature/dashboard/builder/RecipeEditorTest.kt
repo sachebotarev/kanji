@@ -202,7 +202,7 @@ class RecipeEditorTest {
         var result: Recipe? = null
         compose.setContent { KanjiTheme { RecipeEditorScreen(initial, snapshot, emptyList(), emptyList(), "ru", { result = it }, {}, {}, {}) } }
         section(2)
-        compose.onNodeWithTag("recipe-hint-reading").assertIsSelected()
+        compose.onNodeWithTag("recipe-hint-none").assertIsSelected()
         click("recipe-hint-translation")
         compose.onNodeWithTag("recipe-hint-translation").assertIsSelected()
         click("recipe-save")

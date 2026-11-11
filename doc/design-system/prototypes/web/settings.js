@@ -6,24 +6,24 @@ const settingsCopy = {
     settingsBack: 'Назад',
     flowGroup: 'Ход тренировки',
     autoAdvanceKanji: 'Автопереход к следующему кандзи',
-    helpAutoAdvanceKanji: 'Переход к следующему знаку после верного написания текущего.',
+    helpAutoAdvanceKanji: 'Автоматический переход к следующему кандзи при верном написании знака. Если форма принята со штрафом, фокус остаётся на знаке для возможности его исправить.',
     autoAdvance: 'Автопереход к следующему слову',
-    helpAutoAdvance: 'Переход к следующему слову, когда всё текущее слово решено верно.',
+    helpAutoAdvance: 'Автоматический переход к следующему заданию при верном решении всех знаков. Если форма принята со штрафом, ошибка или таймаут, нажмите «Далее».',
     settingOn: 'Вкл',
     settingOff: 'Выкл',
-    hintsGroup: 'Подсказки',
+    hintsGroup: 'Помощь',
     maxHints: 'Количество подсказок',
-    helpMaxHints: 'Количество доступных подсказок на знак (0–12). При превышении знак считается неверным.',
+    helpMaxHints: 'Количество подсказок на знак (0–12). Ноль отключает помощь. Каждая подсказка уменьшает оставшийся балл на 20%, независимо от лимита.',
     fullHintDisplay: 'Время показа полного знака',
     helpFullHintDisplay: 'Время показа эталона знака перед его скрытием.',
     millisUnit: 'мс',
     checksGroup: 'Модули проверки',
-    readabilityCheck: 'Читаемость',
+    readabilityCheck: 'Знак',
     helpReadability: 'Распознавание рукописного ввода моделью ML Kit.',
     readabilityModelRequired: 'Требуется загрузка японской модели',
     writingCheck: 'Порядок и направление черт',
     helpWriting: 'Проверка порядка и направления начертания черт.',
-    shapeCheck: 'Форма знака',
+    shapeCheck: 'Форма',
     helpShape: 'Геометрическое сравнение формы знака с эталоном.',
     japaneseModel: 'Японская языковая модель',
     modelLoaded: 'Загружена',
@@ -54,6 +54,7 @@ const settingsCopy = {
     settingsPreview: 'Значения меняются только в макете.',
     zeroHelp: '0 выключает компенсацию. Нулевой общий бюджет снимает только общее ограничение.',
     paramMatch: 'Порог сходства',
+    paramSoftMargin: 'Допуск мягкого принятия',
     paramDistance: 'Допустимое расстояние',
     paramTranslation: 'Сдвиг',
     paramSize: 'Размер',
@@ -75,14 +76,14 @@ const settingsCopy = {
     settingsBack: 'Back',
     flowGroup: 'Practice flow',
     autoAdvanceKanji: 'Auto-advance to next kanji',
-    helpAutoAdvanceKanji: 'Advance to the next character once the current one is correct.',
+    helpAutoAdvanceKanji: 'Advance to the next character automatically when the sign is correct. If the shape was accepted with penalty, focus stays on the character so you can fix it.',
     autoAdvance: 'Auto-advance to next word',
-    helpAutoAdvance: 'Advance to the next word once all its characters are correct.',
+    helpAutoAdvance: 'Advance to the next task automatically when all characters are resolved correctly. If any shape was accepted with penalty, an error occurred, or timeout expired, tap Next.',
     settingOn: 'On',
     settingOff: 'Off',
     hintsGroup: 'Hints',
     maxHints: 'Number of hints',
-    helpMaxHints: 'Number of hints allowed per character (0–12). Exceeding this limit fails the character.',
+    helpMaxHints: 'Number of hints per character (0–12). Zero disables help. Each hint reduces the remaining score by 20%, regardless of the limit.',
     fullHintDisplay: 'Full hint display time',
     helpFullHintDisplay: 'How long the reference character stays visible before hiding.',
     millisUnit: 'ms',
@@ -123,6 +124,7 @@ const settingsCopy = {
     settingsPreview: 'Values change only in this prototype.',
     zeroHelp: '0 disables a compensation. Zero total budget removes only the combined limit.',
     paramMatch: 'Similarity threshold',
+    paramSoftMargin: 'Soft acceptance margin',
     paramDistance: 'Distance tolerance',
     paramTranslation: 'Translation',
     paramSize: 'Size',
@@ -158,6 +160,7 @@ const expandedHelp = {};
 const parameterGroups = {
   shapeGroup: [
     ['match', 'paramMatch', 72, 1, 100, 1, '%'],
+    ['softMargin', 'paramSoftMargin', 10, 0, 100, 1, 'pp'],
     ['distance', 'paramDistance', 5, 1, 15, 1, '%']
   ],
   compensationGroup: [
@@ -191,7 +194,7 @@ const strictnessPresets = {
 
 let parameterValues = { ...defaultParameters }, strictnessPreset = 'standard';
 let enabledChecks = { readability: true, shape: true, strokes: true, ruleStructure: true, ruleOrder: false, ruleDirection: false };
-let flowSettings = { autoAdvanceKanji: true, autoAdvance: false, maxHints: 3, fullHintDisplay: 500 };
+let flowSettings = { autoAdvanceKanji: true, autoAdvance: true, maxHints: 3, fullHintDisplay: 500 };
 
 function binaryChoiceRow(tag, labelKey, helpKey, checked, allowEnable) {
   const isExpanded = !!expandedHelp[tag];
@@ -297,9 +300,10 @@ function checkerToggle(key) {
 }
 
 function checkerParameter([id, label,, min, max, step, unit]) {
+  if(unit==='pp')unit=locale==='ru'?'п.п.':'pp';
   const value = parameterValues[id];
   return `
-    <div class="settings-parameter">
+    <div class="settings-parameter" ${id==='softMargin'?'data-widget-id="SETTINGS.01.W04.W01"':''}>
       <label for="parameter-${id}">${t(label)}</label>
       <span class="settings-value">
         <input id="parameter-${id}" type="number" inputmode="decimal" min="${min}" max="${max}" step="${step}" value="${value}" data-parameter="${id}" aria-label="${t(label)}">

@@ -56,8 +56,4 @@ internal fun installRecipeChecks(db: SupportSQLiteDatabase) {
             )
         }
     }
-    db.execSQL(
-        "CREATE UNIQUE INDEX IF NOT EXISTS idx_recipes_active ON recipes(is_active) " +
-            "WHERE is_active=1 AND is_archived=0",
-    )
 }

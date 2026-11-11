@@ -4,27 +4,27 @@
 
     <string name="settings_group_flow">Ход тренировки</string>
     <string name="setting_auto_advance_kanji">Автопереход к следующему кандзи</string>
-    <string name="help_auto_advance_kanji">Переход к следующему знаку после верного написания текущего.</string>
+    <string name="help_auto_advance_kanji">Автоматический переход к следующему кандзи при верном написании знака. Если форма принята со штрафом, фокус остаётся на знаке для возможности его исправить.</string>
     <string name="setting_auto_advance">Автопереход к следующему слову</string>
-    <string name="help_auto_advance">Переход к следующему слову после верного написания или по истечении таймера.</string>
+    <string name="help_auto_advance">Автоматический переход к следующему заданию при верном решении всех знаков. Если форма принята со штрафом, ошибка или таймаут, нажмите «Далее».</string>
     <string name="setting_on">Вкл</string>
     <string name="setting_off">Выкл</string>
 
     <string name="settings_group_hint">Подсказки</string>
     <string name="setting_max_next_stroke_hints">Количество подсказок</string>
-    <string name="help_max_next_stroke_hints">Количество доступных подсказок на знак (0–12). При превышении знак считается неверным.</string>
+    <string name="help_max_next_stroke_hints">Количество доступных подсказок на знак (0–12). Ноль отключает помощь. После расходования лимита можно продолжать писать самостоятельно. Каждая подсказка уменьшает оставшийся балл за знак на 20%.</string>
     <string name="setting_count_value">%1$d</string>
     <string name="setting_full_hint_display">Время показа полного знака</string>
     <string name="help_full_hint_display">Время показа эталона знака перед его скрытием.</string>
     <string name="setting_millis_value">%1$d мс</string>
 
     <string name="settings_group_checkers">Модули проверки</string>
-    <string name="check_readability">Читаемость</string>
+    <string name="check_readability">Знак</string>
     <string name="help_readability">Распознавание рукописного ввода моделью ML Kit.</string>
     <string name="readability_model_required">Требуется загрузка японской модели</string>
     <string name="check_writing">Порядок и направление черт</string>
     <string name="help_writing">Проверка порядка и направления начертания черт.</string>
-    <string name="check_shape">Форма знака</string>
+    <string name="check_shape">Форма</string>
     <string name="help_shape">Геометрическое сравнение формы знака с эталоном.</string>
 
     <string name="settings_japanese_model">Японская языковая модель</string>
@@ -35,6 +35,20 @@
     <string name="settings_group_calibration">Калибровка формы кандзи</string>
     <string name="settings_checker">Калибровка формы кандзи</string>
     <string name="settings_checker_detail">Пороги совпадения формы, допуски трансформаций и компенсаций</string>
+
+    <string name="settings_group_gestures">Жесты поля письма</string>
+    <string name="settings_interaction_mode_title">Режим управления</string>
+    <string name="settings_interaction_mode_help">«Кнопки» — внизу экрана отображаются круглые кнопки отмены, очистки и помощи. «Только жесты» — кнопки внизу скрыты, управление выполняется жестами на холсте, а показатель помощи переносится в строку проверки знака (рядом со Знаком, Формой и Чертами).</string>
+    <string name="settings_interaction_mode_buttons">Кнопки</string>
+    <string name="settings_interaction_mode_gestures">Только жесты</string>
+    <string name="settings_show_pad_gestures">Описание жестов на поле</string>
+    <string name="settings_show_pad_gestures_help">Отображать плашку с описанием жестов внизу поля письма на первом слове тренировки до начала ввода штрихов.</string>
+    <string name="settings_gesture_undo_title">Отмена черты</string>
+    <string name="settings_gesture_undo_desc">Касание двумя пальцами по полю письма отменяет последнюю нарисованную черту.</string>
+    <string name="settings_gesture_clear_title">Очистить всё</string>
+    <string name="settings_gesture_clear_desc">Двойное касание двумя пальцами полностью очищает написанный знак.</string>
+    <string name="settings_gesture_hint_title">Помощь со знаком</string>
+    <string name="settings_gesture_hint_desc">Долгое нажатие одним пальцем на поле письма показывает образец знака или следующую черту.</string>
 
     <string name="settings_group_data">Данные и память</string>
     <string name="settings_clear_history">Очистить историю тренировок</string>

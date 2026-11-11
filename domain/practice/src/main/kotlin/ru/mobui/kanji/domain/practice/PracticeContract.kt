@@ -30,12 +30,12 @@ enum class TaskClueMode(val key: String) {
     companion object {
         /** Null or unknown keeps the training default. */
         fun fromKey(key: String?): TaskClueMode {
-            if (key == null) return Reading
+            if (key == null) return None
             return when (key.trim().lowercase()) {
                 "translation" -> Translation
                 "reading" -> Reading
                 "none" -> None
-                else -> Reading
+                else -> None
             }
         }
     }
@@ -48,7 +48,7 @@ data class PracticeTask(
     val timeLimitMs: Long? = null,
     /** Japanese reading of the word (kana); empty when the host has none. */
     val reading: String = "",
-    val clueMode: TaskClueMode = TaskClueMode.Reading,
+    val clueMode: TaskClueMode = TaskClueMode.None,
     val strokeHintMode: HintMode = HintMode.NextStroke,
 ) {
     init {
@@ -84,6 +84,7 @@ data class KanjiResult(
     val hintUsed: Boolean,
     /** Counted character-guide presses; free peek on an already-correct cell is excluded. */
     val hintRequestCount: Int = 0,
+    val shapeAcceptedWithPenalty: Boolean = false,
 )
 
 data class PracticeResult(
@@ -190,6 +191,7 @@ data class CheckReport(
     val compensatedDrawing: ru.mobui.kanji.domain.handwriting.ComparisonDrawing? = null,
     val checks: List<IndividualCheckResult> = emptyList(),
     val matchPercent: Float? = null,
+    val acceptedWithPenalty: Boolean = false,
 )
 
 fun interface KanjiChecker {

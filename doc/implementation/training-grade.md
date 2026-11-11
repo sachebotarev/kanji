@@ -14,20 +14,20 @@
 
 - `training_task_symbols.hint_request_count` на practice-символах;
 - `training_tasks.reading_hint_used`;
-- лимит `H` = `training.maxNextStrokeHints` (сохраняется в агрегате `Training` из `RecognitionSettings.maxNextStrokeHints` при старте, по умолчанию 3). По умолчанию `Training.summarize()` использует этот сохранённый лимит, обеспечивая воспроизводимость оценки как сразу после прохождения, так и при открытии из истории тренировок.
+- пользовательский лимит `H` сохраняется в `Training` для доступности помощи, но не влияет на стоимость одной подсказки. Балл каждого верно решённого знака равен `0.8^k`.
 
 Незавершённые (`pending` / `in_progress`) на экране итога не ожидаются.
 
 ## Баллы за задание
 
-Непрерывные `wordPoints` — см. [hint-scoring.md](hint-scoring.md). Кратко:
+Непрерывные `wordPoints` — см. [hint-scoring.md](hint-scoring.md): `cell = 0.8^k` для верного знака, 0 для остальных; каждый раскрытый текстовый вид подсказки даёт множитель 0.85. Кратко:
 
 | Статус задания | Балл | Смысл |
 | --- | --- | --- |
 | `correct` | 1.0 | Слово закрыто без учтённой помощи |
-| `assisted` | `avg(1 − k/H) × (0.85 если чтение)` | Закрыто с подсказками; шкала по `k` |
-| `timed_out` | `avg(1 − k/H) × (0.85 если чтение)` | Время истекло; баллы за верно решённые знаки |
-| `skipped` | `avg(1 − k/H) × (0.85 если чтение)` | Пропуск; баллы за верно решённые знаки |
+| `assisted` | `avg(cell) × readingFactor × translationFactor` | Закрыто с подсказками; шкала по `k` |
+| `timed_out` | `avg(cell) × readingFactor × translationFactor` | Время истекло; баллы за верно решённые знаки |
+| `skipped` | `avg(cell) × readingFactor × translationFactor` | Пропуск; баллы за верно решённые знаки |
 
 Проценты:
 

@@ -346,3 +346,17 @@ a{color:inherit}
 
 
 .hint-reference.sample-answer{opacity:.85}
+
+/* PRACTICE: prefilled content stays readable despite the shared disabled rule. */
+#phone .kanji-cell.prefilled:disabled{opacity:1!important;background:var(--md-sys-color-surface-variant)!important;color:var(--md-sys-color-on-surface)!important;-webkit-text-fill-color:var(--md-sys-color-on-surface)}
+#phone .practice .kanji-cell.assisted{border-color:#c2af79!important;background:color-mix(in srgb,#c2af79 18%,var(--surface))!important;color:var(--ink)!important}
+#phone .practice-checker-val.assisted{color:#786735}
+#phone[data-theme=dark] .practice-checker-val.assisted{color:#c2af79}
+#phone .practice-submit-btn.skip{background:transparent!important;border:1px solid var(--error)!important;color:var(--error)!important}
+
+#phone .practice-checkers{grid-template-columns:repeat(4,minmax(0,1fr))}
+
+#phone .practice-checker-val.hint-usage{font-size:calc(16px * var(--scale));font-weight:600}
+#phone .practice-submit-btn.assisted{background:color-mix(in srgb,#786735 16%,var(--surface))!important;color:#786735!important}
+#phone[data-theme=dark] .practice-submit-btn.assisted{background:color-mix(in srgb,#c2af79 16%,var(--surface))!important;color:#c2af79!important}
+#phone .practice-submit-btn.negative{background:var(--md-sys-color-error-container)!important;color:var(--md-sys-color-on-error-container)!important}

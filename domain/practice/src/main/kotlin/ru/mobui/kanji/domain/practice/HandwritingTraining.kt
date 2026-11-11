@@ -13,6 +13,7 @@ data class PracticeCell(
     val hintUsed: Boolean = false,
     /** Counted hint presses for this cell (FullCharacter and NextStroke share the budget). */
     val strokeHintCount: Int = 0,
+    val shapeAcceptedWithPenalty: Boolean = false,
     /** NextStroke hint budget exhausted: cell stays incorrect with a full red reveal. */
     val strokeHintsExhausted: Boolean = false,
     val reference: ReferenceDrawing? = null,
@@ -21,11 +22,15 @@ data class PracticeCell(
     val isSatisfied: Boolean
         get() = status == EntryStatus.Correct || status == EntryStatus.Prefilled
 
-    /** Cell has a final Correct/Incorrect/Prefilled outcome (Next may unlock). */
+    /** Whether this cell has a fixable penalty (such as soft shape acceptance) that can be improved by redrawing. */
+    val hasFixablePenalty: Boolean
+        get() = task.mode == EntryMode.User && shapeAcceptedWithPenalty
+
+    /** Cell has a final Correct/Incorrect (exhausted hints)/Prefilled outcome (Next may unlock). */
     val isSettled: Boolean
         get() =
             status == EntryStatus.Correct ||
-                status == EntryStatus.Incorrect ||
+                (status == EntryStatus.Incorrect && strokeHintsExhausted) ||
                 status == EntryStatus.Prefilled
 }
 
@@ -46,13 +51,29 @@ data class PracticeState(
      */
     val timedOut: Boolean = false,
 ) {
+    /** Counted assistance or soft shape acceptance reduces the word score. A zero limit alone does not. */
+    val hasScorePenalty: Boolean
+        get() = readingHintUsed || translationHintUsed || cells.any {
+            it.task.mode == EntryMode.User && (it.strokeHintCount > 0 || it.shapeAcceptedWithPenalty)
+        }
+
+    /** Fixable penalty (such as soft shape acceptance) that the user can improve by redrawing. Hints are not fixable. */
+    val hasFixablePenalty: Boolean
+        get() = cells.any { it.hasFixablePenalty }
+
+    /** Total count of hints used for this word/task: header clues (reading/translation) plus all stroke hints. */
+    val totalHintCount: Int
+        get() = (if (readingHintUsed) 1 else 0) +
+            (if (translationHintUsed) 1 else 0) +
+            cells.sumOf { it.strokeHintCount }
+
     /** Every writable cell accepted. */
     val isComplete: Boolean
         get() = cells.all { it.isSatisfied }
 
     /** Every cell is Correct, Incorrect, or Prefilled — «Далее» may finish the word. */
     val isResolved: Boolean
-        get() = cells.all { it.isSettled }
+        get() = timedOut || cells.all { it.isSettled }
 
     val selected: PracticeCell?
         get() = selectedIndex?.let(cells::get)
@@ -83,6 +104,7 @@ class HandwritingTraining(task: PracticeTask) {
         history.values.forEach { entries ->
             val refreshed = entries.map {
                 it.copy(
+                    shapeAcceptedWithPenalty = false,
                     status =
                         if (it.sample.strokeCount == 0) EntryStatus.Empty else EntryStatus.Editing,
                 )
@@ -98,7 +120,7 @@ class HandwritingTraining(task: PracticeTask) {
             ) {
                 replace(
                     index,
-                    cell.copy(status = EntryStatus.Editing, revision = cell.revision + 1),
+                    cell.copy(status = EntryStatus.Editing, revision = cell.revision + 1, shapeAcceptedWithPenalty = false),
                 )
             }
         }
@@ -122,7 +144,7 @@ class HandwritingTraining(task: PracticeTask) {
                     )
                 }
 
-    fun applyCheck(request: CheckRequest, verdict: CheckVerdict): Boolean {
+    fun applyCheck(request: CheckRequest, verdict: CheckVerdict, shapeAcceptedWithPenalty: Boolean = false): Boolean {
         if (state.result != null || request.taskId != state.task.taskId) return false
         val index = state.cells.indexOfFirst { it.task.occurrenceId == request.occurrenceId }
         val cell = state.cells.getOrNull(index) ?: return false
@@ -131,6 +153,7 @@ class HandwritingTraining(task: PracticeTask) {
         replace(
             index,
             cell.copy(
+                shapeAcceptedWithPenalty = verdict == CheckVerdict.Correct && shapeAcceptedWithPenalty,
                 status =
                     when (verdict) {
                         CheckVerdict.Correct -> EntryStatus.Correct
@@ -200,7 +223,7 @@ class HandwritingTraining(task: PracticeTask) {
                     state.readingHintUsed ||
                         state.translationHintUsed ||
                         state.cells.any {
-                            it.task.mode == EntryMode.User && it.strokeHintCount > 0
+                            it.task.mode == EntryMode.User && (it.strokeHintCount > 0 || it.shapeAcceptedWithPenalty)
                         }
                 finish(if (assisted) AnswerStatus.Assisted else AnswerStatus.Correct)
             }
@@ -229,6 +252,7 @@ class HandwritingTraining(task: PracticeTask) {
                                 it.sample,
                                 it.hintUsed || it.strokeHintCount > 0,
                                 hintRequestCount = it.strokeHintCount,
+                                shapeAcceptedWithPenalty = it.shapeAcceptedWithPenalty,
                             )
                         },
                         state.elapsedMs,
@@ -250,7 +274,7 @@ class HandwritingTraining(task: PracticeTask) {
         val entries = history.getValue(current.task.occurrenceId)
         entries.addLast(current)
         while (entries.size > MAX_HISTORY_ENTRIES) entries.removeFirst()
-        replace(index, transform(current).copy(revision = current.revision + 1))
+        replace(index, transform(current).copy(revision = current.revision + 1, shapeAcceptedWithPenalty = false))
     }
 
     internal fun replace(index: Int, cell: PracticeCell) {

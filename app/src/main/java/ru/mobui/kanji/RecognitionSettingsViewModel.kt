@@ -80,10 +80,13 @@ class RecognitionSettingsViewModel(
         mutableSettings.value = value
         persist(value)
         savedState["recognition.readability"] = value.readabilityEnabled
+        savedState["recognition.shapeSoftMarginPoints"] = value.shapeSoftMarginPoints
         savedState["recognition.shape"] = value.shapeEnabled
         savedState["recognition.writing"] = value.strokeWritingEnabled
         savedState["recognition.autoAdvanceKanji"] = value.autoAdvanceKanjiOnSuccess
         savedState["recognition.autoAdvance"] = value.autoAdvanceOnSuccess
+        savedState["recognition.gesturesOnly"] = value.gesturesOnlyMode
+        savedState["recognition.showPadGestures"] = value.showPadGestureHints
         savedState["recognition.parameters"] =
             floatArrayOf(
                 value.requiredMatchPercent,
@@ -127,10 +130,13 @@ class RecognitionSettingsViewModel(
             restored
                 .copy(
                     readabilityEnabled = savedState["recognition.readability"] ?: true,
+                    shapeSoftMarginPoints = savedState["recognition.shapeSoftMarginPoints"] ?: defaults.shapeSoftMarginPoints,
                     shapeEnabled = savedState["recognition.shape"] ?: true,
                     strokeWritingEnabled = savedState["recognition.writing"] ?: true,
                     autoAdvanceKanjiOnSuccess = savedState["recognition.autoAdvanceKanji"] ?: true,
-                    autoAdvanceOnSuccess = savedState["recognition.autoAdvance"] ?: false,
+                    autoAdvanceOnSuccess = savedState["recognition.autoAdvance"] ?: true,
+                    gesturesOnlyMode = savedState["recognition.gesturesOnly"] ?: false,
+                    showPadGestureHints = savedState["recognition.showPadGestures"] ?: true,
                 )
                 .roundedParameters()
         }

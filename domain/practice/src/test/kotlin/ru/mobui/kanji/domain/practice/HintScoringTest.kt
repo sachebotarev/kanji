@@ -5,11 +5,33 @@ import org.junit.Test
 
 class HintScoringTest {
     @Test
-    fun practiceSymbolPointsLinearInHintBudget() {
+    fun practiceSymbolPointsRetainTwentyPercentLessPerHint() {
         assertEquals(1.0, practiceSymbolPoints(TrainingSymbolStatus.Correct, 0, 3), 1e-9)
-        assertEquals(2.0 / 3.0, practiceSymbolPoints(TrainingSymbolStatus.Correct, 1, 3), 1e-9)
-        assertEquals(1.0 / 3.0, practiceSymbolPoints(TrainingSymbolStatus.Correct, 2, 3), 1e-9)
+        assertEquals(0.8, practiceSymbolPoints(TrainingSymbolStatus.Correct, 1, 3), 1e-9)
+        assertEquals(0.64, practiceSymbolPoints(TrainingSymbolStatus.Correct, 2, 3), 1e-9)
         assertEquals(0.0, practiceSymbolPoints(TrainingSymbolStatus.Incorrect, 3, 3), 1e-9)
+    }
+
+    @Test
+    fun firstHintHasSameCostForEveryConfiguredLimit() {
+        for (limit in 1..12) {
+            assertEquals(0.8, practiceSymbolPoints(TrainingSymbolStatus.Correct, 1, limit), 1e-9)
+        }
+    }
+
+    @Test
+    fun usingAllHintsStillAwardsCreditForCorrectWriting() {
+        assertEquals(0.8, practiceSymbolPoints(TrainingSymbolStatus.Correct, 1, 1), 1e-9)
+        assertEquals(0.512, practiceSymbolPoints(TrainingSymbolStatus.Correct, 3, 3), 1e-9)
+        assertEquals(0.32768, practiceSymbolPoints(TrainingSymbolStatus.Correct, 5, 5), 1e-9)
+        org.junit.Assert.assertTrue(practiceSymbolPoints(TrainingSymbolStatus.Correct, 12, 12) > 0.0)
+    }
+
+    @Test
+    fun unfinishedOrIncorrectWritingEarnsNoCreditEvenWithHints() {
+        for (status in listOf(TrainingSymbolStatus.Empty, TrainingSymbolStatus.Editing, TrainingSymbolStatus.Incorrect)) {
+            assertEquals(0.0, practiceSymbolPoints(status, 1, 1), 1e-9)
+        }
     }
 
     @Test
@@ -37,8 +59,8 @@ class HintScoringTest {
                         symbol("2", TrainingSymbolRole.Practice, TrainingSymbolStatus.Correct, 0),
                     ),
             )
-        // avg(2/3, 1) × 0.85
-        assertEquals((2.0 / 3.0 + 1.0) / 2.0 * 0.85, task.wordPoints(3), 1e-9)
+        // avg(0.8, 1) × 0.85
+        assertEquals((0.8 + 1.0) / 2.0 * 0.85, task.wordPoints(3), 1e-9)
     }
 
     @Test
@@ -125,8 +147,8 @@ class HintScoringTest {
                         symbol("2", TrainingSymbolRole.Practice, TrainingSymbolStatus.Empty, 0),
                     ),
             )
-        // avg(1.0, 2/3, 0.0) * 0.85 = (5/3 / 3) * 0.85 = (5/9) * 0.85 ≈ 0.4722
-        assertEquals((1.0 + 2.0 / 3.0 + 0.0) / 3.0 * 0.85, task.wordPoints(3), 1e-9)
+        // avg(1.0, 0.8, 0.0) × 0.85 = 0.51
+        assertEquals((1.0 + 0.8 + 0.0) / 3.0 * 0.85, task.wordPoints(3), 1e-9)
     }
 
     private fun symbol(

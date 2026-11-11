@@ -1,5 +1,6 @@
 package ru.mobui.kanji.feature.practice
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,12 @@ import ru.mobui.kanji.domain.practice.CheckReport
 import ru.mobui.kanji.domain.practice.CheckVerdict
 import ru.mobui.kanji.domain.practice.IndividualCheckResult
 
+internal data class PracticeHintStatusState(
+    val usedHints: Int,
+    val maxHints: Int,
+    val accepted: Boolean,
+)
+
 /** Color-coded result cards. Accessibility retains explicit status descriptions. */
 @Composable
 internal fun CheckerTestingStatuses(
@@ -44,7 +51,9 @@ internal fun CheckerTestingStatuses(
     modifier: Modifier = Modifier,
     strokeCount: Int = 0,
     enabled: Boolean = true,
+    hintStatus: PracticeHintStatusState? = null,
     onOpen: (CheckKind) -> Unit = {},
+    onOpenHint: () -> Unit = {},
 ) {
     Row(
         modifier.testTag("checker-testing-statuses"),
@@ -68,7 +77,7 @@ internal fun CheckerTestingStatuses(
                         result == null -> R.string.check_pending
                         else ->
                             when (result.verdict) {
-                                CheckVerdict.Correct -> R.string.check_passed
+                                CheckVerdict.Correct -> if (result.acceptedWithPenalty) R.string.check_accepted_with_penalty else R.string.check_passed
                                 CheckVerdict.Incorrect -> R.string.check_failed
                                 CheckVerdict.Incomplete -> R.string.check_incomplete
                                 else -> R.string.check_unavailable
@@ -79,7 +88,7 @@ internal fun CheckerTestingStatuses(
             val colors = MaterialTheme.colorScheme
             val valueColor =
                 when (verdict) {
-                    CheckVerdict.Correct -> colors.primary
+                    CheckVerdict.Correct -> if (result?.acceptedWithPenalty == true) assistedFeedbackColor() else colors.primary
                     CheckVerdict.Incorrect,
                     CheckVerdict.Unavailable -> colors.error
                     else -> colors.onSurfaceVariant
@@ -144,11 +153,78 @@ internal fun CheckerTestingStatuses(
                 }
             }
         }
+        if (hintStatus != null) {
+            val label = stringResource(R.string.check_help)
+            val used = hintStatus.usedHints
+            val colors = MaterialTheme.colorScheme
+            val valueColor =
+                when (hintUsageTone(used, hintStatus.maxHints, hintStatus.accepted)) {
+                    PracticeFeedbackTone.Exhausted -> colors.error
+                    PracticeFeedbackTone.Assisted -> assistedFeedbackColor()
+                    PracticeFeedbackTone.Success -> colors.primary
+                    PracticeFeedbackTone.Neutral -> colors.onSurfaceVariant
+                }
+            val displayValue = stringResource(R.string.hint_usage_fraction, used, hintStatus.maxHints)
+            val statusDescription = stringResource(R.string.hint_usage_description, used, hintStatus.maxHints)
+
+            Column(
+                Modifier.weight(1f)
+                    .height(STATUS_BAND_HEIGHT)
+                    .clip(RoundedCornerShape(10.dp))
+                    .clickable(
+                        enabled = enabled,
+                        role = Role.Button,
+                        onClickLabel = label,
+                    ) {
+                        onOpenHint()
+                    }
+                    .testTag("check-indicator-hint")
+                    .clearAndSetSemantics {
+                        contentDescription = label
+                        stateDescription = statusDescription
+                        role = Role.Button
+                        if (enabled) {
+                            onClick(label = label) {
+                                onOpenHint()
+                                true
+                            }
+                        } else {
+                            disabled()
+                        }
+                    }
+                    .padding(horizontal = 2.dp, vertical = 2.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center,
+            ) {
+                Text(
+                    label,
+                    color = colors.onSurfaceVariant,
+                    style = MaterialTheme.typography.labelMedium,
+                    maxLines = 1,
+                    overflow = TextOverflow.Clip,
+                )
+                Box(
+                    Modifier.fillMaxWidth().height(STATUS_VALUE_HEIGHT),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        displayValue,
+                        color = valueColor,
+                        style =
+                            MaterialTheme.typography.titleLarge.copy(lineHeight = 28.sp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Center,
+                        maxLines = 1,
+                        overflow = TextOverflow.Clip,
+                    )
+                }
+            }
+        }
     }
 }
 
-private val STATUS_BAND_HEIGHT = 60.dp
-private val STATUS_VALUE_HEIGHT = 30.dp
+internal val STATUS_BAND_HEIGHT = 52.dp
+internal val STATUS_VALUE_HEIGHT = 28.dp
 
 @Preview
 @Composable

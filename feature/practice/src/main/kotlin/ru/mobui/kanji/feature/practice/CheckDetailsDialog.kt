@@ -52,7 +52,7 @@ internal fun CheckDetailsDialog(
                 result.verdict == null -> R.string.check_disabled
                 else ->
                     when (result.verdict) {
-                        CheckVerdict.Correct -> R.string.check_passed
+                        CheckVerdict.Correct -> if (result.acceptedWithPenalty) R.string.check_accepted_with_penalty else R.string.check_passed
                         CheckVerdict.Incorrect -> R.string.check_failed
                         CheckVerdict.Incomplete -> R.string.check_incomplete
                         else -> R.string.check_unavailable
@@ -70,7 +70,14 @@ internal fun CheckDetailsDialog(
                     .verticalScroll(rememberScrollState()),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(status, style = MaterialTheme.typography.titleMedium)
+                Text(
+                    status,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (result?.acceptedWithPenalty == true) assistedFeedbackColor() else MaterialTheme.colorScheme.onSurface,
+                )
+                if (kind == CheckKind.Shape && result?.acceptedWithPenalty == true) {
+                    Text(stringResource(R.string.check_shape_soft_explanation, ((1.0 - ru.mobui.kanji.domain.practice.SHAPE_SOFT_ACCEPTANCE_FACTOR) * 100).roundToInt()), style = MaterialTheme.typography.bodyMedium)
+                }
                 when (kind) {
                     CheckKind.Readability -> {
                         if (result?.verdict != null) {

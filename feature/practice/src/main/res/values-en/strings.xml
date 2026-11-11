@@ -1,5 +1,5 @@
 <resources>
-    <string name="practice_title">Practice</string>
+    <string name="practice_title">Task</string>
     <string name="back">Back</string>
     <string name="interrupt_title">Leave practice?</string>
     <string name="interrupt_message">Your progress will be saved. You can continue later from the home screen.</string>
@@ -9,22 +9,25 @@
     <string name="input_in_progress">Writing</string>
     <string name="correct">Correct</string>
     <string name="incorrect">Incorrect</string>
-    <string name="hint_used">Hint used</string>
+    <string name="hint_used">With help</string>
     <string name="prefilled">Prefilled</string>
     <string name="empty">Not entered</string>
     <string name="editing">Not checked</string>
-    <string name="hint">Show the correct character</string>
+    <string name="hint">Help</string>
     <string name="undo">Undo the last action</string>
     <string name="clear">Clear character</string>
     <string name="next">Next</string>
     <string name="skip">Skip</string>
+    <string name="pad_gesture_hint_undo">2-finger tap — undo stroke</string>
+    <string name="pad_gesture_hint_clear">Double 2-finger tap — clear all</string>
+    <string name="pad_gesture_hint_hint">Long press — character help</string>
     <string name="skip_confirm_title">Skip this word?</string>
     <string name="skip_confirm_message">The word is not finished correctly yet. Skip it or keep practising?</string>
     <string name="skip_confirm_continue">Continue</string>
     <string name="prompt_show_full">Show the full translation</string>
     <string name="prompt_more">more</string>
     <string name="prompt_full_title">Translation</string>
-    <string name="checker_unavailable">Checking is currently unavailable. You can keep writing, use a hint, or skip the word.</string>
+    <string name="checker_unavailable">Checking is currently unavailable. You can keep writing, use help, or skip the word.</string>
     <string name="incomplete">The character is not finished yet.</string>
     <string name="reference_unavailable">Could not load the character reference.</string>
     <string name="reference_loading">Loading references…</string>
@@ -43,10 +46,18 @@
     <string name="debug_scale_y">Y scale correction: %1$+.1f%%</string>
     <string name="incomplete_short">Not finished yet</string>
     <string name="next_kanji">Next character</string>
-    <string name="hint_idle">Hint is off. Tap to show the character guide</string>
-    <string name="hint_active">Hint is on. The character guide is visible; tap to hide</string>
-    <string name="hint_next_stroke_idle">Hint is off. Tap to show the next stroke</string>
+    <string name="hint_idle">Help is off. Tap to show the character guide</string>
+    <string name="hint_active">Help is on. The character guide is visible; tap to hide</string>
+    <string name="hint_next_stroke_idle">Help is off. Tap to show the next stroke</string>
     <string name="hint_next_stroke_active">Showing the next stroke; tap to hide</string>
+    <string name="check_help">Help</string>
+    <string name="hint_badge_counter_cd">Available: %1$d</string>
+    <string name="hint_status_available">Help available</string>
+    <string name="hint_status_exhausted">Help limit exhausted</string>
+    <string name="hint_remaining_label">Remaining</string>
+    <string name="hint_used_label">Used</string>
+    <string name="hint_count_of_max">%1$d of %2$d</string>
+    <string name="hint_explanation_available">Each hint reduces the character score by 20%.</string>
     <string name="reading_hidden">Pronunciation is hidden. Tap to reveal</string>
     <string name="reading_revealed">Pronunciation is revealed</string>
     <string name="prompt_hidden">Translation is hidden. Tap to reveal</string>
@@ -111,16 +122,16 @@
     <string name="rule_shorter">Stroke %1$d must be shorter than stroke %2$d.</string>
     <string name="debug_missing_hooks">Required hook missing from strokes: %1$s</string>
     <string name="setting_tenths_percent_value">%1$.1f%%</string>
-    <string name="settings_group_hint">Practice hint</string>
+    <string name="settings_group_hint">Practice help</string>
     <string name="settings_group_flow">Practice flow</string>
     <string name="setting_auto_advance">Auto-advance to next word</string>
-    <string name="help_auto_advance">When on, a successfully completed word or expired timer opens the next word immediately. Skip still requires tapping Next.</string>
+    <string name="help_auto_advance">Advance to the next task automatically when all characters are resolved correctly. If any shape was accepted with penalty, an error occurred, or timeout expired, tap Next.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
-    <string name="setting_max_next_stroke_hints">Hint limit before failure</string>
-    <string name="help_max_next_stroke_hints">Maximum hint requests per character (applies to all hint modes: next stroke and full kanji). Exceeding the limit fails the character: for example, with a value of 3, you get 3 helpful hints, and the 4th request marks the character incorrect and reveals it in red.</string>
+    <string name="setting_max_next_stroke_hints">Help limit per character</string>
+    <string name="help_max_next_stroke_hints">Maximum help requests per character. When set to 3, exactly 3 help requests are available, after which help simply ends.</string>
     <string name="setting_full_hint_display">Full-character display time</string>
-    <string name="help_full_hint_display">How many milliseconds the full reference with stroke numbers stays on the pad after a tap. Then the hint hides itself; the button does not stay pressed.</string>
+    <string name="help_full_hint_display">How many milliseconds the full reference stays on the pad after a tap. Then the guide hides itself; the button does not stay pressed.</string>
     <string name="setting_count_value">%1$d</string>
     <string name="setting_millis_value">%1$d ms</string>
     <string name="settings_group_shape">Shape match</string>
@@ -130,7 +141,7 @@
     <string name="setting_rule_check">Check</string>
     <string name="setting_rule_ignore">Ignore</string>
     <string name="checks_testing">Checks (testing)</string>
-    <string name="check_readability">Readability</string>
+    <string name="check_readability">Character</string>
     <string name="check_shape">Shape</string>
     <string name="check_writing">Stroke order and direction</string>
     <string name="check_running">Checking…</string>
@@ -216,4 +227,18 @@
     <string name="training_stat_time">Time</string>
     <string name="training_complete_home">Back home</string>
 
+    <string name="hint_none">None</string>
+    <string name="cell_assisted">Character accepted for reduced credit.</string>
+    <string name="hint_explanation_disabled">Hints are disabled in settings.</string>
+    <string name="hint_score_label">Character score for a correct answer</string>
+    <string name="hint_penalty_reasons_title">Reasons for score reduction</string>
+    <string name="hint_penalty_hints">Hints used: %1$d (–20%% each)</string>
+    <string name="hint_penalty_shape">Shape accepted with inaccuracies (–%1$d%%)</string>
+    <string name="hint_usage_fraction">%1$d/%2$d</string>
+    <string name="hint_usage_description">Hints used: %1$d of %2$d</string>
+    <string name="check_accepted_with_penalty">Accepted with a penalty</string>
+    <string name="check_shape_soft_explanation">Shape accepted with inaccuracies. Character score reduced by %1$d%%.</string>
+    <string name="setting_shape_soft_margin">Soft acceptance margin</string>
+    <string name="help_shape_soft_margin" formatted="false">Allowed shortfall below the similarity threshold, in percentage points. A strictly smaller shortfall with no other errors is accepted with a 20% score penalty. Zero disables soft acceptance.</string>
+    <string name="setting_percentage_points_value">%1$d pp</string>
 </resources>

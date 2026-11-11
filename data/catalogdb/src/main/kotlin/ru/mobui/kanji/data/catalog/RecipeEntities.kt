@@ -44,7 +44,7 @@ internal data class RecipesRow(
     @ColumnInfo(name = "task_count") val taskCount: Int?,
     @ColumnInfo(name = "selection_mode") val selectionMode: String = "shuffled_cycles",
     @ColumnInfo(name = "seconds_per_symbol") val secondsPerSymbol: Int?,
-    @ColumnInfo(name = "hint_mode") val hintMode: String = "reading",
+    @ColumnInfo(name = "hint_mode") val hintMode: String = "none",
     @ColumnInfo(name = "stroke_hint_mode") val strokeHintMode: String = "next_stroke",
     val revision: Long,
     @ColumnInfo(name = "is_archived") val isArchived: Boolean = false,

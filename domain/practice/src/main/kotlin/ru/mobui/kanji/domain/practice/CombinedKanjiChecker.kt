@@ -16,6 +16,7 @@ data class IndividualCheckResult(
     val details: String? = null,
     val matchPercent: Float? = null,
     val failures: List<CheckFailure> = emptyList(),
+    val acceptedWithPenalty: Boolean = false,
 )
 
 /** All providers see the same ink and settings snapshot. Disabled providers are never called. */
@@ -44,7 +45,9 @@ class CombinedKanjiChecker(
                             if (!enabled) null
                             else
                                 try {
-                                    checker.checkWithDetails(request)
+                                    checker.checkWithDetails(request).let { report ->
+                                        if (kind == CheckKind.Shape) report.withShapeTolerance(config.shapeSoftMarginPoints) else report
+                                    }
                                 } catch (cancelled: CancellationException) {
                                     throw cancelled
                                 } catch (error: Exception) {
@@ -82,9 +85,11 @@ class CombinedKanjiChecker(
                     report?.metrics?.get("recognizedText"),
                     report?.matchPercent,
                     report?.failures.orEmpty(),
+                    acceptedWithPenalty = report?.acceptedWithPenalty == true,
                 )
             },
             matchPercent = geometry?.matchPercent,
+            acceptedWithPenalty = verdict == CheckVerdict.Correct && geometry?.acceptedWithPenalty == true,
         )
     }
 }

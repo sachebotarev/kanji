@@ -25,7 +25,7 @@ internal data class TrainingsRow(
     @ColumnInfo(name = "recipe_revision") val recipeRevision: Long?,
     @ColumnInfo(name = "task_count") val taskCount: Int?,
     @ColumnInfo(name = "seconds_per_symbol") val secondsPerSymbol: Int?,
-    @ColumnInfo(name = "hint_mode") val hintMode: String = "reading",
+    @ColumnInfo(name = "hint_mode") val hintMode: String = "none",
     @ColumnInfo(name = "stroke_hint_mode") val strokeHintMode: String = "next_stroke",
     val status: String,
     @ColumnInfo(name = "started_at") val startedAt: Long,

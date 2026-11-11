@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools" tools:locale="ru">
-    <string name="practice_title">Практика</string>
+    <string name="practice_title">Задание</string>
     <string name="back">Назад</string>
     <string name="interrupt_title">Прервать практику?</string>
     <string name="interrupt_message">Прогресс сохранится. Позже можно продолжить с главного экрана.</string>
@@ -9,22 +9,25 @@
     <string name="input_in_progress">Ввод</string>
     <string name="correct">Верно</string>
     <string name="incorrect">Неверно</string>
-    <string name="hint_used">Подсказка</string>
+    <string name="hint_used">С помощью</string>
     <string name="prefilled">Подставлен</string>
     <string name="empty">Не введён</string>
     <string name="editing">Не проверен</string>
-    <string name="hint">Показать правильный знак</string>
+    <string name="hint">Помощь</string>
     <string name="undo">Отменить последнее действие</string>
     <string name="clear">Очистить знак</string>
     <string name="next">Далее</string>
     <string name="skip">Пропустить</string>
+    <string name="pad_gesture_hint_undo">Касание 2 пальцами — отмена черты</string>
+    <string name="pad_gesture_hint_clear">Двойное касание 2 пальцами — очистить всё</string>
+    <string name="pad_gesture_hint_hint">Долгое нажатие — помощь со знаком</string>
     <string name="skip_confirm_title">Пропустить слово?</string>
     <string name="skip_confirm_message">Слово ещё не выполнено правильно. Пропустить или продолжить?</string>
     <string name="skip_confirm_continue">Продолжить</string>
     <string name="prompt_show_full">Показать перевод полностью</string>
     <string name="prompt_more">ещё</string>
     <string name="prompt_full_title">Перевод</string>
-    <string name="checker_unavailable">Проверка сейчас недоступна. Можно продолжить ввод, использовать подсказку или пропустить слово.</string>
+    <string name="checker_unavailable">Проверка сейчас недоступна. Можно продолжить ввод, использовать помощь или пропустить слово.</string>
     <string name="incomplete">Знак ещё не закончен.</string>
     <string name="reference_unavailable">Не удалось загрузить образец знака.</string>
     <string name="reference_loading">Загружаем образцы…</string>
@@ -43,10 +46,18 @@
     <string name="debug_scale_y">Коррекция масштаба Y: %1$+.1f%%</string>
     <string name="incomplete_short">Ещё не закончен</string>
     <string name="next_kanji">Следующий знак</string>
-    <string name="hint_idle">Подсказка выключена. Нажмите, чтобы показать образец знака</string>
-    <string name="hint_active">Подсказка включена. Образец знака виден; нажмите, чтобы скрыть</string>
-    <string name="hint_next_stroke_idle">Подсказка выключена. Нажмите, чтобы показать следующую черту</string>
+    <string name="hint_idle">Помощь выключена. Нажмите, чтобы показать образец знака</string>
+    <string name="hint_active">Помощь включена. Образец знака виден; нажмите, чтобы скрыть</string>
+    <string name="hint_next_stroke_idle">Помощь выключена. Нажмите, чтобы показать следующую черту</string>
     <string name="hint_next_stroke_active">Показывается следующая черта; нажмите, чтобы скрыть</string>
+    <string name="check_help">Помощь</string>
+    <string name="hint_badge_counter_cd">Доступно: %1$d</string>
+    <string name="hint_status_available">Помощь доступна</string>
+    <string name="hint_status_exhausted">Лимит помощи исчерпан</string>
+    <string name="hint_remaining_label">Осталось</string>
+    <string name="hint_used_label">Использовано</string>
+    <string name="hint_count_of_max">%1$d из %2$d</string>
+    <string name="hint_explanation_available">Каждая подсказка снижает оценку за знак на 20%.</string>
     <string name="reading_hidden">Произношение скрыто. Нажмите, чтобы открыть</string>
     <string name="reading_revealed">Произношение открыто</string>
     <string name="prompt_hidden">Перевод скрыт. Нажмите, чтобы открыть</string>
@@ -111,16 +122,16 @@
     <string name="rule_shorter">Черта %1$d должна быть короче черты %2$d.</string>
     <string name="debug_missing_hooks">Отсутствует обязательный крючок в чертах: %1$s</string>
     <string name="setting_tenths_percent_value">%1$.1f%%</string>
-    <string name="settings_group_hint">Подсказка на практике</string>
+    <string name="settings_group_hint">Помощь на практике</string>
     <string name="settings_group_flow">Ход практики</string>
     <string name="setting_auto_advance">Автопереход к следующему слову</string>
-    <string name="help_auto_advance">Если включено, после успешного заполнения слова или по истечении таймера сразу открывается следующее слово. При пропуске «Далее» нажимается вручную.</string>
+    <string name="help_auto_advance">Автоматический переход к следующему заданию при верном решении всех знаков. Если форма принята со штрафом, ошибка или таймаут, нажмите «Далее».</string>
     <string name="setting_on">Вкл</string>
     <string name="setting_off">Выкл</string>
-    <string name="setting_max_next_stroke_hints">Лимит подсказок до провала</string>
-    <string name="help_max_next_stroke_hints">Лимит обращений к подсказкам на один знак (относится ко всем видам подсказок: и следующая черта, и весь кандзи). Обращение сверх лимита приводит к провалу: например, при значении 3 доступны ровно 3 подсказки, а 4-е обращение признаёт знак неверным и дорисовывает его красным с номерами черт.</string>
+    <string name="setting_max_next_stroke_hints">Лимит помощи на знак</string>
+    <string name="help_max_next_stroke_hints">Лимит обращений за помощью на один знак. При значении 3 доступны ровно 3 обращения, после чего помощь просто заканчивается.</string>
     <string name="setting_full_hint_display">Время показа полного знака</string>
-    <string name="help_full_hint_display">Сколько миллисекунд полный эталон с номерами черт остаётся на поле после нажатия. Затем подсказка сама скрывается; кнопка не остаётся нажатой.</string>
+    <string name="help_full_hint_display">Сколько миллисекунд полный эталон остаётся на поле после нажатия. Затем образец сам скрывается; кнопка не остаётся нажатой.</string>
     <string name="setting_count_value">%1$d</string>
     <string name="setting_millis_value">%1$d мс</string>
     <string name="settings_group_shape">Совпадение формы</string>
@@ -130,7 +141,7 @@
     <string name="setting_rule_check">Учитывать</string>
     <string name="setting_rule_ignore">Игнорировать</string>
     <string name="checks_testing">Проверки (тестирование)</string>
-    <string name="check_readability">Читаемость</string>
+    <string name="check_readability">Знак</string>
     <string name="check_shape">Форма</string>
     <string name="check_writing">Порядок и направление черт</string>
     <string name="check_running">Проверяется…</string>
@@ -216,4 +227,18 @@
     <string name="training_stat_time">Время</string>
     <string name="training_complete_home">На главную</string>
 
+    <string name="hint_none">Нет</string>
+    <string name="cell_assisted">Знак принят со снижением балла.</string>
+    <string name="hint_explanation_disabled">Помощь отключена в настройках.</string>
+    <string name="hint_score_label">Оценка за знак при верном ответе</string>
+    <string name="hint_penalty_reasons_title">Причины снижения оценки</string>
+    <string name="hint_penalty_hints">Использовано подсказок: %1$d (–20%% за каждую)</string>
+    <string name="hint_penalty_shape">Форма принята с неточностями (–%1$d%%)</string>
+    <string name="hint_usage_fraction">%1$d/%2$d</string>
+    <string name="hint_usage_description">Использовано подсказок: %1$d из %2$d</string>
+    <string name="check_accepted_with_penalty">Принято со штрафом</string>
+    <string name="check_shape_soft_explanation">Форма принята с неточностями. Оценка за знак снижена на %1$d%%.</string>
+    <string name="setting_shape_soft_margin">Допуск мягкого принятия</string>
+    <string name="help_shape_soft_margin" formatted="false">Допустимый недобор до порога сходства, в процентных пунктах. Если недобор строго меньше этого значения и других ошибок нет, форма принимается со штрафом 20%. Ноль отключает мягкое принятие.</string>
+    <string name="setting_percentage_points_value">%1$d п.п.</string>
 </resources>

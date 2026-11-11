@@ -3,6 +3,7 @@ package ru.mobui.kanji.data.catalog
 import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
+import androidx.room.migration.Migration
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -40,7 +41,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
             TrainingTaskTranslationsRow::class,
             TrainingTaskSymbolsRow::class,
         ],
-    version = 12,
+    version = 13,
     exportSchema = true,
 )
 internal abstract class CatalogDatabase : RoomDatabase() {
@@ -60,34 +61,46 @@ internal abstract class CatalogDatabase : RoomDatabase() {
             )
         }
 
-        /** Triggers/indexes are static schema; install once at create (incl. destructive recreate). */
+        /** Install trigger guards at creation; partial indexes are handled separately after validation. */
         private fun installStaticChecks(context: Context, db: SupportSQLiteDatabase) {
             installOriginChecks(db)
             installRecipeChecks(db)
-            installTrainingChecks(db)
+            installTrainingChecksV13(db)
             context.assets.open("catalog-checks.sql").bufferedReader().useLines { lines ->
                 lines.filter { it.isNotBlank() }.forEach {
                     db.execSQL(it.replace("CREATE TRIGGER ", "CREATE TRIGGER IF NOT EXISTS "))
                 }
             }
-            db.execSQL(
-                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_with_kanji " +
-                    "ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL",
-            )
-            db.execSQL(
-                "CREATE UNIQUE INDEX IF NOT EXISTS source_words_without_kanji " +
-                    "ON source_words(source_id,word_id) WHERE kanji_id IS NULL",
-            )
+        }
+
+        // Room cannot declare partial indexes. Restore these after migration schema validation.
+        private fun installPartialIndexes(db: SupportSQLiteDatabase) {
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS source_words_with_kanji ON source_words(source_id,word_id,kanji_id) WHERE kanji_id IS NOT NULL")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS source_words_without_kanji ON source_words(source_id,word_id) WHERE kanji_id IS NULL")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_recipes_active ON recipes(is_active) WHERE is_active=1 AND is_archived=0")
+            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS idx_trainings_one_in_progress ON trainings(status) WHERE status='in_progress'")
         }
 
         fun open(context: Context, name: String = "kanji.db"): CatalogDatabase =
             Room.databaseBuilder(context.applicationContext, CatalogDatabase::class.java, name)
-                // Pre-release database replacement, explicitly authorized; no migrations.
+                .addMigrations(object : Migration(12, 13) {
+                    override fun migrate(db: SupportSQLiteDatabase) {
+                        db.execSQL("DROP INDEX IF EXISTS source_words_with_kanji")
+                        db.execSQL("DROP INDEX IF EXISTS source_words_without_kanji")
+                        db.execSQL("DROP INDEX IF EXISTS idx_trainings_one_in_progress")
+                        db.execSQL("DROP INDEX IF EXISTS idx_recipes_active")
+                        installTrainingChecksV13(db)
+                    }
+                })
+                // Earlier unsupported pre-release schemas retain the existing replacement policy.
                 .fallbackToDestructiveMigration(dropAllTables = true)
                 .addCallback(
                     object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             installStaticChecks(context, db)
+                        }
+                        override fun onOpen(db: SupportSQLiteDatabase) {
+                            installPartialIndexes(db)
                         }
                     },
                 )

@@ -46,12 +46,12 @@ enum class RecipeHintMode(val key: String) {
     companion object {
         /** Null or unknown keeps the recipe default. */
         fun fromKey(key: String?): RecipeHintMode {
-            if (key == null) return Reading
+            if (key == null) return None
             return when (key.trim().lowercase()) {
                 "translation" -> Translation
                 "reading" -> Reading
                 "none" -> None
-                else -> Reading
+                else -> None
             }
         }
     }
@@ -81,7 +81,7 @@ data class Recipe(
     val materials: List<RecipeMaterial>,
     val taskCount: Int? = null,
     val secondsPerSymbol: Int? = null,
-    val hintMode: RecipeHintMode = RecipeHintMode.Reading,
+    val hintMode: RecipeHintMode = RecipeHintMode.None,
     val strokeHintMode: RecipeStrokeHintMode = RecipeStrokeHintMode.NextStroke,
     val isActive: Boolean = false,
     val revision: Long = 1,

@@ -40,6 +40,7 @@ enum class TrainingSymbolScript(val key: String) {
 
 enum class StoredCheckVerdict(val key: String) {
     Correct("correct"),
+    AcceptedWithPenalty("accepted_with_penalty"),
     Incorrect("incorrect"),
     Incomplete("incomplete"),
     Unavailable("unavailable"),
@@ -99,7 +100,7 @@ data class Training(
     val recipeNames: List<TrainingRecipeName>,
     val taskCount: Int? = null,
     val secondsPerSymbol: Int? = null,
-    val clueMode: TaskClueMode = TaskClueMode.Reading,
+    val clueMode: TaskClueMode = TaskClueMode.None,
     val strokeHintMode: HintMode = HintMode.NextStroke,
     val status: TrainingStatus,
     val startedAt: Long,
@@ -213,6 +214,8 @@ private fun TrainingSymbol.validated(): TrainingSymbol {
     require(id.isNotBlank() && occurrenceId.isNotBlank() && position >= 0)
     require(glyph.isNotBlank())
     require(hintRequestCount >= 0 && elapsedMs >= 0)
+    require(readabilityVerdict != StoredCheckVerdict.AcceptedWithPenalty)
+    require(strokeWritingVerdict != StoredCheckVerdict.AcceptedWithPenalty)
     require(kanjiKey == null || kanjiKey.isNotBlank())
     require(
         shapeSimilarityPercent == null ||

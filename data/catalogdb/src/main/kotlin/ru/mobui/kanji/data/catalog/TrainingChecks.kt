@@ -2,8 +2,8 @@ package ru.mobui.kanji.data.catalog
 
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-/** Room has no CHECK annotation. Install equivalent guards on every open. */
-internal fun installTrainingChecks(db: SupportSQLiteDatabase) {
+/** Frozen v13 guard definitions, shared by fresh creation and the 12→13 migration. */
+internal fun installTrainingChecksV13(db: SupportSQLiteDatabase) {
     val verdict =
         "IN ('correct','incorrect','incomplete','unavailable')"
     val checks =
@@ -42,7 +42,7 @@ internal fun installTrainingChecks(db: SupportSQLiteDatabase) {
                         "NEW.status IN ('empty','editing','correct','incorrect','prefilled') AND " +
                         "NEW.hint_request_count>=0 AND NEW.elapsed_ms>=0 AND " +
                         "(NEW.readability_verdict IS NULL OR NEW.readability_verdict $verdict) AND " +
-                        "(NEW.shape_verdict IS NULL OR NEW.shape_verdict $verdict) AND " +
+                        "(NEW.shape_verdict IS NULL OR NEW.shape_verdict IN ('correct','incorrect','incomplete','unavailable','accepted_with_penalty')) AND " +
                         "(NEW.stroke_writing_verdict IS NULL OR NEW.stroke_writing_verdict $verdict) AND " +
                         "(NEW.shape_similarity_percent IS NULL OR " +
                         "(NEW.shape_similarity_percent>=0 AND NEW.shape_similarity_percent<=100)) AND " +
@@ -55,14 +55,11 @@ internal fun installTrainingChecks(db: SupportSQLiteDatabase) {
     checks.forEach { (table, predicate) ->
         listOf("INSERT", "UPDATE").forEach { action ->
             val name = "check_${table}_${action.lowercase()}"
+            if (table == "training_task_symbols") db.execSQL("DROP TRIGGER IF EXISTS $name")
             db.execSQL(
                 "CREATE TRIGGER IF NOT EXISTS $name BEFORE $action ON $table " +
                     "WHEN NOT ($predicate) BEGIN SELECT RAISE(ABORT, 'Invalid $table'); END",
             )
         }
     }
-    db.execSQL(
-        "CREATE UNIQUE INDEX IF NOT EXISTS idx_trainings_one_in_progress ON trainings(status) " +
-            "WHERE status='in_progress'",
-    )
 }

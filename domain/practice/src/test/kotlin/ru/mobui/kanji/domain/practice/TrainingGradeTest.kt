@@ -13,8 +13,8 @@ class TrainingGradeTest {
                 task(TrainingTaskStatus.Correct),
                 task(TrainingTaskStatus.Assisted, hintCount = 1),
             ).summarize()
-        // (1+1+1+2/3)/4 ≈ 91.67 → 92
-        assertEquals(92, summary.percent)
+        // (1+1+1+0.8)/4 = 95
+        assertEquals(95, summary.percent)
         assertEquals(TrainingGradeLevel.Excellent, summary.grade)
         assertEquals(3, summary.correctCount)
         assertEquals(1, summary.assistedCount)
@@ -31,8 +31,8 @@ class TrainingGradeTest {
                 task(TrainingTaskStatus.Assisted, hintCount = 1),
                 task(TrainingTaskStatus.TimedOut),
             ).summarize()
-        // (1+1+2/3+2/3+0)/5 ≈ 66.67 → 67
-        assertEquals(67, summary.percent)
+        // (1+1+0.8+0.8+0)/5 = 72
+        assertEquals(72, summary.percent)
         assertEquals(TrainingGradeLevel.Steady, summary.grade)
     }
 
@@ -45,8 +45,8 @@ class TrainingGradeTest {
                 task(TrainingTaskStatus.TimedOut),
                 task(TrainingTaskStatus.Assisted, hintCount = 1),
             ).summarize()
-        // (0+0+0+2/3)/4 ≈ 16.67 → 17
-        assertEquals(17, summary.percent)
+        // (0+0+0+0.8)/4 = 20
+        assertEquals(20, summary.percent)
         assertEquals(TrainingGradeLevel.KeepGoing, summary.grade)
         assertEquals(2, summary.skippedCount)
         assertEquals(1, summary.timedOutCount)
@@ -129,11 +129,11 @@ class TrainingGradeTest {
     }
 
     @Test
-    fun summarizeUsesMaxNextStrokeHintsFromTraining() {
+    fun summarizeKeepsHintCostIndependentOfSavedLimit() {
         val t = training(task(TrainingTaskStatus.Assisted, hintCount = 1)).copy(maxNextStrokeHints = 2)
         val summary = t.summarize()
-        assertEquals(50, summary.percent)
-        assertEquals(TrainingGradeLevel.KeepGoing, summary.grade)
+        assertEquals(80, summary.percent)
+        assertEquals(TrainingGradeLevel.Steady, summary.grade)
     }
 
     private fun task(

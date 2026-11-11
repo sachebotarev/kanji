@@ -35,15 +35,16 @@ class RecipesTest {
         assertEquals("Луна", named.name("ru"))
     }
 
-    @Test fun recipeDefaultHintModeIsReadingAndSupportsTranslationAndNone() {
-        assertEquals(RecipeHintMode.Reading, recipe.hintMode)
+    @Test fun recipeDefaultHintModeIsNoneAndSupportsTranslationAndReading() {
+        assertEquals(RecipeHintMode.None, recipe.hintMode)
         val withTranslation = recipe.copy(hintMode = RecipeHintMode.Translation)
         assertEquals(RecipeHintMode.Translation, withTranslation.hintMode)
-        val withNone = recipe.copy(hintMode = RecipeHintMode.None)
-        assertEquals(RecipeHintMode.None, withNone.hintMode)
-        assertEquals(RecipeHintMode.Reading, RecipeHintMode.fromKey(null))
-        assertEquals(RecipeHintMode.Reading, RecipeHintMode.fromKey("unknown"))
+        val withReading = recipe.copy(hintMode = RecipeHintMode.Reading)
+        assertEquals(RecipeHintMode.Reading, withReading.hintMode)
+        assertEquals(RecipeHintMode.None, RecipeHintMode.fromKey(null))
+        assertEquals(RecipeHintMode.None, RecipeHintMode.fromKey("unknown"))
         assertEquals(RecipeHintMode.Translation, RecipeHintMode.fromKey(" translation "))
+        assertEquals(RecipeHintMode.Reading, RecipeHintMode.fromKey("READING"))
         assertEquals(RecipeHintMode.None, RecipeHintMode.fromKey("NONE"))
     }
 
