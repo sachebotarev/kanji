@@ -33,6 +33,11 @@ fun PracticeRoute(
     onBack: () -> Unit,
     wordLabel: String? = null,
     progressLabel: String? = null,
+    isFirstWord: Boolean =
+        progressLabel?.let {
+            val trimmed = it.trim()
+            trimmed.startsWith("1 ") || trimmed.startsWith("1/") || trimmed == "1"
+        } ?: true,
 ) {
     var confirmLeave by rememberSaveable { mutableStateOf(false) }
     BackHandler {
@@ -61,6 +66,7 @@ fun PracticeRoute(
         activeStroke = { preview.value?.stroke },
         wordLabel = wordLabel,
         progressLabel = progressLabel,
+        isFirstWord = isFirstWord,
         onBack = { confirmLeave = true },
     )
     if (confirmLeave) {

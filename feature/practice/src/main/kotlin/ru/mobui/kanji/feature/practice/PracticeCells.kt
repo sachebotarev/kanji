@@ -23,7 +23,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -41,7 +45,9 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
@@ -167,23 +173,50 @@ private fun KanjiCell(
     with(state) {
     val corner = minOf(12.dp, side * 0.2f)
     val shape = RoundedCornerShape(corner)
-    val primary = MaterialTheme.colorScheme.primary
-    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val hinted = cell.task.mode == EntryMode.User && cell.strokeHintCount > 0
+    val reducedCredit = hinted || cell.shapeAcceptedWithPenalty
+    val assisted = displayStatus == EntryStatus.Correct && reducedCredit
+    val primary = when {
+        reducedCredit -> assistedFeedbackColor()
+        else -> MaterialTheme.colorScheme.primary
+    }
+    val primaryContainer = when {
+        reducedCredit -> assistedFeedbackColor().copy(alpha = 0.12f)
+        else -> MaterialTheme.colorScheme.primaryContainer
+    }
     val error = MaterialTheme.colorScheme.error
     val errorContainer = MaterialTheme.colorScheme.errorContainer
     // Mild flash on Correct/Incorrect — same strength for both; Correct still holds before advance.
     val celebrate = remember { Animatable(0f) }
+    val haptics = LocalHapticFeedback.current
+    var wasCorrect by rememberSaveable(cell.task.occurrenceId) {
+        mutableStateOf(displayStatus == EntryStatus.Correct)
+    }
     LaunchedEffect(displayStatus, cell.revision) {
         when (displayStatus) {
-            EntryStatus.Correct,
-            EntryStatus.Incorrect -> {
+            EntryStatus.Correct -> {
+                if (!wasCorrect) {
+                    haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    wasCorrect = true
+                }
                 celebrate.snapTo(1f)
                 celebrate.animateTo(
                     0f,
                     animationSpec = tween(durationMillis = 380, easing = FastOutSlowInEasing),
                 )
             }
-            else -> celebrate.snapTo(0f)
+            EntryStatus.Incorrect -> {
+                wasCorrect = false
+                celebrate.snapTo(1f)
+                celebrate.animateTo(
+                    0f,
+                    animationSpec = tween(durationMillis = 380, easing = FastOutSlowInEasing),
+                )
+            }
+            else -> {
+                wasCorrect = false
+                celebrate.snapTo(0f)
+            }
         }
     }
     val settled =
@@ -191,7 +224,7 @@ private fun KanjiCell(
             EntryStatus.Correct -> primaryContainer
             EntryStatus.Incorrect -> errorContainer
             EntryStatus.Prefilled -> MaterialTheme.colorScheme.surfaceVariant
-            else -> MaterialTheme.colorScheme.surface
+            else -> if (reducedCredit) primaryContainer else MaterialTheme.colorScheme.surface
         }
     val peak =
         when (displayStatus) {
@@ -211,7 +244,7 @@ private fun KanjiCell(
     val border =
         when {
             displayStatus == EntryStatus.Incorrect -> error
-            displayStatus == EntryStatus.Correct -> primary
+            reducedCredit || displayStatus == EntryStatus.Correct -> primary
             displayStatus == EntryStatus.Editing || selected ->
                 MaterialTheme.colorScheme.secondary
             else -> MaterialTheme.colorScheme.outlineVariant
@@ -220,6 +253,7 @@ private fun KanjiCell(
     val label = stringResource(R.string.cell_description, index + 1, statusLabel(displayStatus))
     val selectedLabel =
         stringResource(if (selected) R.string.practice_selected else R.string.practice_not_selected)
+    val assistedLabel = stringResource(R.string.cell_assisted)
     val inkPad = (side * 0.09f).coerceIn(4.dp, 6.dp)
     val pulse = 1f + 0.05f * celebrate.value
     Box(Modifier.width(side).height(height)) {
@@ -267,7 +301,7 @@ private fun KanjiCell(
                 .clickable(enabled = enabled && cell.task.mode == EntryMode.User, onClick = onClick)
                 .semantics {
                     contentDescription = label
-                    stateDescription = selectedLabel
+                    stateDescription = if (assisted) "$selectedLabel. $assistedLabel" else selectedLabel
                     this.selected = state.selected
                 }
                 .testTag("kanji-cell-$index"),
@@ -310,7 +344,11 @@ private fun KanjiCell(
                             if (revealAnswer) "kanji-cell-answer-$index"
                             else "kanji-cell-ink-$index",
                         ),
-                    color = if (isIncorrect) error else null,
+                    color = when {
+                        isIncorrect -> error
+                        reducedCredit -> assistedFeedbackColor()
+                        else -> null
+                    },
                 )
             }
         }

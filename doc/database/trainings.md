@@ -23,7 +23,7 @@ trainings
 - Старт новой тренировки в одной транзакции: текущую `in_progress` → `interrupted` с `ended_at`, затем insert новой.
 - Рукописный ввод — только колонка `writing_sample_json` на символе. Отдельных таблиц штрихов/точек нет.
 - Незавершённый жест не сохраняется.
-- Счётчик подсказки по знаку — на символе (`hint_request_count`). Раскрытие чтения слова — флаг `reading_hint_used` на задании. Статус `assisted`, если счётчик > 0 у practice-символа или открыто чтение.
+- Счётчик подсказки по знаку — на символе (`hint_request_count`). Раскрытие чтения и перевода слова — флаги `reading_hint_used` и `translation_hint_used` на задании. Статус `assisted`, если счётчик > 0 у practice-символа или открыта подсказка в шапке.
 - Учебные тексты и названия рецепта копируются снимками с `language_tag`; русские значения — fallback при чтении.
 
 ## `trainings`
@@ -99,7 +99,7 @@ trainings
 | `elapsed_ms` | `INTEGER` | Время на символ ≥ 0. |
 | `readability_verdict` | `TEXT` | Вердикт читаемости или NULL. |
 | `readability_glyph` | `TEXT` | Распознанный знак или NULL. |
-| `shape_verdict` | `TEXT` | Вердикт формы или NULL. |
+| `shape_verdict` | `TEXT` | Вердикт формы или NULL; `accepted_with_penalty` — форма принята с фиксированным штрафом 20%. Новое значение разрешено только для формы. |
 | `shape_similarity_percent` | `REAL` | **Сходство** итогового рисунка с эталоном, %. Не вероятность правильного ответа. Код: `matchPercent`. |
 | `shape_budget_percent` | `REAL` | **Общий расход бюджета** компенсаций, %. Степень применённых поправок формы. Код: `compensation.budget.totalPercent`. |
 | `stroke_writing_verdict` | `TEXT` | Вердикт порядка/направления черт или NULL. |
@@ -141,3 +141,5 @@ trainings
 ## Границы этапа
 
 Room-хранилище, генератор очереди (`shuffled_cycles`) и персистентный host PRACTICE подключены. Очистка всей истории — `TrainingsRepository.clearHistory` из настроек (SETTINGS.W04 / SETTINGS.D01). UI списка истории и resume после убийства процесса — отдельные задачи. Справочный `python3 doc/database/test_builder_schema.py` проверяет DDL рецептов без таблиц тренировок; Room-проверки — инструментальные тесты `TrainingsStorageTest`.
+
+Схема 13: миграция 12→13 сохраняет таблицы и данные, обновляет ограничения вердиктов и восстанавливает частичные индексы после проверки схемы Room. [Решение](../decisions/shape-soft-acceptance.md).

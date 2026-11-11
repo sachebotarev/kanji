@@ -1,28 +1,25 @@
 package ru.mobui.kanji.domain.practice
 
-import kotlin.math.max
+import kotlin.math.pow
 
 /** Reading spoiler multiplies the kanji average; see doc/implementation/hint-scoring.md. */
 const val READING_HINT_FACTOR = 0.85
 /** Translation spoiler multiplies the kanji average; see doc/implementation/hint-scoring.md. */
 const val TRANSLATION_HINT_FACTOR = 0.85
+/** Each counted stroke hint retains 80% of the remaining character credit. */
+const val STROKE_HINT_FACTOR = 0.8
 
 /**
  * Score of one practice symbol after the word is finished.
  *
- * [maxHints] is the configured per-character budget (`maxNextStrokeHints`).
+ * [maxHints] validates the configured budget; the cost of a hint is independent of that budget.
  */
 fun practiceSymbolPoints(status: TrainingSymbolStatus, hintRequestCount: Int, maxHints: Int): Double {
     require(maxHints >= 0)
+    require(hintRequestCount >= 0)
     return when (status) {
         TrainingSymbolStatus.Incorrect -> 0.0
-        TrainingSymbolStatus.Correct -> {
-            if (maxHints == 0) {
-                if (hintRequestCount == 0) 1.0 else 0.0
-            } else {
-                max(0.0, 1.0 - hintRequestCount.toDouble() / maxHints.toDouble())
-            }
-        }
+        TrainingSymbolStatus.Correct -> STROKE_HINT_FACTOR.pow(hintRequestCount)
         TrainingSymbolStatus.Prefilled,
         TrainingSymbolStatus.Empty,
         TrainingSymbolStatus.Editing -> 0.0
@@ -47,7 +44,8 @@ fun TrainingTask.wordPoints(maxHintsPerKanji: Int = DEFAULT_MAX_NEXT_STROKE_HINT
                 else
                     practice
                         .map {
-                            practiceSymbolPoints(it.status, it.hintRequestCount, maxHintsPerKanji)
+                            practiceSymbolPoints(it.status, it.hintRequestCount, maxHintsPerKanji) *
+                                if (it.shapeVerdict == StoredCheckVerdict.AcceptedWithPenalty) SHAPE_SOFT_ACCEPTANCE_FACTOR else 1.0
                         }
                         .average()
             val readingFactor = if (readingHintUsed) READING_HINT_FACTOR else 1.0

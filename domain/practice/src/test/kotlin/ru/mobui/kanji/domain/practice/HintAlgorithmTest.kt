@@ -72,8 +72,8 @@ class HintAlgorithmTest {
         assertEquals(HintMode.FullCharacter, HintMode.fromKey("full"))
         assertEquals(HintMode.FullCharacter, HintMode.fromKey("full_kanji"))
 
-        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(null))
-        assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey("unknown"))
+        assertEquals(TaskClueMode.None, TaskClueMode.fromKey(null))
+        assertEquals(TaskClueMode.None, TaskClueMode.fromKey("unknown"))
         assertEquals(TaskClueMode.Reading, TaskClueMode.fromKey(" reading "))
         assertEquals(TaskClueMode.Translation, TaskClueMode.fromKey("TRANSLATION"))
         assertEquals(TaskClueMode.None, TaskClueMode.fromKey("none"))

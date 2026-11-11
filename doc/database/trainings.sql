@@ -10,7 +10,7 @@ CREATE TABLE trainings (
     recipe_revision INTEGER CHECK(recipe_revision IS NULL OR recipe_revision > 0),
     task_count INTEGER CHECK(task_count IS NULL OR task_count > 0),
     seconds_per_symbol INTEGER CHECK(seconds_per_symbol IS NULL OR seconds_per_symbol > 0),
-    hint_mode TEXT NOT NULL DEFAULT 'reading' CHECK(hint_mode IN ('translation', 'reading', 'none')),
+    hint_mode TEXT NOT NULL DEFAULT 'none' CHECK(hint_mode IN ('translation', 'reading', 'none')),
     stroke_hint_mode TEXT NOT NULL DEFAULT 'next_stroke' CHECK(stroke_hint_mode IN ('next_stroke', 'full_character')),
     status TEXT NOT NULL CHECK(status IN ('in_progress', 'completed', 'interrupted')),
     started_at INTEGER NOT NULL,

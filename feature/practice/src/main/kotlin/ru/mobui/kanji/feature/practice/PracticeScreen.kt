@@ -1,6 +1,8 @@
 package ru.mobui.kanji.feature.practice
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.border
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
@@ -17,12 +19,14 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -31,8 +35,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -56,6 +60,7 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
@@ -119,6 +124,11 @@ fun PracticeScreen(
     activeStroke: () -> InkStroke? = { null },
     wordLabel: String? = null,
     progressLabel: String? = null,
+    isFirstWord: Boolean =
+        progressLabel?.let {
+            val trimmed = it.trim()
+            trimmed.startsWith("1 ") || trimmed.startsWith("1/") || trimmed == "1"
+        } ?: true,
     onBack: (() -> Unit)? = null,
 ) {
     val practice = state.practice
@@ -127,7 +137,16 @@ fun PracticeScreen(
         remember(selected?.task?.occurrenceId, selected?.revision) {
             mutableStateOf<CheckKind?>(null)
         }
-    LaunchedEffect(state.gestureActive) { if (state.gestureActive) openCheck = null }
+    var openHintDetails by
+        remember(selected?.task?.occurrenceId, selected?.revision) {
+            mutableStateOf(false)
+        }
+    LaunchedEffect(state.gestureActive) {
+        if (state.gestureActive) {
+            openCheck = null
+            openHintDetails = false
+        }
+    }
     val context =
         PracticeScreenContext(
             state,
@@ -136,13 +155,35 @@ fun PracticeScreen(
             activeStroke,
             wordLabel,
             progressLabel,
+            isFirstWord = isFirstWord,
             onBack = onBack,
         )
     Scaffold(modifier = modifier, bottomBar = { PracticeBottomBar(context) }) { padding ->
-        PracticeContentLayout(context, padding) { openCheck = it }
+        PracticeContentLayout(
+            context = context,
+            padding = padding,
+            onOpenCheck = { openCheck = it },
+            onOpenHintDetails = { openHintDetails = true },
+        )
     }
     if (openCheck != null && !state.gestureActive) {
         PracticeDetails(context, openCheck!!, { openCheck = null })
+    }
+    if (openHintDetails && !state.gestureActive) {
+        val cell = selected
+        val used = state.practice.totalHintCount
+        val max = state.maxNextStrokeHints
+        val exhausted = (max in 1..used) || state.practice.cells.any { it.strokeHintsExhausted }
+        val remaining = (max - used).coerceAtLeast(0)
+        val hasShapePenalty = state.practice.cells.any { it.task.mode == EntryMode.User && it.shapeAcceptedWithPenalty }
+        HintDetailsDialog(
+            remaining = remaining,
+            max = max,
+            used = used,
+            exhausted = exhausted,
+            shapeAcceptedWithPenalty = hasShapePenalty,
+            onClose = { openHintDetails = false },
+        )
     }
 }
 
@@ -153,20 +194,24 @@ internal fun PracticeStatus(
     strokeCount: Int,
     enabled: Boolean,
     modifier: Modifier = Modifier,
+    hintStatus: PracticeHintStatusState? = null,
     onOpen: (CheckKind) -> Unit,
+    onOpenHintDetails: () -> Unit = {},
 ) {
     // Fixed-height host so check details never push/shrink the writing pad.
     Row(
-        modifier.height(48.dp),
+        modifier.height(STATUS_BAND_HEIGHT),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         CheckerTestingStatuses(
-            report,
-            checking,
-            Modifier.fillMaxWidth(),
+            report = report,
+            checking = checking,
+            modifier = Modifier.fillMaxWidth(),
             strokeCount = strokeCount,
             enabled = enabled,
+            hintStatus = hintStatus,
             onOpen = onOpen,
+            onOpenHint = onOpenHintDetails,
         )
     }
 }
@@ -198,6 +243,7 @@ internal fun PracticeFeedback(state: PracticeUiState) {
 internal fun PracticeActions(
     actionsEnabled: Boolean,
     isComplete: Boolean,
+    completionTone: PracticeFeedbackTone = PracticeFeedbackTone.Success,
     isResolved: Boolean = false,
     isTimedOut: Boolean,
     checking: Boolean,
@@ -206,8 +252,7 @@ internal fun PracticeActions(
     hintActive: Boolean,
     hintEnabled: Boolean,
     hintMode: ru.mobui.kanji.domain.practice.HintMode,
-    strokeHintCount: Int = 0,
-    maxNextStrokeHints: Int = 3,
+    gesturesOnlyMode: Boolean = false,
     onAction: (PracticeAction) -> Unit,
 ) {
     val haptics = LocalHapticFeedback.current
@@ -223,7 +268,6 @@ internal fun PracticeActions(
                 else -> R.string.hint_idle
             },
         )
-    val hintIconTint = hintBudgetIconTint(strokeHintCount, maxNextStrokeHints)
     LaunchedEffect(hintActive) {
         if (hintActive) haptics.performHapticFeedback(HapticFeedbackType.LongPress)
     }
@@ -232,74 +276,100 @@ internal fun PracticeActions(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        PracticeRoundTool(
-            icon = R.drawable.ic_undo,
-            label = R.string.undo,
-            enabled = undoEnabled,
-            onClick = { onAction(PracticeAction.Undo) },
-        )
-        PracticeRoundTool(
-            icon = R.drawable.ic_clear,
-            label = R.string.clear,
-            enabled = clearEnabled,
-            onClick = { onAction(PracticeAction.Clear) },
-        )
-        PracticeRoundTool(
-            icon = R.drawable.ic_hint,
-            label = R.string.hint,
-            enabled = hintEnabled,
-            // Keep the tonal background stable; only the bulb tint shows budget warnings.
-            active = false,
-            iconTint = hintIconTint,
-            modifier =
-                Modifier.testTag("trace-hint").semantics {
-                    // Full-character hint is momentary — never latch the control as checked.
-                    if (hintMode == ru.mobui.kanji.domain.practice.HintMode.FullCharacter) {
-                        role = Role.Button
-                    } else {
-                        role = Role.Checkbox
-                        toggleableState =
-                            if (hintActive) ToggleableState.On else ToggleableState.Off
-                    }
-                    stateDescription = hintDescription
-                },
-            onClick = { onAction(PracticeAction.ToggleHint) },
-        )
-        val isNext = isResolved || isTimedOut
-        val isPositive = isComplete
-        Button(
-            onClick = { onAction(if (isNext) PracticeAction.Submit else PracticeAction.Skip) },
-            modifier = Modifier.weight(1f).heightIn(min = 48.dp),
-            enabled = actionsEnabled && !checking,
-            colors =
-                if (isPositive) {
-                    ButtonDefaults.buttonColors()
-                } else {
-                    ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = MaterialTheme.colorScheme.onError,
-                    )
-                },
-        ) {
-            Text(
-                stringResource(if (isNext) R.string.next else R.string.skip),
-                maxLines = 1,
+        if (!gesturesOnlyMode) {
+            PracticeRoundTool(
+                icon = R.drawable.ic_undo,
+                label = R.string.undo,
+                enabled = undoEnabled,
+                onClick = { onAction(PracticeAction.Undo) },
             )
+            PracticeRoundTool(
+                icon = R.drawable.ic_clear,
+                label = R.string.clear,
+                enabled = clearEnabled,
+                onClick = { onAction(PracticeAction.Clear) },
+            )
+            PracticeRoundTool(
+                icon = R.drawable.ic_hint,
+                label = R.string.hint,
+                enabled = hintEnabled,
+                modifier =
+                    Modifier.testTag("trace-hint").semantics {
+                        // Full-character hint is momentary — never latch the control as checked.
+                        if (hintMode == ru.mobui.kanji.domain.practice.HintMode.FullCharacter) {
+                            role = Role.Button
+                        } else {
+                            role = Role.Checkbox
+                            toggleableState =
+                                if (hintActive) ToggleableState.On else ToggleableState.Off
+                        }
+                        stateDescription = hintDescription
+                    },
+                onClick = { onAction(PracticeAction.ToggleHint) },
+            )
+        }
+        val buttonModifier =
+            if (gesturesOnlyMode) {
+                Modifier.fillMaxWidth().heightIn(min = 48.dp)
+            } else {
+                Modifier.weight(1f).heightIn(min = 48.dp)
+            }
+        val isNext = isResolved || isTimedOut
+        if (isNext) {
+            val tone = if (isComplete && !isTimedOut) completionTone else PracticeFeedbackTone.Exhausted
+            Button(
+                onClick = { onAction(PracticeAction.Submit) },
+                modifier = buttonModifier,
+                enabled = actionsEnabled && !checking,
+                colors =
+                    when (tone) {
+                        PracticeFeedbackTone.Success, PracticeFeedbackTone.Neutral -> ButtonDefaults.buttonColors()
+                        PracticeFeedbackTone.Assisted -> ButtonDefaults.buttonColors(
+                            containerColor = assistedFeedbackColor().copy(alpha = 0.16f),
+                            contentColor = assistedFeedbackColor(),
+                        )
+                        PracticeFeedbackTone.Exhausted -> ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                        )
+                    },
+            ) {
+                Text(
+                    stringResource(R.string.next),
+                    maxLines = 1,
+                )
+            }
+        } else {
+            val errorColor = MaterialTheme.colorScheme.error
+            val isEnabled = actionsEnabled && !checking
+            OutlinedButton(
+                onClick = { onAction(PracticeAction.Skip) },
+                modifier = buttonModifier,
+                enabled = isEnabled,
+                colors =
+                    ButtonDefaults.outlinedButtonColors(
+                        contentColor = errorColor,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                    ),
+                border =
+                    BorderStroke(
+                        1.dp,
+                        if (isEnabled) errorColor else MaterialTheme.colorScheme.outlineVariant,
+                    ),
+            ) {
+                Text(
+                    stringResource(R.string.skip),
+                    maxLines = 1,
+                )
+            }
         }
     }
 }
 
-private val HINT_BUDGET_CRITICAL_TINT = Color(0xFFE53935)
-private val HINT_BUDGET_WARNING_TINT = Color(0xFFFFC107)
-
-internal fun hintBudgetIconTint(used: Int, max: Int): Color? {
-    if (max <= 0) return HINT_BUDGET_CRITICAL_TINT
-    return when {
-        used >= max -> HINT_BUDGET_CRITICAL_TINT
-        used >= (max + 1) / 2 -> HINT_BUDGET_WARNING_TINT
-        else -> null
-    }
-}
+@Composable
+internal fun assistedFeedbackColor(): Color =
+    if (MaterialTheme.colorScheme.surface.luminance() < 0.5f) Color(0xFFC2AF79)
+    else Color(0xFF786735)
 
 @Composable
 private fun PracticeRoundTool(
@@ -308,39 +378,13 @@ private fun PracticeRoundTool(
     enabled: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    active: Boolean = false,
-    iconTint: Color? = null,
 ) {
-    val defaultContent =
-        if (active) MaterialTheme.colorScheme.onPrimaryContainer
-        else MaterialTheme.colorScheme.onSecondaryContainer
-    val content = iconTint ?: defaultContent
-    val colors =
-        if (active) {
-            IconButtonDefaults.filledTonalIconButtonColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = content,
-                disabledContainerColor =
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.38f),
-                disabledContentColor = content.copy(alpha = 0.38f),
-            )
-        } else {
-            IconButtonDefaults.filledTonalIconButtonColors(
-                contentColor = content,
-                disabledContentColor = content.copy(alpha = 0.38f),
-            )
-        }
     FilledTonalIconButton(
         onClick = onClick,
         modifier = modifier.size(48.dp),
         enabled = enabled,
-        colors = colors,
     ) {
-        Icon(
-            painterResource(icon),
-            stringResource(label),
-            Modifier.size(22.dp),
-        )
+        Icon(painterResource(icon), stringResource(label), Modifier.size(22.dp))
     }
 }
 

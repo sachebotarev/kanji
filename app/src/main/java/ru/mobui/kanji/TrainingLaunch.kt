@@ -338,6 +338,11 @@ private fun TrainingSymbol.fromKanjiResult(result: KanjiResult): TrainingSymbol 
                 EntryStatus.Prefilled -> TrainingSymbolStatus.Prefilled
             },
         hintRequestCount = maxOf(hintRequestCount, result.hintRequestCount),
+        shapeVerdict = when {
+            result.shapeAcceptedWithPenalty -> ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty
+            shapeVerdict == ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty -> ru.mobui.kanji.domain.practice.StoredCheckVerdict.Correct
+            else -> shapeVerdict
+        },
         elapsedMs = result.elapsedMs,
         writingSampleJson =
             if (result.mode == EntryMode.User && result.sample.strokeCount > 0) {

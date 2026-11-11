@@ -31,6 +31,22 @@ class HandwritingTrainingTest {
         )
 
     @Test
+    fun softShapeSurvivesSubmissionButIsClearedByEditing() {
+        val training = HandwritingTraining(task().copy(kanji = task().kanji.take(1)))
+        training.addStroke("position-0", 0, stroke)
+        assertTrue(training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct, shapeAcceptedWithPenalty = true))
+        training.submit()
+        assertEquals(AnswerStatus.Assisted, training.state.result!!.status)
+        assertTrue(training.state.result!!.kanji.single().shapeAcceptedWithPenalty)
+
+        val editable = HandwritingTraining(task().copy(kanji = task().kanji.take(1)))
+        editable.addStroke("position-0", 0, stroke)
+        editable.applyCheck(editable.checkRequests().single(), CheckVerdict.Correct, shapeAcceptedWithPenalty = true)
+        editable.addStroke("position-0", editable.state.selected!!.revision, stroke)
+        assertFalse(editable.state.selected!!.shapeAcceptedWithPenalty)
+    }
+
+    @Test
     fun settingsInvalidateAcceptedVerdictAndRejectOldResponseWithoutChangingInkOrUndo() {
         val training = HandwritingTraining(task())
         training.addStroke("position-0", 0, stroke)
@@ -126,6 +142,25 @@ class HandwritingTrainingTest {
         assertFalse(training.state.isComplete)
         training.advanceTime(50)
         assertEquals(0L, training.state.elapsedMs)
+    }
+
+    @Test
+    fun advanceTimeContinuesWhenCellIsIncorrectUntilStrokeHintsExhausted() {
+        val training = HandwritingTraining(task(1000))
+        training.setReference(KanjiId("same-kanji"), reference)
+        training.setReference(KanjiId("prefilled"), reference)
+        training.addStroke("position-0", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Correct)
+        training.select(1)
+        training.addStroke("position-1", 0, stroke)
+        training.applyCheck(training.checkRequests().single(), CheckVerdict.Incorrect)
+        assertEquals(EntryStatus.Incorrect, training.state.cells[1].status)
+        assertFalse(training.state.cells[1].strokeHintsExhausted)
+        assertFalse(training.state.cells[1].isSettled)
+        assertFalse(training.state.isResolved)
+        training.advanceTime(50)
+        assertEquals(50L, training.state.elapsedMs)
+        assertEquals(50L, training.state.cells[1].elapsedMs)
     }
 
     @Test

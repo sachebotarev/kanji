@@ -370,6 +370,15 @@ private val ShapeParameters =
             { settings, value -> settings.copy(requiredMatchPercent = value) },
         ),
         ParameterSpec(
+            R.string.setting_shape_soft_margin,
+            R.string.help_shape_soft_margin,
+            "shape-soft-margin",
+            0f..100f,
+            { it.shapeSoftMarginPoints },
+            { settings, value -> settings.copy(shapeSoftMarginPoints = value) },
+            unit = R.string.setting_percentage_points_value,
+        ),
+        ParameterSpec(
             R.string.setting_distance,
             R.string.help_distance,
             "distance",

@@ -10,6 +10,7 @@ import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
+import ru.mobui.kanji.domain.practice.summarize
 import ru.mobui.kanji.domain.practice.HintMode
 import ru.mobui.kanji.domain.practice.Training
 import ru.mobui.kanji.domain.practice.TrainingRecipeName
@@ -92,10 +93,70 @@ class TrainingsStorageTest {
         )
 
     @Test
-    fun schemaIncludesTrainingTablesOnVersion12() = storage { db, catalog ->
+    fun softShapePenaltySurvivesDatabaseReopen() = storage { db, catalog ->
+        catalog.load()
+        val base = training("soft-shape", wordId = null)
+        val trainings = catalog.trainingsRepository
+        trainings.startTraining(base)
+        val completed = base.copy(
+            status = TrainingStatus.Completed,
+            endedAt = 2_000L,
+            tasks = base.tasks.map { task -> task.copy(
+                status = TrainingTaskStatus.Assisted,
+                endedAt = 2_000L,
+                symbols = task.symbols.mapIndexed { index, symbol -> symbol.copy(
+                    status = TrainingSymbolStatus.Correct,
+                    hintRequestCount = if (index == 0) 1 else 0,
+                    shapeVerdict = if (index == 0) ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty else ru.mobui.kanji.domain.practice.StoredCheckVerdict.Correct,
+                ) },
+            ) },
+        )
+        trainings.saveTraining(completed)
+        val sql = db.openHelper.writableDatabase
+        val sourceWordCount = sql.query("SELECT count(*) FROM source_words").use { it.moveToFirst(); it.getInt(0) }
+        // Simulate an existing installation with the previous shape-verdict guards.
+        for (action in listOf("insert", "update")) {
+            val trigger = "check_training_task_symbols_$action"
+            val oldDefinition = sql.query("SELECT sql FROM sqlite_master WHERE type='trigger' AND name='$trigger'").use { cursor ->
+                check(cursor.moveToFirst())
+                cursor.getString(0).replace(",\'accepted_with_penalty\'", "")
+            }
+            sql.execSQL("DROP TRIGGER $trigger")
+            sql.execSQL(oldDefinition)
+        }
+        sql.execSQL("PRAGMA user_version=12")
+        val name = db.openHelper.databaseName!!
+        db.close()
+        val reopened = CatalogDatabase.open(instrumentation.targetContext, name)
+        try {
+            val loaded = RoomCatalogRepository(reopened, instrumentation.context.assets, Dispatchers.IO)
+                .trainingsRepository.getTraining(base.id)!!
+            assertEquals(ru.mobui.kanji.domain.practice.StoredCheckVerdict.AcceptedWithPenalty, loaded.tasks.single().symbols.first().shapeVerdict)
+            assertEquals(82, loaded.summarize().percent)
+            assertEquals(13, reopened.openHelper.writableDatabase.version)
+            assertEquals(sourceWordCount, reopened.openHelper.writableDatabase.query("SELECT count(*) FROM source_words").use { it.moveToFirst(); it.getInt(0) })
+            assertEquals(4, reopened.openHelper.writableDatabase.query(
+                "SELECT name FROM sqlite_master WHERE type='index' AND name IN ('source_words_with_kanji','source_words_without_kanji','idx_recipes_active','idx_trainings_one_in_progress')",
+            ).use { it.count })
+            reopened.openHelper.writableDatabase.execSQL(
+                "UPDATE training_task_symbols SET shape_verdict='accepted_with_penalty' WHERE id='soft-shape-s0'",
+            )
+            val invalidBinaryVerdict = runCatching {
+                reopened.openHelper.writableDatabase.execSQL(
+                    "UPDATE training_task_symbols SET readability_verdict='accepted_with_penalty' WHERE id='soft-shape-s0'",
+                )
+            }
+            assertTrue(invalidBinaryVerdict.isFailure)
+        } finally {
+            reopened.close()
+        }
+    }
+
+    @Test
+    fun schemaIncludesTrainingTablesOnVersion13() = storage { db, catalog ->
         catalog.load()
         val sql = db.openHelper.writableDatabase
-        assertEquals(12, sql.version)
+        assertEquals(13, sql.version)
         val tables =
             sql.query("SELECT name FROM sqlite_master WHERE type='table'").use { cursor ->
                 buildSet { while (cursor.moveToNext()) add(cursor.getString(0)) }

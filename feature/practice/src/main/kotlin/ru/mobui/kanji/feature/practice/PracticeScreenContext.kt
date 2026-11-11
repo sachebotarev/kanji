@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectVerticalDragGestures
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
@@ -105,6 +106,7 @@ internal data class PracticeScreenContext(
     val activeStroke: () -> InkStroke?,
     val wordLabel: String?,
     val progressLabel: String? = null,
+    val isFirstWord: Boolean = true,
     val onBack: (() -> Unit)? = null,
 ) {
     val practice get() = state.practice
@@ -230,6 +232,7 @@ internal fun PracticeWriting(
     modifier: Modifier = Modifier,
     /** When true, the pad fills leftover height; tools keep intrinsic height and never shrink. */
     flexiblePad: Boolean = false,
+    onOpenHintDetails: () -> Unit = {},
 ) {
     with(context) {
         val selected = context.selected
@@ -240,16 +243,40 @@ internal fun PracticeWriting(
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
             // Air under the kanji strip / divider before the status chips.
             Spacer(Modifier.height(12.dp))
+            val hintStatus =
+                if (selected != null && selected.task.mode == EntryMode.User) {
+                    PracticeHintStatusState(
+                        usedHints = practice.totalHintCount,
+                        maxHints = state.maxNextStrokeHints,
+                        accepted = selected.status == EntryStatus.Correct,
+                    )
+                } else {
+                    null
+                }
             PracticeStatus(
-                state.currentCheckReport,
-                state.isChecking,
-                selected?.sample?.strokeCount ?: 0,
-                actionsEnabled,
-                modifier = Modifier.widthIn(max = 320.dp).fillMaxWidth(),
-            ) {
-                onOpenCheck(it)
-            }
+                report = state.currentCheckReport,
+                checking = state.isChecking,
+                strokeCount = selected?.sample?.strokeCount ?: 0,
+                enabled = actionsEnabled,
+                hintStatus = hintStatus,
+                modifier = Modifier.widthIn(max = if (hintStatus != null) 380.dp else 320.dp).fillMaxWidth(),
+                onOpen = { onOpenCheck(it) },
+                onOpenHintDetails = onOpenHintDetails,
+            )
             Spacer(Modifier.height(8.dp))
+            val padState = padState()
+            val showGestureHint =
+                isFirstWord &&
+                    state.showPadGestureHints &&
+                    selected != null &&
+                    selected.task.mode == EntryMode.User &&
+                    selected.status == EntryStatus.Empty &&
+                    selected.sample.strokeCount == 0 &&
+                    !state.gestureActive &&
+                    state.hint == null &&
+                    padState.overlay == null &&
+                    !practice.timedOut &&
+                    !practice.isResolved
             if (flexiblePad) {
                 // Square pad under the chips; leftover height stays below. Pad size must not change
                 // mid-stroke — UI-PAD cancels the gesture when layout size changes.
@@ -259,19 +286,21 @@ internal fun PracticeWriting(
                 ) {
                     val side = minOf(maxWidth, maxHeight)
                     key(practice.task.taskId) {
-                        KanjiWritingPad(
-                            state = padState(),
+                        PracticePadBox(
+                            state = padState,
                             onEvent = onPadEvent,
-                            modifier = Modifier.size(side).testTag("practice-pad"),
+                            showGestureHint = showGestureHint,
+                            modifier = Modifier.size(side),
                         )
                     }
                 }
             } else {
                 key(practice.task.taskId) {
-                    KanjiWritingPad(
-                        state = padState(),
+                    PracticePadBox(
+                        state = padState,
                         onEvent = onPadEvent,
-                        modifier = Modifier.fillMaxWidth().testTag("practice-pad"),
+                        showGestureHint = showGestureHint,
+                        modifier = Modifier.fillMaxWidth(),
                     )
                 }
             }
@@ -281,10 +310,82 @@ internal fun PracticeWriting(
 }
 
 @Composable
+private fun PracticePadBox(
+    state: PadUiState,
+    onEvent: (ru.mobui.kanji.core.writingpad.PadEvent) -> Unit,
+    showGestureHint: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier.aspectRatio(1f),
+        contentAlignment = Alignment.Center,
+    ) {
+        KanjiWritingPad(
+            state = state,
+            onEvent = onEvent,
+            modifier = Modifier.fillMaxSize().testTag("practice-pad"),
+        )
+        androidx.compose.animation.AnimatedVisibility(
+            visible = showGestureHint,
+            enter = androidx.compose.animation.fadeIn(
+                androidx.compose.animation.core.tween(durationMillis = 250),
+            ),
+            exit = androidx.compose.animation.fadeOut(
+                androidx.compose.animation.core.tween(durationMillis = 150),
+            ),
+            modifier =
+                Modifier.align(Alignment.BottomCenter)
+                    .padding(bottom = 12.dp, start = 16.dp, end = 16.dp),
+        ) {
+            PadGestureHint()
+        }
+    }
+}
+
+@Composable
+private fun PadGestureHint(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.testTag("pad-gesture-hint"),
+        shape = androidx.compose.foundation.shape.RoundedCornerShape(12.dp),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.92f),
+        border = androidx.compose.foundation.BorderStroke(
+            1.dp,
+            MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        ),
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+        ) {
+            Text(
+                text = stringResource(R.string.pad_gesture_hint_undo),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+            Text(
+                text = stringResource(R.string.pad_gesture_hint_clear),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+            Text(
+                text = stringResource(R.string.pad_gesture_hint_hint),
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+            )
+        }
+    }
+}
+
+@Composable
 internal fun PracticeContentLayout(
     context: PracticeScreenContext,
     padding: androidx.compose.foundation.layout.PaddingValues,
     onOpenCheck: (CheckKind) -> Unit,
+    onOpenHintDetails: () -> Unit = {},
 ) {
     BoxWithConstraints(Modifier.fillMaxSize().padding(padding)) {
         val padSide = minOf(maxWidth, 488.dp) - 48.dp
@@ -295,7 +396,7 @@ internal fun PracticeContentLayout(
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 PracticeHeader(context)
-                PracticeWriting(context, onOpenCheck)
+                PracticeWriting(context, onOpenCheck, onOpenHintDetails = onOpenHintDetails)
             }
         } else {
             // Header intrinsic; writing fills the rest. Pad uses weight inside leftover height.
@@ -309,6 +410,7 @@ internal fun PracticeContentLayout(
                     onOpenCheck,
                     modifier = Modifier.weight(1f).fillMaxWidth(),
                     flexiblePad = true,
+                    onOpenHintDetails = onOpenHintDetails,
                 )
             }
         }
@@ -341,6 +443,7 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
                 PracticeActions(
                     actionsEnabled = actionsEnabled,
                     isComplete = practice.isComplete,
+                    completionTone = practice.completionTone(state.maxNextStrokeHints),
                     isResolved = practice.isResolved,
                     isTimedOut = practice.timedOut,
                     checking = state.isChecking,
@@ -363,11 +466,11 @@ internal fun PracticeBottomBar(context: PracticeScreenContext) {
                                 !practice.timedOut &&
                                 !state.gestureActive &&
                                 reference != null &&
-                                cell?.strokeHintsExhausted != true
+                                cell?.strokeHintsExhausted != true &&
+                                practice.totalHintCount < state.maxNextStrokeHints
                         },
                     hintMode = state.hintMode,
-                    strokeHintCount = cell?.strokeHintCount ?: 0,
-                    maxNextStrokeHints = state.maxNextStrokeHints,
+                    gesturesOnlyMode = state.gesturesOnlyMode,
                     onAction = onAction,
                 )
             }

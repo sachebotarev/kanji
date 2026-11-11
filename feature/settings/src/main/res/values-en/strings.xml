@@ -4,27 +4,27 @@
 
     <string name="settings_group_flow">Practice flow</string>
     <string name="setting_auto_advance_kanji">Auto-advance to next kanji</string>
-    <string name="help_auto_advance_kanji">Advance to the next character once the current one is correct.</string>
+    <string name="help_auto_advance_kanji">Advance to the next character automatically when the sign is correct. If the shape was accepted with penalty, focus stays on the character so you can fix it.</string>
     <string name="setting_auto_advance">Auto-advance to next word</string>
-    <string name="help_auto_advance">Advance to the next word once all characters are correct or time expires.</string>
+    <string name="help_auto_advance">Advance to the next task automatically when all characters are resolved correctly. If any shape was accepted with penalty, an error occurred, or timeout expired, tap Next.</string>
     <string name="setting_on">On</string>
     <string name="setting_off">Off</string>
 
     <string name="settings_group_hint">Hints</string>
     <string name="setting_max_next_stroke_hints">Number of hints</string>
-    <string name="help_max_next_stroke_hints">Number of hints allowed per character (0–12). Exceeding this limit fails the character.</string>
+    <string name="help_max_next_stroke_hints">Number of hints per character (0–12). Zero disables help. After using all hints, you can continue writing on your own. Each hint reduces the remaining character score by 20%.</string>
     <string name="setting_count_value">%1$d</string>
     <string name="setting_full_hint_display">Full hint display time</string>
     <string name="help_full_hint_display">How long the reference character stays visible before hiding.</string>
     <string name="setting_millis_value">%1$d ms</string>
 
     <string name="settings_group_checkers">Verification modules</string>
-    <string name="check_readability">Readability</string>
+    <string name="check_readability">Character</string>
     <string name="help_readability">Handwriting recognition via ML Kit Japanese model.</string>
     <string name="readability_model_required">Japanese model download required</string>
     <string name="check_writing">Stroke order and direction</string>
     <string name="help_writing">Validates stroke sequence and drawing direction.</string>
-    <string name="check_shape">Character shape</string>
+    <string name="check_shape">Shape</string>
     <string name="help_shape">Geometric comparison against the vector reference.</string>
 
     <string name="settings_japanese_model">Japanese language model</string>
@@ -35,6 +35,20 @@
     <string name="settings_group_calibration">Kanji shape calibration</string>
     <string name="settings_checker">Kanji shape calibration</string>
     <string name="settings_checker_detail">Shape match thresholds, transform tolerances and compensations</string>
+
+    <string name="settings_group_gestures">Writing pad gestures</string>
+    <string name="settings_interaction_mode_title">Control mode</string>
+    <string name="settings_interaction_mode_help">«Buttons» — undo, clear, and help buttons are shown at the bottom. «Gestures only» — buttons are hidden, controls are performed via canvas gestures, and the help counter moves into the check status row (alongside Character, Shape, and Strokes).</string>
+    <string name="settings_interaction_mode_buttons">Buttons</string>
+    <string name="settings_interaction_mode_gestures">Gestures only</string>
+    <string name="settings_show_pad_gestures">Gesture hints on canvas</string>
+    <string name="settings_show_pad_gestures_help">Show a banner with gesture descriptions at the bottom of the canvas on the first word of a training before drawing starts.</string>
+    <string name="settings_gesture_undo_title">Undo stroke</string>
+    <string name="settings_gesture_undo_desc">A single two-finger tap on the canvas undoes the last stroke.</string>
+    <string name="settings_gesture_clear_title">Clear all</string>
+    <string name="settings_gesture_clear_desc">A double two-finger tap completely clears the character.</string>
+    <string name="settings_gesture_hint_title">Character help</string>
+    <string name="settings_gesture_hint_desc">A long press with one finger on the canvas displays the character guide or next stroke.</string>
 
     <string name="settings_group_data">Data and storage</string>
     <string name="settings_clear_history">Clear training history</string>

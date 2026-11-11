@@ -199,6 +199,26 @@ fun SettingsScreen(
                     )
                 }
 
+                HorizontalDivider()
+
+                // Секция «Жесты поля письма»
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    KanjiSectionTitle(stringResource(R.string.settings_group_gestures))
+                    InteractionModeRow(
+                        gesturesOnly = settings.gesturesOnlyMode,
+                        onChange = { onChangeSettings(settings.copy(gesturesOnlyMode = it)) },
+                    )
+                    BinaryChoiceRow(
+                        label = R.string.settings_show_pad_gestures,
+                        help = R.string.settings_show_pad_gestures_help,
+                        checked = settings.showPadGestureHints,
+                        tag = "show-pad-gestures",
+                        allowEnable = true,
+                        onChange = { onChangeSettings(settings.copy(showPadGestureHints = it)) },
+                    )
+                    PadGesturesReferenceCard(Modifier.fillMaxWidth())
+                }
+
                 // Секция «Калибровка формы кандзи» — доступно только в develop/debug сборке
                 if (showCalibration) {
                     HorizontalDivider()
@@ -356,6 +376,56 @@ private fun BinaryChoiceRow(
 }
 
 @Composable
+private fun InteractionModeRow(
+    gesturesOnly: Boolean,
+    onChange: (Boolean) -> Unit,
+) {
+    val title = stringResource(R.string.settings_interaction_mode_title)
+    val buttonsLabel = stringResource(R.string.settings_interaction_mode_buttons)
+    val gesturesLabel = stringResource(R.string.settings_interaction_mode_gestures)
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        SettingHelp(
+            label = R.string.settings_interaction_mode_title,
+            help = R.string.settings_interaction_mode_help,
+            tag = "interaction-mode",
+        )
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            val options =
+                listOf(
+                    false to buttonsLabel,
+                    true to gesturesLabel,
+                )
+            for ((value, text) in options) {
+                val active = value == gesturesOnly
+                OutlinedButton(
+                    onClick = { if (!active) onChange(value) },
+                    modifier =
+                        Modifier.weight(1f)
+                            .heightIn(min = 48.dp)
+                            .testTag(if (value) "interaction-mode-gestures" else "interaction-mode-buttons")
+                            .semantics {
+                                selected = active
+                                contentDescription = "$title: $text"
+                            },
+                    colors =
+                        ButtonDefaults.outlinedButtonColors(
+                            containerColor =
+                                if (active) MaterialTheme.colorScheme.secondaryContainer
+                                else Color.Transparent,
+                            contentColor =
+                                if (active) MaterialTheme.colorScheme.onSecondaryContainer
+                                else MaterialTheme.colorScheme.onSurface,
+                        ),
+                ) {
+                    Text(text)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 private fun SliderSetting(
     label: Int,
     help: Int,
@@ -441,6 +511,75 @@ internal fun SettingHelp(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
             }
+        }
+    }
+}
+
+@Composable
+internal fun PadGesturesReferenceCard(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.testTag("settings-gestures-card"),
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            GestureReferenceRow(
+                icon = ru.mobui.kanji.core.designsystem.R.drawable.ic_undo,
+                title = stringResource(R.string.settings_gesture_undo_title),
+                description = stringResource(R.string.settings_gesture_undo_desc),
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            GestureReferenceRow(
+                icon = ru.mobui.kanji.core.designsystem.R.drawable.ic_clear,
+                title = stringResource(R.string.settings_gesture_clear_title),
+                description = stringResource(R.string.settings_gesture_clear_desc),
+            )
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+            GestureReferenceRow(
+                icon = ru.mobui.kanji.core.designsystem.R.drawable.ic_hint,
+                title = stringResource(R.string.settings_gesture_hint_title),
+                description = stringResource(R.string.settings_gesture_hint_desc),
+            )
+        }
+    }
+}
+
+@Composable
+private fun GestureReferenceRow(
+    icon: Int,
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.Top,
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp).padding(top = 2.dp),
+            tint = MaterialTheme.colorScheme.primary,
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

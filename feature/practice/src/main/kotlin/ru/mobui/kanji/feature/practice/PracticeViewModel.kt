@@ -39,7 +39,6 @@ import ru.mobui.kanji.domain.practice.PracticeTask
 import ru.mobui.kanji.domain.practice.TraceReferenceHint
 import ru.mobui.kanji.domain.practice.addStroke
 import ru.mobui.kanji.domain.practice.clear
-import ru.mobui.kanji.domain.practice.exhaustStrokeHints
 import ru.mobui.kanji.domain.practice.hintAlgorithmFor
 import ru.mobui.kanji.domain.practice.nextUnsatisfiedUserIndex
 import ru.mobui.kanji.domain.practice.recordReadingHint
@@ -70,6 +69,8 @@ data class PracticeUiState(
     val debugReport: CheckReport? = null,
     val currentCheckReport: CheckReport? = null,
     val showCompensatedDrawing: Boolean = false,
+    val gesturesOnlyMode: Boolean = false,
+    val showPadGestureHints: Boolean = true,
 )
 
 enum class PracticeNotice {
@@ -109,7 +110,9 @@ class PracticeViewModel(
     private val maxNextStrokeHints: () -> Int = { DEFAULT_MAX_NEXT_STROKE_HINTS },
     private val fullHintDisplayMillis: () -> Int = { DEFAULT_FULL_HINT_DISPLAY_MILLIS },
     private val autoAdvanceKanjiOnSuccess: () -> Boolean = { true },
-    private val autoAdvanceOnSuccess: () -> Boolean = { false },
+    private val autoAdvanceOnSuccess: () -> Boolean = { true },
+    private val gesturesOnlyMode: () -> Boolean = { false },
+    private val showPadGestureHints: () -> Boolean = { true },
     private val showCheckDiagnostics: Boolean = false,
 ) : ViewModel() {
     private var training = HandwritingTraining(task)
@@ -120,6 +123,8 @@ class PracticeViewModel(
                 hintMode = hintMode(),
                 maxNextStrokeHints = maxNextStrokeHints(),
                 fullHintDisplayMillis = fullHintDisplayMillis(),
+                gesturesOnlyMode = gesturesOnlyMode(),
+                showPadGestureHints = showPadGestureHints(),
                 readingRevealed = task.clueMode != ru.mobui.kanji.domain.practice.TaskClueMode.Reading,
                 translationRevealed = task.clueMode != ru.mobui.kanji.domain.practice.TaskClueMode.Translation,
                 debugEnabled = showCheckDiagnostics,
@@ -133,7 +138,6 @@ class PracticeViewModel(
     /** Last pad pulse while a gesture is active; used to clear a stuck gesture for MVP demos. */
     private var lastGesturePulse: Long? = null
     private var fullHintHideJob: Job? = null
-    private var timeoutAutoAdvanceJob: Job? = null
     private var screenActive = false
     private var resultDelivered = false
     private val coordinator = CheckCoordinator()
@@ -149,7 +153,6 @@ class PracticeViewModel(
     fun setActive(active: Boolean) {
         if (active == screenActive && (!active || ticker != null)) return
         if (!active) {
-            cancelTimeoutAutoAdvance()
             accountTime()
             // Stop UI ticks, not elapsed wall time: account for the background gap on resume.
             ticker?.cancel()
@@ -178,7 +181,6 @@ class PracticeViewModel(
     }
 
     fun restart() {
-        cancelTimeoutAutoAdvance()
         cancelCheck()
         ticker?.cancel()
         ticker = null
@@ -217,7 +219,6 @@ class PracticeViewModel(
     }
 
     fun onAction(action: PracticeAction) {
-        cancelTimeoutAutoAdvance()
         accountTime()
         if (training.state.result != null) {
             publish()
@@ -278,12 +279,14 @@ class PracticeViewModel(
         if (mutableState.value.readingRevealed || training.state.task.reading.isBlank()) return
         training.recordReadingHint()
         mutableState.value = mutableState.value.copy(readingRevealed = true)
+        publish()
     }
 
     private fun handleRevealTranslation() {
         if (mutableState.value.translationRevealed || training.state.task.russianWord.isBlank()) return
         training.recordTranslationHint()
         mutableState.value = mutableState.value.copy(translationRevealed = true)
+        publish()
     }
 
     private fun handleToggleHint() {
@@ -304,20 +307,20 @@ class PracticeViewModel(
             return
         }
         cancelFullHintHide()
-        mutableState.value = mutableState.value.copy(hint = null)
+        publish(hint = null)
     }
 
     private fun activateHint(mode: HintMode) {
         val cell = training.state.selected ?: return
         val reference = cell.reference ?: return
-        if (cell.strokeHintsExhausted) {
-            mutableState.value = mutableState.value.copy(hint = exhaustedHint(reference))
+        // Help limit reached: help simply ends, no red kanji overlay, no forced failure.
+        if (cell.strokeHintsExhausted || training.state.totalHintCount >= maxNextStrokeHints()) {
             return
         }
         // Already correct: pale full reference only, never counts toward the budget.
         if (cell.status == EntryStatus.Correct) {
             val hint = TraceReferenceHint().create(HintRequest(cell.sample, reference)) ?: return
-            mutableState.value = mutableState.value.copy(hint = hint)
+            publish(hint = hint)
             scheduleFullHintHide()
             return
         }
@@ -326,14 +329,10 @@ class PracticeViewModel(
             return
         }
         cancelCheck()
-        val count = training.recordStrokeHint()
-        if (count > maxNextStrokeHints()) {
-            revealHintExhausted(cell.task.occurrenceId, reference)
-        } else {
-            val hint = hintAlgorithmFor(mode).create(HintRequest(cell.sample, reference)) ?: return
-            mutableState.value = mutableState.value.copy(hint = hint)
-            if (mode == HintMode.FullCharacter) scheduleFullHintHide()
-        }
+        training.recordStrokeHint()
+        val hint = hintAlgorithmFor(mode).create(HintRequest(cell.sample, reference)) ?: return
+        publish(hint = hint)
+        if (mode == HintMode.FullCharacter) scheduleFullHintHide()
     }
 
     fun onPadEvent(event: PadEvent) {
@@ -341,7 +340,7 @@ class PracticeViewModel(
         if (event is PadEvent.HintPlaybackFinished) {
             if (mutableState.value.hint?.playback == HintPlayback.AnimateOnce ||
                 mutableState.value.hint?.playback == HintPlayback.AnimateAll) {
-                mutableState.value = mutableState.value.copy(hint = null)
+                publish(hint = null)
             }
             return
         }
@@ -385,11 +384,14 @@ class PracticeViewModel(
         cancelCheck()
         lastGesturePulse = null
         training.addStroke(event.baseVersion.cellId, event.baseVersion.revision, event.stroke)
-        if (mutableState.value.hint?.playback == HintPlayback.AnimateOnce ||
-            mutableState.value.hint?.playback == HintPlayback.AnimateAll) {
-            mutableState.value = mutableState.value.copy(hint = null)
-        }
-        publish()
+        val hint =
+            if (mutableState.value.hint?.playback == HintPlayback.AnimateOnce ||
+                mutableState.value.hint?.playback == HintPlayback.AnimateAll) {
+                null
+            } else {
+                mutableState.value.hint
+            }
+        publish(hint = hint)
         if (!training.state.gestureActive) scheduleCheck()
     }
 
@@ -446,7 +448,8 @@ class PracticeViewModel(
                             if (report.verdict == CheckVerdict.Correct) {
                                 delay(CORRECT_HOLD_MILLIS)
                                 if (generation != coordinator.generation) return@launch
-                                if (autoAdvanceKanjiOnSuccess()) {
+                                val currentCell = training.state.cells.firstOrNull { it.task.occurrenceId == request.occurrenceId }
+                                if (autoAdvanceKanjiOnSuccess() && currentCell?.hasFixablePenalty != true) {
                                     advanceToNextUserCell(request.occurrenceId)
                                 }
                                 publish(notice)
@@ -464,37 +467,18 @@ class PracticeViewModel(
             }
     }
 
-    /** Auto-advance when the word is fully settled and auto-advance is enabled. */
+    /** Auto-advance only after every required character is correct and no fixable penalty (e.g. shape) applies. */
     private fun maybeAutoSubmitOnResolved() {
-        if (!autoAdvanceOnSuccess()) return
+        if (!autoAdvanceOnSuccess() || training.state.hasFixablePenalty) return
         if (
             training.state.result != null ||
                 training.state.timedOut ||
                 training.state.gestureActive ||
-                !training.state.isResolved
+                !training.state.isComplete
         )
             return
         training.submit()
         publish()
-    }
-
-    /** Auto-advance after a short pause when the timer expires and auto-advance is enabled. */
-    private fun scheduleTimeoutAutoAdvance() {
-        if (!autoAdvanceOnSuccess() || timeoutAutoAdvanceJob != null) return
-        if (training.state.result != null || !training.state.timedOut) return
-        timeoutAutoAdvanceJob =
-            viewModelScope.launch {
-                delay(TIMEOUT_HOLD_MILLIS)
-                timeoutAutoAdvanceJob = null
-                if (training.state.result != null || !training.state.timedOut) return@launch
-                training.submit()
-                publish()
-            }
-    }
-
-    private fun cancelTimeoutAutoAdvance() {
-        timeoutAutoAdvanceJob?.cancel()
-        timeoutAutoAdvanceJob = null
     }
 
     private fun cancelCheck() {
@@ -514,11 +498,10 @@ class PracticeViewModel(
             style = HintOverlayStyle.Exhausted,
         )
 
-    /** Brush reference in the pad after timeout or exhausted hints; Correct cells keep their ink. */
+    /** Brush reference in the pad after timeout; Correct cells keep their ink. */
     private fun reviewHint(cell: PracticeCell?): HintPresentation? {
         val selected = cell ?: return null
         return when {
-            selected.strokeHintsExhausted -> selected.reference?.let(::exhaustedHint)
             training.state.timedOut && selected.status == EntryStatus.Incorrect ->
                 selected.reference?.let(::exhaustedHint)
             else -> null
@@ -541,27 +524,12 @@ class PracticeViewModel(
                     hint.style == HintOverlayStyle.Guide &&
                         hint.playback == HintPlayback.Static
                 ) {
-                    mutableState.value = mutableState.value.copy(hint = null)
+                    publish(hint = null)
                 }
             }
     }
 
-    private fun revealHintExhausted(occurrenceId: String, reference: ReferenceDrawing) {
-        cancelFullHintHide()
-        training.exhaustStrokeHints()
-        mutablePreview.value = null
-        mutableState.value = mutableState.value.copy(hint = exhaustedHint(reference))
-        publish()
-        viewModelScope.launch {
-            delay(HINT_EXHAUST_HOLD_MILLIS)
-            if (training.state.result != null) return@launch
-            if (training.state.selected?.task?.occurrenceId != occurrenceId) return@launch
-            accountTime()
-            advanceToNextUserCell(occurrenceId)
-            publish()
-            maybeAutoSubmitOnResolved()
-        }
-    }
+
 
     private fun advanceToNextUserCell(occurrenceId: String) {
         val current = training.state.cells.indexOfFirst { it.task.occurrenceId == occurrenceId }
@@ -597,7 +565,6 @@ class PracticeViewModel(
                         readingRevealed = true,
                         translationRevealed = true,
                     )
-                scheduleTimeoutAutoAdvance()
             }
         }
     }
@@ -613,7 +580,10 @@ class PracticeViewModel(
         scheduleCheck()
     }
 
-    private fun publish(notice: PracticeNotice? = mutableState.value.notice) {
+    private fun publish(
+        notice: PracticeNotice? = mutableState.value.notice,
+        hint: HintPresentation? = mutableState.value.hint,
+    ) {
         val currentReport =
             training.state.selected?.let { cell ->
                 coordinator.failures[cell.task.occurrenceId]
@@ -637,11 +607,13 @@ class PracticeViewModel(
                         training.state.result != null -> null
                         // Keep the brush reference while reviewing cells after the deadline.
                         training.state.timedOut -> reviewHint(training.state.selected)
-                        else -> mutableState.value.hint
+                        else -> hint
                     },
                 hintMode = hintMode(),
                 maxNextStrokeHints = maxNextStrokeHints(),
                 fullHintDisplayMillis = fullHintDisplayMillis(),
+                gesturesOnlyMode = gesturesOnlyMode(),
+                showPadGestureHints = showPadGestureHints(),
                 readingRevealed = mutableState.value.readingRevealed,
                 translationRevealed = mutableState.value.translationRevealed,
                 debugReport = debugReport,
@@ -666,8 +638,6 @@ private const val CHECK_DEBOUNCE_MILLIS = 350L
 private const val CORRECT_HOLD_MILLIS = 420L
 /** Hold on the red exhausted reveal before moving to the next cell. */
 private const val HINT_EXHAUST_HOLD_MILLIS = 520L
-/** Hold on timeout reveal before auto-submitting to the next word. */
-private const val TIMEOUT_HOLD_MILLIS = 1_000L
 /** Whole-provider budget so «Далее» cannot stay disabled for an MVP demo. */
 private const val CHECK_TIMEOUT_MILLIS = 8_000L
 /** No pad pulses while gestureActive — treat as stuck input. */
@@ -742,7 +712,7 @@ private class CheckCoordinator {
         incomplete: Boolean,
     ): Triple<Boolean, Boolean, PracticeNotice?>? {
         val verdict = report.verdict
-        if (!training.applyCheck(request, verdict)) return null
+        if (!training.applyCheck(request, verdict, report.acceptedWithPenalty)) return null
         failures[request.occurrenceId] =
             request.revision to
                 report.copy(

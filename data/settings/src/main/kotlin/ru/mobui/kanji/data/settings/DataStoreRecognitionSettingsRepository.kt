@@ -34,6 +34,7 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
             .copy(
                 requiredMatchPercent =
                     valueOrDefault(RequiredMatchPercent, defaults.requiredMatchPercent),
+                shapeSoftMarginPoints = valueOrDefault(ShapeSoftMarginPoints, defaults.shapeSoftMarginPoints),
                 distanceTolerance =
                     valueOrDefault(DistanceTolerance, defaults.distanceTolerance),
                 maxTranslationPercent =
@@ -98,6 +99,10 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
                     ),
                 autoAdvanceOnSuccess =
                     valueOrDefault(AutoAdvanceOnSuccess, defaults.autoAdvanceOnSuccess),
+                gesturesOnlyMode =
+                    valueOrDefault(GesturesOnlyMode, defaults.gesturesOnlyMode),
+                showPadGestureHints =
+                    valueOrDefault(ShowPadGestureHints, defaults.showPadGestureHints),
             )
             .roundedParameters()
 
@@ -106,6 +111,7 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
         store.edit { values ->
             values[Version] = 1
             values[RequiredMatchPercent] = value.requiredMatchPercent
+            values[ShapeSoftMarginPoints] = value.shapeSoftMarginPoints
             values[DistanceTolerance] = value.distanceTolerance
             values[MaxTranslationPercent] = value.maxTranslationPercent
             values[MaxSizeCompensationPercent] = value.maxSizeCompensationPercent ?: Float.NaN
@@ -129,12 +135,15 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
             values[FullHintDisplayMillis] = value.fullHintDisplayMillis
             values[AutoAdvanceKanjiOnSuccess] = value.autoAdvanceKanjiOnSuccess
             values[AutoAdvanceOnSuccess] = value.autoAdvanceOnSuccess
+            values[GesturesOnlyMode] = value.gesturesOnlyMode
+            values[ShowPadGestureHints] = value.showPadGestureHints
         }
     }
 
     private companion object {
         val Version = intPreferencesKey("schema_version")
         val RequiredMatchPercent = floatPreferencesKey("requiredMatchPercent")
+        val ShapeSoftMarginPoints = floatPreferencesKey("shapeSoftMarginPoints")
         val DistanceTolerance = floatPreferencesKey("distanceTolerance")
         val MaxTranslationPercent = floatPreferencesKey("maxTranslationPercent")
         val MaxSizeCompensationPercent = floatPreferencesKey("maxSizeCompensationPercent")
@@ -159,6 +168,8 @@ internal constructor(private val store: DataStore<Preferences>) : RecognitionSet
         val FullHintDisplayMillis = intPreferencesKey("fullHintDisplayMillis")
         val AutoAdvanceKanjiOnSuccess = booleanPreferencesKey("autoAdvanceKanjiOnSuccess")
         val AutoAdvanceOnSuccess = booleanPreferencesKey("autoAdvanceOnSuccess")
+        val GesturesOnlyMode = booleanPreferencesKey("gesturesOnlyMode")
+        val ShowPadGestureHints = booleanPreferencesKey("showPadGestureHints")
     }
 }
 

@@ -1003,12 +1003,12 @@
         {
           "language_tag": "ru",
           "title": "Тренировка",
-          "changes": "Макет приведён в соответствие Android: WordPrompt, ReadingSpoiler, полоса ячеек, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, панель действий."
+          "changes": "Расход помощи 0/3…3/3, зелёный/жёлтый/красный показатель и «Далее». Форма: мягкое принятие при недоборе меньше настраиваемого допуска (по умолчанию 10 п.п.), штраф 20%; Знак и Черты строгие. Android реализован; HTML демонстрирует состояния. Цифры помощи равны остальным показателям; подсказки не блокируют автопереход, автопереход приостанавливается только при исправляемом штрафе формы."
         },
         {
           "language_tag": "en",
           "title": "Practice",
-          "changes": "Prototype aligned with Android: WordPrompt, ReadingSpoiler, cell strip, CheckerTestingStatuses, PRACTICE.D01, PRACTICE.D04, action bar."
+          "changes": "Hints used 0/3…3/3, green/amber/red indicator and Next. Shape: soft acceptance within the configured margin (default 10 percentage points) below threshold with a 20% penalty; recognition and strokes remain strict. Implemented on Android; HTML demonstrates states. Hint digits match the other indicators; any score penalty blocks automatic character and task progression."
         }
       ],
       "feature": "practice",
@@ -1075,12 +1075,12 @@
         {
           "language_tag": "ru",
           "title": "Калибровка формы кандзи",
-          "changes": "Калибровка формы кандзи: пороги совпадения, трансформации, компенсации, бюджет, правила структуры черт (только develop-сборка)."
+          "changes": "Калибровка формы: порог и настраиваемый допуск мягкого принятия (0–100 п.п., по умолчанию 10), компенсации, бюджет и правила черт. Android develop-only; HTML — демонстрация."
         },
         {
           "language_tag": "en",
           "title": "Kanji shape calibration",
-          "changes": "Kanji shape calibration: match thresholds, transformations, compensations, budget, stroke structure rules (develop build only)."
+          "changes": "Shape calibration: threshold and soft acceptance margin (0–100 pp, default 10), compensation, budget and stroke rules. Android develop-only; HTML demonstration."
         }
       ],
       "feature": "settings",

@@ -46,16 +46,28 @@ data class RecognitionSettings(
     /** How long the full-character guide stays visible after a tap, in milliseconds. */
     val fullHintDisplayMillis: Int = DEFAULT_FULL_HINT_DISPLAY_MILLIS,
     /**
-     * When true, accepted kanji advances to the next unfinished kanji in the word without
+     * When true, a correct kanji advances only if no score penalty applies anywhere in the word, without
      * waiting for manual cell selection.
      */
     val autoAdvanceKanjiOnSuccess: Boolean = true,
     /**
-     * When true, a fully accepted word (Correct/Assisted) advances to the next word without
+     * When true, a correct word without any score penalty advances to the next word without
      * waiting for «Далее». Timeout and skip still require an explicit next action.
      */
-    val autoAdvanceOnSuccess: Boolean = false,
+    val autoAdvanceOnSuccess: Boolean = true,
+    /**
+     * When true, round buttons for undo/clear/hint are hidden from the practice bottom bar,
+     * interaction relies on writing pad gestures, and hint budget moves above the kanji.
+     */
+    val gesturesOnlyMode: Boolean = false,
+    /**
+     * When true, an informational banner with supported gestures is shown at the bottom of the
+     * empty writing pad until the first stroke is made.
+     */
+    val showPadGestureHints: Boolean = true,
     val enabledCompensations: Set<CompensationStage> = CompensationStage.entries.toSet(),
+    /** Strictly smaller coverage deficit (percentage points) eligible for soft acceptance; zero disables it. */
+    val shapeSoftMarginPoints: Float = DEFAULT_SHAPE_SOFT_MARGIN_POINTS,
 ) {
     companion object {
         /** Shared starting profile for finger input; values remain adjustable in settings. */
@@ -82,6 +94,7 @@ data class RecognitionSettings(
             copy(
                 requiredMatchPercent =
                     whole(requiredMatchPercent).coerceIn(1f, PERCENT_SCALE_FLOAT),
+                shapeSoftMarginPoints = whole(shapeSoftMarginPoints).coerceIn(0f, PERCENT_SCALE_FLOAT),
                 distanceTolerance =
                     whole(distanceTolerance * PERCENT_SCALE)
                         .coerceIn(1f, MAX_DISTANCE_TOLERANCE_PERCENT) / 100,
@@ -155,6 +168,7 @@ data class RecognitionSettings(
         require(
             maxTranslationPercent.isFinite() && maxTranslationPercent in 0f..PERCENT_SCALE_FLOAT,
         )
+        require(shapeSoftMarginPoints.isFinite() && shapeSoftMarginPoints in 0f..PERCENT_SCALE_FLOAT)
         require(
             requiredMatchPercent.isFinite() &&
                 requiredMatchPercent > 0f &&

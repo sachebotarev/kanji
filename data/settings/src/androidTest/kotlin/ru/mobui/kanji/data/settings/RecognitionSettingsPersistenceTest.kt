@@ -1,6 +1,9 @@
 package ru.mobui.kanji.data.settings
 
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.test.platform.app.InstrumentationRegistry
 import java.io.File
 import kotlinx.coroutines.CoroutineScope
@@ -17,6 +20,26 @@ import ru.mobui.kanji.domain.practice.RecognitionSettings
 
 class RecognitionSettingsPersistenceTest {
     @Test
+    fun existingPreferencesWithoutMarginUseTenPoints() = runBlocking {
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+        val file = File(context.cacheDir, "legacy-margin-${System.nanoTime()}.preferences_pb")
+        val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+        try {
+            val store = PreferenceDataStoreFactory.create(scope = scope, produceFile = { file })
+            store.edit {
+                it[intPreferencesKey("schema_version")] = 1
+                it[floatPreferencesKey("requiredMatchPercent")] = 96f
+            }
+            val loaded = DataStoreRecognitionSettingsRepository(store).load()!!
+            assertEquals(10f, loaded.shapeSoftMarginPoints, 0f)
+            assertEquals(96f, loaded.requiredMatchPercent, 0f)
+        } finally {
+            scope.coroutineContext[Job]!!.cancelAndJoin()
+            file.delete()
+        }
+    }
+
+    @Test
     fun everySettingSurvivesClosingAndReopeningTheStoreAndResetIsDurable() = runBlocking {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         val file = File(context.cacheDir, "settings-${System.nanoTime()}.preferences_pb")
@@ -29,6 +52,7 @@ class RecognitionSettingsPersistenceTest {
             RecognitionSettings.touchInput()
                 .copy(
                     requiredMatchPercent = 96f,
+                    shapeSoftMarginPoints = 7f,
                     distanceTolerance = .03f,
                     maxTranslationPercent = 8f,
                     maxSizeCompensationPercent = 0f,
@@ -52,6 +76,8 @@ class RecognitionSettingsPersistenceTest {
                     fullHintDisplayMillis = 800,
                     autoAdvanceKanjiOnSuccess = false,
                     autoAdvanceOnSuccess = true,
+                    gesturesOnlyMode = true,
+                    showPadGestureHints = false,
                 )
                 .roundedParameters()
         try {

@@ -89,6 +89,12 @@ class MainActivity : ComponentActivity() {
                             autoAdvanceOnSuccess = {
                                 settingsModel.settings.value.autoAdvanceOnSuccess
                             },
+                            gesturesOnlyMode = {
+                                settingsModel.settings.value.gesturesOnlyMode
+                            },
+                            showPadGestureHints = {
+                                settingsModel.settings.value.showPadGestureHints
+                            },
                             showCheckDiagnostics = BuildConfig.DEBUG,
                         ) as T
                     }
