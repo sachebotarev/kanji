@@ -1,0 +1,6 @@
+title: Кандзи дэс нэ — Privacy Policy
+url: https://sachebotarev.github.io
+baseurl: /kanji
+markdown: kramdown
+exclude:
+  - README.md

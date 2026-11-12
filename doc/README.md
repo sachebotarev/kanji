@@ -9,6 +9,7 @@
 - [Глоссарий](glossary.md): Recipe — конфигурация, Training — выполнение.
 - [Карта экранов](project-map.md) и [постоянные ID](screen-id-migration.md).
 - [Навыки разработки](development-skills.md).
+- [Политика конфиденциальности и подготовка к Google Play](legal/README.md).
 
 ## Контракты и инструменты
 

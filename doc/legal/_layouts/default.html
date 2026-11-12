@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="{{ page.lang | default: 'ru' | escape }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ page.title | escape }}</title>
+  </head>
+  <body>
+    <nav aria-label="Language / Язык">
+      <a href="{{ '/' | relative_url }}" lang="ru" hreflang="ru">Русский</a>
+      · <a href="{{ '/privacy-policy.en.html' | relative_url }}" lang="en" hreflang="en">English</a>
+    </nav>
+    <main>{{ content }}</main>
+  </body>
+</html>
