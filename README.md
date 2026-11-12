@@ -26,7 +26,7 @@
 - **Дизайн-система:** собственные токены типографики и цветов в светлой и тёмной темах на основе Material 3.
 
 Подробная документация:
-- [Страница приложения](https://sachebotarev.github.io/kanji/app/) и [политика конфиденциальности](https://sachebotarev.github.io/kanji/).
+- [Приложение в Google Play](https://play.google.com/store/apps/details?id=ru.mobui.kanji), [страница приложения](https://sachebotarev.github.io/kanji/app/) и [политика конфиденциальности](https://sachebotarev.github.io/kanji/).
 - [Карта экранов и виджетов — ID по фичам и область влияния правок](doc/project-map.md)
 - [Иерархическая нумерация и соответствие прежним ID](doc/screen-id-migration.md)
 - [Архитектура и граф модулей](doc/architecture.md)

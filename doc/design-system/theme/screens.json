@@ -1147,12 +1147,12 @@
         {
           "language_tag": "ru",
           "title": "Страница приложения",
-          "changes": "Публичная веб-страница RU/EN в GitHub Pages; не экран Android. Дизайн отдельно не согласован. Просмотр показывает опубликованную версию, тема и масштаб Android к ней не применяются."
+          "changes": "Публичная страница RU/EN: установка из Google Play, реальный светлый скриншот карточки кандзи с Pixel 10 Pro и кот-маскот рядом. Не экран Android. Просмотр показывает опубликованную версию; настройки темы и масштаба Android не применяются."
         },
         {
           "language_tag": "en",
           "title": "App website",
-          "changes": "Public RU/EN website on GitHub Pages; not an Android screen. Design not separately approved. Preview shows the deployed version; Android theme and text scale do not apply."
+          "changes": "Public RU/EN website: Google Play installation links, a real light-mode kanji card screenshot from Pixel 10 Pro and the cat mascot beside it. Not an Android screen. Preview shows the deployed version; Android theme and scale controls do not apply."
         }
       ]
     }

@@ -17,7 +17,7 @@
   <link rel="alternate" hreflang="en" href="{{ '/app/en/' | absolute_url }}">
   <link rel="alternate" hreflang="x-default" href="{{ '/app/' | absolute_url }}">
   <link rel="icon" type="image/png" href="{{ '/assets/app-icon.png' | relative_url }}">
-  <link rel="stylesheet" href="{{ '/assets/landing.css' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/landing.css' | relative_url }}?v={{ site.time | date: '%s' }}">
 </head>
 <body>
   <a class="skip-link" href="#main">{{ t.skip }}</a>
@@ -38,18 +38,13 @@
         <p class="platform"><span aria-hidden="true" class="platform-dot"></span>{{ t.platform }}</p>
         <h1 id="hero-title">{{ t.heading }}</h1>
         <p class="intro">{{ t.intro }}</p>
-        <a class="button" href="#features">{{ t.explore }}</a>
+        <div class="hero-actions"><a class="button" href="{{ site.store_url }}">{{ t.install }}</a><a class="text-link" href="#features">{{ t.explore }}</a></div>
         <p class="quiet hero-note">{{ t.note }}</p>
       </div>
       <figure class="study-scene" data-widget-id="SHARED.04.W02.W01">
-        <div class="lesson-card">
-          <span class="lesson-label">{{ t.example_label }}</span>
-          <div class="writing-grid"><span lang="ja">山</span></div>
-          <p class="reading" lang="ja">{{ t.example_reading }}</p>
-          <p class="meaning">{{ t.example_meaning }}</p>
-        </div>
+        <a class="screenshot-link" href="{{ t.screenshot_path | relative_url }}" target="_blank" rel="noopener" aria-label="{{ t.screenshot_open }}"><img class="hero-screenshot" src="{{ t.screenshot_path | relative_url }}" width="1080" height="2410" alt="{{ t.screenshot_alt }}" fetchpriority="high"></a>
         <img class="hero-cat" src="{{ '/assets/cat-reading.png' | relative_url }}" width="1254" height="1254" alt="" fetchpriority="high">
-        <figcaption>{{ t.example_caption }}</figcaption>
+        <figcaption>{{ t.screenshot_caption }}</figcaption>
       </figure>
     </section>
     <section id="features" class="features wrap" aria-labelledby="features-title" data-widget-id="SHARED.04.W03">
@@ -74,7 +69,7 @@
     </section>
     <section class="availability wrap" aria-labelledby="availability-title" data-widget-id="SHARED.04.W06">
       <div><h2 id="availability-title">{{ t.availability_title }}</h2><p>{{ t.availability_text }}</p></div>
-      <div class="contact"><p>{{ t.contact_text }}</p><a class="button button-light" href="mailto:sachebotarev@gmail.com">{{ t.support }}</a></div>
+      <div class="contact"><a class="button" href="{{ site.store_url }}">{{ t.install }}</a><p>{{ t.contact_text }}</p><a class="text-link" href="mailto:sachebotarev@gmail.com">{{ t.support }}</a></div>
     </section>
   </main>
   <footer class="site-footer wrap" data-widget-id="SHARED.04.W07"><div><strong>{{ t.name }}</strong><p>{{ t.footer_note }}</p></div><div><span>{{ t.developer }}: Sergey Chabotarev</span><a href="mailto:sachebotarev@gmail.com">sachebotarev@gmail.com</a><a href="{{ t.privacy_path | relative_url }}">{{ t.privacy }}</a></div></footer>

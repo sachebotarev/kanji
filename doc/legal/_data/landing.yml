@@ -13,11 +13,12 @@ ru:
   heading: Японский начинается с черты.
   intro: Знакомьтесь с кандзи, запоминайте слова и пишите от руки. В своём ритме, с понятными подсказками и котом, который всегда рядом.
   explore: Посмотреть возможности
+  install: Установить из Google Play
   note: Без регистрации и рекламы
-  example_label: Пример учебного материала
-  example_reading: やま · yama
-  example_meaning: гора
-  example_caption: От знака к слову. От слова к практике.
+  screenshot_path: /assets/kanji-light-ru.png
+  screenshot_alt: Светлая тема приложения — карточка кандзи 山 с порядком черт, переводом и чтениями.
+  screenshot_caption: Карточка кандзи в приложении. Нажмите, чтобы рассмотреть.
+  screenshot_open: Открыть скриншот карточки кандзи в полном размере в новой вкладке
   section_title: Всё складывается в знания.
   section_intro: Учебные материалы, личный словарь и рукописная практика — в одном приложении.
   features:
@@ -44,8 +45,8 @@ ru:
   offline_title: Учёба там, где вам удобно.
   offline_text: Учебный каталог и эталоны написания уже в приложении. Японская модель распознавания загружается через интернет; после загрузки рукописные знаки распознаются на устройстве.
   offline_note: Словарь, рецепты и история хранятся на устройстве. Диагностика ML Kit и системные резервные копии описаны в политике конфиденциальности.
-  availability_title: До встречи в Google Play.
-  availability_text: Приложение готовится к публичной публикации. Ссылка на установку появится на этой странице.
+  availability_title: Уже в Google Play.
+  availability_text: Установите «Кандзи дэс нэ» на Android и начните знакомство с кандзи, словами и рукописной практикой.
   contact_text: Есть вопрос или идея? Напишите разработчику.
   developer: Разработчик
   footer_note: Японский понемногу, каждый день.
@@ -64,11 +65,12 @@ en:
   heading: Japanese starts with a stroke.
   intro: Discover kanji, learn words and write by hand. At your own pace, with helpful hints and a cat to keep you company.
   explore: Explore the features
+  install: Get it on Google Play
   note: No account. No ads.
-  example_label: Example study material
-  example_reading: やま · yama
-  example_meaning: mountain
-  example_caption: From characters to words. From words to practice.
+  screenshot_path: /assets/kanji-light-en.png
+  screenshot_alt: The app in light mode — kanji 山 with stroke order, meaning and readings.
+  screenshot_caption: A kanji card in the app. Tap to take a closer look.
+  screenshot_open: Open the full-size kanji card screenshot in a new tab
   section_title: Bring your learning together.
   section_intro: Study materials, a personal vocabulary and handwriting practice in one app.
   features:
@@ -95,8 +97,8 @@ en:
   offline_title: Learn wherever you feel at home.
   offline_text: The study catalog and stroke references come with the app. The Japanese recognition model needs an internet download; once downloaded, handwriting recognition runs on your device.
   offline_note: Vocabulary, recipes and history are stored on your device. See the privacy policy for ML Kit diagnostics and system backups.
-  availability_title: See you on Google Play.
-  availability_text: The app is being prepared for public release. An installation link will appear on this page.
+  availability_title: Now on Google Play.
+  availability_text: Get Kanji Desu Ne for Android and start exploring kanji, vocabulary and handwriting practice.
   contact_text: Have a question or an idea? Get in touch.
   developer: Developer
   footer_note: A little Japanese, every day.
