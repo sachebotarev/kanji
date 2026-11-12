@@ -1132,6 +1132,29 @@
       "feature": "practice",
       "parent_id": "PRACTICE",
       "legacy_ids": []
+    },
+    {
+      "id": "SHARED.04",
+      "key": "app-landing",
+      "status": "unapproved",
+      "route": "app",
+      "module": "pages",
+      "feature": "shared",
+      "legacy_ids": [],
+      "parent_id": null,
+      "public_url": "https://sachebotarev.github.io/kanji/app/",
+      "translations": [
+        {
+          "language_tag": "ru",
+          "title": "Страница приложения",
+          "changes": "Публичная веб-страница RU/EN в GitHub Pages; не экран Android. Дизайн отдельно не согласован. Просмотр показывает опубликованную версию, тема и масштаб Android к ней не применяются."
+        },
+        {
+          "language_tag": "en",
+          "title": "App website",
+          "changes": "Public RU/EN website on GitHub Pages; not an Android screen. Design not separately approved. Preview shows the deployed version; Android theme and text scale do not apply."
+        }
+      ]
     }
   ],
   "features": [

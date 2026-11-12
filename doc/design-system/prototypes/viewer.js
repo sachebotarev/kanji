@@ -4,7 +4,7 @@ let viewerRegistry,selectedScreen,selectedFeature,childModule=null,pendingKey=nu
 const localizedFeature=f=>f.translations.find(t=>t.language_tag===q('#viewer-locale').value)||f.translations.find(t=>t.language_tag==='ru');
 const localizedScreen=s=>s.translations.find(t=>t.language_tag===q('#viewer-locale').value)||s.translations.find(t=>t.language_tag==='ru');
 const controls=()=>({theme:q('#theme').value,width:q('#viewer-width').value,scale:q('#viewer-scale').value,locale:q('#viewer-locale').value});
-function sendConfiguration(navigate=false){if(!frame.contentWindow||!selectedFeature)return;frame.contentWindow.postMessage({type:'kanji-viewer-configure',navigate,key:selectedScreen?.key,route:launchRoute||selectedScreen?.route,controls:controls()},location.origin)}
+function sendConfiguration(navigate=false){if(selectedScreen?.module==='pages'){const url=q('#viewer-locale').value==='en'?selectedScreen.public_url+'en/':selectedScreen.public_url;if(frame.src!==url)frame.src=url;return}if(!frame.contentWindow||!selectedFeature)return;frame.contentWindow.postMessage({type:'kanji-viewer-configure',navigate,key:selectedScreen?.key,route:launchRoute||selectedScreen?.route,controls:controls()},location.origin)}
 function routeFor(feature,id){return '#'+feature+(id?'/'+id:'')}
 function screenByKey(module,key){return viewerRegistry.screens.find(s=>s.module===module&&s.key===key)||viewerRegistry.screens.find(s=>(s.alias_keys||[]).includes(key))}
 function updateChrome(){
@@ -21,6 +21,10 @@ function updateChrome(){
  q('#feature-cards').replaceChildren(...viewerRegistry.features.filter(f=>f.id!=='home').map(f=>{const a=document.createElement('a');a.className='feature-launcher';a.href=routeFor(f.id);a.dataset.feature=f.id;const title=document.createElement('strong'),desc=document.createElement('span');title.textContent=localizedFeature(f).title;desc.textContent=localizedFeature(f).description;a.append(title,desc);return a}));
  frame.title=row?.title||tr.title;
  for(const id of ['viewer-width','viewer-scale','viewer-locale'])q('#'+id).disabled=selectedFeature==='theme';
+ const published=selectedScreen?.module==='pages';
+ q('#theme').disabled=published;q('#viewer-scale').disabled=published||selectedFeature==='theme';
+ q('#viewer-description').textContent=published?row.changes:tr.description;
+ q('#viewer-caption').textContent=published?'Опубликованная веб-страница приложения. Это не экран Android.':'Демонстрационный HTML-макет. Изменения не сохраняются в Android.';
 }
 function choose(feature,id){
  const requested=id&&viewerRegistry.screens.find(s=>s.id===id||(s.legacy_ids||[]).includes(id));
@@ -29,6 +33,7 @@ function choose(feature,id){
  selectedFeature=feature;selectedScreen=feature==='theme'?null:viewerRegistry.screens.find(s=>s.feature===feature&&s.id===id)||viewerRegistry.screens.find(s=>s.feature===feature);
  pendingKey=selectedScreen?.key;activeState=null;showState(null);updateChrome();
  const module=feature==='theme'?'theme':selectedScreen.module;
+ if(module==='pages'){childModule=module;frame.style.height='1100px';sendConfiguration();return}
  const frameRoute=launchRoute||selectedScreen?.route||'home';
  if(module!==childModule){childModule=module;frame.style.height=module==='theme'?'1200px':'962px';const target=module==='theme'?'shared/theme-preview.html':module==='catalog'?'textbooks/index.html':'web/index.html';frame.src=target+'?embedded=1'+(selectedScreen?'#'+frameRoute:'')}
  else sendConfiguration(true);

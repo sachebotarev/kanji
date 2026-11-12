@@ -1215,6 +1215,21 @@ Android: `AppDestinations.kt`, `PracticeRoute.kt`, `PracticeViewModel.kt`; `Kanj
 - Практика: [PracticeScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreen.kt), [PracticeScreenContext.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/PracticeScreenContext.kt), [CheckerSettingsScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/CheckerSettingsScreen.kt), [TrainingCompleteScreen.kt](../feature/practice/src/main/kotlin/ru/mobui/kanji/feature/practice/TrainingCompleteScreen.kt) (PRACTICE.01). Поле письма используется и в предпросмотре настроек проверки.
 - Настройки: [SettingsScreen.kt](../feature/settings/src/main/kotlin/ru/mobui/kanji/feature/settings/SettingsScreen.kt). Системное стартовое окно (не отдельный Compose-экран) следует системной теме через `app/src/main/res/values/themes.xml` и `values-night/themes.xml`; фон совпадает с KanjiTheme, см. [проверку](releases/1.0.0.md). Глобальная тема [KanjiTheme.kt](../core/designsystem/src/main/kotlin/ru/mobui/kanji/core/designsystem/KanjiTheme.kt) влияет на все экраны; локальная правка цвета не должна подменять изменение всей темы.
 
+## Публичные веб-страницы
+
+### SHARED.04 — Страница приложения в GitHub Pages
+
+Реализованная статическая веб-страница, не Android-экран и не интерактивный прототип. Русский: `https://sachebotarev.github.io/kanji/app/`, английский: `https://sachebotarev.github.io/kanji/app/en/`. HTML-просмотрщик: `#shared/SHARED.04`, показывает опубликованную версию; до успешного развёртывания просмотр может быть недоступен. Статус дизайна: не согласован отдельно. Источники: [шаблон Jekyll](legal/_layouts/landing.html), [переводы](legal/_data/landing.yml), [CSS](legal/assets/landing.css). Общий шаблон и стили влияют на обе языковые версии. Компоненты Android не переиспользуются. Действующий URL политики `/kanji/` сохранён.
+
+- **`SHARED.04.W01` — Шапка и навигация.** Название и иконка приложения, якорь возможностей, политика, ссылки RU/EN; выбранный язык отмечен.
+- **`SHARED.04.W02` — Представление приложения.** Описание, Android 7.0+, переход к возможностям, отсутствие регистрации и рекламы.
+  - **`SHARED.04.W02.W01` — Иллюстрация учебного материала.** Пример 山 / やま / гора, кот с книгой; это иллюстрация, не скриншот Android и не интерактивная тренировка.
+- **`SHARED.04.W03` — Возможности.** Письмо, личный словарь, рецепты. Повторные экземпляры из массива переводов используют общий шаблон статьи.
+- **`SHARED.04.W04` — Последовательность обучения.** Выбор материалов, тренировка, просмотр прогресса.
+- **`SHARED.04.W05` — Автономность и данные.** Условие загрузки модели, локальное хранение и ссылка на политику.
+- **`SHARED.04.W06` — Доступность и связь.** Подготовка публичной публикации в Google Play и email разработчика. Кнопка установки отсутствует до появления доступной карточки.
+- **`SHARED.04.W07` — Подвал.** Название, разработчик, email и политика. Существующий шаблон политики также содержит ссылку на страницу приложения.
+
 ## Выведенные ID
 
 Прежние APP/CAT/DLG/EXT и `TRAIN*` ID заменены по согласованной [таблице](screen-id-migration.md) и зарезервированы как алиасы; их нельзя присваивать новым экранам.

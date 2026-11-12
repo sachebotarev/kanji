@@ -1,0 +1,82 @@
+{% assign t = site.data.landing[page.lang] | default: site.data.landing.ru %}
+<!doctype html>
+<html lang="{{ t.language_tag }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ t.title | escape }}</title>
+  <meta name="description" content="{{ t.description | escape }}">
+  <meta name="theme-color" content="#1e6a4b">
+  <meta property="og:title" content="{{ t.title | escape }}">
+  <meta property="og:description" content="{{ t.description | escape }}">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="{{ '/assets/app-icon.png' | absolute_url }}">
+  <meta property="og:url" content="{{ page.url | absolute_url }}">
+  <link rel="canonical" href="{{ page.url | absolute_url }}">
+  <link rel="alternate" hreflang="ru" href="{{ '/app/' | absolute_url }}">
+  <link rel="alternate" hreflang="en" href="{{ '/app/en/' | absolute_url }}">
+  <link rel="alternate" hreflang="x-default" href="{{ '/app/' | absolute_url }}">
+  <link rel="icon" type="image/png" href="{{ '/assets/app-icon.png' | relative_url }}">
+  <link rel="stylesheet" href="{{ '/assets/landing.css' | relative_url }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">{{ t.skip }}</a>
+  <header class="site-header wrap" data-widget-id="SHARED.04.W01">
+    <a class="brand" href="{{ page.url | relative_url }}"><img src="{{ '/assets/app-icon.png' | relative_url }}" alt="" width="52" height="52"><span>{{ t.name }}</span></a>
+    <nav aria-label="{{ t.nav }}">
+      <a class="features-link" href="#features">{{ t.features_link }}</a>
+      <a href="{{ t.privacy_path | relative_url }}">{{ t.privacy }}</a>
+      <div class="languages" aria-label="Language / Язык">
+        <a href="{{ '/app/' | relative_url }}" lang="ru" hreflang="ru" {% if t.language_tag == 'ru' %}aria-current="page"{% endif %}>RU</a>
+        <a href="{{ '/app/en/' | relative_url }}" lang="en" hreflang="en" {% if t.language_tag == 'en' %}aria-current="page"{% endif %}>EN</a>
+      </div>
+    </nav>
+  </header>
+  <main id="main" data-screen-id="SHARED.04">
+    <section class="hero wrap" aria-labelledby="hero-title" data-widget-id="SHARED.04.W02">
+      <div class="hero-copy">
+        <p class="platform"><span aria-hidden="true" class="platform-dot"></span>{{ t.platform }}</p>
+        <h1 id="hero-title">{{ t.heading }}</h1>
+        <p class="intro">{{ t.intro }}</p>
+        <a class="button" href="#features">{{ t.explore }}</a>
+        <p class="quiet hero-note">{{ t.note }}</p>
+      </div>
+      <figure class="study-scene" data-widget-id="SHARED.04.W02.W01">
+        <div class="lesson-card">
+          <span class="lesson-label">{{ t.example_label }}</span>
+          <div class="writing-grid"><span lang="ja">山</span></div>
+          <p class="reading" lang="ja">{{ t.example_reading }}</p>
+          <p class="meaning">{{ t.example_meaning }}</p>
+        </div>
+        <img class="hero-cat" src="{{ '/assets/cat-reading.png' | relative_url }}" width="1254" height="1254" alt="" fetchpriority="high">
+        <figcaption>{{ t.example_caption }}</figcaption>
+      </figure>
+    </section>
+    <section id="features" class="features wrap" aria-labelledby="features-title" data-widget-id="SHARED.04.W03">
+      <div class="section-heading"><h2 id="features-title">{{ t.section_title }}</h2><p>{{ t.section_intro }}</p></div>
+      <div class="feature-grid">
+        {% for feature in t.features %}
+        <article class="feature">
+          <div class="feature-sign"><span lang="ja" aria-hidden="true">{{ feature.sign }}</span><span>{{ feature.sign_meaning }}</span></div>
+          <h3>{{ feature.title }}</h3><p>{{ feature.text }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+    <section class="practice" aria-labelledby="practice-title" data-widget-id="SHARED.04.W04">
+      <div class="wrap practice-layout"><h2 id="practice-title">{{ t.practice_title }}</h2>
+        <ol class="steps">{% for step in t.steps %}<li><h3>{{ step.title }}</h3><p>{{ step.text }}</p></li>{% endfor %}</ol>
+      </div>
+    </section>
+    <section class="offline wrap" aria-labelledby="offline-title" data-widget-id="SHARED.04.W05">
+      <div class="offline-mark" lang="ja" aria-hidden="true">日々</div>
+      <div><h2 id="offline-title">{{ t.offline_title }}</h2><p>{{ t.offline_text }}</p><p class="quiet">{{ t.offline_note }}</p><a class="text-link" href="{{ t.privacy_path | relative_url }}">{{ t.privacy }}</a></div>
+    </section>
+    <section class="availability wrap" aria-labelledby="availability-title" data-widget-id="SHARED.04.W06">
+      <div><h2 id="availability-title">{{ t.availability_title }}</h2><p>{{ t.availability_text }}</p></div>
+      <div class="contact"><p>{{ t.contact_text }}</p><a class="button button-light" href="mailto:sachebotarev@gmail.com">{{ t.support }}</a></div>
+    </section>
+  </main>
+  <footer class="site-footer wrap" data-widget-id="SHARED.04.W07"><div><strong>{{ t.name }}</strong><p>{{ t.footer_note }}</p></div><div><span>{{ t.developer }}: Sergey Chabotarev</span><a href="mailto:sachebotarev@gmail.com">sachebotarev@gmail.com</a><a href="{{ t.privacy_path | relative_url }}">{{ t.privacy }}</a></div></footer>
+</body>
+</html>

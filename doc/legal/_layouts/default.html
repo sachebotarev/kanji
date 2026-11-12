@@ -7,6 +7,7 @@
   </head>
   <body>
     <nav aria-label="Language / Язык">
+      {% if page.lang == 'en' %}<a href="{{ '/app/en/' | relative_url }}">Kanji Desu Ne</a>{% else %}<a href="{{ '/app/' | relative_url }}">Кандзи дэс нэ</a>{% endif %} ·
       <a href="{{ '/' | relative_url }}" lang="ru" hreflang="ru">Русский</a>
       · <a href="{{ '/privacy-policy.en.html' | relative_url }}" lang="en" hreflang="en">English</a>
     </nav>

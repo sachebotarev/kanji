@@ -16,6 +16,10 @@ permalink: /privacy-policy.en.html
 
 This policy explains how Kanji Desu Ne handles data while you study Japanese characters and vocabulary. No registration or app account is required.
 
+### App website
+
+The app website and this policy are hosted on GitHub Pages. These pages have no developer-added analytics, advertising trackers or data collection forms. When you visit GitHub Pages, hosting provider GitHub logs and stores your IP address for security purposes, whether or not you are signed into GitHub. See [GitHub's Privacy Statement](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement) for data handling, retention and visitor rights.
+
 ## 2. Data on your device
 
 The app stores your personal vocabulary (words, expressions, sentences, readings, translations in selected languages and tags), recipes (saved training configurations), training history, task times and results, scores, hint usage and app settings in internal device storage. This enables vocabulary management, practice, progress tracking and saved preferences.

@@ -3,11 +3,25 @@
 - [Политика на русском](privacy-policy.ru.md) — основной текст.
 - [Privacy Policy in English](privacy-policy.en.md) — английский перевод.
 
-Разработчик и контакт предоставлены владельцем проекта: Sergey Chabotarev, sachebotarev@gmail.com. Тексты подготовлены 12 ноября 2026 года для текущей реализации `ru.mobui.kanji`. Публикация страницы и добавление ссылки в Android ещё не выполнены.
+Разработчик и контакт предоставлены владельцем проекта: Sergey Chabotarev, sachebotarev@gmail.com. Тексты подготовлены 12 ноября 2026 года для текущей реализации `ru.mobui.kanji`. Ссылка на политику в Android ещё не добавлена.
 
 ## GitHub Pages
 
-Подготовлен workflow `.github/workflows/privacy-pages.yml`: Jekyll собирает только `doc/legal`, исключая этот служебный README. Русский текст публикуется как `index.html`, английский — как `privacy-policy.en.html`. Тексты Markdown являются единственным источником содержимого страниц. Остальная документация проекта не входит в артефакт Pages.
+Workflow `.github/workflows/privacy-pages.yml` (**Publish privacy policy**) публикует сайт приложения и политику. Jekyll собирает только `doc/legal`, исключая этот служебный README. Русская политика публикуется как `index.html`, английская — как `privacy-policy.en.html`. Тексты Markdown являются единственным источником политик. Остальная документация проекта не входит в артефакт Pages.
+
+### Страница приложения · SHARED.04
+
+- Русская: `https://sachebotarev.github.io/kanji/app/`.
+- Английская: `https://sachebotarev.github.io/kanji/app/en/`.
+- Шаблон: `_layouts/landing.html`; тексты: `_data/landing.yml` с `language_tag`; стили: `assets/landing.css`.
+- Русский — основной и резервный язык. Обе версии собираются штатным Jekyll из общего шаблона без JavaScript и внешних ресурсов. Переключатель языка использует обычные ссылки.
+- Корень `/kanji/` остаётся политикой: ранее выданный URL для Google Play сохраняется. Политика содержит ссылку на приложение и описание хостинга GitHub Pages; [официальная документация](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages#data-collection) указывает регистрацию IP-адресов посетителей хостингом.
+- Иконка скопирована из `doc/readme-icon-transparent.png`, маскот — из `doc/design-system/assets/mascot/mascot_sticker_jp_bound_book.png`. Изображение задания 山 является подписанным учебным примером, не скриншотом Android.
+- Возможности сверены с README и реализацией. Публичный адрес Google Play для `ru.mobui.kanji` при подготовке возвращал HTTP 404, поэтому вместо кнопки установки показана подготовка к публикации. После появления публичной карточки заменить блок доступности и проверить ссылку в обеих локалях.
+
+Оформление использует зелёный бренд приложения (`#1E6A4B`), светлую бумагу (`#F7FAF5`), тёмные чернила (`#193C2E`), спокойный текст (`#52645A`), светло-зелёный (`#E5EFDF`) и бумажный акцент (`#F1E6CF`). Системный Trebuchet MS/Arial поддерживает русский без внешних загрузок; японский пример использует системный шрифт. Композиция: крупный заголовок рядом с учебной карточкой и котом, три возможности, последовательность обучения, автономность, доступность и контакты. Одинаковые маркетинговые карточки и неподтверждённые отзывы не используются. Поиск ui-ux-pro-max для adult education подтвердил пригодность сетки и ясной иерархии; предложенные чужие палитра и отзывы не перенесены. Существующая палитра и маскот определяют визуальный стиль.
+
+Использованы штатные механизмы Jekyll: Liquid, `_data`, layout и permalink; собственный генератор переводов не вводится. Context7 недоступен, механизм сборки сверен с официальным workflow GitHub Pages, перечисленным ниже. Новых библиотек и experimental API нет. Учебная иллюстрация и CSS относятся только к публичной странице; тема Android не меняется.
 
 Для первого размещения:
 
@@ -18,9 +32,9 @@
    - Русский / URL для Google Play: `https://sachebotarev.github.io/kanji/`.
    - Английский: `https://sachebotarev.github.io/kanji/privacy-policy.en.html`.
 
-При смене имени репозитория или пользовательского домена обновить `url` и `baseurl` в `_config.yml`. Доступность Pages для закрытого репозитория зависит от тарифа GitHub. Проверка настроек Pages через `gh api repos/sachebotarev/kanji/pages` вернула HTTP 404: это не подтверждает доступность сайта и может означать отсутствие Pages либо недостаточный доступ.
+При смене имени репозитория или пользовательского домена обновить `url` и `baseurl` в `_config.yml` и `public_url` записи `SHARED.04` в реестре экранов. Доступность Pages для закрытого репозитория зависит от тарифа GitHub.
 
-Используется штатная сборка GitHub Pages через Jekyll и официальные Actions из [документации GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages): `checkout@v6`, `configure-pages@v5`, `jekyll-build-pages@v1`, `upload-pages-artifact@v4`, `deploy-pages@v4`. Новых зависимостей Android нет. Рабочая конфигурация подготовлена локально; удалённая сборка и публичные URL ещё не проверены.
+Используется штатная сборка GitHub Pages через Jekyll и официальные Actions из [документации GitHub](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages): `checkout@v6`, `configure-pages@v5`, `jekyll-build-pages@v1`, `upload-pages-artifact@v4`, `deploy-pages@v4`. Новых зависимостей Android нет. Результат проверки публикации сайта фиксируется в `doc/verification/`.
 
 ## Основания текста
 
